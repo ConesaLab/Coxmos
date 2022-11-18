@@ -413,8 +413,8 @@ plsicox <- function (X, Y,
 cv.plsicox <- function (X, Y,
                         max.ncomp = 10,
                         n_run = 10, k_folds = 10,
-                        x.scale = TRUE, x.center = TRUE,
-                        y.scale = FALSE, y.center = FALSE,
+                        x.center = TRUE, x.scale = FALSE,
+                        y.center = FALSE, y.scale = FALSE,
                         remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
                         remove_non_significant_models = F, alpha = 0.05,
                         w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
@@ -476,14 +476,14 @@ cv.plsicox <- function (X, Y,
 
   total_models <- 1 * k_folds * n_run #with greatest component we have all of them
 
-  comp_model_lst <- get_HDCOX_models2.0(method = "PLS-ICOX",
+  comp_model_lst <- get_HDCOX_models2.0(method = pkg.env$plsicox,
                                      lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
                                      max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL, n_run = n_run, k_folds = k_folds,
                                      x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
                                      remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
                                      total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
 
-  # comp_model_lst <- get_HDCOX_models(method = "PLS-ICOX",
+  # comp_model_lst <- get_HDCOX_models(method = pkg.env$plsicox,
   #                                    lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
   #                                    max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL, n_run = n_run, k_folds = k_folds,
   #                                    x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
@@ -528,7 +528,7 @@ cv.plsicox <- function (X, Y,
                                      fast_mode = fast_mode, pred.method = pred.method, pred.attr = pred.attr,
                                      max.ncomp = max.ncomp, n_run = n_run, k_folds = k_folds,
                                      MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                     w_AUC = w_AUC, total_models = total_models, method.train = "PLS-ICOX", PARALLEL = F)
+                                     w_AUC = w_AUC, total_models = total_models, method.train = pkg.env$plsicox, PARALLEL = F)
 
     df_results_evals_comp <- lst_df$df_results_evals_comp
     df_results_evals_run <- lst_df$df_results_evals_run
@@ -586,13 +586,13 @@ cv.plsicox <- function (X, Y,
 ### ## ##
 
 plsicox_class = function(pls_model, ...) {
-  model = structure(pls_model, class = "HDcox",
-                    model = "PLS-ICOX")
+  model = structure(pls_model, class = pkg.env$model_class,
+                    model = pkg.env$plsicox)
   return(model)
 }
 
 cv.plsicox_class = function(pls_model, ...) {
-  model = structure(pls_model, class = "HDcox",
-                    model = "cv.PLS-ICOX")
+  model = structure(pls_model, class = pkg.env$model_class,
+                    model = pkg.env$cv.plsicox)
   return(model)
 }

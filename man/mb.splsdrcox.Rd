@@ -9,10 +9,10 @@ mb.splsdrcox(
   Y,
   n.comp = 4,
   vector = NULL,
-  x.scale = TRUE,
-  x.center = FALSE,
-  y.scale = FALSE,
+  x.center = TRUE,
+  x.scale = FALSE,
   y.center = FALSE,
+  y.scale = FALSE,
   remove_near_zero_variance = T,
   remove_zero_variance = T,
   toKeep.zv = NULL,
@@ -22,6 +22,7 @@ mb.splsdrcox(
   n.cut_points = 3,
   MIN_AUC_INCREASE = 0.01,
   EVAL_METHOD = "AUC",
+  pred.method = "cenROC",
   max.iter = 200,
   MIN_EPV = 5,
   returnData = T,
@@ -38,13 +39,13 @@ mb.splsdrcox(
 
 \item{vector}{Numeric vector. Used for computing best number of variables. If NULL, an automatic detection is perform.}
 
-\item{x.scale}{Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).}
-
 \item{x.center}{Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).}
 
-\item{y.scale}{Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).}
+\item{x.scale}{Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).}
 
 \item{y.center}{Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).}
+
+\item{y.scale}{Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).}
 
 \item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, remove_near_zero_variance variables will be removed.}
 
@@ -63,6 +64,8 @@ mb.splsdrcox(
 \item{MIN_AUC_INCREASE}{Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
 
 \item{EVAL_METHOD}{Numeric. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
+
+\item{pred.method}{Character. AUC method for evaluation. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC")}
 
 \item{max.iter}{Maximum number of iterations for PLS convergence.}
 

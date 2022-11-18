@@ -310,7 +310,7 @@ cox <- function (X, Y,
 ### ## ##
 
 cox_class = function(cox_model, ...) {
-  model = structure(cox_model, class = "HDcox",
-                    model = "cox")
+  model = structure(cox_model, class = pkg.env$model_class,
+                    model = pkg.env$cox)
   return(model)
 }

@@ -1,27 +1,60 @@
+#' @importFrom caret nearZeroVar createFolds
+#' @import cenROC
+#' @importFrom cowplot plot_grid
+#' @import furrr
+#' @importFrom future availableCores plan
+#' @import ggrepel
+#' @import ggplot2
+#' @importFrom ggpubr ggarrange annotate_figure
+#' @import glmnet
+#' @importFrom mixOmics spls plsda block.spls block.splsda tune.spls
+#' @import nsROC
+#' @import progress
+#' @import purrr
+#' @import risksetROC
+#' @import smoothROCtime
+#' @import stats
+#' @import survival
+#' @import survivalROC
+#' @import survminer
+#' @importFrom tidyr pivot_longer starts_with
+
 pkg.env <- new.env(parent = emptyenv())
 assign(x = 'model_class', value = "HDcox", pkg.env)
+assign(x = 'eval_class', value = "evaluation", pkg.env)
 
 assign(x = 'cox', value = c("cox"), pkg.env)
 assign(x = 'coxSW', value = c("coxSW"), pkg.env)
 assign(x = 'coxEN', value = c("coxEN"), pkg.env)
-assign(x = 'classical_methods', value = c("cox", "coxSW", "coxEN"), pkg.env)
+assign(x = 'classical_methods', value = c(pkg.env$cox, pkg.env$coxSW, pkg.env$coxEN), pkg.env)
 
 assign(x = 'plsicox', value = c("PLS-ICOX"), pkg.env)
 assign(x = 'splsdrcox', value = c("sPLS-DRCOX"), pkg.env)
 assign(x = 'splsdrcox_mixomics', value = c("sPLS-DRCOX-MixOmics"), pkg.env)
 assign(x = 'plsdacox_mixomics', value = c("PLS-DACOX-MixOmics"), pkg.env)
-assign(x = 'pls_methods', value = c("PLS-ICOX", "sPLS-DRCOX", "sPLS-DRCOX-MixOmics", "PLS-DACOX-MixOmics"), pkg.env)
+assign(x = 'pls_methods', value = c(pkg.env$plsicox, pkg.env$splsdrcox, pkg.env$splsdrcox_mixomics, pkg.env$plsdacox_mixomics), pkg.env)
 
 assign(x = 'sb.plsicox', value = c("SB.PLS-ICOX"), pkg.env)
 assign(x = 'sb.splsdrcox', value = c("SB.sPLS-DRCOX"), pkg.env)
 assign(x = 'mb.splsdrcox', value = c("MB.sPLS-DRCOX"), pkg.env)
 assign(x = 'mb.splsdacox', value = c("MB.sPLS-DACOX"), pkg.env)
-assign(x = 'multiblock_methods', value = c("SB.PLS-ICOX", "SB.sPLS-DRCOX", "MB.sPLS-DRCOX", "MB.sPLS-DACOX"), pkg.env)
+assign(x = 'multiblock_methods', value = c(pkg.env$sb.plsicox, pkg.env$sb.splsdrcox, pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox), pkg.env)
 assign(x = 'all_methods', value = c(pkg.env$classical_methods, pkg.env$pls_methods, pkg.env$multiblock_methods), pkg.env)
 
-assign(x = 'classical_cv', value = c("cv.coxEN"), pkg.env)
-assign(x = 'pls_cv', value = c("cv.PLS-ICOX", "cv.sPLS-DRCOX", "cv.sPLS-DRCOX-MixOmics", "cv.PLS-DACOX-MixOmics"), pkg.env)
-assign(x = 'multiblock_cv', value = c("cv.SB.PLS-ICOX", "cv.SB.sPLS-DRCOX", "cv.MB.sPLS-DRCOX", "cv.MB.sPLS-DACOX"), pkg.env)
+assign(x = 'cv.coxEN', value = c("cv.coxEN"), pkg.env)
+assign(x = 'classical_cv', value = pkg.env$cv.coxEN, pkg.env)
+
+assign(x = 'cv.plsicox', value = c("cv.PLS-ICOX"), pkg.env)
+assign(x = 'cv.splsdrcox', value = c("cv.sPLS-DRCOX"), pkg.env)
+assign(x = 'cv.splsdrcox_mixomics', value = c("cv.sPLS-DRCOX-MixOmics"), pkg.env)
+assign(x = 'cv.plsdacox_mixomics', value = c("cv.PLS-DACOX-MixOmics"), pkg.env)
+assign(x = 'pls_cv', value = c(pkg.env$cv.plsicox, pkg.env$cv.splsdrcox, pkg.env$cv.splsdrcox_mixomics, pkg.env$cv.plsdacox_mixomics), pkg.env)
+
+assign(x = 'cv.sb.plsicox', value = c("cv.SB.PLS-ICOX"), pkg.env)
+assign(x = 'cv.sb.splsdrcox', value = c("cv.SB.sPLS-DRCOX"), pkg.env)
+assign(x = 'cv.mb.splsdrcox', value = c("cv.MB.sPLS-DRCOX"), pkg.env)
+assign(x = 'cv.mb.splsdacox', value = c("cv.MB.sPLS-DACOX"), pkg.env)
+assign(x = 'multiblock_cv', value = c(pkg.env$cv.sb.plsicox, pkg.env$cv.sb.splsdrcox, pkg.env$cv.mb.splsdrcox, pkg.env$cv.mb.splsdacox), pkg.env)
 assign(x = 'all_cv', value = c(pkg.env$classical_cv, pkg.env$pls_cv, pkg.env$multiblock_cv), pkg.env)
 
 assign(x = 'AUC_survivalROC', value = c("survivalROC"), pkg.env)
@@ -30,7 +63,7 @@ assign(x = 'AUC_nsROC', value = c("nsROC"), pkg.env)
 assign(x = 'AUC_smoothROCtime_C', value = c("smoothROCtime_C"), pkg.env)
 assign(x = 'AUC_smoothROCtime_I', value = c("smoothROCtime_I"), pkg.env)
 assign(x = 'AUC_risksetROC', value = c("risksetROC"), pkg.env)
-assign(x = 'AUC_evaluators', value = c("survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I", "risksetROC"), pkg.env)
+assign(x = 'AUC_evaluators', value = c(pkg.env$AUC_survivalROC, pkg.env$AUC_cenROC, pkg.env$AUC_nsROC, pkg.env$AUC_smoothROCtime_C, pkg.env$AUC_smoothROCtime_I, pkg.env$AUC_risksetROC), pkg.env)
 
 #' print.HDcox
 #'
@@ -41,7 +74,6 @@ assign(x = 'AUC_evaluators', value = c("survivalROC", "cenROC", "nsROC", "smooth
 
 print.HDcox <- function(x, ...){
 
-  #if(attr(x, "model") %in% c("cox", "coxSW", "coxEN", "PLS-ICOX", "sPLS-DRCOX", "sPLS-DRCOX-MixOmics", "PLS-DACOX-MixOmics", "SB.PLS-ICOX", "SB.sPLS-DRCOX", "MB.sPLS-DRCOX", "MB.sPLS-DACOX")){
   if(attr(x, "model") %in% pkg.env$all_methods){
 
     cat("The method used is ", attr(x, "model"), ".\n\n", sep = "")
@@ -70,6 +102,29 @@ print.HDcox <- function(x, ...){
       cat("Best model could NOT be obtained. All models computed present problems.\n\n")
     }
 
+  }else if(attr(x, "model") %in% pkg.env$eval_class){
+
+    cat(paste0("Evaluation performed for methods: ", paste0(levels(x$df$method), collapse = ", "), ".\n\n", sep = ""))
+
+    for(m in levels(x$df$method)){
+      cat(paste0(m,": \n"))
+      for(c in colnames(x$df)){
+
+        if(c=="method"){
+          next
+        }else if(c=="time"){
+          time_vector <- levels(x$df[x$df$method==m,c,drop=T])
+          time_vector <- unlist(lapply(time_vector, function(x){gsub("time_", "", x)[[1]]}))
+          cat(paste0("\t",c,": ", paste0(time_vector, collapse = ", "), "\n"))
+        }else{
+          ave <- mean(x$df[x$df$method==m,c,drop=T])
+          cat(paste0("\t",c,": ", round(ave, 5), "\n"))
+        }
+
+      }
+      cat("\n")
+    }
+
   }
 
 }
@@ -90,27 +145,6 @@ print.HDcox <- function(x, ...){
 #'  }
 #'
 #' @export
-#'
-#' @importFrom caret nearZeroVar createFolds
-#' @import cenROC
-#' @importFrom cowplot plot_grid
-#' @import furrr
-#' @importFrom future availableCores plan
-#' @import ggrepel
-#' @import ggplot2
-#' @importFrom ggpubr ggarrange annotate_figure
-#' @import glmnet
-#' @importFrom mixOmics spls plsda block.spls block.splsda tune.spls
-#' @import nsROC
-#' @import progress
-#' @import purrr
-#' @import risksetROC
-#' @import smoothROCtime
-#' @import stats
-#' @import survival
-#' @import survivalROC
-#' @import survminer
-#' @importFrom tidyr pivot_longer starts_with
 
 deleteZeroVarianceVariables <- function(data, mustKeep = NULL, names = NULL, info=T, freqCut = 95/5, onlyZero = F){
 
@@ -459,7 +493,7 @@ predict.HDcox <- function(object, ..., newdata = NULL){
   }
 
   #SB is just splsdrcox
-  if(attr(model, "model") %in% c("SB.sPLS-DRCOX")){
+  if(attr(model, "model") %in% pkg.env$sb.splsdrcox){
     #in this case, we should update newdata before run the method cause the normalization is performed before
     x.mean <- NULL
     x.sd <- NULL
@@ -537,7 +571,7 @@ predict.HDcox <- function(object, ..., newdata = NULL){
   }
 
   #SB is just plsicox
-  if(attr(model, "model") %in% c("SB.PLS-ICOX")){
+  if(attr(model, "model") %in% pkg.env$sb.plsicox){
     #in this case, we should update newdata before run the method cause the normalization is performed before
     x.mean <- NULL
     x.sd <- NULL
@@ -629,7 +663,7 @@ predict.HDcox <- function(object, ..., newdata = NULL){
   }else{
     #Update test data
     if(!is.null(x.mean) | !is.null(x.sd)){
-      if(attr(model, "model") %in% c("MB.sPLS-DRCOX", "MB.sPLS-DACOX")){
+      if(attr(model, "model") %in% c(pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
         X_test <- list()
         for(b in names(model$X$loadings)){
           if(b %in% names(newdata)){
@@ -680,7 +714,7 @@ predict.HDcox <- function(object, ..., newdata = NULL){
         X_test <- scale(newdata[,names(model$X$x.mean),drop=F], center = center_value, scale = scale_value)
       }
     }else{
-      if(attr(model, "model") %in% c("MB.sPLS-DRCOX", "MB.sPLS-DACOX")){
+      if(attr(model, "model") %in% c(pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
         if(all(names(newdata) %in% names(model$X$loadings))){
           X_test <- newdata
         }
@@ -693,12 +727,12 @@ predict.HDcox <- function(object, ..., newdata = NULL){
   ### TEST DATA - selected variables
 
   ### PLS METHODS
-  if(attr(model, "model") %in% c("sPLS-DRCOX", "sPLS-DRCOX-MixOmics", "PLS-DACOX-MixOmics")){
-    X_test <- X_test[,rownames(model$X$W.star),drop=F] #plsdacox_mixOmics can flter nzv, reason that different variables for W.star
+  if(attr(model, "model") %in% c(pkg.env$splsdrcox, pkg.env$splsdrcox_mixomics, pkg.env$plsdacox_mixomics)){
+    X_test <- X_test[,rownames(model$X$W.star),drop=F] #plsdacox_mixOmics can filter nzv, reason that different variables for W.star
   }
 
   ### CLASSICAL METHODS
-  if(attr(model, "model") %in% c("cox", "coxSW", "coxEN")){
+  if(attr(model, "model") %in% pkg.env$classical_methods){
     coeff <- names(model$survival_model$fit$coefficients)
     coeff <- deleteIllegalChars(coeff)
 
@@ -710,7 +744,7 @@ predict.HDcox <- function(object, ..., newdata = NULL){
   }
 
   ### MB METHODS
-  if(attr(model, "model") %in% c("MB.sPLS-DRCOX", "MB.sPLS-DACOX")){
+  if(attr(model, "model") %in% c(pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
 
     if(!all(names(X_test) %in% names(model$X$loadings))){
       stop(paste0("New data must be a list with at least one of the following names: ", paste0(names(model$n.varX), collapse = ", ")))
@@ -732,7 +766,7 @@ predict.HDcox <- function(object, ..., newdata = NULL){
   }
 
   ### Estimate tts
-  if(attr(model, "model") %in% c("sPLS-DRCOX-MixOmics")){
+  if(attr(model, "model") %in% pkg.env$splsdrcox_mixomics){
 
     predicted_scores <- X_test %*% model$X$W.star
     predicted_scores <- matrix(data = sapply(1:ncol(predicted_scores),
@@ -741,7 +775,7 @@ predict.HDcox <- function(object, ..., newdata = NULL){
     colnames(predicted_scores) <- colnames(model$X$scores)
     rownames(predicted_scores) <- rownames(X_test)
 
-  }else if(attr(model, "model") %in% c("MB.sPLS-DRCOX", "MB.sPLS-DACOX")){
+  }else if(attr(model, "model") %in% c(pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
 
     lst_predicted_scores <- list()
     for(b in names(model$X$loadings)){
@@ -884,7 +918,7 @@ check_AUC_improvement <- function(fast_mode, pred.attr, df_results_evals_AUC, co
           txt.coxEn <- paste0("\n Not improvement found. Stop in lambda: ", max.ncomp[[comp_index]])
           txt.plscox <- paste0("\n Not improvement found. Stop in component: ", max.ncomp[[comp_index]])
 
-          message(ifelse(method.train=="coxEN",txt.coxEn, txt.plscox))
+          message(ifelse(method.train==pkg.env$coxEN,txt.coxEn, txt.plscox))
           return(list(optimal_comp_index = optimal_comp_index, optimal_comp_flag = optimal_comp_flag, lst_comp_AUC = lst_comp_AUC))
         }
       }
@@ -908,7 +942,7 @@ getAUC_RUN_AND_COMP <- function(fast_mode, max.ncomp, n_run, df_results_evals, o
     max.ncomp <- 1:max.ncomp
   }
 
-  if(method.train=="sPLS-DRCOX-MixOmics"){ #num.var is text
+  if(method.train==pkg.env$splsdrcox_mixomics){ #num.var is text
     df_results_evals = df_results_evals[,!colnames(df_results_evals) %in% "n.var"]
   }else{
     df_results_evals = df_results_evals
@@ -924,7 +958,7 @@ getAUC_RUN_AND_COMP <- function(fast_mode, max.ncomp, n_run, df_results_evals, o
       for(r in 1:n_run){
         aux.run <- df_results_evals[which(df_results_evals$n.comps==max.ncomp[[l]] & df_results_evals$runs==r),!colnames(df_results_evals) %in% c("fold")]
 
-        if(method.train %in% c("PLS-DACOX-MixOmics","SB.PLS-ICOX","MB.sPLS-DRCOX", "MB.sPLS-DACOX")){
+        if(method.train %in% c(pkg.env$plsdacox_mixomics,pkg.env$sb.plsicox,pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
           eval_aux.r <- apply(aux.run[,!colnames(aux.run) %in% c("n.var")], 2, function(x){mean(x, na.rm = T)})
           eval_aux.r <- as.data.frame(t(eval_aux.r))
 
@@ -972,7 +1006,7 @@ getAUC_RUN_AND_COMP <- function(fast_mode, max.ncomp, n_run, df_results_evals, o
       # EVAL PER COMPONENT
       aux.l <- df_results_evals[which(df_results_evals$n.comps==max.ncomp[[l]]),!colnames(df_results_evals) %in% c("fold", "runs")]
 
-      if(method.train %in% c("PLS-DACOX-MixOmics","SB.PLS-ICOX","MB.sPLS-DRCOX", "MB.sPLS-DACOX")){
+      if(method.train %in% c(pkg.env$plsdacox_mixomics,pkg.env$sb.plsicox,pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
         eval_aux <- apply(aux.l[,!colnames(aux.l) %in% c("n.var")], 2, function(x){mean(x, na.rm = T)})
         eval_aux <- as.data.frame(t(eval_aux))
         eval_aux.nvar <- aux.l[,colnames(aux.l) %in% c("n.var")]
@@ -1039,7 +1073,7 @@ getAUC_RUN_AND_COMP <- function(fast_mode, max.ncomp, n_run, df_results_evals, o
     }
   }
 
-  if(method.train=="sPLS-DRCOX-MixOmics"){ #num.var is text
+  if(method.train==pkg.env$splsdrcox_mixomics){ #num.var is text
     rownames(df_results_evals_run) <- NULL
     colnames(df_results_evals_run) <- c("n.comps", "runs", "AIC", "c_index", "AUC")
     df_results_evals_run <- as.data.frame(df_results_evals_run)
@@ -1057,7 +1091,7 @@ getAUC_RUN_AND_COMP <- function(fast_mode, max.ncomp, n_run, df_results_evals, o
     df_results_evals_comp <- as.data.frame(df_results_evals_comp)
   }
 
-  if(method.train %in% c("PLS-DACOX-MixOmics","SB.PLS-ICOX","MB.sPLS-DRCOX", "MB.sPLS-DACOX")){
+  if(method.train %in% c(pkg.env$plsdacox_mixomics,pkg.env$sb.plsicox,pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
     df_results_evals_run$n.var <- factor(df_results_evals_run$n.var)
     df_results_evals_comp$n.var <- factor(df_results_evals_comp$n.var)
   }
@@ -1080,7 +1114,7 @@ getAUC_RUN_AND_COMP_sPLS <- function(fast_mode, max.ncomp, eta.list, n_run, df_r
     max.ncomp <- 1:max.ncomp
   }
 
-  if(method.train=="sPLS-DRCOX-MixOmics"){ #num.var is text
+  if(method.train==pkg.env$splsdrcox_mixomics){ #num.var is text
     df_results_evals = df_results_evals[,!colnames(df_results_evals) %in% "n.var"]
   }else{
     df_results_evals = df_results_evals
@@ -1094,7 +1128,7 @@ getAUC_RUN_AND_COMP_sPLS <- function(fast_mode, max.ncomp, eta.list, n_run, df_r
         for(r in 1:n_run){
           aux.run <- df_results_evals[which(df_results_evals$n.comps==max.ncomp[[l]] & df_results_evals$eta==eta.list[[e]] & df_results_evals$runs==r),!colnames(df_results_evals) %in% c("fold")]
 
-          if(method.train %in% c("SB.sPLS-DRCOX")){
+          if(method.train %in% pkg.env$sb.splsdrcox){
             eval_aux.r <- apply(aux.run[,!colnames(aux.run) %in% c("n.var")], 2, function(x){mean(x, na.rm = T)})
             eval_aux.r <- as.data.frame(t(eval_aux.r))
 
@@ -1142,7 +1176,7 @@ getAUC_RUN_AND_COMP_sPLS <- function(fast_mode, max.ncomp, eta.list, n_run, df_r
         # EVAL PER COMPONENT
         aux.run <- df_results_evals[which(df_results_evals$n.comps==max.ncomp[[l]] & df_results_evals$eta==eta.list[[e]]),!colnames(df_results_evals) %in% c("fold", "runs")]
 
-        if(method.train %in% c("SB.sPLS-DRCOX")){
+        if(method.train %in% pkg.env$sb.splsdrcox){
           eval_aux.r <- apply(aux.run[,!colnames(aux.run) %in% c("n.var")], 2, function(x){mean(x, na.rm = T)})
           eval_aux.r <- as.data.frame(t(eval_aux.r))
 
@@ -1222,7 +1256,7 @@ getAUC_RUN_AND_COMP_sPLS <- function(fast_mode, max.ncomp, eta.list, n_run, df_r
   colnames(df_results_evals_comp) <- c("n.comps", "eta", "n.var", "AIC", "c_index", "AUC")
   df_results_evals_comp <- as.data.frame(df_results_evals_comp)
 
-  if(method.train %in% c("SB.sPLS-DRCOX")){
+  if(method.train %in% pkg.env$sb.splsdrcox){
     df_results_evals_run$n.var <- factor(df_results_evals_run$n.var)
     df_results_evals_comp$n.var <- factor(df_results_evals_comp$n.var)
   }
@@ -1310,7 +1344,7 @@ get_COX_evaluation_AUC <- function(comp_model_lst,
                                    w_AUC, total_models,
                                    MIN_AUC_INCREASE, MIN_AUC, MIN_COMP_TO_CHECK, method.train, PARALLEL = F){
 
-  if(length(max.ncomp)==1 & !method.train=="coxEN"){
+  if(length(max.ncomp)==1 & !method.train==pkg.env$coxEN){
     max.ncomp <- 1:max.ncomp
   }
 
@@ -1440,7 +1474,7 @@ get_COX_evaluation_AUC <- function(comp_model_lst,
   # GET RESULTS #
   ###############
   txt <- NULL
-  if(method.train=="coxEN"){
+  if(method.train==pkg.env$coxEN){
     txt <- "lambda_"
   }else{
     txt <- "comp_"
@@ -1647,7 +1681,7 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
   # GET RESULTS #
   ###############
   txt <- NULL
-  if(method.train=="coxEN"){
+  if(method.train==pkg.env$coxEN){
     txt <- "lambda_"
   }else{
     txt <- "comp_"
@@ -1722,13 +1756,13 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
             next
           }
 
-          if(attr(model, "model") %in% c("MB.sPLS-DRCOX", "MB.sPLS-DACOX")){
+          if(attr(model, "model") %in% c(pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
             n_var <- unlist(purrr::map(model$n.varX, ~length(.[[1]])))
             n_var <- paste0(n_var, collapse = "_")
-          }else if(attr(model, "model") == "SB.PLS-ICOX"){
+          }else if(attr(model, "model") == pkg.env$sb.plsicox){
             n_var <- purrr::map(model$list_pls_models, ~nrow(.$X$loadings))
             n_var <- paste0(n_var, collapse = "_") #VAR FOR SB.spls IS THE MAX NUMBER OF VARIABLES (PER BLOCK)
-          }else if(attr(model, "model") == "sPLS-DRCOX-MixOmics"){
+          }else if(attr(model, "model") == pkg.env$splsdrcox_mixomics){
             n_var <- apply(model$X$weightings, 2, function(x){sum(x!=0)})
             n_var <- paste0(n_var, collapse = "_")
           }else{
@@ -1788,7 +1822,7 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
             }
 
             eta <- model$eta
-            if(attr(model, "model") == "SB.sPLS-DRCOX"){
+            if(attr(model, "model") == pkg.env$sb.splsdrcox){
               n_var <- purrr::map(model$list_spls_models, ~length(unique(unlist(.$var_by_component))))
               n_var <- paste0(n_var, collapse = "_") #VAR FOR SB.spls IS THE MAX NUMBER OF VARIABLES (PER BLOCK)
             }else{
@@ -1823,7 +1857,7 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
 
   }
 
-  if(attr(model, "model") %in% c("sPLS-DRCOX-MixOmics", "SB.PLS-ICOX", "SB.sPLS-DRCOX", "MB.sPLS-DRCOX", "MB.sPLS-DACOX") && !all(is.null(df_results_evals))){
+  if(attr(model, "model") %in% c(pkg.env$splsdrcox_mixomics, pkg.env$multiblock_methods) && !all(is.null(df_results_evals))){
     df_results_evals <- as.data.frame(df_results_evals)
     for(cn in colnames(df_results_evals)){
       if(cn=="n.var"){
@@ -1881,7 +1915,7 @@ getSubModel.mb <- function(model, comp, remove_non_significant){
   res <- model
   #X
 
-  if(attr(model, "model") %in% c("SB.sPLS-DRCOX")){
+  if(attr(model, "model") %in% pkg.env$sb.splsdrcox){
     t1 <- Sys.time()
     data <- NULL
     col_names <- NULL
@@ -1908,7 +1942,7 @@ getSubModel.mb <- function(model, comp, remove_non_significant){
     t2 <- Sys.time()
     res$time <- difftime(t2,t1,units = "mins")
 
-  }else if(attr(model, "model") %in% c("SB.PLS-ICOX")){
+  }else if(attr(model, "model") %in% pkg.env$sb.plsicox){
     t1 <- Sys.time()
     data <- NULL
     col_names <- NULL
@@ -1934,7 +1968,7 @@ getSubModel.mb <- function(model, comp, remove_non_significant){
     res$n.comp <- comp
     t2 <- Sys.time()
     res$time <- difftime(t2,t1,units = "mins")
-  }else if(attr(model, "model") %in% c("MB.sPLS-DRCOX", "MB.sPLS-DACOX")){ #revisar!!!
+  }else if(attr(model, "model") %in% c(pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){ #revisar!!!
     t1 <- Sys.time()
     for(b in names(model$mb.model$X)){
       res$X$loadings[[b]] <- res$X$loadings[[b]][,1:min(ncol(res$X$loadings[[b]]),comp), drop=F]
@@ -1981,15 +2015,15 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
   info <- NULL # for sPLS
 
   ## CHECK METHOD
-  if(is.null(eta.list) & is.null(EN.alpha.list) & !method %in% c("PLS-ICOX", "PLS-DACOX-MixOmics", "sPLS-DRCOX-MixOmics", "SB.PLS-ICOX", "MB.sPLS-DRCOX", "MB.sPLS-DACOX")){
+  if(is.null(eta.list) & is.null(EN.alpha.list) & !method %in% c(pkg.env$plsicox, pkg.env$plsdacox_mixomics, pkg.env$splsdrcox_mixomics, pkg.env$sb.plsicox, pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
     stop_quietly("Method must be one of 'PLS-ICOX', 'PLS-DACOX-MixOmics', 'MB.sPLS-DACOX' or 'sPLS-DRCOX-MixOmics' if 'eta.list' and 'EN.alpha.list' is NULL.")
-  }else if(!is.null(eta.list) & is.null(EN.alpha.list)  & !method %in% c("sPLS-DRCOX", "SB.sPLS-DRCOX")){
+  }else if(!is.null(eta.list) & is.null(EN.alpha.list)  & !method %in% c(pkg.env$splsdrcox, pkg.env$sb.splsdrcox)){
     stop_quietly("Method must be 'sPLS-DRCOX' if 'eta.list' is not NULL.")
-  }else if(!is.null(EN.alpha.list) & !method %in% c("coxEN")){
+  }else if(!is.null(EN.alpha.list) & !method %in% c(pkg.env$coxEN)){
     stop_quietly("Method must be 'coxEN' if 'EN.alpha.list' is not NULL.")
   }
 
-  if(method=="sPLS-DRCOX-MixOmics"){
+  if(method==pkg.env$splsdrcox_mixomics){
     if(is.null(n_run.mixOmics)){
       stop_quietly("For method 'sPLS-DRCOX-MixOmics', parameter 'n_run.mixOmics' cannot be NULL.")
     }
@@ -2016,7 +2050,7 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
   ##################
   # COMP-REP-FOLDS #
   ##################
-  if(method %in% c("PLS-ICOX", "PLS-DACOX-MixOmics", "sPLS-DRCOX-MixOmics", "SB.PLS-ICOX","MB.sPLS-DACOX", "MB.sPLS-DRCOX")){
+  if(method %in% c(pkg.env$plsicox, pkg.env$plsdacox_mixomics, pkg.env$splsdrcox_mixomics, pkg.env$sb.plsicox, pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
 
     #function to compute all models at the same time - just last component
     lst_inputs <- list()
@@ -2751,7 +2785,7 @@ evaluation_list_HDcox <- function(model, X_test, Y_test, pred.method, pred.attr 
   c_index.cox <- survival::concordance(cox)$concordance
 
   #linear predictors
-  if(class(X_test) == "list" & !attr(model, "model") %in% c("SB.PLS-ICOX", "SB.sPLS-DRCOX", "MB.sPLS-DRCOX", "MB.sPLS-DACOX")){ #mix between multiblock and all PLS - Special case
+  if(class(X_test) == "list" & !attr(model, "model") %in% pkg.env$multiblock_methods){ #mix between multiblock and all PLS - Special case
     which_block = purrr::map(names(X_test), ~length(grep(., m, fixed = F))>0)
     names(which_block) <- names(X_test)
     X_test_mod <- predict.HDcox(object = model, newdata = X_test[[names(which_block)[which_block==T]]])
@@ -2772,7 +2806,7 @@ evaluation_list_HDcox <- function(model, X_test, Y_test, pred.method, pred.attr 
 }
 
 evaluation_HDcox_class = function(object, ...) {
-  model = structure(object, class = "HDcox",
-                    model = "evaluation")
+  model = structure(object, class = pkg.env$model_class,
+                    model = pkg.env$eval_class)
   return(model)
 }

@@ -70,8 +70,8 @@
 
 sb.splsdrcox <- function (X, Y,
                          n.comp = 4, eta = 0.5,
-                         x.scale = TRUE, x.center = TRUE,
-                         y.scale = FALSE, y.center = FALSE,
+                         x.center = TRUE, x.scale = FALSE,
+                         y.center = FALSE, y.scale = FALSE,
                          remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
                          remove_non_significant = F,
                          MIN_EPV = 5, returnData = T, verbose = F){
@@ -225,8 +225,8 @@ sb.splsdrcox <- function (X, Y,
 cv.sb.splsdrcox <- function(X, Y,
                            max.ncomp = 10, eta.list = seq(0.1,0.9,0.1),
                            n_run = 10, k_folds = 10,
-                           x.scale = TRUE, x.center = FALSE,
-                           y.scale = FALSE, y.center = FALSE,
+                           x.center = TRUE, x.scale = FALSE,
+                           y.center = FALSE, y.scale = FALSE,
                            remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
                            remove_non_significant_models = F, alpha = 0.05,
                            remove_non_significant = F, #remove components in backwards in cox model
@@ -301,7 +301,7 @@ cv.sb.splsdrcox <- function(X, Y,
   #total_models <- 1 * k_folds * n_run * length(eta.list)
   total_models <- max.ncomp * k_folds * n_run * length(eta.list)
 
-  lst_model <- get_HDCOX_models2.0(method = "SB.sPLS-DRCOX",
+  lst_model <- get_HDCOX_models2.0(method = pkg.env$sb.splsdrcox,
                                 lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
                                 max.ncomp = max.ncomp, eta.list = eta.list, EN.alpha.list = NULL,
                                 n_run = n_run, k_folds = k_folds,
@@ -309,7 +309,7 @@ cv.sb.splsdrcox <- function(X, Y,
                                 x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
                                 total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
 
-  # lst_model <- get_HDCOX_models(method = "SB.sPLS-DRCOX",
+  # lst_model <- get_HDCOX_models(method = "pkg.env$sb.splsdrcox,
   #                               lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
   #                               max.ncomp = max.ncomp, eta.list = eta.list, EN.alpha.list = NULL,
   #                               n_run = n_run, k_folds = k_folds,
@@ -356,7 +356,7 @@ cv.sb.splsdrcox <- function(X, Y,
                                           fast_mode = fast_mode, pred.method = pred.method, pred.attr = pred.attr,
                                           max.ncomp = max.ncomp, eta.list = eta.list, n_run = n_run, k_folds = k_folds,
                                           MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                          w_AUC = w_AUC, total_models = total_models, method.train = "SB.sPLS-DRCOX", PARALLEL = F)
+                                          w_AUC = w_AUC, total_models = total_models, method.train = pkg.env$sb.splsdrcox, PARALLEL = F)
 
     df_results_evals_comp <- lst_df$df_results_evals_comp
     df_results_evals_run <- lst_df$df_results_evals_run
@@ -460,8 +460,8 @@ cv.sb.splsdrcox <- function(X, Y,
 fast.cv.sb.splsdrcox <- function(X, Y,
                                 max.ncomp = 10, eta.list = seq(0.1,0.9,0.1),
                                 n_run = 10, k_folds = 10,
-                                x.scale = TRUE, x.center = FALSE,
-                                y.scale = FALSE, y.center = FALSE,
+                                x.center = TRUE, x.scale = FALSE,
+                                y.center = FALSE, y.scale = FALSE,
                                 remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
                                 remove_non_significant_models = F, alpha = 0.05,
                                 remove_non_significant = F, #remove components in backwards in cox model
@@ -617,13 +617,13 @@ fast.cv.sb.splsdrcox <- function(X, Y,
 ### ## ##
 
 sb.splsdrcox_class = function(pls_model, ...) {
-  model = structure(pls_model, class = "HDcox",
-                    model = "SB.sPLS-DRCOX")
+  model = structure(pls_model, class = pkg.env$model_class,
+                    model = pkg.env$sb.splsdrcox)
   return(model)
 }
 
 cv.sb.splsdrcox_class = function(pls_model, ...) {
-  model = structure(pls_model, class = "HDcox",
-                    model = "cv.SB.sPLS-DRCOX")
+  model = structure(pls_model, class = pkg.env$model_class,
+                    model = pkg.env$cv.sb.splsdrcox)
   return(model)
 }

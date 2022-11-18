@@ -83,8 +83,8 @@
 splsdrcox_mixOmics <- function (X, Y,
                                n.comp = 4,
                                n_run.mixOmics = 3, k_folds.mixOmics = 10, test.keepX = NULL,
-                               x.scale = TRUE, x.center = TRUE,
-                               y.scale = FALSE, y.center = FALSE,
+                               x.center = TRUE, x.scale = FALSE,
+                               y.center = FALSE, y.scale = FALSE,
                                remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
                                MIN_EPV = 5, returnData = T, verbose = F){
 
@@ -372,8 +372,8 @@ splsdrcox_mixOmics <- function (X, Y,
 cv.splsdrcox_mixOmics <- function (X, Y,
                                   max.ncomp = 10, n_run = 10, k_folds = 10,
                                   n_run.mixOmics = 3, k_folds.mixOmics = 4, test.keepX = NULL,
-                                  x.scale = TRUE, x.center = TRUE,
-                                  y.scale = FALSE, y.center = FALSE,
+                                  x.center = TRUE, x.scale = FALSE,
+                                  y.center = FALSE, y.scale = FALSE,
                                   remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
                                   remove_non_significant_models = F, alpha = 0.05,
                                   w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
@@ -435,7 +435,7 @@ cv.splsdrcox_mixOmics <- function (X, Y,
   ################
   total_models <- 1 * k_folds * n_run
 
-  comp_model_lst  <- get_HDCOX_models2.0(method = "sPLS-DRCOX-MixOmics",
+  comp_model_lst  <- get_HDCOX_models2.0(method = pkg.env$splsdrcox_mixomics,
                                       lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
                                       max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL, n_run = n_run, k_folds = k_folds,
                                       n_run.mixOmics = n_run.mixOmics, k_folds.mixOmics = k_folds.mixOmics, test.keepX = test.keepX,
@@ -443,7 +443,7 @@ cv.splsdrcox_mixOmics <- function (X, Y,
                                       remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
                                       total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
 
-  # comp_model_lst  <- get_HDCOX_models(method = "sPLS-DRCOX-MixOmics",
+  # comp_model_lst  <- get_HDCOX_models(method = pkg.env$splsdrcox_mixomics,
   #                               lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
   #                               max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL, n_run = n_run, k_folds = k_folds,
   #                               n_run.mixOmics = n_run.mixOmics, k_folds.mixOmics = k_folds.mixOmics, test.keepX = test.keepX,
@@ -487,7 +487,7 @@ cv.splsdrcox_mixOmics <- function (X, Y,
                                      fast_mode = fast_mode, pred.method = pred.method, pred.attr = pred.attr,
                                      max.ncomp = max.ncomp, n_run = n_run, k_folds = k_folds,
                                      MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                     w_AUC = w_AUC, total_models = total_models, method.train = "sPLS-DRCOX-MixOmics", PARALLEL = F)
+                                     w_AUC = w_AUC, total_models = total_models, method.train = pkg.env$splsdrcox_mixomics, PARALLEL = F)
 
     df_results_evals_comp <- lst_df$df_results_evals_comp
     df_results_evals_run <- lst_df$df_results_evals_run
@@ -546,13 +546,13 @@ cv.splsdrcox_mixOmics <- function (X, Y,
 ### ## ##
 
 splsdrcox_mixOmics_class = function(pls_model, ...) {
-  model = structure(pls_model, class = "HDcox",
-                    model = "sPLS-DRCOX-MixOmics")
+  model = structure(pls_model, class = pkg.env$model_class,
+                    model = pkg.env$splsdrcox_mixomics)
   return(model)
 }
 
 cv.splsdrcox_mixOmics_class = function(pls_model, ...) {
-  model = structure(pls_model, class = "HDcox",
-                    model = "cv.sPLS-DRCOX-MixOmics")
+  model = structure(pls_model, class = pkg.env$model_class,
+                    model = pkg.env$cv.splsdrcox_mixomics)
   return(model)
 }

@@ -22,6 +22,7 @@
 #' @param n.cut_points Numeric. Number of start cut points for look the optimal number of variable. 2 cut points mean start with the minimum and maximum. 3 start with minimum, maximum and middle point...(default: 3)
 #' @param MIN_AUC_INCREASE Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
 #' @param EVAL_METHOD Numeric. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
+#' @param pred.method Character. AUC method for evaluation. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC")
 #' @param max.iter Maximum number of iterations for PLS convergence.
 #' @param MIN_EPV Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.
 #' @param returnData Logical. Return original and normalized X and Y matrices.
@@ -92,13 +93,13 @@
 
 mb.splsdrcox <- function (X, Y,
                                   n.comp = 4, vector = NULL,
-                                  x.scale = TRUE, x.center = FALSE,
-                                  y.scale = FALSE, y.center = FALSE,
+                          x.center = TRUE, x.scale = FALSE,
+                          y.center = FALSE, y.scale = FALSE,
                                   remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
                                   remove_non_significant = T,
                                   MIN_NVAR = 10, MAX_NVAR = 10000, n.cut_points = 3,
                                   MIN_AUC_INCREASE = 0.01,
-                                  EVAL_METHOD = "AUC", max.iter = 200,
+                                  EVAL_METHOD = "AUC", pred.method = "cenROC", max.iter = 200,
                                   MIN_EPV = 5, returnData = T, PARALLEL = F, verbose = F){
 
   t1 <- Sys.time()
@@ -208,8 +209,8 @@ mb.splsdrcox <- function (X, Y,
   ########################################
 
   if(is.null(vector)){
-    keepX <- getBestVectorMB(Xh, DR_coxph, Yh, n.comp, max.iter, vector, MIN_AUC_INCREASE, MIN_NVAR = 10, MAX_NVAR = 10000, cut_points = n.cut_points,
-                             EVAL_METHOD = "AUC", PARALLEL = F, mode = "spls", verbose = verbose)
+    keepX <- getBestVectorMB(Xh, DR_coxph, Yh, n.comp, max.iter, vector, MIN_AUC_INCREASE, MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, cut_points = n.cut_points,
+                             EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = F, mode = "spls", verbose = verbose)
   }else{
     if(class(vector)=="list"){
       keepX <- vector
@@ -230,8 +231,8 @@ mb.splsdrcox <- function (X, Y,
         names(keepX) <- names(X)
       }else{
         message("Vector does not has the proper structure. Optimizing best n. variables by using your vector as start vector.")
-        keepX <- getBestVectorMB(Xh, DR_coxph, Yh, n.comp, max.iter, vector, MIN_AUC_INCREASE, MIN_NVAR = 10, MAX_NVAR = 10000,
-                                 EVAL_METHOD = "AUC", PARALLEL = F, mode = "spls", verbose = verbose)
+        keepX <- getBestVectorMB(Xh, DR_coxph, Yh, n.comp, max.iter, vector, MIN_AUC_INCREASE, MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, cut_points = n.cut_points,
+                                 EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = F, mode = "spls", verbose = verbose)
       }
     }
   }
@@ -462,8 +463,8 @@ mb.splsdrcox <- function (X, Y,
 cv.mb.splsdrcox <- function(X, Y,
                                     max.ncomp = 10, vector = NULL,
                                     n_run = 5, k_folds = 10,
-                                    x.scale = TRUE, x.center = FALSE,
-                                    y.scale = FALSE, y.center = FALSE,
+                            x.center = TRUE, x.scale = FALSE,
+                            y.center = FALSE, y.scale = FALSE,
                                     remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
                                     remove_non_significant_models = F, alpha = 0.05,
                                     MIN_NVAR = 10, MAX_NVAR = 10000,
@@ -537,7 +538,7 @@ cv.mb.splsdrcox <- function(X, Y,
   ################
   total_models <- 1 * k_folds * n_run
 
-  lst_model <- get_HDCOX_models2.0(method = "MB.sPLS-DRCOX", vector = vector,
+  lst_model <- get_HDCOX_models2.0(method = pkg.env$mb.splsdrcox, vector = vector,
                                 lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
                                 max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL,
                                 n_run = n_run, k_folds = k_folds, MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, MIN_AUC_INCREASE = MIN_AUC_INCREASE,
@@ -545,7 +546,7 @@ cv.mb.splsdrcox <- function(X, Y,
                                 x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
                                 total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
 
-  # lst_model <- get_HDCOX_models(method = "MB.sPLS-DRCOX", vector = vector,
+  # lst_model <- get_HDCOX_models(method = pkg.env$mb.splsdrcox, vector = vector,
   #                               lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
   #                               max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL,
   #                               n_run = n_run, k_folds = k_folds,
@@ -592,7 +593,7 @@ cv.mb.splsdrcox <- function(X, Y,
                                      fast_mode = fast_mode, pred.method = pred.method, pred.attr = pred.attr,
                                      max.ncomp = max.ncomp, n_run = n_run, k_folds = k_folds,
                                      MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                     w_AUC = w_AUC, total_models = total_models, method.train = "MB.sPLS-DRCOX", PARALLEL = F)
+                                     w_AUC = w_AUC, total_models = total_models, method.train = pkg.env$mb.splsdrcox, PARALLEL = F)
 
     df_results_evals_comp <- lst_df$df_results_evals_comp
     df_results_evals_run <- lst_df$df_results_evals_run
@@ -661,13 +662,13 @@ cv.mb.splsdrcox <- function(X, Y,
 ### ## ##
 
 mb.splsdrcox_class = function(pls_model, ...) {
-  model = structure(pls_model, class = "HDcox",
-                    model = "MB.sPLS-DRCOX")
+  model = structure(pls_model, class = pkg.env$model_class,
+                    model = pkg.env$mb.splsdrcox)
   return(model)
 }
 
 cv.mb.splsdrcox_class = function(pls_model, ...) {
-  model = structure(pls_model, class = "HDcox",
-                    model = "cv.MB.sPLS-DRCOX")
+  model = structure(pls_model, class = pkg.env$model_class,
+                    model = pkg.env$cv.mb.splsdrcox)
   return(model)
 }

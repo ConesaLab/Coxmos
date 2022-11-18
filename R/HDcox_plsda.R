@@ -238,8 +238,8 @@ plsdacox_mixOmics <- function (X, Y,
 
 cv.plsdacox_mixOmics <- function(X, Y,
                         max.ncomp = 10, n_run = 10, k_folds = 10,
-                        x.scale = TRUE, x.center = TRUE,
-                        y.scale = FALSE, y.center = FALSE,
+                        x.center = TRUE, x.scale = FALSE,
+                        y.center = FALSE, y.scale = FALSE,
                         remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
                         remove_non_significant_models = F, alpha = 0.05,
                         w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
@@ -302,14 +302,14 @@ cv.plsdacox_mixOmics <- function(X, Y,
 
   total_models <- 1 * k_folds * n_run
 
-  comp_model_lst <- get_HDCOX_models2.0(method = "PLS-DACOX-MixOmics",
+  comp_model_lst <- get_HDCOX_models2.0(method = pkg.env$plsdacox_mixomics,
                                      lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
                                      max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL, n_run = n_run, k_folds = k_folds,
                                      x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
                                      remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
                                      total_models = total_models, max.iter = max.iter, PARALLEL = PARALLEL, verbose = verbose)
 
-  # comp_model_lst <- get_HDCOX_models(method = "PLS-DACOX-MixOmics",
+  # comp_model_lst <- get_HDCOX_models(method = pkg.env$plsdacox_mixomics,
   #                                    lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
   #                                    max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL, n_run = n_run, k_folds = k_folds,
   #                                    x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
@@ -353,7 +353,7 @@ cv.plsdacox_mixOmics <- function(X, Y,
                                      fast_mode = fast_mode, pred.method = pred.method, pred.attr = pred.attr,
                                      max.ncomp = max.ncomp, n_run = n_run, k_folds = k_folds,
                                      MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                     w_AUC = w_AUC, total_models = total_models, method.train = "PLS-DACOX-MixOmics", PARALLEL = F)
+                                     w_AUC = w_AUC, total_models = total_models, method.train = pkg.env$plsdacox_mixomics, PARALLEL = F)
 
     df_results_evals_comp <- lst_df$df_results_evals_comp
     df_results_evals_run <- lst_df$df_results_evals_run
@@ -412,13 +412,13 @@ cv.plsdacox_mixOmics <- function(X, Y,
 ### ## ##
 
 plsdacox_mixOmics_class = function(pls_model, ...) {
-  model = structure(pls_model, class = "HDcox",
-                    model = "PLS-DACOX-MixOmics")
+  model = structure(pls_model, class = pkg.env$model_class,
+                    model = pkg.env$plsdacox_mixomics)
   return(model)
 }
 
 cv.plsdacox_mixOmics_class = function(pls_model, ...) {
-  model = structure(pls_model, class = "HDcox",
-                    model = "cv.PLS-DACOX-MixOmics")
+  model = structure(pls_model, class = pkg.env$model_class,
+                    model = pkg.env$cv.plsdacox_mixomics)
   return(model)
 }

@@ -10,10 +10,10 @@ cv.plsdacox_mixOmics(
   max.ncomp = 10,
   n_run = 10,
   k_folds = 10,
-  x.scale = TRUE,
   x.center = TRUE,
-  y.scale = FALSE,
+  x.scale = FALSE,
   y.center = FALSE,
+  y.scale = FALSE,
   remove_near_zero_variance = T,
   remove_zero_variance = T,
   toKeep.zv = NULL,
@@ -48,13 +48,13 @@ cv.plsdacox_mixOmics(
 
 \item{k_folds}{Number. Number of folds for cross validation.}
 
-\item{x.scale}{Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).}
-
 \item{x.center}{Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).}
 
-\item{y.scale}{Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).}
+\item{x.scale}{Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).}
 
 \item{y.center}{Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).}
+
+\item{y.scale}{Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).}
 
 \item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, remove_near_zero_variance variables will be removed.}
 

@@ -9,10 +9,10 @@ splsdrcox(
   Y,
   n.comp = 2,
   eta = 0.5,
-  x.scale = TRUE,
   x.center = TRUE,
-  y.scale = FALSE,
+  x.scale = FALSE,
   y.center = FALSE,
+  y.scale = FALSE,
   remove_near_zero_variance = T,
   remove_zero_variance = F,
   toKeep.zv = NULL,
@@ -30,13 +30,13 @@ splsdrcox(
 
 \item{eta}{Numeric [0-1). Penalty for sPLS. Mean 0 no penalty and 1 maximum penalty. Greater than 1 cannot be selected.}
 
-\item{x.scale}{Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).}
-
 \item{x.center}{Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).}
 
-\item{y.scale}{Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).}
+\item{x.scale}{Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).}
 
 \item{y.center}{Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).}
+
+\item{y.scale}{Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).}
 
 \item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, remove_near_zero_variance variables will be removed.}
 

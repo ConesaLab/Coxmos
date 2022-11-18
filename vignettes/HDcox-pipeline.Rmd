@@ -1,0 +1,258 @@
+---
+title: "Step-by-step guide to the HDcox pipeline"
+author: 
+  - name: "Pedro Salguero García"
+    affiliation: "Institute for Integrative Systems Biology (I2SysBio) and Polytechnic University of Valencia, Valencia, Spain"
+    email: pedrosalguerog@gmail.com
+package: HDcox
+date: "Last updated: `r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  BiocStyle::html_document:
+    toc: true
+    toc_float: true
+vignette: >
+  %\VignetteIndexEntry{Step-by-step guide to the HDcox pipeline}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  dpi = 150, 
+  out.width="100%",
+  crop = NULL
+)
+```
+
+# Introduction
+
+The **HDcox** R package contains the necessary functions to reproduce the
+pipeline in [this paper*](),
+a study by *Salguero-Garcia et al.* in which we analyze ....
+
+The pipeline includes ... basic analysis blocks:
+
+1. **Cross-validation and performing survival models for high dimensional data sets**. First, ... 
+
+2. **Comparing multiple survival models**. ...
+
+3. **Understanding the results in terms of the original variables**. ...
+
+# Installation
+
+HDcox can be installed from GitHub using `devtools`:
+
+```{r, eval = FALSE}
+install.packages("devtools")
+devtools::install_github("ConesaLab/HDcox", build_vignettes = TRUE)
+
+```
+
+# Getting ready
+
+To run the analyses in this vignette, you'll first need to load `HDcox`:
+
+```{r setup, results = "hide"}
+# load HDcox
+library(HDcox)
+
+# load auxiliary packages
+suppressPackageStartupMessages({
+  library(ggforce)
+  library(grDevices)
+  library(splines)
+  library(RColorConesa)
+})
+```
+
+In addition, we'll require some additional packages for data formatting. Most of them are signaled as `HDcox` dependencies, 
+so they will already be installed in your system.
+
+To generate plots, we make use of the `RColorConesa` R package.
+After install:
+
+```{r, eval = FALSE}
+# install.packages("devtools")
+devtools::install_github("ConesaLab/RColorConesa")
+```
+
+...you can load and set the theme of your R session as follows:
+
+```{r}
+library(RColorConesa)
+#theme_set(theme_colorConesa()) #under development
+```
+
+# Input data
+
+The HDcox pipeline requires two matrices as input. First one must be the features under study, and the second one a matrix with two columns called **time** and **event** for survival information.
+
+To generate the matrices, we first processed the data from ... Details to this process can be found in [our manuscript]() 
+(see Supplementary Note and Methods).
+
+If you wish to reproduce the analyses in Salguero-Garcia et al. [[1]](#1)), you can load the
+`data_E.MTAB.386.RData` object to use our dataset:
+
+```{r}
+# load Tasic dataset
+data("data_E.MTAB.386")
+```
+
+These contain two `data.frame` objects. After quality control
+(see Methods in [Salguero-Garcia et al.]() 
+[[1]](#1)), the `data_E.MTAB.386.RData` data contains expression data for **126 observations** 
+and **10357 genes**:
+
+```{r, echo = FALSE}
+knitr::kable(X[1:5,1:5])
+
+knitr::kable(Y[1:5,])
+```
+
+# Cross-validation and performing survival models for high dimensional data sets
+
+...
+
+HDcox provides multiple functions with different methodologies.
+
+* Classical approaches: cox, coxSW and coxEN
+* PLS approaces: plsicox, splsdrcox, splsdrcox_mixOmics and plsdacox_mixOmics
+
+More information for each approach ...
+
+To speed-up the analysis we are going to reduce the number of variables of X.
+
+```{r, eval = FALSE}
+set.seed(123)
+X <- X[,sample(1:ncol(X), 500)]
+```
+
+And also, we are going to split the data into train/test (70-30 %).
+
+```{r, eval = FALSE}
+set.seed(123)
+index_train <- caret::createDataPartition(Y$event,
+                                          p = .7, #70% train
+                                          list = FALSE,
+                                          times = 1)
+
+X_train <- X[index_train,] #1103
+Y_train <- Y[index_train,]
+X_test <- X[-index_train,] #472
+Y_test <- Y[-index_train,]
+```
+
+If we tried classical approaches...
+
+```{r, message=T, error=F}
+# classical approach
+cox_model <- cox(X = X_train, Y = Y_train, x.center = T, x.scale = F)
+```
+
+Classical approaches can not manage high dimensional data and the assumption of having a value greater than 5/10 for the **EPV** (events per variable) is not reached
+
+```{r, eval = FALSE}
+EPV <- sum(Y_train$event==1) / ncol(X_train)
+EPV
+```
+
+So we are ready to run cross-validation techniques in order to select a low number of variables (coxEN) or reduce the dimensionality of the data with the PLS methods.
+
+```{r, eval = FALSE, message=F, warning=F}
+# run cv.coxEN
+cv.coxEN_res <- cv.coxEN(X = X_train, Y = Y_train, 
+                         EN.alpha.list = seq(0,1,0.1), #EN penalty
+                         n_run = 2, k_folds = 10, 
+                         x.scale = T,
+                         remove_near_zero_variance = F, remove_zero_variance = F,
+                         PARALLEL = T, verbose = F)
+cv.coxEN_res #1min 10s.
+```
+
+So coxEN_model ...
+
+```{r}
+coxEN_model <- coxEN(X = X_train, Y = Y_train, EN.alpha = 0,
+                     x.center = T, x.scale = F)
+
+coxEN_model
+```
+
+Also we are going to run cross-validation techniques for one of the PLS methods.
+
+```{r, eval = FALSE, message=F, warning=F}
+# run cv.splsdrcox
+cv.splsdrcox_res <- cv.splsdrcox(X = X_train, Y = Y_train, 
+                                 max.ncomp = 4, eta.list = c(0,0.25,0.5,0.75), #penalty
+                                 n_run = 2, k_folds = 10, 
+                                 x.scale = T, 
+                                 remove_near_zero_variance = F, remove_zero_variance = F,
+                                 PARALLEL = T, verbose = F)
+
+cv.splsdrcox_res #2min 30s.
+```
+
+So splsdrcox_model ...
+
+```{r}
+splsdrcox_model <- splsdrcox(X = X_train, Y = Y_train, 
+                             n.comp = 2, eta = 0.25,
+                             x.center = T, x.scale = F)
+
+splsdrcox_model
+```
+
+Also we are going to run cross-validation techniques for one of the PLS methods.
+
+```{r, eval = FALSE, message=F, warning=F}
+# run cv.splsdrcox
+cv.plsdacox_res <- cv.plsdacox_mixOmics(X = X_train, Y = Y_train, 
+                                        max.ncomp = 4,  #penalty
+                                        n_run = 2, k_folds = 10, 
+                                        x.scale = T, 
+                                        remove_near_zero_variance = F, remove_zero_variance = F,
+                                        PARALLEL = T, verbose = F)
+
+cv.plsdacox_res #1min 35s
+```
+
+So plsdacox_model ...
+
+```{r}
+plsdacox_model <- plsdacox_mixOmics(X = X_train, Y = Y_train, 
+                                    n.comp = 3, 
+                                    x.center = T, x.scale = F)
+
+plsdacox_model
+```
+
+# Comparing multiple survival models
+
+Comparing for multiple evaluators at the same time.
+
+```{r}
+#lst_evaluations <- c("survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I", "risksetROC")
+lst_evaluations <- c("cenROC", "risksetROC")
+names(lst_evaluations) <- lst_evaluations
+
+lst_models <- list("coxEN" = coxEN_model,
+                   "splsdrcox_mixOmics" = splsdrcox_model,
+                   "plsdacox_mixOmics" = plsdacox_model)
+
+eval_results <- purrr::map(lst_evaluations, ~eval_models4.0(lst_models = lst_models,
+                                                            X_test = X_test, Y_test = Y_test, 
+                                                            pred.method = .,
+                                                            pred.attr = "mean",
+                                                            times = seq(1,4,0.5), max_time_points = 15, 
+                                                            PARALLEL = T))
+
+eval_results$cenROC
+```
+
+Plot comparison
+
+```{r}
+lst_ggp <- plot.evaluation.list(eval_results)
+```

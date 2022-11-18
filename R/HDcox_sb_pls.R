@@ -69,8 +69,8 @@
 
 sb.plsicox <- function (X, Y,
                         n.comp = 4,
-                        x.scale = TRUE, x.center = TRUE,
-                        y.scale = FALSE, y.center = FALSE,
+                        x.center = TRUE, x.scale = FALSE,
+                        y.center = FALSE, y.scale = FALSE,
                         remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
                         remove_non_significant = F,
                         MIN_EPV = 5, returnData = T, verbose = F){
@@ -221,8 +221,8 @@ sb.plsicox <- function (X, Y,
 
 cv.sb.plsicox <- function(X, Y,
                           max.ncomp = 10, n_run = 10, k_folds = 10,
-                          x.scale = TRUE, x.center = FALSE,
-                          y.scale = FALSE, y.center = FALSE,
+                          x.center = TRUE, x.scale = FALSE,
+                          y.center = FALSE, y.scale = FALSE,
                           remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
                           remove_non_significant_models = F, alpha = 0.05,
                           remove_non_significant = F, #remove components in backwards in cox model
@@ -297,7 +297,7 @@ cv.sb.plsicox <- function(X, Y,
   #total_models <- 1 * k_folds * n_run
   total_models <- max.ncomp * k_folds * n_run
 
-  lst_model <- get_HDCOX_models2.0(method = "SB.PLS-ICOX",
+  lst_model <- get_HDCOX_models2.0(method = pkg.env$sb.plsicox,
                                    lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
                                    max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL,
                                    n_run = n_run, k_folds = k_folds,
@@ -305,7 +305,7 @@ cv.sb.plsicox <- function(X, Y,
                                    x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
                                    total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
 
-  # lst_model <- get_HDCOX_models(method = "SB.PLS-ICOX",
+  # lst_model <- get_HDCOX_models(method = pkg.env$sb.plsicox,
   #                               lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
   #                               max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL,
   #                               n_run = n_run, k_folds = k_folds,
@@ -352,7 +352,7 @@ cv.sb.plsicox <- function(X, Y,
                                          fast_mode = fast_mode, pred.method = pred.method, pred.attr = pred.attr,
                                          max.ncomp = max.ncomp, n_run = n_run, k_folds = k_folds,
                                          MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                         w_AUC = w_AUC, total_models = total_models, method.train = "SB.PLS-ICOX", PARALLEL = F)
+                                         w_AUC = w_AUC, total_models = total_models, method.train = pkg.env$sb.plsicox, PARALLEL = F)
 
     df_results_evals_comp <- lst_df$df_results_evals_comp
     df_results_evals_run <- lst_df$df_results_evals_run
@@ -450,8 +450,8 @@ cv.sb.plsicox <- function(X, Y,
 
 fast.cv.sb.plsicox <- function(X, Y,
                                max.ncomp = 10, n_run = 10, k_folds = 10,
-                               x.scale = TRUE, x.center = FALSE,
-                               y.scale = FALSE, y.center = FALSE,
+                               x.center = TRUE, x.scale = FALSE,
+                               y.center = FALSE, y.scale = FALSE,
                                remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
                                remove_non_significant_models = F, alpha = 0.05,
                                remove_non_significant = F, #remove components in backwards in cox model
@@ -604,13 +604,13 @@ fast.cv.sb.plsicox <- function(X, Y,
 ### ## ##
 
 sb.plsicox_class = function(pls_model, ...) {
-  model = structure(pls_model, class = "HDcox",
-                    model = "SB.PLS-ICOX")
+  model = structure(pls_model, class = pkg.env$model_class,
+                    model = pkg.env$sb.plsicox)
   return(model)
 }
 
 cv.sb.plsicox_class = function(pls_model, ...) {
-  model = structure(pls_model, class = "HDcox",
-                    model = "cv.SB.PLS-ICOX")
+  model = structure(pls_model, class = pkg.env$model_class,
+                    model = pkg.env$cv.sb.plsicox)
   return(model)
 }

@@ -360,8 +360,8 @@ coxEN <- function(X, Y,
 cv.coxEN <- function(X, Y,
                      EN.alpha.list = seq(0,1,0.1),
                      n_run = 10, k_folds = 10,
-                     x.scale = TRUE, x.center = TRUE,
-                     y.scale = FALSE, y.center = FALSE,
+                     x.center = TRUE, x.scale = FALSE,
+                     y.center = FALSE, y.scale = FALSE,
                      remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
                      remove_non_significant = F, alpha = 0.05,
                      max.variables = 15,
@@ -422,7 +422,7 @@ cv.coxEN <- function(X, Y,
   ################
   total_models <- k_folds * n_run * length(EN.alpha.list)
 
-  comp_model_lst <- get_HDCOX_models2.0(method = "coxEN",
+  comp_model_lst <- get_HDCOX_models2.0(method = pkg.env$coxEN,
                                      lst_X_train = lst_X_train, lst_Y_train = lst_Y_train, eta.list = NULL, max.ncomp = NULL,
                                      EN.alpha.list = EN.alpha.list, n_run = n_run, k_folds = k_folds,
                                      x.center = x.center, x.scale = x.scale,
@@ -433,7 +433,7 @@ cv.coxEN <- function(X, Y,
                                      total_models = total_models, MIN_EPV = MIN_EPV,
                                      PARALLEL = PARALLEL, verbose = verbose)
 
-  # comp_model_lst <- get_HDCOX_models(method = "coxEN",
+  # comp_model_lst <- get_HDCOX_models(method = pkg.env$coxEN,
   #                                    lst_X_train = lst_X_train, lst_Y_train = lst_Y_train, eta.list = NULL,
   #                                    EN.alpha.list = EN.alpha.list, n_run = n_run, k_folds = k_folds,
   #                                    x.center = x.center, x.scale = x.scale,
@@ -502,7 +502,7 @@ cv.coxEN <- function(X, Y,
                                      fast_mode = fast_mode, pred.method = pred.method, pred.attr = pred.attr,
                                      max.ncomp = EN.alpha.list, n_run = n_run, k_folds = k_folds,
                                      MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                     w_AUC = w_AUC, total_models = total_models, method.train = "coxEN", PARALLEL = F)
+                                     w_AUC = w_AUC, total_models = total_models, method.train = pkg.env$coxEN, PARALLEL = F)
 
     df_results_evals_comp <- lst_df$df_results_evals_comp
     df_results_evals_run <- lst_df$df_results_evals_run
@@ -581,13 +581,13 @@ cv.coxEN <- function(X, Y,
 ### ## ##
 
 coxEN_class = function(cox_model, ...) {
-  model = structure(cox_model, class = "HDcox",
-                    model = "coxEN")
+  model = structure(cox_model, class = pkg.env$model_class,
+                    model = pkg.env$coxEN)
   return(model)
 }
 
 cv.coxEN_class = function(cox_model, ...) {
-  model = structure(cox_model, class = "HDcox",
-                    model = "cv.coxEN")
+  model = structure(cox_model, class = pkg.env$model_class,
+                    model = pkg.env$cv.coxEN)
   return(model)
 }

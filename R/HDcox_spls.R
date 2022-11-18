@@ -80,8 +80,8 @@
 
 splsdrcox <- function (X, Y,
                       n.comp = 2, eta = 0.5,
-                      x.scale = TRUE, x.center = TRUE,
-                      y.scale = FALSE, y.center = FALSE,
+                      x.center = TRUE, x.scale = FALSE,
+                      y.center = FALSE, y.scale = FALSE,
                       remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
                       MIN_EPV = 5, returnData = T, verbose = F){
 
@@ -448,8 +448,8 @@ splsdrcox <- function (X, Y,
 
 splsdrcox.modelPerComponent <- function (X, Y,
                                         n.comp = 4, eta = 0.5,
-                                        x.scale = TRUE, x.center = TRUE,
-                                        y.scale = FALSE, y.center = FALSE,
+                                        x.center = TRUE, x.scale = FALSE,
+                                        y.center = FALSE, y.scale = FALSE,
                                         remove_near_zero_variance = T, toKeep.zv = NULL,
                                         returnData = T, remove_zero_variance = F, verbose = F){
 
@@ -790,8 +790,8 @@ splsdrcox.modelPerComponent <- function (X, Y,
 cv.splsdrcox <- function (X, Y,
                          max.ncomp = 10, eta.list = seq(0.1,0.9,0.1),
                          n_run = 10, k_folds = 10,
-                         x.scale = TRUE, x.center = TRUE,
-                         y.scale = FALSE, y.center = FALSE,
+                         x.center = TRUE, x.scale = FALSE,
+                         y.center = FALSE, y.scale = FALSE,
                          remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
                          remove_non_significant_models = F, alpha = 0.05,
                          w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
@@ -853,7 +853,7 @@ cv.splsdrcox <- function (X, Y,
   #total_models <- 1 * k_folds * n_run * length(eta.list)
   total_models <- max.ncomp * k_folds * n_run * length(eta.list)
 
-  lst_model <- get_HDCOX_models2.0(method = "sPLS-DRCOX",
+  lst_model <- get_HDCOX_models2.0(method = pkg.env$splsdrcox,
                                 lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
                                 max.ncomp = max.ncomp, eta.list = eta.list, EN.alpha.list = NULL,
                                 n_run = n_run, k_folds = k_folds,
@@ -861,7 +861,7 @@ cv.splsdrcox <- function (X, Y,
                                 remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
                                 total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
 
-  # lst_model <- get_HDCOX_models(method = "sPLS-DRCOX",
+  # lst_model <- get_HDCOX_models(method = pkg.env$splsdrcox,
   #                               lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
   #                               max.ncomp = max.ncomp, eta.list = eta.list, EN.alpha.list = NULL,
   #                               n_run = n_run, k_folds = k_folds,
@@ -1057,14 +1057,14 @@ predict.mixOmixs.pls <- function(object, newdata){
 ### ## ##
 
 splsdrcox_class = function(pls_model, ...) {
-  model = structure(pls_model, class = "HDcox",
-                    model = "sPLS-DRCOX")
+  model = structure(pls_model, class = pkg.env$model_class,
+                    model = pkg.env$splsdrcox)
   return(model)
 }
 
 cv.splsdrcox_class = function(pls_model, ...) {
-  model = structure(pls_model, class = "HDcox",
-                    model = "cv.sPLS-DRCOX")
+  model = structure(pls_model, class = pkg.env$model_class,
+                    model = pkg.env$cv.splsdrcox)
   return(model)
 }
 

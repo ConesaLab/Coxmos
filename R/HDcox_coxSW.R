@@ -65,7 +65,7 @@
 #' @export
 
 coxSW <- function(X, Y,
-                  x.center = TRUE, x.scale = TRUE,
+                  x.center = TRUE, x.scale = FALSE,
                   y.center = FALSE, y.scale = FALSE,
                   remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
                   initialModel = "NULL", toKeep.sw = NULL, max.variables = 20,
@@ -845,11 +845,12 @@ stepwise.coxph <- function (Time = NULL, T1 = NULL, T2 = NULL, Status = NULL, va
   return(final.model)
 }
 
-################################################################################################
+#### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
 # Get the real name for the cox model variable that it is used in the matrix/data.frame
 # because for categorical variables, cox add the level at the end and we can not do any match.
 # We are not paying attention to different order, but yes for multiple interactions +2
-################################################################################################
+#### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ###
+
 # data.frame/matrix  -  var_cox  -  interaction symbol #
 
 getRealNameVarFromCoxModel <- function(x_sw_train, var, symbol = ":"){
@@ -962,7 +963,7 @@ plotZPH <- function(fit_zph, oneToDelete, df=3){
 ### ## ##
 
 coxSW_class = function(cox_model, ...) {
-  model = structure(cox_model, class = "HDcox",
-                    model = "coxSW")
+  model = structure(cox_model, class = pkg.env$model_class,
+                    model = pkg.env$coxSW)
   return(model)
 }

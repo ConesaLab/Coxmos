@@ -8,7 +8,7 @@ coxSW(
   X,
   Y,
   x.center = TRUE,
-  x.scale = TRUE,
+  x.scale = FALSE,
   y.center = FALSE,
   y.scale = FALSE,
   remove_near_zero_variance = T,

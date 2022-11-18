@@ -511,7 +511,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
                                 methods = c("cox", "coxSW", "coxEN", "PLS-ICOX", "sPLS-DRCOX", "sPLS-DRCOX-MixOmics", "PLS-DACOX-MixOmics"),
                                 ncomp = 5, EN.alpha = 0.5, eta = 0.5, comp_calculation = "manual",
                                 n_run = 2, k_folds = 10, fast_mode = F, pred.method = "cenROC",
-                                x.center = TRUE, x.scale = TRUE, y.center = FALSE, y.scale = FALSE, MIN_EPV = 0){
+                                x.center = TRUE, x.scale = FALSE, y.center = FALSE, y.scale = FALSE, MIN_EPV = 0){
 
   X_train <- lst_X_train
   Y_train <- lst_Y_train
@@ -575,7 +575,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
   }
 
   #COX
-  if("cox" %in% methods){
+  if(pkg.env$cox %in% methods){
 
     res_cox <- cox(X = X_train, Y = Y_train,
                    x.center = x.center, x.scale = x.scale,
@@ -588,7 +588,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
   }
 
   #COX
-  if("coxSW" %in% methods){
+  if(pkg.env$coxSW %in% methods){
 
     res_coxSW <- coxSW(X = X_train, Y = Y_train,
                        x.center = x.center, x.scale = x.scale,
@@ -602,7 +602,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
   }
 
   #COX
-  if("coxEN" %in% methods){
+  if(pkg.env$coxEN %in% methods){
 
     if(auto){
       cv.coxEN_res <- cv.coxEN(X = X_train, Y = Y_train,
@@ -638,7 +638,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
   }
 
   #plsicox-manual
-  if("PLS-ICOX" %in% methods){
+  if(pkg.env$plsicox %in% methods){
 
     if(auto){
       cv.plsicox_res <- cv.plsicox(X = X_train, Y = data.matrix(Y_train),
@@ -667,7 +667,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
   }
 
   #splsdrcox-manual
-  if("sPLS-DRCOX" %in% methods){
+  if(pkg.env$splsdrcox %in% methods){
 
     if(auto){
       cv.splsdrcox_res <- cv.splsdrcox(X = X_train, Y = data.matrix(Y_train),
@@ -700,7 +700,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
     res_splsdrcox <- NA
   }
 
-  if("sPLS-DRCOX-MixOmics" %in% methods){
+  if(pkg.env$splsdrcox_mixomics %in% methods){
 
     if(auto){
       cv.splsdrcox_mixOmics_res <- cv.splsdrcox_mixOmics(X = X_train, Y = data.matrix(Y_train),
@@ -735,7 +735,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
   }
 
   #plsda+cox
-  if("PLS-DACOX-MixOmics" %in% methods){
+  if(pkg.env$plsdacox_mixomics %in% methods){
 
     event <- Y_train[,"event"]
     if(!is.factor(event)){
@@ -780,45 +780,45 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
 
   ##### Save cox_models
   if(!length(res_cox) == 1){
-    lst_res[["cox"]] <- res_cox
+    lst_res[[pkg.env$cox]] <- res_cox
   }else{
-    lst_res[["cox"]] <- NA
+    lst_res[[pkg.env$cox]] <- NA
   }
 
   if(!length(res_coxSW) == 1){
-    lst_res[["coxSW"]] <- res_coxSW
+    lst_res[[pkg.env$coxSW]] <- res_coxSW
   }else{
-    lst_res[["coxSW"]] <- NA
+    lst_res[[pkg.env$coxSW]] <- NA
   }
 
   if(!length(res_coxEN) == 1){
-    lst_res[["coxEN"]] <- res_coxEN
+    lst_res[[pkg.env$coxEN]] <- res_coxEN
   }else{
-    lst_res[["coxEN"]] <- NA
+    lst_res[[pkg.env$coxEN]] <- NA
   }
 
   if(!length(res_plsicox) == 1){
-    lst_res[["PLS-ICOX"]] <- res_plsicox
+    lst_res[[pkg.env$plsicox]] <- res_plsicox
   }else{
-    lst_res[["PLS-ICOX"]] <- NA
+    lst_res[[pkg.env$plsicox]] <- NA
   }
 
   if(!length(res_splsdrcox) == 1){
-    lst_res[["sPLS-DRCOX"]] <- res_splsdrcox
+    lst_res[[pkg.env$splsdrcox]] <- res_splsdrcox
   }else{
-    lst_res[["sPLS-DRCOX"]] <- NA
+    lst_res[[pkg.env$splsdrcox]] <- NA
   }
 
   if(!length(res_splsdrcox_mixOmics) == 1){
-    lst_res[["sPLS-DRCOX-MixOmics"]] <- res_splsdrcox_mixOmics
+    lst_res[[pkg.env$splsdrcox_mixomics]] <- res_splsdrcox_mixOmics
   }else{
-    lst_res[["sPLS-DRCOX-MixOmics"]] <- NA
+    lst_res[[pkg.env$splsdrcox_mixomics]] <- NA
   }
 
   if(!length(res_plsdacox_mixOmics) == 1){
-    lst_res[["PLS-DACOX-MixOmics"]] <- res_plsdacox_mixOmics
+    lst_res[[pkg.env$plsdacox_mixomics]] <- res_plsdacox_mixOmics
   }else{
-    lst_res[["PLS-DACOX-MixOmics"]] <- NA
+    lst_res[[pkg.env$plsdacox_mixomics]] <- NA
   }
 
   return(lst_res)

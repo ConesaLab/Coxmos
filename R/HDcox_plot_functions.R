@@ -440,9 +440,10 @@ save_ggplot_lst.svg <- function(lst_plots, folder = NULL, prefix = NULL, suffix 
 #' @examples
 #' \dontrun{
 #'   lst_models = {"cox" = cox_model, "PLS-ICOX" = cv.plsicox_model, "sPLS-DRCOX" = cv.splsdrcox_model}
-#'   models.time.plot(lst_models, x.text = "Method")
+#'   plot.time.models(lst_models, x.text = "Method")
 #' }
-models.time.plot <- function(lst_models, x.text = "Method", y.text = NULL){
+
+plot.time.models <- function(lst_models, x.text = "Method", y.text = NULL){
 
   if(is.null(names(lst_models))){
     names(lst_models) <- unlist(lapply(lst_models, function(x){
@@ -806,7 +807,16 @@ comboplot.performance2.0 <- function(df, x.var = "time", y.var = "AUC", x.color 
   return(list(lineplot = a, lineplot.mean = pp))
 }
 
-plot.multiple.evaluations <- function(eval_results, pred.attr = "mean", y.min = NULL, type = "both"){
+#' plot.evaluation.list
+#'
+#' @param eval_results List of eval_models4.0 results.
+#' @param pred.attr "mean" or "median"
+#' @param y.min Minimum Y value to plot. If NULL, automatic detection.
+#' @param type type plot. Must be one of the following: "both", "line", "mean". In other case, "both" will be selected.
+#'
+#' @export
+
+plot.evaluation.list <- function(eval_results, pred.attr = "mean", y.min = NULL, type = "both"){
 
   if(!pred.attr %in% c("mean", "median")){
     stop("pred.attr parameter must be one of: 'mean' or 'median'")
@@ -1298,9 +1308,21 @@ coxweightplot.fromVector.HDcox <- function(model, vector, sd.min = NULL, sd.max 
   return(ggp_loading)
 }
 
-cox.pls.variable.plot <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zero.rm = F, top = NULL, auto.limits = T){
+#' plot.pseudobeta
+#'
+#' @param model HDcox model
+#' @param error.bar Logical. Show error bar
+#' @param onlySig Logical. Compute psudobetas using only significant components.
+#' @param alpha Significant value (P.value).
+#' @param zero.rm Logical. Remove variables with a pseudobeta equal to 0.
+#' @param top Plot the top X variables with the higher pseudobetas in absolute value.
+#' @param auto.limits Compute Y limit automatically
+#'
+#' @export
 
-  if(!attr(model, "model") %in% c("PLS-ICOX", "sPLS-DRCOX", "sPLS-DRCOX-MixOmics", "PLS-DACOX-MixOmics", "SB.PLS-ICOX", "SB.sPLS-DRCOX", "MB.sPLS-DRCOX", "MB.sPLS-DACOX")){
+plot.pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zero.rm = F, top = NULL, auto.limits = T){
+
+  if(!attr(model, "model") %in% c(pkg.env$pls_methods, pkg.env$multiblock_methods)){
     stop("Model must be one of the follow models: 'PLS-ICOX', 'sPLS-DRCOX', 'sPLS-DRCOX-MixOmics', 'PLS-DACOX-MixOmics', 'SB.PLS-ICOX', 'SB.sPLS-DRCOX', 'MB.sPLS-DRCOX', 'MB.sPLS-DACOX'")
   }
 
@@ -1310,7 +1332,7 @@ cox.pls.variable.plot <- function(model, error.bar = T, onlySig = F, alpha = 0.0
 
   df.aux <- as.data.frame(summary(model$survival_model$fit)[[7]])
 
-  if(attr(model, "model") %in% c("PLS-ICOX", "sPLS-DRCOX", "sPLS-DRCOX-MixOmics", "PLS-DACOX-MixOmics")){
+  if(attr(model, "model") %in% pkg.env$pls_methods){
 
     if(onlySig){
       rn <- rownames(df.aux)[df.aux$`Pr(>|z|)` <= alpha]
@@ -1354,18 +1376,18 @@ cox.pls.variable.plot <- function(model, error.bar = T, onlySig = F, alpha = 0.0
                                            sd.min = sd.min, sd.max = sd.max, auto.limits = T,
                                            zero.rm = zero.rm, top = top)[[1]]
 
-  }else if(attr(model, "model") %in% c("SB.PLS-ICOX", "SB.sPLS-DRCOX", "MB.sPLS-DRCOX", "MB.sPLS-DACOX")){
+  }else if(attr(model, "model") %in% pkg.env$multiblock_methods){
 
     if(onlySig){
       rn <- rownames(df.aux)[df.aux$`Pr(>|z|)` <= alpha]
       coefficients <- as.matrix(model$survival_model$fit$coefficients)[rn,,drop=F]
       sd <- df.aux[rn,"se(coef)",drop=F]
       W.star <- list()
-      if(attr(model, "model") %in% c("SB.PLS-ICOX")){
+      if(attr(model, "model") %in% pkg.env$sb.plsicox){
         for(b in names(model$list_pls_models)){
           W.star[[b]] <- model$list_pls_models[[b]]$X$W.star
         }
-      }else if(attr(model, "model") %in% c("SB.sPLS-DRCOX")){
+      }else if(attr(model, "model") %in% pkg.env$sb.splsdrcox){
         for(b in names(model$list_spls_models)){
           W.star[[b]] <- model$list_spls_models[[b]]$X$W.star
         }
@@ -1377,11 +1399,11 @@ cox.pls.variable.plot <- function(model, error.bar = T, onlySig = F, alpha = 0.0
       coefficients <- as.matrix(model$survival_model$fit$coefficients)
       sd <- df.aux[,"se(coef)",drop=F]
       W.star <- list()
-      if(attr(model, "model") %in% c("SB.PLS-ICOX")){
+      if(attr(model, "model") %in% pkg.env$sb.plsicox){
         for(b in names(model$list_pls_models)){
           W.star[[b]] <- model$list_pls_models[[b]]$X$W.star
         }
-      }else if(attr(model, "model") %in% c("SB.sPLS-DRCOX")){
+      }else if(attr(model, "model") %in% pkg.env$sb.splsdrcox){
         for(b in names(model$list_spls_models)){
           W.star[[b]] <- model$list_spls_models[[b]]$X$W.star
         }
@@ -1434,20 +1456,34 @@ cox.pls.variable.plot <- function(model, error.bar = T, onlySig = F, alpha = 0.0
   }
 
   #it will be a list for mb approaches
-  return(list(beta = vector,
-              plot = plot,
+  return(list(plot = plot,
+              beta = vector,
               sd.min = sd.min,
               sd.max = sd.max))
 }
 
-cox.pls.variable.plot.newPatient <- function(model, new_pat, error.bar = T, onlySig = T, alpha = 0.05, zero.rm = T,
-                                             auto.limits = T, top = NULL, show.betas = F){
+#' plot.pseudobeta.newPatient
+#'
+#' @param model HDcox model
+#' @param new_pat Row of new patients
+#' @param error.bar Logical. Show error bar
+#' @param onlySig Logical. Compute psudobetas using only significant components.
+#' @param alpha Significant value (P.value).
+#' @param zero.rm Logical. Remove variables with a pseudobeta equal to 0.
+#' @param top Plot the top X variables with the higher pseudobetas in absolute value.
+#' @param auto.limits Compute Y limit automatically
+#' @param show.betas Show original betas
+#'
+#' @export
+
+plot.pseudobeta.newPatient <- function(model, new_pat, error.bar = T, onlySig = T, alpha = 0.05, zero.rm = T,
+                                       top = NULL, auto.limits = T, show.betas = F){
 
   #DFCALLS
   lp <- lp.min <- lp.max <- NULL
 
   #plot
-  ggp.simulated_beta <- cox.pls.variable.plot(model = model, error.bar = error.bar, onlySig = onlySig,
+  ggp.simulated_beta <- plot.pseudobeta(model = model, error.bar = error.bar, onlySig = onlySig,
                                               alpha = alpha, zero.rm = zero.rm, auto.limits = auto.limits, top = top)
   coefficients <- ggp.simulated_beta$beta
 
@@ -1459,7 +1495,18 @@ cox.pls.variable.plot.newPatient <- function(model, new_pat, error.bar = T, only
   }
 
   #norm patient
-  norm_patient <- scale(new_pat, center = model$X$x.mean, scale = model$X$x.sd)
+  new_pat <- new_pat[,names(model$X$x.mean),drop=F]
+
+  if(!is.null(model$X$x.mean) & !is.null(model$X$x.sd)){
+    norm_patient <- scale(new_pat, center = model$X$x.mean, scale = model$X$x.sd)
+  }else if(!is.null(model$X$x.mean)){
+    norm_patient <- scale(new_pat, center = model$X$x.mean, scale = F)
+  }else if(!is.null(model$X$x.sd)){
+    norm_patient <- scale(new_pat, center = F, scale = model$X$x.sd)
+  }else{
+    norm_patient <- new_pat
+  }
+
   #lp.new_pat_manual <- norm_patient[,rownames(coefficients)] %*% coefficients #predict lp
   lp.new_pat_variable <- norm_patient[,rownames(coefficients)] * coefficients #predict terms
 
@@ -1469,6 +1516,11 @@ cox.pls.variable.plot.newPatient <- function(model, new_pat, error.bar = T, only
     lp.new_pat_variable.min <- norm_patient[,rownames(coeff.min)] * coeff.min
     lp.new_pat_variable.max <- norm_patient[,rownames(coeff.max)] * coeff.max
   }
+
+  #filter pat_variables using psudobeta plot (top could be applied)
+  lp.new_pat_variable <- lp.new_pat_variable[rownames(ggp.simulated_beta$plot$data),,drop=F]
+  lp.new_pat_variable.min <- lp.new_pat_variable.min[rownames(ggp.simulated_beta$plot$data),,drop=F]
+  lp.new_pat_variable.max <- lp.new_pat_variable.max[rownames(ggp.simulated_beta$plot$data),,drop=F]
 
   #terms
   # df <- as.data.frame(cbind(cbind(ggp.simulated_beta$beta,
@@ -1509,8 +1561,10 @@ cox.pls.variable.plot.newPatient <- function(model, new_pat, error.bar = T, only
 
   if(show.betas){
     if(error.bar){
-      auto.limits_min <- round_any(max(abs(coeff.min), abs(df.pat$lp.min)), accuracy = accuracy, f = ceiling)
-      auto.limits_max <- round_any(max(abs(coeff.max), abs(df.pat$lp.max)), accuracy = accuracy, f = ceiling)
+      val_min <- as.numeric(max(abs(coeff.min), abs(df.pat$lp.min)))
+      val_max <- as.numeric(max(abs(coeff.max), abs(df.pat$lp.max)))
+      auto.limits_min <- round_any(val_min, accuracy = accuracy, f = ceiling)
+      auto.limits_max <- round_any(val_max, accuracy = accuracy, f = ceiling)
       auto.limits <- max(auto.limits_min, auto.limits_max)
     }else{
       auto.limits <- round_any(max(abs(coefficients), abs(df.pat$lp)), accuracy = accuracy, f = ceiling)
@@ -1567,6 +1621,7 @@ cox.pls.variable.plot.newPatient <- function(model, new_pat, error.bar = T, only
     sign.beta <- coefficients>0
     sign.pat <- df.pat$lp>0
     same.sign <- sign.beta == sign.pat
+    same.sign <- same.sign[rownames(ggp.simulated_beta$plot$data),,drop=F]
 
     ggp.aux$mapping$fill[[2]] <- same.sign
     ggp.aux <- ggp.aux + guides(fill = guide_legend(title="Same beta direction:")) + theme(legend.position="left")
@@ -1602,7 +1657,7 @@ cox.comparePatients <- function(model, df.pat, error.bar = F, onlySig = T, alpha
   value <- patients <- NULL
 
   #plot
-  ggp.simulated_beta <- cox.pls.variable.plot(model = model, error.bar = error.bar, onlySig = onlySig,
+  ggp.simulated_beta <- plot.pseudobeta(model = model, error.bar = error.bar, onlySig = onlySig,
                                               alpha = alpha, zero.rm = zero.rm, auto.limits = auto.limits, top = top)
 
   coefficients <- ggp.simulated_beta$beta
@@ -1702,7 +1757,7 @@ patient.eventDensity <- function(patient, time = NULL, model, type = "lp", size 
 
   scores <- predict.HDcox(object = model, newdata = patient) #X must be original X data
 
-  plot <- eventDensityByLP.plot(model, type = type)
+  plot <- plot.cox.event(model, type = type)
   plot <- plot$plot.density
 
   if(type %in% c("expected", "survival") & is.null(time)){
@@ -1769,7 +1824,7 @@ patient.eventHistogram <- function(patient, time = NULL, model, type = "lp", siz
 
   scores <- predict.HDcox(object = model, newdata = patient) #X must be original X data
 
-  plot <- eventDensityByLP.plot(model, type = type)
+  plot <- plot.cox.event(model, type = type)
   plot <- plot$plot.histogram
 
   if(type %in% c("expected", "survival") & is.null(time)){
@@ -1813,7 +1868,7 @@ patient.eventHistogram <- function(patient, time = NULL, model, type = "lp", siz
   return(plot.new)
 }
 
-#' divergent.biplot
+#' plot.divergent.biplot
 #' @description Two side plot by a qualitative and a quantitative variable and Y event matrix.
 #'
 #' @param X A list of HDcox objects. Each HDCox object has the attribute time measured in minutes.
@@ -1832,9 +1887,9 @@ patient.eventHistogram <- function(patient, time = NULL, model, type = "lp", siz
 #' \dontrun{
 #'   NAMEVAR1 = "sex"
 #'   NAMEVAR2 = "age"
-#'   divergent.biplot(X, Y, NAMEVAR1, NAMEVAR2, breaks = 5, x.text = "N. of Patients")
+#'   plot.divergent.biplot(X, Y, NAMEVAR1, NAMEVAR2, breaks = 5, x.text = "N. of Patients")
 #' }
-divergent.biplot <- function(X, Y, NAMEVAR1, NAMEVAR2, breaks, x.text = "N. of Samples"){
+plot.divergent.biplot <- function(X, Y, NAMEVAR1, NAMEVAR2, breaks, x.text = "N. of Samples"){
   df<-NULL
 
   VAR1 <- X[rownames(X), NAMEVAR1] #will be a factor
@@ -1924,16 +1979,16 @@ divergent.biplot <- function(X, Y, NAMEVAR1, NAMEVAR2, breaks, x.text = "N. of S
   return(ggp_distribution)
 }
 
-#' event.density.plot
+#' plot.events
 #'
 #' @param Y Y matrix
 #' @param round Logical. Round time
 #' @param roundTo Round time to which value.
 #' @param categories Categories to print-
 #'
-#' @export event.density.plot
+#' @export
 
-event.density.plot <- function(Y, round = F, roundTo = 0.25, categories = c("Death","Censored")){
+plot.events <- function(Y, round = F, roundTo = 0.25, categories = c("Death","Censored")){
 
   #DFCALLS
   Category <- Time <- Values <- NULL
@@ -2000,8 +2055,8 @@ event.density.plot <- function(Y, round = F, roundTo = 0.25, categories = c("Dea
 #' @param text.size Text size.
 #'
 #' @export
-#'
-plotHDcox.PLS <- function(model, comp = c(1,2), mode = "scores", factor = NULL, legend.title = NULL, mahalanovis_limit = 20, radius = 0.2, names = F, allNames = F, colorReverse = F, text.size = 4){
+
+plot.HDcox.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor = NULL, legend.title = NULL, mahalanovis_limit = 20, radius = 0.2, names = F, allNames = F, colorReverse = F, text.size = 4){
 
   ggp = NULL
   aux.model = model
@@ -2019,7 +2074,7 @@ plotHDcox.PLS <- function(model, comp = c(1,2), mode = "scores", factor = NULL, 
 
   if(!class(aux.model)==pkg.env$model_class){
     stop_quietly("aux.model must be a HDcox object.")
-  }else if(!attr(aux.model, "model") %in% c("PLS-ICOX","sPLS-DRCOX","sPLS-DRCOX-MixOmics","PLS-DACOX-MixOmics")){
+  }else if(!attr(aux.model, "model") %in% pkg.env$pls_methods){
     stop_quietly("aux.model must be a HDcox object pls class ('PLS-ICOX','sPLS-DRCOX','sPLS-DRCOX-MixOmics' or 'PLS-DACOX-MixOmics').")
   }
 
@@ -2090,9 +2145,6 @@ plotHDcox.PLS <- function(model, comp = c(1,2), mode = "scores", factor = NULL, 
         geom_point(aes(x = df[,comp[1]], y = df[,comp[2]], color = factor)) +
         stat_ellipse(aes(x = df[,comp[1]], y = df[,comp[2]], fill = factor), geom = "polygon", alpha = 0.1, show.legend=F) +
         coord_fixed(ratio=1) +
-        #ggtitle(label = bquote("Scores (aux.model) - "~R^2 == .(max(aux.model@aux.modelDF[,2])))) + !!!!!
-        # xlab(label = paste0("p",as.character(comp[1]), " (", as.character(aux.model@aux.modelDF$R2X[comp[1]]*100), " %)")) +
-        # ylab(label = paste0("p",as.character(comp[2]), " (", as.character(aux.model@aux.modelDF$R2X[comp[2]]*100), " %)")) +
         ggtitle(label = bquote(.(txt.expression) ~R^2 == "not R2 yet")) +
         xlab(label = paste0("comp_",as.character(comp[1]), " (", as.character("NA"), " %)")) +
         ylab(label = paste0("comp_",as.character(comp[2]), " (", as.character("NA"), " %)")) +
@@ -2236,9 +2288,6 @@ plotHDcox.PLS <- function(model, comp = c(1,2), mode = "scores", factor = NULL, 
         geom_point(aes(x = df[,comp[1]], y = df[,comp[2]], color = factor)) +
         stat_ellipse(aes(x = df[,comp[1]], y = df[,comp[2]], fill = factor), geom = "polygon", alpha = 0.1, show.legend=F) +
         coord_fixed(ratio=1) +
-        # ggtitle(label = bquote("Biplot (aux.model) - "~R^2 == .(max(aux.model@aux.modelDF[,2])))) +
-        # xlab(label = paste0("p",as.character(comp[1]), " (", as.character(aux.model@aux.modelDF$R2X[comp[1]]*100), " %)")) +
-        # ylab(label = paste0("p",as.character(comp[2]), " (", as.character(aux.model@aux.modelDF$R2X[comp[2]]*100), " %)")) +
         ggtitle(label = bquote(.(txt.expression) ~R^2 == "not R2 yet")) +
         xlab(label = paste0("comp_",as.character(comp[1]), " (", as.character("NA"), " %)")) +
         ylab(label = paste0("comp_",as.character(comp[2]), " (", as.character("NA"), " %)")) +
@@ -2298,9 +2347,6 @@ plotHDcox.PLS <- function(model, comp = c(1,2), mode = "scores", factor = NULL, 
         geom_point(aes(x = df[,comp[1]], y = df[,comp[2]], color = factor)) +
         stat_ellipse(aes(x = df[,comp[1]], y = df[,comp[2]], fill = factor), geom = "polygon", alpha = 0.1, show.legend=F) +
         coord_fixed(ratio=1) +
-        # ggtitle(label = bquote("Biplot (aux.model) - "~R^2 == .(max(aux.model@aux.modelDF[,2])))) +
-        # xlab(label = paste0("p",as.character(comp[1]), " (", as.character(aux.model@aux.modelDF$R2X[comp[1]]*100), " %)")) +
-        # ylab(label = paste0("p",as.character(comp[2]), " (", as.character(aux.model@aux.modelDF$R2X[comp[2]]*100), " %)")) +
         ggtitle(label = bquote(.(txt.expression) ~R^2 == "not R2 yet")) +
         xlab(label = paste0("comp_",as.character(comp[1]), " (", as.character("NA"), " %)")) +
         ylab(label = paste0("comp_",as.character(comp[2]), " (", as.character("NA"), " %)")) +
@@ -2354,7 +2400,15 @@ plotHDcox.PLS <- function(model, comp = c(1,2), mode = "scores", factor = NULL, 
   return(list(plot = ggp, outliers = rownames(subdata)))
 }
 
-eventDensityByLP.plot <- function(model, type = "lp", h.breaks = 30){
+#' plot.cox.event
+#'
+#' @param model HDcox model
+#' @param type "lp", "risk", "expected" or "survival" methodology
+#' @param h.breaks Number of time breaks.
+#'
+#' @export
+
+plot.cox.event <- function(model, type = "lp", h.breaks = 30){
 
   #DFCALLS
   event <- NULL
@@ -2512,7 +2566,7 @@ getAutoKM <- function(type = "LP", model, comp = 1:2, top = 10, ori_data = T, BR
 
 getLPKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
 
-  if(attr(model, "model") %in% c("cox", "coxSW", "coxEN", "PLS-ICOX", "sPLS-DRCOX", "sPLS-DRCOX-MixOmics", "PLS-DACOX-MixOmics", "SB.PLS-ICOX", "SB.sPLS-DRCOX", "MB.sPLS-DRCOX", "MB.sPLS-DACOX")){
+  if(attr(model, "model") %in% c(pkg.env$classical_methods, pkg.env$pls_methods, pkg.env$multiblock_methods)){
 
     if(all(is.null(model$survival_model))){
       if(verbose){
@@ -2534,7 +2588,7 @@ getLPKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL,
   colnames(vars_data) <- "LP"
 
   vars_num <- vars_data
-  if(all(dim(vars_num))>0){
+  if(all(dim(vars_num)>0)){
     info_logrank_num <- getLogRank_NumVariables(data = vars_num, sdata = data.frame(model$Y$data), VAR_EVENT = "event", name_data = NULL, minProp = 0.1, ROUND_CP = 4)
   }else{
     info_logrank_num <- NULL
@@ -2560,9 +2614,9 @@ getLPKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL,
 getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
 
   # DFCALLS
-  lst_vars <- vars_qual <- info_logrank_qual <- NULL
+  lst_vars <- info_logrank_qual <- NULL
 
-  if(attr(model, "model") %in% c("PLS-ICOX", "sPLS-DRCOX", "sPLS-DRCOX-MixOmics", "PLS-DACOX-MixOmics", "SB.PLS-ICOX", "SB.sPLS-DRCOX", "MB.sPLS-DRCOX", "MB.sPLS-DACOX")){
+  if(attr(model, "model") %in% c(pkg.env$pls_methods, pkg.env$multiblock_methods)){
 
     if(!all(is.null(model$survival_model))){
       vars <- names(model$survival_model$fit$coefficients)
@@ -2581,7 +2635,7 @@ getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NUL
   }
 
   #select original or scale data - top X of each component, takes all of them
-  if(!attr(model, "model") %in% c("SB.PLS-ICOX", "SB.sPLS-DRCOX", "MB.sPLS-DRCOX", "MB.sPLS-DACOX")){
+  if(!attr(model, "model") %in% pkg.env$multiblock_methods){
     unique_vars <- deleteIllegalChars(unique(unlist(vars)))
     vars_data <- as.data.frame(model$X$scores[rownames(model$X$scores),unique_vars,drop=F])
   }else{
@@ -2592,10 +2646,10 @@ getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NUL
     }
   }
 
-  if(!attr(model, "model") %in% c("SB.PLS-ICOX", "SB.sPLS-DRCOX", "MB.sPLS-DRCOX", "MB.sPLS-DACOX")){
+  if(!attr(model, "model") %in% pkg.env$multiblock_methods){
     vars_num <- vars_data
 
-    if(all(dim(vars_num))>0){
+    if(all(dim(vars_num)>0)){
       info_logrank_num <- getLogRank_NumVariables(data = vars_num, sdata = data.frame(model$Y$data), VAR_EVENT = "event", name_data = NULL, minProp = 0.1, ROUND_CP = 4)
     }else{
       info_logrank_num <- NULL
@@ -2619,41 +2673,19 @@ getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NUL
   }
 
   ##join data
-  if(!attr(model, "model") %in% c("SB.PLS-ICOX", "SB.sPLS-DRCOX", "MB.sPLS-DRCOX", "MB.sPLS-DACOX")){
-    if(all(dim(vars_qual))>0 & all(dim(vars_num)>0)){
-      d <- cbind(vars_qual, info_logrank_num$df_numASqual)
-      v_names <- info_logrank_num$df_nvar_lrtest[,1:2]
-      v_names <- rbind(v_names, info_logrank_qual)
-
-    }else if(all(dim(vars_qual)>0)){
-      d <- vars_qual
-      v_names <- info_logrank_qual
-
-    }else{
+  if(!attr(model, "model") %in% pkg.env$multiblock_methods){
       d <- info_logrank_num$df_numASqual
       v_names <- info_logrank_num$df_nvar_lrtest[,1:2]
-    }
   }else{
     v_names <- list()
     d <- list()
     for(b in names(model$X$data)){
-      if(all(dim(vars_qual[[b]]))>0 & all(dim(vars_num[[b]])>0)){
-        d[[b]] <- cbind(vars_qual[[b]], info_logrank_num[[b]]$df_numASqual)
-        v_names[[b]] <- info_logrank_num[[b]]$df_nvar_lrtest[,1:2]
-        v_names[[b]] <- rbind(v_names[[b]], info_logrank_qual[[b]])
-
-      }else if(all(dim(vars_qual[[b]])>0)){
-        d[[b]] <- vars_qual[[b]]
-        v_names[[b]] <- info_logrank_qual[[b]]
-
-      }else{
-        d[[b]] <- info_logrank_num[[b]]$df_numASqual
-        v_names[[b]] <- info_logrank_num[[b]]$df_nvar_lrtest[,1:2]
-      }
+      d[[b]] <- info_logrank_num[[b]]$df_numASqual
+      v_names[[b]] <- info_logrank_num[[b]]$df_nvar_lrtest[,1:2]
     }
   }
 
-  if(!attr(model, "model") %in% c("SB.PLS-ICOX", "SB.sPLS-DRCOX", "MB.sPLS-DRCOX", "MB.sPLS-DACOX")){
+  if(!attr(model, "model") %in% pkg.env$multiblock_methods){
     if(only_sig){
 
       if(length(v_names[v_names$`P-Val (Log Rank)` <= alpha,]$Variable)==0){
@@ -2700,7 +2732,7 @@ getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NUL
 
 getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
 
-  if(attr(model, "model") %in% c("PLS-ICOX", "sPLS-DRCOX", "sPLS-DRCOX-MixOmics", "PLS-DACOX-MixOmics")){
+  if(attr(model, "model") %in% pkg.env$pls_methods){
 
     if(all(is.null(model$survival_model))){
       if(verbose){
@@ -2720,7 +2752,7 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
       }
     }
 
-  }else if(attr(model, "model") %in% c("coxEN", "cox", "coxSW")){
+  }else if(attr(model, "model") %in% pkg.env$classical_methods){
 
     if(all(is.na(model$survival_model))){
       if(verbose){
@@ -2732,7 +2764,7 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
     df <- as.data.frame(summary(model$survival_model$fit)[7]$coefficients)
     vars <- rownames(df[order(df$`Pr(>|z|)`, decreasing = F),])[1:min(top, nrow(df))]
 
-  }else if(attr(model, "model") %in% c("SB.PLS-ICOX", "SB.sPLS-DRCOX", "MB.sPLS-DRCOX", "MB.sPLS-DACOX")){
+  }else if(attr(model, "model") %in% pkg.env$multiblock_methods){
 
     if(all(is.na(model$survival_model))){
       if(verbose){
@@ -2746,13 +2778,13 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
       vars <- list()
       vars_data <- list()
 
-      if(attr(model, "model") %in% c("SB.PLS-ICOX")){
+      if(attr(model, "model") %in% pkg.env$sb.plsicox){
         aux <- model$list_pls_models[[b]]
-      }else if(attr(model, "model") %in% c("SB.sPLS-DRCOX")){
+      }else if(attr(model, "model") %in% pkg.env$sb.splsdrcox){
         aux <- model$list_spls_models[[b]]
       }
 
-      if(attr(model, "model") %in% c("SB.PLS-ICOX", "SB.sPLS-DRCOX")){
+      if(attr(model, "model") %in% c(pkg.env$sb.plsicox, pkg.env$sb.splsdrcox)){
 
         for(c in comp){
           if(ncol(aux$X$W.star)>=c){
@@ -2763,7 +2795,7 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
           }
         }
 
-      }else if(attr(model, "model") %in% c("MB.sPLS-DRCOX", "MB.sPLS-DACOX")){
+      }else if(attr(model, "model") %in% c(pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
 
         for(c in comp){
           if(ncol(model$X$W.star[[b]])>=c){
@@ -2783,7 +2815,7 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
   }
 
   #select original or scale data - top X of each component, takes all of them
-  if(!attr(model, "model") %in% c("SB.PLS-ICOX", "SB.sPLS-DRCOX", "MB.sPLS-DRCOX", "MB.sPLS-DACOX")){
+  if(!attr(model, "model") %in% pkg.env$multiblock_methods){
     unique_vars <- deleteIllegalChars(unique(unlist(vars)))
     if(ori_data){
       vars_data <- as.data.frame(model$X_input[rownames(model$X$data),unique_vars,drop=F])
@@ -2802,19 +2834,19 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
     }
   }
 
-  if(!attr(model, "model") %in% c("SB.PLS-ICOX", "SB.sPLS-DRCOX", "MB.sPLS-DRCOX", "MB.sPLS-DACOX")){
+  if(!attr(model, "model") %in% pkg.env$multiblock_methods){
     names_qual <- apply(vars_data, 2, function(x){all(x %in% c(0,1))})
     vars_qual <- vars_data[,names_qual,drop=F]
     vars_num <- vars_data[,!names_qual,drop=F]
 
-    if(all(dim(vars_qual))>0){
+    if(all(dim(vars_qual)>0)){
       for(cn in colnames(vars_qual)){vars_qual[,cn] <- factor(vars_qual[,cn], levels = c(0, 1))}
       info_logrank_qual <- getLogRank_QualVariables(data = vars_qual, sdata = data.frame(model$Y$data), VAR_EVENT = "event", name_data = NULL)
     }else{
       info_logrank_qual = NULL
     }
 
-    if(all(dim(vars_num))>0){
+    if(all(dim(vars_num)>0)){
       info_logrank_num <- getLogRank_NumVariables(data = vars_num, sdata = data.frame(model$Y$data), VAR_EVENT = "event", name_data = NULL, minProp = 0.1, ROUND_CP = 4)
     }else{
       info_logrank_num <- NULL
@@ -2849,7 +2881,7 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
   }
 
   ##join data
-  if(!attr(model, "model") %in% c("SB.PLS-ICOX", "SB.sPLS-DRCOX", "MB.sPLS-DRCOX", "MB.sPLS-DACOX")){
+  if(!attr(model, "model") %in% pkg.env$multiblock_methods){
     if(all(dim(vars_qual))>0 & all(dim(vars_num)>0)){
       d <- cbind(vars_qual, info_logrank_num$df_numASqual)
       v_names <- info_logrank_num$df_nvar_lrtest[,1:2]
@@ -2883,7 +2915,7 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
     }
   }
 
-  if(!attr(model, "model") %in% c("SB.PLS-ICOX", "SB.sPLS-DRCOX", "MB.sPLS-DRCOX", "MB.sPLS-DACOX")){
+  if(!attr(model, "model") %in% pkg.env$multiblock_methods){
     if(only_sig){
 
       if(length(v_names[v_names$`P-Val (Log Rank)` <= alpha,]$Variable)==0){
@@ -2952,12 +2984,29 @@ getLogRank_QualVariables <- function(data, sdata, VAR_EVENT, name_data = NULL){
 
     aux <- cbind(sdata[indexNONA,], variable[indexNONA])
     colnames(aux)[3] <- cn
-    f = as.formula(paste0("Surv(time = time, event = event) ~ ", cn))
-    #SA
-    kmsurvival <- survminer::surv_fit(formula = f, data = aux)
-    pval <- surv_pvalue(kmsurvival)
 
-    LST_QVAR_SIG <- rbind(LST_QVAR_SIG, c(cn, round(pval$pval,4)))
+    #SA
+    f = as.formula(paste0("Surv(time = time, event = event) ~ ", "`",cn,"`"))
+    kmsurvival <- tryCatch(
+      # Specifying expression
+      expr = {
+        survminer::surv_fit(formula = f, data = aux)
+      },
+      # Specifying error message
+      error = function(e){
+        message(paste0("Problems at variable ", cn, ".\n",e$message),". Try to change the name of the variable.")
+        NA
+      }
+    )
+
+    if(all(is.na(kmsurvival))){
+      LST_QVAR_SIG <- rbind(LST_QVAR_SIG, c(cn, NA))
+      next
+    }else{
+      pval <- surv_pvalue(kmsurvival)
+      LST_QVAR_SIG <- rbind(LST_QVAR_SIG, c(cn, round(pval$pval,4)))
+    }
+
   }
 
   LST_QVAR_SIG <- as.data.frame(LST_QVAR_SIG)
@@ -3045,12 +3094,28 @@ getLogRank_NumVariables <- function(data, sdata, VAR_EVENT, name_data = NULL, mi
     auxData <- cbind(sdata[indexNONA,], variable[indexNONA,])
     colnames(auxData)[3] <- cn
 
-    f = as.formula(paste0("Surv(time = time, event = event) ~ ", "`",cn,"`"))
     #SA
-    kmsurvival <- survminer::surv_fit(formula = f, data = auxData)
-    pval <- surv_pvalue(kmsurvival)
+    f = as.formula(paste0("Surv(time = time, event = event) ~ ", "`",cn,"`"))
+    kmsurvival <- tryCatch(
+      # Specifying expression
+      expr = {
+        survminer::surv_fit(formula = f, data = auxData)
+      },
+      # Specifying error message
+      error = function(e){
+        message(paste0("Problems at variable ", cn, ".\n",e$message),". Try to change the name of the variable.")
+        NA
+      }
+    )
 
-    LST_NVAR_SIG <- rbind(LST_NVAR_SIG, c(cn, round(pval$pval,4), cutpoint_value))
+    if(all(is.na(kmsurvival))){
+      LST_NVAR_SIG <- rbind(LST_NVAR_SIG, c(cn, NA, NA))
+      next
+    }else{
+      pval <- surv_pvalue(kmsurvival)
+      LST_NVAR_SIG <- rbind(LST_NVAR_SIG, c(cn, round(pval$pval,4), cutpoint_value))
+    }
+
   }
 
   LST_NVAR_SIG <- as.data.frame(LST_NVAR_SIG)
@@ -3095,8 +3160,24 @@ plot.survival_plot.qual <- function(data, sdata, cn_variables, name_data = NULL,
       aux <- aux[!is.na(aux[,3]),]
 
       colnames(aux)[3] <- cn
+
       f = as.formula(paste0("Surv(time = time, event = event) ~ ", cn))
-      kmsurvival <- survminer::surv_fit(formula = f, data = aux)
+
+      kmsurvival <- tryCatch(
+        # Specifying expression
+        expr = {
+          survminer::surv_fit(formula = f, data = aux)
+        },
+        # Specifying error message
+        error = function(e){
+          message(paste0("Problems at variable ", cn, ".\n",e$message),". Try to change the name of the variable.")
+          NA
+        }
+      )
+
+      if(all(is.na(kmsurvival))){
+        next
+      }
 
       if(requireNamespace("RColorConesa", quietly = TRUE)){
         colors <- RColorConesa::colorConesa(length(levels(data[,cn])))
