@@ -273,8 +273,8 @@ pat_histogram <- plot_patient.eventHistogram(patient = new_pat,
                                              model = lst_models$`SPLS-DRCOX`, 
                                              type = "lp")
 
-## ---- fig.small=T-------------------------------------------------------------
-plot_divergent.biplot
+## ---- eval=F------------------------------------------------------------------
+#  #plot_divergent.biplot - for num and qual variables
 
 ## -----------------------------------------------------------------------------
 lst_cox.comparison <- plot_cox.comparePatients.list(lst_models = lst_models, 

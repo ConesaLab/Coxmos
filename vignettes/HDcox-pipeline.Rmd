@@ -472,7 +472,7 @@ pat_histogram <- plot_patient.eventHistogram(patient = new_pat,
                                              type = "lp")
 ```
 
-```{r, fig.small=T}
+```{r, eval=F}
 #plot_divergent.biplot - for num and qual variables
 ```
 

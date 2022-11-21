@@ -1383,8 +1383,6 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
       W.star <- model$X$W.star
     }
 
-    ### IF MODEL COMES FROM MIXOMICS - WE CANNOT USE ONLY W.STAR, WE SHOULD normalizeD DE VECTOR !!!
-
     vector <- W.star %*% coefficients
 
     if(error.bar){
@@ -1783,7 +1781,12 @@ plot_cox.comparePatients <- function(model, df.pat, error.bar = F, onlySig = T, 
   lp.new_pat_variable <- apply(norm_patient[,rownames(coefficients),drop=F], 1, function(x){
     x * coefficients #predict terms
   })
-  lp.pats <- norm_patient[,rownames(coefficients)] %*% coefficients
+
+  #Compute LP without top variables
+  #can be change for getLPforNewPatient(model = model, new_pat = patient, time = time, type = type, method = "cox")
+  #for each patient on the data frame
+
+  lp.pats <- norm_patient[,rownames(ggp.simulated_beta$beta)] %*% ggp.simulated_beta$beta
   colnames(lp.pats) <- "linear predictor"
 
   rownames(lp.new_pat_variable) <- rownames(coefficients)
@@ -1871,26 +1874,10 @@ plot_patient.eventDensity <- function(patient, time = NULL, model, type = "lp", 
   #DFCALLS
   x <- y <- event <- NULL
 
-  scores <- predict.HDcox(object = model, newdata = patient) #X must be original X data
+  pred.value <- getLPforNewPatient(model = model, new_pat = patient, time = time, type = type, method = "cox")
 
   plot <- plot_cox.event(model, type = type)
   plot <- plot$plot.density
-
-  if(type %in% c("expected", "survival") & is.null(time)){
-    stop("For survivial or expected prediction, you must provided a specific time of study.")
-  }
-
-  if(type %in% c("expected", "survival")){
-    new_pat <- as.data.frame(cbind(scores, data.frame(time = time, event = 0)))
-  }else{
-    new_pat <- as.data.frame(scores)
-  }
-
-  if(all(is.null(model$survival_model))){
-    stop("Survival model not found.")
-  }
-
-  pred.value <- predict(object = model$survival_model$fit, newdata = new_pat, type = type)
 
   #get density
   density_event <- density(plot$data[plot$data$event==1,1])
@@ -1938,26 +1925,10 @@ plot_patient.eventHistogram <- function(patient, time = NULL, model, type = "lp"
   #DFCALLS
   x <- y <- NULL
 
-  scores <- predict.HDcox(object = model, newdata = patient) #X must be original X data
+  pred.value <- getLPforNewPatient(model = model, new_pat = patient, time = time, type = type, method = "cox")
 
   plot <- plot_cox.event(model, type = type)
   plot <- plot$plot.histogram
-
-  if(type %in% c("expected", "survival") & is.null(time)){
-    stop("For survivial or expected prediction, you must provided a specific time of study.")
-  }
-
-  if(type %in% c("expected", "survival")){
-    new_pat <- as.data.frame(cbind(scores, data.frame(time = time, event = 0)))
-  }else{
-    new_pat <- as.data.frame(scores)
-  }
-
-  if(all(is.null(model$survival_model))){
-    stop("Survival model not found.")
-  }
-
-  pred.value <- predict(object = model$survival_model$fit, newdata = new_pat, type = type)
 
   #get histogram
   intervals <- plot$layers[[1]]$stat_params$breaks

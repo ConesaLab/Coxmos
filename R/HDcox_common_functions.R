@@ -2810,3 +2810,63 @@ evaluation_HDcox_class = function(object, ...) {
                     model = pkg.env$eval_class)
   return(model)
 }
+
+
+#' getLPforNewPatient
+#'
+#' @param model HDcox model
+#' @param new_pat New patient row (raw data)
+#' @param time Time point for predicting Expected or Survival probability
+#' @param type Prediction type: 'lp', 'risk', 'expected' or 'survival'.
+#' @param method Prediction by cox model 'cox' or using W.star 'W.star' (not implemented for MB approaches)
+#'
+#' @return Return the lp or other metric for the patient
+#' @export
+getLPforNewPatient <- function(model, new_pat, time = NULL, type = "lp", method = "cox"){
+  #could be obtain by predicting scores or by computing W*
+
+  if(method == "cox"){
+    scores <- predict.HDcox(object = model, newdata = new_pat) #X must be original X data
+
+    if(type %in% c("expected", "survival") & is.null(time)){
+      stop("For survivial or expected prediction, you must provided a specific time of study.")
+    }
+
+    if(type %in% c("expected", "survival")){
+      df <- as.data.frame(cbind(scores, data.frame(time = time, event = 0)))
+    }else{
+      df <- as.data.frame(scores)
+    }
+
+    if(all(is.null(model$survival_model))){
+      stop("Survival model not found.")
+    }
+
+    pred.value <- predict(object = model$survival_model$fit, newdata = df, type = type)
+
+    return(pred.value)
+
+  }else if(method == "W.star"){
+
+    beta <- as.matrix(model$survival_model$fit$coefficients)
+    W.star <- model$X$W.star
+    coefficients <- W.star %*% beta
+
+    #norm patient
+    if(!is.null(model$X$x.mean) & !is.null(model$X$x.sd)){
+      norm_patient <- scale(new_pat, center = model$X$x.mean, scale = model$X$x.sd)
+    }else if(!is.null(model$X$x.mean)){
+      norm_patient <- scale(new_pat, center = model$X$x.mean, scale = F)
+    }else if(!is.null(model$X$x.sd)){
+      norm_patient <- scale(new_pat, center = F, scale = model$X$x.sd)
+    }else{
+      norm_patient <- new_pat
+    }
+
+    pred.value <- norm_patient[,rownames(coefficients)] %*% coefficients
+    pred.value <- pred.value[[1]]
+    names(pred.value) <- rownames(new_pat)
+
+  }
+
+}
