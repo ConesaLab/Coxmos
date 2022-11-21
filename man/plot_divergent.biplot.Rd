@@ -2,7 +2,7 @@
 % Please edit documentation in R/HDcox_plot_functions.R
 \name{plot_divergent.biplot}
 \alias{plot_divergent.biplot}
-\title{plot.divergent.biplot}
+\title{plot_divergent.biplot}
 \usage{
 plot_divergent.biplot(
   X,
@@ -39,6 +39,6 @@ For time comparison between best models, use the cross validation objects instea
 \dontrun{
   NAMEVAR1 = "sex"
   NAMEVAR2 = "age"
-  plot.divergent.biplot(X, Y, NAMEVAR1, NAMEVAR2, breaks = 5, x.text = "N. of Patients")
+  plot_divergent.biplot(X, Y, NAMEVAR1, NAMEVAR2, breaks = 5, x.text = "N. of Patients")
 }
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/HDcox_plot_functions.R
 \name{plot_pseudobeta.newPatient}
 \alias{plot_pseudobeta.newPatient}
-\title{plot.pseudobeta.newPatient}
+\title{plot_pseudobeta.newPatient}
 \usage{
 plot_pseudobeta.newPatient(
   model,
@@ -36,5 +36,5 @@ plot_pseudobeta.newPatient(
 \item{show.betas}{Show original betas}
 }
 \description{
-plot.pseudobeta.newPatient
+plot_pseudobeta.newPatient
 }

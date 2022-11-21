@@ -361,6 +361,13 @@ getAUC_from_LP_2.0 <- function(linear.predictors, Y, times, bestModel = NULL, me
 }
 
 getAUC_vector <-function(output, method, eval, times = NULL, times.vector = NULL){
+
+  if(all(is.na(output)) || is.null(output)){
+    AUC <- NA
+    AUC.vector <- NA
+    return(list(AUC = AUC, AUC.vector = AUC.vector))
+  }
+
   if(method %in% c(pkg.env$AUC_smoothROCtime_C, pkg.env$AUC_smoothROCtime_I)){
     AUC <- NULL
     AUC.vector <- NULL
@@ -385,7 +392,7 @@ getAUC_vector <-function(output, method, eval, times = NULL, times.vector = NULL
     AUC <- NULL
     AUC.vector <- NULL
     for(t in 1:length(output)){
-      if(length(output[[t]]) > 1 && !is.na(output[[t]])){
+      if(length(output[[t]]) > 1 && !all(is.na(output[[t]]))){
         AUC.vector <- c(AUC.vector, output[[t]]$auc)
       }else{
         AUC.vector <- c(AUC.vector, NA)
@@ -401,7 +408,7 @@ getAUC_vector <-function(output, method, eval, times = NULL, times.vector = NULL
     AUC <- NULL
     AUC.vector <- NULL
     for(t in 1:length(output)){
-      if(length(output[[t]]) > 1 && !is.na(output[[t]])){
+      if(length(output[[t]]) > 1 && !all(is.na(output[[t]]))){
         AUC.vector <- c(AUC.vector, output[[t]]$AUC$AUC)
       }else{
         AUC.vector <- c(AUC.vector, NA)
@@ -417,7 +424,7 @@ getAUC_vector <-function(output, method, eval, times = NULL, times.vector = NULL
     AUC <- NULL
     AUC.vector <- NULL
     for(t in 1:length(output)){
-      if(length(output[[t]]) > 1 && !is.na(output[[t]])){
+      if(length(output[[t]]) > 1 && !all(is.na(output[[t]]))){
         AUC.vector <- c(AUC.vector, output[[t]]$AUC)
       }else{
         AUC.vector <- c(AUC.vector, NA)
@@ -433,7 +440,7 @@ getAUC_vector <-function(output, method, eval, times = NULL, times.vector = NULL
     AUC <- NULL
     AUC.vector <- NULL
     for(t in 1:length(output)){
-      if(length(output[[t]]) > 1 && !is.na(output[[t]])){
+      if(length(output[[t]]) > 1 && !all(is.na(output[[t]]))){
         AUC.vector <- c(AUC.vector, output[[t]]$AUC)
       }else{
         AUC.vector <- c(AUC.vector, NA)

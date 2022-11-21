@@ -2,7 +2,7 @@
 % Please edit documentation in R/HDcox_plot_functions.R
 \name{plot_HDcox.PLS.model}
 \alias{plot_HDcox.PLS.model}
-\title{plotHDcox.PLS}
+\title{plot_HDcox.PLS.model}
 \usage{
 plot_HDcox.PLS.model(
   model,
@@ -42,5 +42,5 @@ plot_HDcox.PLS.model(
 \item{text.size}{Text size.}
 }
 \description{
-plotHDcox.PLS
+plot_HDcox.PLS.model
 }

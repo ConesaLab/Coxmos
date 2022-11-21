@@ -2,7 +2,7 @@
 % Please edit documentation in R/HDcox_plot_functions.R
 \name{plot_pseudobeta}
 \alias{plot_pseudobeta}
-\title{plot.pseudobeta}
+\title{plot_pseudobeta}
 \usage{
 plot_pseudobeta(
   model,
@@ -30,5 +30,5 @@ plot_pseudobeta(
 \item{auto.limits}{Compute Y limit automatically}
 }
 \description{
-plot.pseudobeta
+plot_pseudobeta
 }

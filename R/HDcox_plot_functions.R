@@ -44,23 +44,23 @@ save_ggplot <- function(plot, folder = NULL, name = NULL, wide = T, quality = "4
   }else{
     if(quality == "HD"){
       width = 960/dpi#3.19992
-      height = 2.4
+      height = 720/dpi
     }else if(quality == "FHD"){
       dpi = dpi * ratios[1]
       width = 1440/dpi#4.79988
-      height = 3.6
+      height = 1080/dpi
     }else if(quality == "2K"){
       dpi = dpi * ratios[1] * ratios[2]
       width = 1920/dpi#6.39984
-      height = 4.8
+      height = 1440/dpi
     }else if(quality == "4K"){
       dpi = dpi * ratios[1] * ratios[2] * ratios[3]
       width = 2880/dpi#9.59976
-      height = 7.2
+      height = 2160/dpi
     }else if(quality == "8K"){
       dpi = dpi * ratios[1] * ratios[2] * ratios[3] * ratios[4]
       width = 5760/dpi#19.19952
-      height = 14.4
+      height = 4320/dpi
     }
   }
 
@@ -133,23 +133,23 @@ save_ggplot.svg <- function(plot, folder = NULL, name = NULL, wide = T, quality 
   }else{
     if(quality == "HD"){
       width = 960/dpi#3.19992
-      height = 2.4
+      height = 720/dpi
     }else if(quality == "FHD"){
       dpi = dpi * ratios[1]
       width = 1440/dpi#4.79988
-      height = 3.6
+      height = 1080/dpi
     }else if(quality == "2K"){
       dpi = dpi * ratios[1] * ratios[2]
       width = 1920/dpi#6.39984
-      height = 4.8
+      height = 1440/dpi
     }else if(quality == "4K"){
       dpi = dpi * ratios[1] * ratios[2] * ratios[3]
       width = 2880/dpi#9.59976
-      height = 7.2
+      height = 2160/dpi
     }else if(quality == "8K"){
       dpi = dpi * ratios[1] * ratios[2] * ratios[3] * ratios[4]
       width = 5760/dpi#19.19952
-      height = 14.4
+      height = 4320/dpi
     }
   }
 
@@ -224,23 +224,23 @@ save_ggplot_lst <- function(lst_plots, folder = NULL, prefix = NULL, suffix = NU
   }else{
     if(quality == "HD"){
       width = 960/dpi#3.19992
-      height = 2.4
+      height = 720/dpi
     }else if(quality == "FHD"){
       dpi = dpi * ratios[1]
       width = 1440/dpi#4.79988
-      height = 3.6
+      height = 1080/dpi
     }else if(quality == "2K"){
       dpi = dpi * ratios[1] * ratios[2]
       width = 1920/dpi#6.39984
-      height = 4.8
+      height = 1440/dpi
     }else if(quality == "4K"){
       dpi = dpi * ratios[1] * ratios[2] * ratios[3]
       width = 2880/dpi#9.59976
-      height = 7.2
+      height = 2160/dpi
     }else if(quality == "8K"){
       dpi = dpi * ratios[1] * ratios[2] * ratios[3] * ratios[4]
       width = 5760/dpi#19.19952
-      height = 14.4
+      height = 4320/dpi
     }
   }
 
@@ -348,23 +348,23 @@ save_ggplot_lst.svg <- function(lst_plots, folder = NULL, prefix = NULL, suffix 
   }else{
     if(quality == "HD"){
       width = 960/dpi#3.19992
-      height = 2.4
+      height = 720/dpi
     }else if(quality == "FHD"){
       dpi = dpi * ratios[1]
       width = 1440/dpi#4.79988
-      height = 3.6
+      height = 1080/dpi
     }else if(quality == "2K"){
       dpi = dpi * ratios[1] * ratios[2]
       width = 1920/dpi#6.39984
-      height = 4.8
+      height = 1440/dpi
     }else if(quality == "4K"){
       dpi = dpi * ratios[1] * ratios[2] * ratios[3]
       width = 2880/dpi#9.59976
-      height = 7.2
+      height = 2160/dpi
     }else if(quality == "8K"){
       dpi = dpi * ratios[1] * ratios[2] * ratios[3] * ratios[4]
       width = 5760/dpi#19.19952
-      height = 14.4
+      height = 4320/dpi
     }
   }
 
@@ -440,10 +440,10 @@ save_ggplot_lst.svg <- function(lst_plots, folder = NULL, prefix = NULL, suffix 
 #' @examples
 #' \dontrun{
 #'   lst_models = {"cox" = cox_model, "PLS-ICOX" = cv.plsicox_model, "sPLS-DRCOX" = cv.splsdrcox_model}
-#'   plot.time.models(lst_models, x.text = "Method")
+#'   plot_time.models(lst_models, x.text = "Method")
 #' }
 
-plot.time.models <- function(lst_models, x.text = "Method", y.text = NULL){
+plot_time.models <- function(lst_models, x.text = "Method", y.text = NULL){
 
   if(is.null(names(lst_models))){
     names(lst_models) <- unlist(lapply(lst_models, function(x){
@@ -485,13 +485,13 @@ plot.time.models <- function(lst_models, x.text = "Method", y.text = NULL){
   df.times$method <- names(lst_times)
   rownames(df.times) <- NULL
 
-  max <- round_any(max(df.times$times), 10, f = ceiling)
+  max <- round2any(max(df.times$times), 10, f = ceiling)
   divisions <- 10
 
   if(((max - round(min(df.times$times))) / divisions)>2){
-    dist <- round_any(((max - round(min(df.times$times))) / divisions), 10, f = ceiling)
+    dist <- round2any(((max - round(min(df.times$times))) / divisions), 10, f = ceiling)
   }else{
-    dist <- round_any(((max - round(min(df.times$times))) / divisions), 1, f = ceiling)
+    dist <- round2any(((max - round(min(df.times$times))) / divisions), 1, f = ceiling)
   }
 
   accuracy <- dist * 0.1
@@ -552,9 +552,9 @@ evalplot_errorbar <- function(df, x.var, y.var, y.var.sd, x.color = NULL, best_c
   }
 
   #ROUND AUC VALUES - 3 decimal digits
-  df[,y.var] <- round_any(df[,y.var], accuracy = 0.001)
-  df[,y.var] <- round_any(df[,y.var], accuracy = 0.001)
-  best_df[,y.var] <- round_any(best_df[,y.var], accuracy = 0.001)
+  df[,y.var] <- round2any(df[,y.var], accuracy = 0.001)
+  df[,y.var] <- round2any(df[,y.var], accuracy = 0.001)
+  best_df[,y.var] <- round2any(best_df[,y.var], accuracy = 0.001)
 
   if(!is.null(x.color)){
     ggp <- ggplot2::ggplot(df, aes_string(x = x.var, y = y.var, color = x.color, group = x.color)) +
@@ -738,8 +738,8 @@ point.sd.mean_performace2.0 <- function(df, x.var = "method", y.var = "AUC", x.c
   rownames(mean_vector) <- NULL
   mean_vector$sd <- sd_vector
 
-  min <- round_any(min(mean_vector$mean_vector-mean_vector$sd) * 10, 0.5, floor) / 10
-  max <- round_any(max(mean_vector$mean_vector+mean_vector$sd) * 10, 0.5, ceiling) / 10
+  min <- round2any(min(mean_vector$mean_vector-mean_vector$sd) * 10, 0.5, floor) / 10
+  max <- round2any(max(mean_vector$mean_vector+mean_vector$sd) * 10, 0.5, ceiling) / 10
 
   mean_vector$method <- factor(x = mean_vector$method, levels = levels(df$method))
 
@@ -807,16 +807,35 @@ comboplot.performance2.0 <- function(df, x.var = "time", y.var = "AUC", x.color 
   return(list(lineplot = a, lineplot.mean = pp))
 }
 
-#' plot.evaluation.list
+#' plot_evaluation.list
 #'
-#' @param eval_results List of eval_models4.0 results.
+#' @param lst_eval_results List of eval_models4.0 results.
 #' @param pred.attr "mean" or "median"
 #' @param y.min Minimum Y value to plot. If NULL, automatic detection.
 #' @param type type plot. Must be one of the following: "both", "line", "mean". In other case, "both" will be selected.
 #'
 #' @export
 
-plot.evaluation.list <- function(eval_results, pred.attr = "mean", y.min = NULL, type = "both"){
+plot_evaluation.list <- function(lst_eval_results, pred.attr = "mean", y.min = NULL, type = "both"){
+
+  lst_res <- purrr::map(lst_eval_results, ~plot_evaluation(eval_results = .,
+                                                      pred.attr = pred.attr,
+                                                      y.min = y.min, type = type))
+
+  return(lst_res)
+
+}
+
+#' plot_evaluation
+#'
+#' @param eval_results Eval_models4.0 object
+#' @param pred.attr "mean" or "median"
+#' @param y.min Minimum Y value to plot. If NULL, automatic detection.
+#' @param type type plot. Must be one of the following: "both", "line", "mean". In other case, "both" will be selected.
+#'
+#' @export
+
+plot_evaluation <- function(eval_results, pred.attr = "mean", y.min = NULL, type = "both"){
 
   if(!pred.attr %in% c("mean", "median")){
     stop("pred.attr parameter must be one of: 'mean' or 'median'")
@@ -828,60 +847,57 @@ plot.evaluation.list <- function(eval_results, pred.attr = "mean", y.min = NULL,
 
   #select minimum for all evals
   if(is.null(y.min)){
-    y.min <- floor(min(unlist(lapply(eval_results, function(x){min(x$df$AUC, na.rm = T)})))*10)/10
+    y.min <- floor(min(eval_results$df$AUC, na.rm = T)*10)/10
   }
 
   lst_ggp <- list()
-  for(eval_m in names(eval_results)){
 
-    lst_plots <- comboplot.performance2.0(df = eval_results[[eval_m]]$df,
-                                          x.var = "time", y.var = "AUC", x.color = "method",
-                                          y.limit = c(y.min, 1), pred.attr = pred.attr)
-    if(type == "both"){
-      lst_ggp[[eval_m]] <- lst_plots
-    }else if(type == "line"){
-      lst_ggp[[eval_m]] <- lst_plots$lineplot
-    }else if(type == "mean"){
-      lst_ggp[[eval_m]] <- lst_plots$lineplot.mean
+  lst_plots <- comboplot.performance2.0(df = eval_results$df,
+                                        x.var = "time", y.var = "AUC", x.color = "method",
+                                        y.limit = c(y.min, 1), pred.attr = pred.attr)
+  if(type == "both"){
+    lst_ggp <- lst_plots
+  }else if(type == "line"){
+    lst_ggp <- lst_plots$lineplot
+  }else if(type == "mean"){
+    lst_ggp <- lst_plots$lineplot.mean
+  }
+
+  lst_tests <-c("t.test", "anova","wilcox.test", "kruskal.test", "NULL")
+  lst_plot_comparisons <- list()
+  for(t in 1:length(lst_tests)){
+
+    if(lst_tests[[t]]!="NULL"){
+      test_comparations = lst_tests[[t]]
+    }else{
+      test_comparations = NULL
     }
 
-    lst_tests <-c("t.test", "anova","wilcox.test", "kruskal.test", "NULL")
-    lst_plot_comparisons <- list()
-    for(t in 1:length(lst_tests)){
+    plot <- boxplot.performance(df = eval_results$df,
+                                x.var = "method",
+                                y.var = "AUC",
+                                x.fill = "method",
+                                x.alpha = NULL,
+                                x.lab = "Method",
+                                y.lab = "AUC",
+                                fill.lab = NULL,
+                                title = paste0("Method Performance"),
+                                y.limit = NULL,
+                                y.limit.exception = NULL,
+                                jitter = F,
+                                test = test_comparations,
+                                show.median = T,
+                                round.median = 3)
 
-      if(lst_tests[[t]]!="NULL"){
-        test_comparations = lst_tests[[t]]
-      }else{
-        test_comparations = NULL
-      }
-
-      plot <- boxplot.performance(df = eval_results[[eval_m]]$df,
-                                  x.var = "method",
-                                  y.var = "AUC",
-                                  x.fill = "method",
-                                  x.alpha = NULL,
-                                  x.lab = "Method",
-                                  y.lab = "AUC",
-                                  fill.lab = NULL,
-                                  title = paste0(eval_m, " - Method Performance"),
-                                  y.limit = NULL,
-                                  y.limit.exception = NULL,
-                                  jitter = F,
-                                  test = test_comparations,
-                                  show.median = T,
-                                  round.median = 3)
-
-      if(lst_tests[[t]] == "NULL"){
-        lst_plot_comparisons[["no_test"]] <- plot
-      }else{
-        lst_plot_comparisons[[lst_tests[[t]]]] <- plot
-      }
-
+    if(lst_tests[[t]] == "NULL"){
+      lst_plot_comparisons[["no_test"]] <- plot
+    }else{
+      lst_plot_comparisons[[lst_tests[[t]]]] <- plot
     }
 
   }
 
-  return(lst_ggp)
+  return(list("lst_plots" = lst_ggp, "lst_plot_comparisons" = lst_plot_comparisons))
 }
 
 #' loadingplot.HDcox
@@ -892,7 +908,7 @@ plot.evaluation.list <- function(eval_results, pred.attr = "mean", y.min = NULL,
 #' @param auto.limits Logical. If TRUE, limits are detected for a better plot.
 #'
 #' @export
-#'
+
 loadingplot.HDcox <- function(model, zero.rm = F, top = NULL, auto.limits = T){
 
   #DFCALLS
@@ -904,7 +920,7 @@ loadingplot.HDcox <- function(model, zero.rm = F, top = NULL, auto.limits = T){
   limit_color = 300
 
   if(auto.limits){
-    auto.limits <- round_any(max(abs(loading_values)), accuracy = 0.1, f = ceiling)
+    auto.limits <- round2any(max(abs(loading_values)), accuracy = 0.1, f = ceiling)
   }else{
     auto.limits <- 1
   }
@@ -995,7 +1011,7 @@ loadingplot.HDcox <- function(model, zero.rm = F, top = NULL, auto.limits = T){
 #' @param auto.limits Logical. If TRUE, limits are detected for a better plot.
 #'
 #' @export
-#'
+
 loadingplot.fromVector.HDcox <- function(model, vector, zero.rm = F, top = NULL, auto.limits = T){
 
   #DFCALLS
@@ -1007,7 +1023,7 @@ loadingplot.fromVector.HDcox <- function(model, vector, zero.rm = F, top = NULL,
   limit_color = 300
 
   if(auto.limits){
-    auto.limits <- round_any(max(abs(loading_values)), accuracy = 0.1, f = ceiling)
+    auto.limits <- round2any(max(abs(loading_values)), accuracy = 0.1, f = ceiling)
   }else{
     auto.limits <- 1
   }
@@ -1096,7 +1112,7 @@ loadingplot.fromVector.HDcox <- function(model, vector, zero.rm = F, top = NULL,
 #' @param auto.limits Logical. If TRUE, limits are detected for a better plot.
 #'
 #' @export
-#'
+
 w.starplot.HDcox <- function(model, zero.rm = F, top = NULL, auto.limits = T){
 
   #DFCALLS
@@ -1108,7 +1124,7 @@ w.starplot.HDcox <- function(model, zero.rm = F, top = NULL, auto.limits = T){
   limit_color = 300
 
   if(auto.limits){
-    auto.limits <- round_any(max(abs(loading_values)), accuracy = 0.1, f = ceiling)
+    auto.limits <- round2any(max(abs(loading_values)), accuracy = 0.1, f = ceiling)
   }else{
     auto.limits <- 1
   }
@@ -1205,14 +1221,14 @@ coxweightplot.fromVector.HDcox <- function(model, vector, sd.min = NULL, sd.max 
 
   if(auto.limits){
     if(!is.null(sd.min) & !is.null(sd.max)){
-      auto.limits_min <- round_any(max(abs(sd.min)), accuracy = accuracy, f = ceiling)
-      auto.limits_max <- round_any(max(abs(sd.max)), accuracy = accuracy, f = ceiling)
+      auto.limits_min <- round2any(max(abs(sd.min)), accuracy = accuracy, f = ceiling)
+      auto.limits_max <- round2any(max(abs(sd.max)), accuracy = accuracy, f = ceiling)
       auto.limits <- max(auto.limits_min, auto.limits_max)
     }else{
-      auto.limits <- round_any(max(abs(loading_values)), accuracy = accuracy, f = ceiling)
+      auto.limits <- round2any(max(abs(loading_values)), accuracy = accuracy, f = ceiling)
     }
   }else{
-    auto.limits <- round_any(max(c(abs(sd.max), abs(sd.min), abs(loading_values))), accuracy = accuracy, f = ceiling)
+    auto.limits <- round2any(max(c(abs(sd.max), abs(sd.min), abs(loading_values))), accuracy = accuracy, f = ceiling)
   }
 
   for(i in 1:ncol(loading_values)){
@@ -1308,7 +1324,29 @@ coxweightplot.fromVector.HDcox <- function(model, vector, sd.min = NULL, sd.max 
   return(ggp_loading)
 }
 
-#' plot.pseudobeta
+#' plot_pseudobeta.list
+#'
+#' @param lst_models List of HDcox model
+#' @param error.bar Logical. Show error bar
+#' @param onlySig Logical. Compute psudobetas using only significant components.
+#' @param alpha Significant value (P.value).
+#' @param zero.rm Logical. Remove variables with a pseudobeta equal to 0.
+#' @param top Plot the top X variables with the higher pseudobetas in absolute value.
+#' @param auto.limits Compute Y limit automatically
+#'
+#' @export
+
+plot_pseudobeta.list <- function(lst_models, error.bar = T, onlySig = F, alpha = 0.05, zero.rm = F, top = NULL, auto.limits = T){
+
+  lst_plots <- purrr::map(lst_models, ~plot_pseudobeta(model = .,
+                                                       error.bar = error.bar,
+                                                       onlySig = onlySig, alpha = alpha,
+                                                       zero.rm = zero.rm, auto.limits = auto.limits, top = top))
+
+  return(lst_plots)
+}
+
+#' plot_pseudobeta
 #'
 #' @param model HDcox model
 #' @param error.bar Logical. Show error bar
@@ -1320,7 +1358,7 @@ coxweightplot.fromVector.HDcox <- function(model, vector, sd.min = NULL, sd.max 
 #'
 #' @export
 
-plot.pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zero.rm = F, top = NULL, auto.limits = T){
+plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zero.rm = F, top = NULL, auto.limits = T){
 
   if(!attr(model, "model") %in% c(pkg.env$pls_methods, pkg.env$multiblock_methods)){
     stop("Model must be one of the follow models: 'PLS-ICOX', 'sPLS-DRCOX', 'sPLS-DRCOX-MixOmics', 'PLS-DACOX-MixOmics', 'SB.PLS-ICOX', 'SB.sPLS-DRCOX', 'MB.sPLS-DRCOX', 'MB.sPLS-DACOX'")
@@ -1455,6 +1493,8 @@ plot.pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
 
   }
 
+  colnames(vector) <- "coef"
+
   #it will be a list for mb approaches
   return(list(plot = plot,
               beta = vector,
@@ -1462,7 +1502,35 @@ plot.pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
               sd.max = sd.max))
 }
 
-#' plot.pseudobeta.newPatient
+#' plot_pseudobeta.newPatient.list
+#'
+#' @param lst_models HDcox model
+#' @param new_pat Row of new patients
+#' @param error.bar Logical. Show error bar
+#' @param onlySig Logical. Compute psudobetas using only significant components.
+#' @param alpha Significant value (P.value).
+#' @param zero.rm Logical. Remove variables with a pseudobeta equal to 0.
+#' @param top Plot the top X variables with the higher pseudobetas in absolute value.
+#' @param auto.limits Compute Y limit automatically
+#' @param show.betas Show original betas
+#'
+#' @export
+
+plot_pseudobeta.newPatient.list <- function(lst_models, new_pat, error.bar = T, onlySig = T, alpha = 0.05, zero.rm = T,
+                                            top = NULL, auto.limits = T, show.betas = F){
+
+  lst_plots <- purrr::map(lst_models, ~plot_pseudobeta.newPatient(model = .,
+                                                                  new_pat = new_pat,
+                                                                  error.bar = error.bar,
+                                                                  onlySig = onlySig, alpha = alpha,
+                                                                  zero.rm = zero.rm, top = top,
+                                                                  auto.limits = auto.limits, show.betas = show.betas))
+
+  return(lst_plots)
+
+}
+
+#' plot_pseudobeta.newPatient
 #'
 #' @param model HDcox model
 #' @param new_pat Row of new patients
@@ -1476,14 +1544,14 @@ plot.pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
 #'
 #' @export
 
-plot.pseudobeta.newPatient <- function(model, new_pat, error.bar = T, onlySig = T, alpha = 0.05, zero.rm = T,
+plot_pseudobeta.newPatient <- function(model, new_pat, error.bar = T, onlySig = T, alpha = 0.05, zero.rm = T,
                                        top = NULL, auto.limits = T, show.betas = F){
 
   #DFCALLS
   lp <- lp.min <- lp.max <- NULL
 
   #plot
-  ggp.simulated_beta <- plot.pseudobeta(model = model, error.bar = error.bar, onlySig = onlySig,
+  ggp.simulated_beta <- plot_pseudobeta(model = model, error.bar = error.bar, onlySig = onlySig,
                                               alpha = alpha, zero.rm = zero.rm, auto.limits = auto.limits, top = top)
   coefficients <- ggp.simulated_beta$beta
 
@@ -1521,6 +1589,8 @@ plot.pseudobeta.newPatient <- function(model, new_pat, error.bar = T, onlySig = 
   lp.new_pat_variable <- lp.new_pat_variable[rownames(ggp.simulated_beta$plot$data),,drop=F]
   lp.new_pat_variable.min <- lp.new_pat_variable.min[rownames(ggp.simulated_beta$plot$data),,drop=F]
   lp.new_pat_variable.max <- lp.new_pat_variable.max[rownames(ggp.simulated_beta$plot$data),,drop=F]
+
+  coefficients <- coefficients[rownames(lp.new_pat_variable),,drop=F]
 
   #terms
   # df <- as.data.frame(cbind(cbind(ggp.simulated_beta$beta,
@@ -1563,19 +1633,19 @@ plot.pseudobeta.newPatient <- function(model, new_pat, error.bar = T, onlySig = 
     if(error.bar){
       val_min <- as.numeric(max(abs(coeff.min), abs(df.pat$lp.min)))
       val_max <- as.numeric(max(abs(coeff.max), abs(df.pat$lp.max)))
-      auto.limits_min <- round_any(val_min, accuracy = accuracy, f = ceiling)
-      auto.limits_max <- round_any(val_max, accuracy = accuracy, f = ceiling)
+      auto.limits_min <- round2any(val_min, accuracy = accuracy, f = ceiling)
+      auto.limits_max <- round2any(val_max, accuracy = accuracy, f = ceiling)
       auto.limits <- max(auto.limits_min, auto.limits_max)
     }else{
-      auto.limits <- round_any(max(abs(coefficients), abs(df.pat$lp)), accuracy = accuracy, f = ceiling)
+      auto.limits <- round2any(max(abs(coefficients), abs(df.pat$lp)), accuracy = accuracy, f = ceiling)
     }
   }else{ #not show.betas
     if(error.bar){
-      auto.limits_min <- round_any(max(abs(df.pat$lp.min)), accuracy = accuracy, f = ceiling)
-      auto.limits_max <- round_any(max(abs(df.pat$lp.max)), accuracy = accuracy, f = ceiling)
+      auto.limits_min <- round2any(max(abs(df.pat$lp.min)), accuracy = accuracy, f = ceiling)
+      auto.limits_max <- round2any(max(abs(df.pat$lp.max)), accuracy = accuracy, f = ceiling)
       auto.limits <- max(auto.limits_min, auto.limits_max)
     }else{
-      auto.limits <- round_any(max(abs(df.pat$lp)), accuracy = accuracy, f = ceiling)
+      auto.limits <- round2any(max(abs(df.pat$lp)), accuracy = accuracy, f = ceiling)
     }
   }
 
@@ -1586,16 +1656,18 @@ plot.pseudobeta.newPatient <- function(model, new_pat, error.bar = T, onlySig = 
     ggp <- ggp + geom_errorbar(aes(ymin=lp.min, ymax=lp.max), width=.35, position=position_dodge(.2))
   }
 
-  if(requireNamespace("RColorConesa", quietly = TRUE)){
-    ggp <- ggp + scale_fill_gradient2(low = RColorConesa::getConesaPalettes()$warm["blue"],
-                                      mid = "white", midpoint = 0,
-                                      high = RColorConesa::getConesaPalettes()$warm["magenta"],
-                                      limits = c(-1*auto.limits,auto.limits), name = "Beta value")
-  }else{
-    ggp <- ggp + scale_fill_gradient2(low = "blue",
-                                      mid = "white", midpoint = 0,
-                                      high = "red",
-                                      limits = c(-1*auto.limits,auto.limits), name = "Beta value")
+  if(!show.betas){
+    if(requireNamespace("RColorConesa", quietly = TRUE)){
+      ggp <- ggp + scale_fill_gradient2(low = RColorConesa::getConesaPalettes()$warm["blue"],
+                                        mid = "white", midpoint = 0,
+                                        high = RColorConesa::getConesaPalettes()$warm["magenta"],
+                                        limits = c(-1*auto.limits,auto.limits), name = "Beta value")
+    }else{
+      ggp <- ggp + scale_fill_gradient2(low = "blue",
+                                        mid = "white", midpoint = 0,
+                                        high = "red",
+                                        limits = c(-1*auto.limits,auto.limits), name = "Beta value")
+    }
   }
 
   if(requireNamespace("RColorConesa", quietly = TRUE)){
@@ -1614,8 +1686,8 @@ plot.pseudobeta.newPatient <- function(model, new_pat, error.bar = T, onlySig = 
   if(show.betas){
 
     ggp.aux <- ggp + scale_y_continuous(n.breaks = 10, limits = c(-1*auto.limits, auto.limits))
-    ggp.aux2 <- ggp.simulated_beta$plot + scale_y_continuous(n.breaks = 10, limits = c(-1*auto.limits, auto.limits))
 
+    ggp.aux2 <- ggp.simulated_beta$plot
     ggp.aux2 <- ggp.aux2 + guides(fill = "none")
 
     sign.beta <- coefficients>0
@@ -1637,7 +1709,30 @@ plot.pseudobeta.newPatient <- function(model, new_pat, error.bar = T, onlySig = 
 
 }
 
-#' cox.comparePatients
+#' plot_cox.comparePatients.list
+#'
+#' @param lst_models List HDcox models
+#' @param df.pat Dataframe of observations
+#' @param error.bar Show error bar.
+#' @param onlySig Show only significant variables.
+#' @param alpha Significant value.
+#' @param zero.rm Remove variables equal to 0.
+#' @param auto.limits Logical. If TRUE, limits are detected for a better plot.
+#' @param top Number. Show top variables.
+#'
+#' @export
+#'
+plot_cox.comparePatients.list <- function(lst_models, df.pat, error.bar = F, onlySig = T, alpha = 0.05, zero.rm = T,
+                                auto.limits = T, top = NULL){
+
+  lst_plots <- purrr::map(lst_models, ~plot_cox.comparePatients(model = ., df.pat = df.pat, error.bar = error.bar, onlySig = onlySig,
+                                                           alpha = alpha, zero.rm = zero.rm,
+                                                           auto.limits = auto.limits, top = top))
+
+  return(lst_plots)
+}
+
+#' plot_cox.comparePatients
 #'
 #' @param model HDcox model
 #' @param df.pat Dataframe of observations
@@ -1649,24 +1744,43 @@ plot.pseudobeta.newPatient <- function(model, new_pat, error.bar = T, onlySig = 
 #' @param top Number. Show top variables.
 #'
 #' @export
-#'
-cox.comparePatients <- function(model, df.pat, error.bar = F, onlySig = T, alpha = 0.05, zero.rm = T,
+
+plot_cox.comparePatients <- function(model, df.pat, error.bar = F, onlySig = T, alpha = 0.05, zero.rm = T,
                                 auto.limits = T, top = NULL){
 
   #DFCALLS
   value <- patients <- NULL
 
   #plot
-  ggp.simulated_beta <- plot.pseudobeta(model = model, error.bar = error.bar, onlySig = onlySig,
+  ggp.simulated_beta <- plot_pseudobeta(model = model, error.bar = error.bar, onlySig = onlySig,
                                               alpha = alpha, zero.rm = zero.rm, auto.limits = auto.limits, top = top)
 
   coefficients <- ggp.simulated_beta$beta
   coefficients <- coefficients[order(coefficients, decreasing = T),,drop=F]
 
+  if(!is.null(top)){
+    if(top < nrow(coefficients)){
+      aux_df <- coefficients
+      aux_df[,"coef"] <- abs(aux_df[,"coef",drop=F])
+      aux_df <- aux_df[order(aux_df[,"coef",drop=F], decreasing = T),,drop=F]
+      aux_df <- aux_df[1:top,,drop=F]
+      coefficients <- coefficients[rownames(coefficients) %in% rownames(aux_df),,drop=F]
+    }
+  }
+
   #norm patient
-  norm_patient <- scale(df.pat, center = model$X$x.mean, scale = model$X$x.sd)
+  if(!is.null(model$X$x.mean) & !is.null(model$X$x.sd)){
+    norm_patient <- scale(df.pat, center = model$X$x.mean, scale = model$X$x.sd)
+  }else if(!is.null(model$X$x.mean)){
+    norm_patient <- scale(df.pat, center = model$X$x.mean, scale = F)
+  }else if(!is.null(model$X$x.sd)){
+    norm_patient <- scale(df.pat, center = F, scale = model$X$x.sd)
+  }else{
+    norm_patient <- df.pat
+  }
+
   #lp.new_pat_manual <- norm_patient[,rownames(coefficients)] %*% coefficients #predict lp
-  lp.new_pat_variable <- apply(norm_patient[,rownames(coefficients)], 1, function(x){
+  lp.new_pat_variable <- apply(norm_patient[,rownames(coefficients),drop=F], 1, function(x){
     x * coefficients #predict terms
   })
   lp.pats <- norm_patient[,rownames(coefficients)] %*% coefficients
@@ -1685,21 +1799,23 @@ cox.comparePatients <- function(model, df.pat, error.bar = F, onlySig = T, alpha
   lp.new_pat_variable$lp.flag <- ifelse(lp.new_pat_variable$var == "linear predictor", T, F)
   lp.new_pat_variable$lp.flag <- factor(lp.new_pat_variable$lp.flag)
 
+  lp.new_pat_variable$patients <- factor(lp.new_pat_variable$patients, levels = rownames(df.pat))
+
   accuracy <- 0.1
   auto.limits.flag = T
-  sd.min <- NULL
-  sd.max <- NULL
+  sd.min <- ggp.simulated_beta$sd.min[rownames(coefficients),]
+  sd.max <- ggp.simulated_beta$sd.max[rownames(coefficients),]
   auto.limits <- NULL
   if(auto.limits.flag){
     if(!is.null(sd.min) & !is.null(sd.max)){
-      auto.limits_min <- round_any(max(abs(sd.min)), accuracy = accuracy, f = ceiling)
-      auto.limits_max <- round_any(max(abs(sd.max)), accuracy = accuracy, f = ceiling)
+      auto.limits_min <- round2any(x = max(c(abs(coefficients-sd.min),abs(lp.new_pat_variable[lp.new_pat_variable$lp.flag==T,]$value))), accuracy = accuracy, f = ceiling)
+      auto.limits_max <- round2any(x = max(c(abs(coefficients+sd.max),abs(lp.new_pat_variable[lp.new_pat_variable$lp.flag==T,]$value))), accuracy = accuracy, f = ceiling)
       auto.limits <- max(auto.limits_min, auto.limits_max)
     }else{
-      auto.limits <- round_any(max(abs(lp.new_pat_variable$value)), accuracy = accuracy, f = ceiling)
+      auto.limits <- round2any(max(abs(lp.new_pat_variable$value)), accuracy = accuracy, f = ceiling)
     }
   }else{
-    auto.limits <- round_any(max(c(abs(sd.max), abs(sd.min), abs(lp.new_pat_variable$value))), accuracy = accuracy, f = ceiling)
+    auto.limits <- round2any(max(c(abs(sd.max), abs(sd.min), abs(lp.new_pat_variable$value))), accuracy = accuracy, f = ceiling)
   }
 
   ggp <- ggplot(lp.new_pat_variable[lp.new_pat_variable$lp.flag==F,], aes(x = var, y = value, fill = patients)) +
@@ -1749,15 +1865,15 @@ cox.comparePatients <- function(model, df.pat, error.bar = F, onlySig = T, alpha
 #' @param color color
 #'
 #' @export
-#'
-patient.eventDensity <- function(patient, time = NULL, model, type = "lp", size = 3, color = "red"){
+
+plot_patient.eventDensity <- function(patient, time = NULL, model, type = "lp", size = 3, color = "red"){
 
   #DFCALLS
   x <- y <- event <- NULL
 
   scores <- predict.HDcox(object = model, newdata = patient) #X must be original X data
 
-  plot <- plot.cox.event(model, type = type)
+  plot <- plot_cox.event(model, type = type)
   plot <- plot$plot.density
 
   if(type %in% c("expected", "survival") & is.null(time)){
@@ -1816,15 +1932,15 @@ patient.eventDensity <- function(patient, time = NULL, model, type = "lp", size 
 #' @param color color
 #'
 #' @export
-#'
-patient.eventHistogram <- function(patient, time = NULL, model, type = "lp", size = 3, color = "red"){
+
+plot_patient.eventHistogram <- function(patient, time = NULL, model, type = "lp", size = 3, color = "red"){
 
   #DFCALLS
   x <- y <- NULL
 
   scores <- predict.HDcox(object = model, newdata = patient) #X must be original X data
 
-  plot <- plot.cox.event(model, type = type)
+  plot <- plot_cox.event(model, type = type)
   plot <- plot$plot.histogram
 
   if(type %in% c("expected", "survival") & is.null(time)){
@@ -1868,7 +1984,7 @@ patient.eventHistogram <- function(patient, time = NULL, model, type = "lp", siz
   return(plot.new)
 }
 
-#' plot.divergent.biplot
+#' plot_divergent.biplot
 #' @description Two side plot by a qualitative and a quantitative variable and Y event matrix.
 #'
 #' @param X A list of HDcox objects. Each HDCox object has the attribute time measured in minutes.
@@ -1887,9 +2003,9 @@ patient.eventHistogram <- function(patient, time = NULL, model, type = "lp", siz
 #' \dontrun{
 #'   NAMEVAR1 = "sex"
 #'   NAMEVAR2 = "age"
-#'   plot.divergent.biplot(X, Y, NAMEVAR1, NAMEVAR2, breaks = 5, x.text = "N. of Patients")
+#'   plot_divergent.biplot(X, Y, NAMEVAR1, NAMEVAR2, breaks = 5, x.text = "N. of Patients")
 #' }
-plot.divergent.biplot <- function(X, Y, NAMEVAR1, NAMEVAR2, breaks, x.text = "N. of Samples"){
+plot_divergent.biplot <- function(X, Y, NAMEVAR1, NAMEVAR2, breaks, x.text = "N. of Samples"){
   df<-NULL
 
   VAR1 <- X[rownames(X), NAMEVAR1] #will be a factor
@@ -1906,8 +2022,8 @@ plot.divergent.biplot <- function(X, Y, NAMEVAR1, NAMEVAR2, breaks, x.text = "N.
   index <- NULL
 
   breaks = breaks
-  min <- round_any(min(VAR2), accuracy = breaks, f = floor)
-  max <- round_any(max(VAR2), accuracy = breaks, f = ceiling)
+  min <- round2any(min(VAR2), accuracy = breaks, f = floor)
+  max <- round2any(max(VAR2), accuracy = breaks, f = ceiling)
   for(i in seq(min,max,breaks)){
     if(i!=max){
       new <- which(df[,NAMEVAR2]>=i & df[,NAMEVAR2]<=(i+breaks-1))
@@ -1969,7 +2085,7 @@ plot.divergent.biplot <- function(X, Y, NAMEVAR1, NAMEVAR2, breaks, x.text = "N.
     scale_y_continuous(breaks = breaks_values,
                        labels = abs(breaks_values)) +
     guides(fill=guide_legend(title="Event type")) +
-    theme(plot.title = element_text(hjust = 0.5 + round_any(real_center_deviation, 0.01))) +
+    theme(plot.title = element_text(hjust = 0.5 + round2any(real_center_deviation, 0.01))) +
     xlab(label = x.text)
 
   if(requireNamespace("RColorConesa", quietly = TRUE)){
@@ -1979,57 +2095,56 @@ plot.divergent.biplot <- function(X, Y, NAMEVAR1, NAMEVAR2, breaks, x.text = "N.
   return(ggp_distribution)
 }
 
-#' plot.events
+#' plot_events
 #'
 #' @param Y Y matrix
-#' @param round Logical. Round time
 #' @param roundTo Round time to which value.
-#' @param categories Categories to print-
+#' @param categories Categories to print.
+#' @param max.breaks Number maximum of breaks in X axis.
 #'
 #' @export
 
-plot.events <- function(Y, round = F, roundTo = 0.25, categories = c("Death","Censored")){
+plot_events <- function(Y, roundTo = 0.25, categories = c("Censored","Death"), max.breaks = 20){
 
   #DFCALLS
-  Category <- Time <- Values <- NULL
+  Category <- Time <- Values <- x.names <- breaks<- NULL
 
   if(class(Y[,"event"])!="logical"){
     message("Warning: Y matrix must has event column as TRUE, FALSE. as.logical() function has been used.")
     Y$event <- as.logical(Y$event)
   }
 
-  if(round){
-    Y$time <- round_any(as.numeric(Y$time), roundTo)
+  time_aux <- round2any(as.numeric(Y$time), roundTo)
+
+  while(length(unique(time_aux))>max.breaks){
+    roundTo = roundTo + 0.05
+    time_aux <- round2any(as.numeric(Y$time), roundTo)
   }
+
+  Y$time <- round2any(as.numeric(Y$time), roundTo)
+  breaks = seq(min(Y$time), max(Y$time), by=roundTo)
+  breaks = round2any(breaks, 0.1)
+  breaks = c(breaks,max(breaks)+roundTo)
+  x.names <- cut(x = Y$time, breaks = breaks, include.lowest = T)
+
+  Y$time_g <- x.names
 
   vt=NULL
   vcategory=NULL
   vvalues=NULL
-  for(t in sort(unique(Y$time))){
-    vt <- c(vt, as.numeric(t), as.numeric(t))
+  for(t in levels(x.names)){
+    vt <- c(vt, t, t)
     vcategory <- c(vcategory, categories)
-    vvalues<- c(vvalues, sum(Y[Y$time==t, "event"]==T), sum(Y[Y$time==t, "event"]==F))
+    vvalues<- c(vvalues, sum(Y[Y$time_g==t, "event"]==F), sum(Y[Y$time_g==t, "event"]==T))
   }
 
   dd <- data.frame(Time=vt, Category=vcategory, Values=vvalues)
+  dd$Time <- factor(dd$Time, levels = levels(x.names))
 
-  min <- 0
-  if(round){
-    max <- round_any(max(dd$Time), accuracy = 1, f = ceiling)
-  }else{
-    max <- ceiling(max(dd$Time))+1
-  }
-
-  max.breaks = 20
-  bsize = (max-min) / max.breaks
-  if(bsize < 5) bsize = 5
-  breaks = seq(min, max, by=bsize)
-
-  ggp_density <- ggplot(dd, aes(fill=Category, x=Time, y = Values)) +
+  ggp_density <- ggplot(dd, aes(fill=Category, x=Time, y=Values)) +
     #geom_bar(position="stack", stat="identity") +
     geom_bar(stat = "identity") +
     ylab("Number of patients") +
-    scale_x_continuous(limits = c(min, max), breaks = breaks) +
     scale_y_continuous(n.breaks = 10) +
     guides(fill=guide_legend(title="Event type"), color = "none")
 
@@ -2037,10 +2152,10 @@ plot.events <- function(Y, round = F, roundTo = 0.25, categories = c("Death","Ce
     ggp_density <- ggp_density + RColorConesa::scale_fill_conesa()
   }
 
-  return(ggp_density)
+  return(list(plot = ggp_density, df = dd))
 }
 
-#' plotHDcox.PLS
+#' plot_HDcox.PLS.model
 #'
 #' @param model HDcox model
 #' @param comp vector of two components
@@ -2056,7 +2171,7 @@ plot.events <- function(Y, round = F, roundTo = 0.25, categories = c("Death","Ce
 #'
 #' @export
 
-plot.HDcox.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor = NULL, legend.title = NULL, mahalanovis_limit = 20, radius = 0.2, names = F, allNames = F, colorReverse = F, text.size = 4){
+plot_HDcox.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor = NULL, legend.title = NULL, mahalanovis_limit = 20, radius = 0.2, names = F, allNames = F, colorReverse = F, text.size = 4){
 
   ggp = NULL
   aux.model = model
@@ -2400,7 +2515,22 @@ plot.HDcox.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor =
   return(list(plot = ggp, outliers = rownames(subdata)))
 }
 
-#' plot.cox.event
+#' plot_cox.event.list
+#'
+#' @param lst_models List of HDcox models
+#' @param type "lp", "risk", "expected" or "survival" methodology
+#' @param h.breaks Number of time breaks.
+#'
+#' @export
+
+plot_cox.event.list <- function(lst_models, type = "lp", h.breaks = 30){
+
+  ggp_list <- purrr::map(lst_models, ~plot_cox.event(model = ., type = type, h.breaks = h.breaks))
+
+  return(ggp_list)
+}
+
+#' plot_cox.event
 #'
 #' @param model HDcox model
 #' @param type "lp", "risk", "expected" or "survival" methodology
@@ -2408,7 +2538,7 @@ plot.HDcox.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor =
 #'
 #' @export
 
-plot.cox.event <- function(model, type = "lp", h.breaks = 30){
+plot_cox.event <- function(model, type = "lp", h.breaks = 30){
 
   #DFCALLS
   event <- NULL
@@ -2481,6 +2611,32 @@ prop.vector.density <- function(df, breaks = 20){
   }
 }
 
+#' plot_proportionalHazard.list
+#'
+#' @param lst_models List of HDcox models
+#'
+#' @export
+
+plot_proportionalHazard.list <- function(lst_models){
+
+  lst_plots <- purrr::map(lst_models, ~plot_proportionalHazard(model = .))
+
+  return(lst_plots)
+}
+
+#' plot_proportionalHazard
+#'
+#' @param model HDcox model
+#'
+#' @export
+
+plot_proportionalHazard <- function(model){
+  ph_preplot <- survival::cox.zph(model$survival_model$fit)
+  ph_plot <- survminer::ggcoxzph(ph_preplot)
+  ph_ggplot <- ggcoxzph2ggplot(ph_preplot, ph_plot)
+  return(ph_ggplot)
+}
+
 ggcoxzph2ggplot <- function(pre.ggcoxzph, ggcoxzph){
   lst_plots <- list()
   for(p in names(ggcoxzph)){
@@ -2536,6 +2692,36 @@ my_primeFactors <- function(num) {
 # KAPLAN MEIER #
 #### ### ### ###
 
+#' getAutoKM.list
+#'
+#' @param type Kaplan Meier for linear predictors ("LP"), for PLS components ("COMP") or for original variables ("VAR").
+#' @param lst_models List of HDcox models
+#' @param comp vector of two components
+#' @param top select top X variables
+#' @param ori_data Compute the KM with the original data cutpoints or the normalize
+#' @param BREAKTIME Break for time points
+#' @param only_sig Return only significant log-rank test variables
+#' @param alpha Significant cutoff
+#' @param title Title of the plot
+#' @param verbose Return messages
+#'
+#' @export
+
+getAutoKM.list <- function(type = "LP", lst_models, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
+  if(!type %in% c("LP", "COMP", "VAR")){
+    stop("Type parameters must be one of the following: LP, COMP or VAR")
+  }
+
+  if(type == "LP"){
+    lst <- purrr::map(lst_models, ~getLPKM(model = ., comp = comp, top = top, ori_data = ori_data, BREAKTIME = BREAKTIME, only_sig = only_sig, alpha = alpha, title = title, verbose = verbose))
+  }else if(type == "COMP"){
+    lst <- purrr::map(lst_models, ~getCompKM(model = ., comp = comp, top = top, ori_data = ori_data, BREAKTIME = BREAKTIME, only_sig = only_sig, alpha = alpha, title = title, verbose = verbose))
+  }else{
+    lst <- purrr::map(lst_models, ~getVarKM(model = ., comp = comp, top = top, ori_data = ori_data, BREAKTIME = BREAKTIME, only_sig = only_sig, alpha = alpha, title = title, verbose = verbose))
+  }
+  return(lst)
+}
+
 #' getAutoKM
 #'
 #' @param type Kaplan Meier for linear predictors ("LP"), for PLS components ("COMP") or for original variables ("VAR").
@@ -2550,6 +2736,7 @@ my_primeFactors <- function(num) {
 #' @param verbose Return messages
 #'
 #' @export
+
 getAutoKM <- function(type = "LP", model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
   if(!type %in% c("LP", "COMP", "VAR")){
     stop("Type parameters must be one of the following: LP, COMP or VAR")
@@ -2601,7 +2788,7 @@ getLPKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL,
   d <- info_logrank_num$df_numASqual
   v_names <- info_logrank_num$df_nvar_lrtest[,1:2]
 
-  LST_SPLOT <- plot.survival_plot.qual(data = d,
+  LST_SPLOT <- plot_survivalplot.qual(data = d,
                                        sdata = data.frame(model$Y$data),
                                        BREAKTIME = BREAKTIME,
                                        cn_variables = v_names$Variable,
@@ -2694,13 +2881,13 @@ getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NUL
         }
       }
 
-      LST_SPLOT <- plot.survival_plot.qual(data = d,
+      LST_SPLOT <- plot_survivalplot.qual(data = d,
                                            sdata = data.frame(model$Y$data),
                                            BREAKTIME = BREAKTIME,
                                            cn_variables = v_names[v_names$`P-Val (Log Rank)` <= alpha,]$Variable,
                                            name_data = NULL, title = title)
     }else{
-      LST_SPLOT <- plot.survival_plot.qual(data = d,
+      LST_SPLOT <- plot_survivalplot.qual(data = d,
                                            sdata = data.frame(model$Y$data),
                                            BREAKTIME = BREAKTIME,
                                            cn_variables = v_names$Variable,
@@ -2710,13 +2897,13 @@ getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NUL
     LST_SPLOT <- list()
     for(b in names(model$X$data)){
       if(only_sig){
-        LST_SPLOT[[b]] <- plot.survival_plot.qual(data = d[[b]],
+        LST_SPLOT[[b]] <- plot_survivalplot.qual(data = d[[b]],
                                                   sdata = data.frame(model$Y$data),
                                                   BREAKTIME = BREAKTIME,
                                                   cn_variables = v_names[[b]][v_names[[b]]$`P-Val (Log Rank)` <= alpha,]$Variable,
                                                   name_data = NULL, title = title)
       }else{
-        LST_SPLOT[[b]] <- plot.survival_plot.qual(data = d[[b]],
+        LST_SPLOT[[b]] <- plot_survivalplot.qual(data = d[[b]],
                                                   sdata = data.frame(model$Y$data),
                                                   BREAKTIME = BREAKTIME,
                                                   cn_variables = v_names[[b]]$Variable,
@@ -2924,13 +3111,13 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
         }
       }
 
-      LST_SPLOT <- plot.survival_plot.qual(data = d,
+      LST_SPLOT <- plot_survivalplot.qual(data = d,
                                            sdata = data.frame(model$Y$data),
                                            BREAKTIME = BREAKTIME,
                                            cn_variables = v_names[v_names$`P-Val (Log Rank)` <= alpha,]$Variable,
                                            name_data = NULL, title = title)
     }else{
-      LST_SPLOT <- plot.survival_plot.qual(data = d,
+      LST_SPLOT <- plot_survivalplot.qual(data = d,
                                            sdata = data.frame(model$Y$data),
                                            BREAKTIME = BREAKTIME,
                                            cn_variables = v_names$Variable,
@@ -2940,13 +3127,13 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
     LST_SPLOT <- list()
     for(b in names(model$X$data)){
       if(only_sig){
-        LST_SPLOT[[b]] <- plot.survival_plot.qual(data = d[[b]],
+        LST_SPLOT[[b]] <- plot_survivalplot.qual(data = d[[b]],
                                                   sdata = data.frame(model$Y$data),
                                                   BREAKTIME = BREAKTIME,
                                                   cn_variables = v_names[[b]][v_names[[b]]$`P-Val (Log Rank)` <= alpha,]$Variable,
                                                   name_data = NULL, title = title)
       }else{
-        LST_SPLOT[[b]] <- plot.survival_plot.qual(data = d[[b]],
+        LST_SPLOT[[b]] <- plot_survivalplot.qual(data = d[[b]],
                                                   sdata = data.frame(model$Y$data),
                                                   BREAKTIME = BREAKTIME,
                                                   cn_variables = v_names[[b]]$Variable,
@@ -3134,7 +3321,7 @@ getLogRank_NumVariables <- function(data, sdata, VAR_EVENT, name_data = NULL, mi
 
 }
 
-plot.survival_plot.qual <- function(data, sdata, cn_variables, name_data = NULL, BREAKTIME = 5, title = NULL){
+plot_survivalplot.qual <- function(data, sdata, cn_variables, name_data = NULL, BREAKTIME = 5, title = NULL){
 
   lst_splots <- list()
 
@@ -3192,7 +3379,7 @@ plot.survival_plot.qual <- function(data, sdata, cn_variables, name_data = NULL,
                                       conf.int = TRUE, ggtheme = theme_bw(), legend.labs = levels(aux[,cn]),
                                       conf.int.style = "ribbon",
                                       conf.int.alpha = 0.25,
-                                      xlim = c(0, round_any(max(aux$time), 5, ceiling)),
+                                      xlim = c(0, round2any(max(aux$time), 5, ceiling)),
                                       pval = T,
                                       surv.median.line = "hv", # Add medians survival
                                       risk.table = TRUE,
@@ -3225,7 +3412,7 @@ plot.survival_plot.qual <- function(data, sdata, cn_variables, name_data = NULL,
                                     conf.int = TRUE, ggtheme = theme_bw(),
                                     conf.int.style = "ribbon",
                                     conf.int.alpha = 0.25,
-                                    xlim = c(0, round_any(max(sdata$time), 5, ceiling)),
+                                    xlim = c(0, round2any(max(sdata$time), 5, ceiling)),
                                     pval = T,
                                     surv.median.line = "hv", # Add medians survival
                                     risk.table = TRUE,
@@ -3247,7 +3434,7 @@ plot.survival_plot.qual <- function(data, sdata, cn_variables, name_data = NULL,
                                     conf.int = TRUE, ggtheme = theme_bw(),
                                     conf.int.style = "ribbon",
                                     conf.int.alpha = 0.25,
-                                    xlim = c(0, round_any(max(sdata$time), 5, ceiling)),
+                                    xlim = c(0, round2any(max(sdata$time), 5, ceiling)),
                                     pval = T,
                                     surv.median.line = "hv", # Add medians survival
                                     risk.table = TRUE,
@@ -3269,7 +3456,7 @@ plot.survival_plot.qual <- function(data, sdata, cn_variables, name_data = NULL,
                                     conf.int = TRUE, ggtheme = theme_bw(),
                                     conf.int.style = "ribbon",
                                     conf.int.alpha = 0.25,
-                                    xlim = c(0, round_any(max(sdata$time), 5, ceiling)),
+                                    xlim = c(0, round2any(max(sdata$time), 5, ceiling)),
                                     pval = T,
                                     surv.median.line = "hv", # Add medians survival
                                     risk.table = TRUE,

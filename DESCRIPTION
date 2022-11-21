@@ -8,7 +8,7 @@ Description: Cox analysis for high dimensional data. HDcox proportionate a serie
 License: CC BY 4.0
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.2
 Imports: 
     caret,
     cenROC,
@@ -34,5 +34,11 @@ Imports:
 Suggests:
     ggforce,
     grDevices,
+    knitr, 
     RColorConesa,
+    rmarkdown,
     splines
+Depends: 
+    R (>= 2.10)
+LazyData: true
+VignetteBuilder: knitr

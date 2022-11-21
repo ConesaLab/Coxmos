@@ -2,19 +2,24 @@
 % Please edit documentation in R/HDcox_plot_functions.R
 \name{plot_events}
 \alias{plot_events}
-\title{plot.events}
+\title{plot_events}
 \usage{
-plot_events(Y, round = F, roundTo = 0.25, categories = c("Death", "Censored"))
+plot_events(
+  Y,
+  roundTo = 0.25,
+  categories = c("Censored", "Death"),
+  max.breaks = 20
+)
 }
 \arguments{
 \item{Y}{Y matrix}
 
-\item{round}{Logical. Round time}
-
 \item{roundTo}{Round time to which value.}
 
-\item{categories}{Categories to print-}
+\item{categories}{Categories to print.}
+
+\item{max.breaks}{Number maximum of breaks in X axis.}
 }
 \description{
-plot.events
+plot_events
 }

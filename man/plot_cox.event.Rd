@@ -2,7 +2,7 @@
 % Please edit documentation in R/HDcox_plot_functions.R
 \name{plot_cox.event}
 \alias{plot_cox.event}
-\title{plot.cox.event}
+\title{plot_cox.event}
 \usage{
 plot_cox.event(model, type = "lp", h.breaks = 30)
 }
@@ -14,5 +14,5 @@ plot_cox.event(model, type = "lp", h.breaks = 30)
 \item{h.breaks}{Number of time breaks.}
 }
 \description{
-plot.cox.event
+plot_cox.event
 }

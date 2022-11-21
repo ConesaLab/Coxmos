@@ -2,17 +2,17 @@
 % Please edit documentation in R/HDcox_plot_functions.R
 \name{plot_evaluation.list}
 \alias{plot_evaluation.list}
-\title{plot.evaluation.list}
+\title{plot_evaluation.list}
 \usage{
 plot_evaluation.list(
-  eval_results,
+  lst_eval_results,
   pred.attr = "mean",
   y.min = NULL,
   type = "both"
 )
 }
 \arguments{
-\item{eval_results}{List of eval_models4.0 results.}
+\item{lst_eval_results}{List of eval_models4.0 results.}
 
 \item{pred.attr}{"mean" or "median"}
 
@@ -21,5 +21,5 @@ plot_evaluation.list(
 \item{type}{type plot. Must be one of the following: "both", "line", "mean". In other case, "both" will be selected.}
 }
 \description{
-plot.evaluation.list
+plot_evaluation.list
 }
