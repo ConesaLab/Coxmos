@@ -324,8 +324,11 @@ lst_models_time <- list(plsicox_model,
                         eval_results)
 ```
 
-```{r, fig.small=T}
+```{r}
 ggp_time <- plot_time.models(lst_models_time)
+```
+
+```{r, fig.small=T}
 ggp_time
 ```
 
@@ -359,6 +362,37 @@ lst_ph_ggplot <- plot_proportionalHazard.list(lst_models)
 
 ```{r, fig.small=T}
 lst_ph_ggplot$`SPLS-DRCOX`
+```
+
+## Studying PLS model
+
+```{r}
+ggp_scores <- plot_HDcox.PLS.model(model = lst_models$`SPLS-DRCOX`, 
+                                   comp = c(1,2), mode = "scores")
+```
+
+```{r, fig.small=T}
+ggp_scores$plot
+```
+
+```{r}
+ggp_loadings <- plot_HDcox.PLS.model(model = lst_models$`SPLS-DRCOX`, 
+                                     comp = c(1,2), mode = "loadings",
+                                     top = 10) #length from 0,0
+```
+
+```{r, fig.small=T}
+ggp_loadings$plot
+```
+```{r}
+ggp_biplot <- plot_HDcox.PLS.model(model = lst_models$`SPLS-DRCOX`, 
+                                   comp = c(1,2), mode = "biplot",
+                                   top = 15,
+                                   only_top = T)
+```
+
+```{r, fig.small=T}
+ggp_biplot$plot
 ```
 
 # Understanding the results in terms of the original variables

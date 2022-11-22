@@ -10,36 +10,39 @@ plot_HDcox.PLS.model(
   mode = "scores",
   factor = NULL,
   legend.title = NULL,
-  mahalanovis_limit = 20,
-  radius = 0.2,
-  names = F,
-  allNames = F,
+  top = NULL,
+  only_top = F,
+  radius = NULL,
+  names = T,
   colorReverse = F,
-  text.size = 4
+  text.size = 2,
+  overlaps = 10
 )
 }
 \arguments{
 \item{model}{HDcox model}
 
-\item{comp}{vector of two components}
+\item{comp}{Numeric vector. Two values for choosing with two components to plot}
 
 \item{mode}{scores, loadings o biplot}
 
-\item{factor}{factor to color}
+\item{factor}{factor to color. If NULL, event will be used.}
 
 \item{legend.title}{Legend title}
 
-\item{mahalanovis_limit}{Mahalanobis distance limit}
+\item{top}{Number. How many loading names to show.}
 
-\item{radius}{Radious to plot variable names}
+\item{only_top}{Logical. If TRUE, only top/radius loading will be shown in loading or biplot graph}
 
-\item{names}{Logical. Show names for variables outside the radius.}
+\item{radius}{Radius to plot variable names}
 
-\item{allNames}{Logical. Show all variable names.}
+\item{names}{Logical. Show loading names for top variables or outside radius}
 
 \item{colorReverse}{Logical. Color reverse.}
 
 \item{text.size}{Text size.}
+
+\item{overlaps}{Number of overlaps to show loading names (default = 10)}
 }
 \description{
 plot_HDcox.PLS.model

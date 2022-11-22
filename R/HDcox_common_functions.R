@@ -12,6 +12,7 @@
 #' @import progress
 #' @import purrr
 #' @import risksetROC
+#' @importFrom scattermore geom_scattermore
 #' @import smoothROCtime
 #' @import stats
 #' @import survival
@@ -129,23 +130,6 @@ print.HDcox <- function(x, ...){
 
 }
 
-#' deleteZeroVarianceVariables
-#'
-#' @param data Numeric matrix or data.frame to remove Near Zero Variance
-#' @param mustKeep Character vector. Variables to not remove.
-#' @param names If data is a list. Name to access to the data.frame.
-#' @param info Logical. If info = TRUE, list of variables deleted are return.
-#' @param freqCut the cutoff for the ratio of the most common value to the second most common value. More info in "caret::nearZeroVar".
-#' @param onlyZero Logical. If onlyZero = TRUE, just Zero Variance variables are removed.
-#'
-#' @return
-#' \itemize{
-#'  \item \code{(filteredData)}: data filtered matrix/data.frame.
-#'  \item \code{(variablesDeleted)}: If info, vector of variables deleted. Else, NULL.
-#'  }
-#'
-#' @export
-
 deleteZeroVarianceVariables <- function(data, mustKeep = NULL, names = NULL, info=T, freqCut = 95/5, onlyZero = F){
 
   if(!is.null(names)){
@@ -186,6 +170,39 @@ deleteZeroVarianceVariables <- function(data, mustKeep = NULL, names = NULL, inf
     }
   }
   return(list(filteredData = df, variablesDeleted = df_cn_deleted))
+}
+
+#' deleteZeroOrNearZeroVariance
+#'
+#' @param X Data.frame
+#' @param remove_near_zero_variance Logical. Remove NEAR zero variance
+#' @param remove_zero_variance Logical. Remove ZERO variance
+#' @param toKeep.zv Variables to keep.
+#' @param freqCut the cutoff for the ratio of the most common value to the second most common value
+#'
+#' @export
+
+deleteZeroOrNearZeroVariance <- function(X, remove_near_zero_variance = F, remove_zero_variance = T, toKeep.zv = NULL, freqCut = 95/5){
+
+  auxX <- X
+
+  variablesDeleted <- NULL
+  if(remove_near_zero_variance){
+    lst.zv <- deleteZeroVarianceVariables(data = auxX, info = T, mustKeep = toKeep.zv, freqCut = freqCut)
+    variablesDeleted <- lst.zv$variablesDeleted[,1]
+    if(!is.null(variablesDeleted)){
+      auxX <- auxX[,!colnames(auxX) %in% variablesDeleted,drop=F]
+    }
+  }else if(remove_zero_variance){
+    lst.zv <- deleteZeroVarianceVariables(data = auxX, info = T, mustKeep = toKeep.zv, onlyZero = T)
+    variablesDeleted <- lst.zv$variablesDeleted[,1]
+    if(!is.null(variablesDeleted)){
+      auxX <- auxX[,!colnames(auxX) %in% variablesDeleted,drop=F]
+    }
+  }
+
+  return(list(X = auxX, variablesDeleted = variablesDeleted))
+
 }
 
 #### ### ### ### ##

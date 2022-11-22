@@ -11,7 +11,7 @@ plot_time.models(lst_models, x.text = "Method", y.text = NULL)
 
 \item{x.text}{X axis title.}
 
-\item{y.text}{X axis title. (default: NULL == "Time (mins)").}
+\item{y.text}{Y axis title. (default: NULL == "Time (mins)").}
 }
 \value{
 A ggplot2 bar plot for each object in lst_models and the total of all of them.

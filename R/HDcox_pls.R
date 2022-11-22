@@ -87,20 +87,14 @@ plsicox <- function (X, Y,
 
   checkY.colnames(Y)
 
-  variablesDeleted <- NULL
-  if(remove_near_zero_variance){
-    lst.zv <- deleteZeroVarianceVariables(data = X, info = T, mustKeep = toKeep.zv)
-    variablesDeleted <- lst.zv$variablesDeleted[,1]
-    if(!is.null(variablesDeleted)){
-      X <- X[,!colnames(X) %in% variablesDeleted]
-    }
-  }else if(remove_zero_variance){
-    lst.zv <- deleteZeroVarianceVariables(data = X, info = T, mustKeep = toKeep.zv, onlyZero = T)
-    variablesDeleted <- lst.zv$variablesDeleted[,1]
-    if(!is.null(variablesDeleted)){
-      X <- X[,!colnames(X) %in% variablesDeleted]
-    }
-  }
+  #### ZERO VARIANCE - ALWAYS
+  lst_dnz <- deleteZeroOrNearZeroVariance(X = X,
+                                          remove_near_zero_variance = remove_near_zero_variance,
+                                          remove_zero_variance = remove_zero_variance,
+                                          toKeep.zv = toKeep.zv,
+                                          freqCut = 95/5)
+  X <- lst_dnz$X
+  variablesDeleted <- lst_dnz$variablesDeleted
 
   #### SCALING
   lst_scale <- XY.scale(X, Y, x.center, x.scale, y.center, y.scale)
@@ -126,13 +120,13 @@ plsicox <- function (X, Y,
   XXNA <- is.na(Xh) #T is NA
   YNA <- is.na(Yh) #T is NA
 
-  ################################################
-  ################################################
+  #### ### ### ### ### ### ### ### ### ### ### ###
+  #### ### ### ### ### ### ### ### ### ### ### ###
   ##                                            ##
   ##  Beginning of the loop for the components  ##
   ##                                            ##
-  ################################################
-  ################################################
+  #### ### ### ### ### ### ### ### ### ### ### ###
+  #### ### ### ### ### ### ### ### ### ### ### ###
 
   #Update NAs by 0s
   Xh[XXNA] <- 0
@@ -151,15 +145,15 @@ plsicox <- function (X, Y,
       break
     }
 
-    ##############################################
+    #### ### ### ### ### ### ### ### ### ### ### #
     #                                            #
     #     Weight computation for each model      #
     #                                            #
-    ##############################################
+    #### ### ### ### ### ### ### ### ### ### ### #
 
-    ##############################################
-    ######              PLS-COX             ######
-    ##############################################
+    #### ### ### ##
+    ##  PLS-COX  ##
+    #### ### ### ##
 
     #2. wh <- individual cox regression vector
     Xh[XXNA] <- NA
@@ -242,16 +236,17 @@ plsicox <- function (X, Y,
     E[[h]] <- Xh
   }
 
-  ##############################################
+  #### ### ### ### ### ### ### ### ### ### ### #
   #                                            #
   #      Computation of the coefficients       #
   #      of the model with kk components       #
   #                                            #
-  ##############################################
+  #### ### ### ### ### ### ### ### ### ### ### #
 
-  ##############################################
-  ######              PLS-COX            ######
-  ##############################################
+  #### ### ### ### ### ### ### ### ### ### ##
+  ###              PLS-COX                 ##
+  #### ### ### ### ### ### ### ### ### ### ##
+
   if(stopped & h==1){ #if it is the first component, no cox model has been computed
 
     func_call <- match.call()
@@ -444,20 +439,13 @@ cv.plsicox <- function (X, Y,
   max.ncomp <- check.maxPredictors(X, Y, MIN_EPV, max.ncomp)
 
   #### REQUIREMENTS
-  variablesDeleted <- NULL
-  if(remove_near_zero_variance){
-    lst.zv <- deleteZeroVarianceVariables(data = X, info = T, mustKeep = toKeep.zv)
-    variablesDeleted <- lst.zv$variablesDeleted[,1]
-    if(!is.null(variablesDeleted)){
-      X <- X[,!colnames(X) %in% variablesDeleted]
-    }
-  }else if(remove_zero_variance){
-    lst.zv <- deleteZeroVarianceVariables(data = X, info = T, mustKeep = toKeep.zv, onlyZero = T)
-    variablesDeleted <- lst.zv$variablesDeleted[,1]
-    if(!is.null(variablesDeleted)){
-      X <- X[,!colnames(X) %in% variablesDeleted]
-    }
-  }
+  lst_dnz <- deleteZeroOrNearZeroVariance(X = X,
+                                          remove_near_zero_variance = remove_near_zero_variance,
+                                          remove_zero_variance = remove_zero_variance,
+                                          toKeep.zv = toKeep.zv,
+                                          freqCut = 95/5)
+  X <- lst_dnz$X
+  variablesDeleted <- lst_dnz$variablesDeleted
 
   ######
   # CV #

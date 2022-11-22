@@ -430,7 +430,7 @@ save_ggplot_lst.svg <- function(lst_plots, folder = NULL, prefix = NULL, suffix 
 #'
 #' @param lst_models A list of HDcox objects. Each HDCox object has the attribute time measured in minutes.
 #' @param x.text X axis title.
-#' @param y.text X axis title. (default: NULL == "Time (mins)").
+#' @param y.text Y axis title. (default: NULL == "Time (mins)").
 #'
 #' @return A ggplot2 bar plot for each object in lst_models and the total of all of them.
 #' @export
@@ -2071,11 +2071,12 @@ plot_divergent.biplot <- function(X, Y, NAMEVAR1, NAMEVAR2, breaks, x.text = "N.
 #' @param Y Y matrix
 #' @param roundTo Round time to which value.
 #' @param categories Categories to print.
+#' @param y.text Label for Y axis
 #' @param max.breaks Number maximum of breaks in X axis.
 #'
 #' @export
 
-plot_events <- function(Y, roundTo = 0.25, categories = c("Censored","Death"), max.breaks = 20){
+plot_events <- function(Y, roundTo = 0.25, categories = c("Censored","Death"), y.text = "Number of patients", max.breaks = 20){
 
   #DFCALLS
   Category <- Time <- Values <- x.names <- breaks<- NULL
@@ -2115,9 +2116,9 @@ plot_events <- function(Y, roundTo = 0.25, categories = c("Censored","Death"), m
   ggp_density <- ggplot(dd, aes(fill=Category, x=Time, y=Values)) +
     #geom_bar(position="stack", stat="identity") +
     geom_bar(stat = "identity") +
-    ylab("Number of patients") +
+    ylab(y.text) +
     scale_y_continuous(n.breaks = 10) +
-    guides(fill=guide_legend(title="Event type"), color = "none")
+    guides(fill=guide_legend(title="Class"), color = "none")
 
   if(requireNamespace("RColorConesa", quietly = TRUE)){
     ggp_density <- ggp_density + RColorConesa::scale_fill_conesa()
@@ -2129,23 +2130,35 @@ plot_events <- function(Y, roundTo = 0.25, categories = c("Censored","Death"), m
 #' plot_HDcox.PLS.model
 #'
 #' @param model HDcox model
-#' @param comp vector of two components
+#' @param comp Numeric vector. Two values for choosing with two components to plot
 #' @param mode scores, loadings o biplot
-#' @param factor factor to color
+#' @param factor factor to color. If NULL, event will be used.
 #' @param legend.title Legend title
-#' @param mahalanovis_limit Mahalanobis distance limit
-#' @param radius Radious to plot variable names
-#' @param names Logical. Show names for variables outside the radius.
-#' @param allNames Logical. Show all variable names.
+#' @param top Number. How many loading names to show.
+#' @param only_top Logical. If TRUE, only top/radius loading will be shown in loading or biplot graph
+#' @param radius Radius to plot variable names
+#' @param names Logical. Show loading names for top variables or outside radius
 #' @param colorReverse Logical. Color reverse.
 #' @param text.size Text size.
+#' @param overlaps Number of overlaps to show loading names (default = 10)
 #'
 #' @export
 
-plot_HDcox.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor = NULL, legend.title = NULL, mahalanovis_limit = 20, radius = 0.2, names = F, allNames = F, colorReverse = F, text.size = 4){
+plot_HDcox.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor = NULL, legend.title = NULL, top = NULL, only_top = F, radius = NULL, names = T, colorReverse = F, text.size = 2, overlaps = 10){
+
+  MAX_POINTS = 1000
+  MAX_LOADINGS = 15
+  POINT_SIZE = 3
+  POINT_SIZE_LOAD = 1.5 #another scale
+  POINT_RES = c(1024, 1024)
 
   ggp = NULL
   aux.model = model
+
+  if(!is.null(top) & !is.null(radius)){
+    message("Only top meassure will be used. Radius and top do not work simultaneously.")
+    radius <- NULL
+  }
 
   modes <- c("scores", "loadings", "biplot")
   if(!mode %in% modes){
@@ -2156,6 +2169,8 @@ plot_HDcox.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor =
     if(class(factor)!="factor" & mode %in% c("scores", "biplot")){
       stop_quietly("Factor must be a factor object.")
     }
+  }else{
+    factor <- factor(model$Y$data[,"event"])
   }
 
   if(!class(aux.model)==pkg.env$model_class){
@@ -2165,325 +2180,227 @@ plot_HDcox.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor =
   }
 
   if(mode=="scores"){
+
     if(ncol(aux.model$X$scores)==1){
       message("The model has only 1 component")
 
-      aux.model$X$scores <- cbind(aux.model$X$scores, aux.model$X$scores)
-      colnames(aux.model$X$scores) <- c("p1", "p2")
-      df <- as.data.frame(aux.model$X$scores)
-
-      comp = c(1, 1)
-      subdata <- df[0,1:2]
-
-      f <- as.factor(factor)
-
-      txt.expression <- paste0("Scores (",attr(aux.model, "model"),") - ")
-
-      ggp <- ggplot(df) +
-        geom_point(aes(x = df[,comp[1]], y = df[,comp[2]], color = factor)) +
-        # ggtitle(label = bquote("Scores (aux.model) - "~R^2 == .(max(aux.model@aux.modelDF[,2])))) +
-        # xlab(label = paste0("p",as.character(comp[1]), " (", as.character(aux.model@aux.modelDF$R2X[comp[1]]*100), " %)")) +
-        # ylab(label = paste0("p",as.character(comp[2]), " (", as.character(aux.model@aux.modelDF$R2X[comp[2]]*100), " %)")) +
-        ggtitle(label = bquote(.(txt.expression) ~R^2 == "not R2 yet")) +
-        xlab(label = paste0("comp_",as.character(comp[1]), " (", as.character("NA"), " %)")) +
-        ylab(label = paste0("comp_",as.character(comp[2]), " (", as.character("NA"), " %)")) +
-        labs(color = legend.title) + theme(legend.position="bottom")
-
-      if(requireNamespace("RColorConesa", quietly = TRUE)){
-        ggp <- ggp + scale_color_manual(values = RColorConesa::colorConesa(length(unique(factor)), reverse = colorReverse))
-      }
-
-      # if(allNames){
-      #   ggp <- ggp + ggrepel::geom_text_repel(data = as.data.frame(df),
-      #                                         aes(x = as.data.frame(df)[,comp[1]],
-      #                                             y = as.data.frame(df)[,comp[2]]),
-      #                                         label = rownames(as.data.frame(df)), size=text.size)
-      # }else if(names){
-      #   ggp <- ggp + ggrepel::geom_text_repel(data = subdata, aes(x = subdata[,comp[1]],
-      #                                                             y = subdata[,comp[2]]),
-      #                                         label = rownames(subdata), size=text.size)
-      # }
-      #
-      # if(!is.null(radius) & nrow(subdata)!=0){
-      #   ggp <- ggp + ggforce::geom_circle(aes(x0 = 0, y0 = 0, r = radius))
-      # }
-
+      df <- cbind(aux.model$X$scores[,1], aux.model$X$scores[,1])
+      colnames(df) <- c("p1", "p2")
     }else{
       df <- as.data.frame(aux.model$X$scores)
-      mh <- mahalanobis(x = aux.model$X$scores[,comp], center = F, cov = cov(aux.model$X$scores[,comp]))
-      subdata <- as.data.frame(aux.model$X$scores)[names(mh)[mh>mahalanovis_limit],]
-      for(i in 1:nrow(df)){
-        if(rownames(df[i,comp,drop=F]) %in% rownames(subdata)){
-          next
-        }else{
-          #check mahalanovis_limit
-          aux <- df[i,comp,drop=F]
-          y_value <- sqrt(mahalanovis_limit^2-aux[,1]^2)
-          if(y_value < abs(aux[,2])){
-            subdata <- rbind(subdata, df[i,,drop=F])
-          }
-        }
-      }
-
-      txt.expression <- paste0("Scores (",attr(aux.model, "model"),") - ")
-
-      ggp <- ggplot(df) +
-        geom_point(aes(x = df[,comp[1]], y = df[,comp[2]], color = factor)) +
-        stat_ellipse(aes(x = df[,comp[1]], y = df[,comp[2]], fill = factor), geom = "polygon", alpha = 0.1, show.legend=F) +
-        coord_fixed(ratio=1) +
-        ggtitle(label = bquote(.(txt.expression) ~R^2 == "not R2 yet")) +
-        xlab(label = paste0("comp_",as.character(comp[1]), " (", as.character("NA"), " %)")) +
-        ylab(label = paste0("comp_",as.character(comp[2]), " (", as.character("NA"), " %)")) +
-        labs(color = legend.title) + theme(legend.position="bottom")
-
-      if(requireNamespace("RColorConesa", quietly = TRUE)){
-        ggp <- ggp + scale_color_manual(values = RColorConesa::colorConesa(length(unique(factor)), reverse = colorReverse)) +
-          scale_fill_manual(values = RColorConesa::colorConesa(length(unique(factor)), reverse = colorReverse))
-      }
-
-      if(names){
-        ggp <- ggp + ggrepel::geom_text_repel(data = subdata,
-                                              aes(x = subdata[,comp[1]],
-                                                  y = subdata[,comp[2]]),
-                                              label = rownames(subdata), size=text.size)
-      }else if(allNames){
-        ggp <- ggp + ggrepel::geom_text_repel(data = as.data.frame(df),
-                                              aes(x = as.data.frame(df)[,comp[1]],
-                                                  y = as.data.frame(df)[,comp[2]]),
-                                              label = rownames(as.data.frame(df)),
-                                              size=text.size)
-      }
     }
-  }
 
-  if(mode=="loadings"){
+    subdata_loading = NULL
+    ggp <- ggplot(as.data.frame(df))
+
+    if(nrow(df) > MAX_POINTS){
+      ggp <- ggp + scattermore::geom_scattermore(aes(x = df[,comp[1]], y = df[,comp[2]], color = factor), pointsize = POINT_SIZE, pixels = POINT_RES)
+    }else{
+      ggp <- ggp + geom_point(aes(x = df[,comp[1]], y = df[,comp[2]], color = factor))
+    }
+
+    ggp <- ggp + labs(color = legend.title) + theme(legend.position="bottom") + coord_fixed(ratio=1)
+    ggp <- ggp + stat_ellipse(aes(x = df[,comp[1]], y = df[,comp[2]], fill = factor), geom = "polygon", alpha = 0.1, show.legend=F)
+
+    if("R2" %in% names(model)){
+      txt.expression <- paste0("Scores (",attr(aux.model, "model"),") - ")
+      r2_1 <- round(model$R2[[comp[1]]], 4)
+      r2_2 <- round(model$R2[[comp[2]]], 4)
+      r2 <- round(sum(r2_1, r2_2), 4)
+      ggp <- ggp + ggtitle(label = bquote(.(txt.expression) ~R^2 == .(r2))) +
+        xlab(label = paste0("comp_",as.character(comp[1]), " (", as.character(r2_1*100), " %)")) +
+        ylab(label = paste0("comp_",as.character(comp[2]), " (", as.character(r2_2*100), " %)"))
+    }else{
+      txt.expression <- paste0("Scores (",attr(aux.model, "model"),")")
+      ggp <- ggp + ggtitle(label = bquote(.(txt.expression))) +
+        xlab(label = paste0("comp_",as.character(comp[1]))) +
+        ylab(label = paste0("comp_",as.character(comp[2])))
+    }
+
+    if(requireNamespace("RColorConesa", quietly = TRUE)){
+      ggp <- ggp +
+        RColorConesa::scale_color_conesa(reverse = colorReverse) +
+        RColorConesa::scale_fill_conesa(reverse = colorReverse)
+    }
+
+  }else if(mode=="loadings"){
 
     if(ncol(aux.model$X$loadings)==1){
       message("The model has only 1 component")
 
-      aux.model$X$loadings <- cbind(aux.model$X$loadings,aux.model$X$loadings)
-      colnames(aux.model$X$loadings) <- c("p1", "p2")
-      df <- as.data.frame(aux.model$X$loadings)
-      #mh <- mahalanobis(x = aux.model$X$loadings[,comp], center = F, cov = cov(aux.model$X$loadings[,comp]))
-      subdata <- df[apply(df[,comp],1,function(x){any(abs(x)>radius)}),]
-      for(i in 1:nrow(df)){
-        if(rownames(df[i,comp,drop=F]) %in% rownames(subdata)){
-          next
-        }else{
-          #check radius
-          aux <- df[i,comp,drop=F]
-          y_value <- sqrt(radius^2-aux[,1]^2)
-          if(y_value < abs(aux[,2])){
-            subdata <- rbind(subdata, df[i,,drop=F])
-          }
-        }
-      }
-
-      comp = c(1, 1)
-
-      txt.expression <- paste0("Loadings (",attr(aux.model, "model"),") - ")
-
-      ggp <- ggplot(df) +
-        geom_point(aes(x = df[,comp[1]], y = df[,comp[2]])) +
-        #ggtitle(label = bquote("Loadings (aux.model) - "~R^2 == .(max(aux.model@aux.modelDF[,2])))) +
-        #xlab(label = paste0("p",as.character(comp[1]), " (", as.character(aux.model@aux.modelDF$R2X[comp[1]]*100), " %)")) +
-        #ylab(label = paste0("p",as.character(comp[2]), " (", as.character(aux.model@aux.modelDF$R2X[comp[2]]*100), " %)"))
-        ggtitle(label = bquote(.(txt.expression) ~R^2 == "not R2 yet")) +
-        xlab(label = paste0("comp_",as.character(comp[1]), " (", as.character("NA"), " %)")) +
-        ylab(label = paste0("comp_",as.character(comp[2]), " (", as.character("NA"), " %)"))
-
-      if(allNames){
-        ggp <- ggp + ggrepel::geom_text_repel(data = as.data.frame(df),
-                                              aes(x = as.data.frame(df)[,comp[1]],
-                                                  y = as.data.frame(df)[,comp[2]]),
-                                              label = rownames(as.data.frame(df)), size=text.size)
-      }else if(names){
-        ggp <- ggp + ggrepel::geom_text_repel(data = subdata, aes(x = subdata[,comp[1]],
-                                                                  y = subdata[,comp[2]]),
-                                              label = rownames(subdata), size=text.size)
-      }
-
-      if(!is.null(radius) & nrow(subdata)!=0){
-
-        if(requireNamespace("ggforce", quietly = TRUE)){
-          ggp <- ggp + ggforce::geom_circle(aes(x0 = 0, y0 = 0, r = radius))
-        }
-
-      }
+      df <- as.data.frame(cbind(aux.model$X$loadings,aux.model$X$loadings))
+      colnames(df) <- c("p1", "p2")
 
     }else{
       df <- as.data.frame(aux.model$X$loadings)
-      subdata <- df[apply(df[,comp],1,function(x){any(abs(x)>radius)}),] #works as square, but not as a circle
-      for(i in 1:nrow(df)){
-        if(rownames(df[i,comp,drop=F]) %in% rownames(subdata)){
-          next
-        }else{
-          #check radius
-          aux <- df[i,comp,drop=F]
-          y_value <- sqrt(radius^2-aux[,1]^2)
-          if(y_value < abs(aux[,2])){
-            subdata <- rbind(subdata, df[i,,drop=F])
-          }
-        }
-      }
+    }
 
+    if(nrow(df)<MAX_LOADINGS){
+      subdata_loading <- df
+    }else if(!is.null(top)){
+      aux_loadings <- apply(df,1,function(x){sqrt(crossprod(as.numeric(x[comp])))})
+      aux_loadings <- aux_loadings[order(aux_loadings, decreasing = T)]
+      subdata_loading <- df[names(aux_loadings)[1:top],]
+    }else if(!is.null(radius)){
+      subdata_loading <- df_loading[apply(df_loading,1,function(x){sqrt(crossprod(as.numeric(x[comp])))>radius}),]
+    }else{
+      subdata_loading <- NULL
+    }
+
+    ggp <- ggplot(as.data.frame(df))
+
+    if(nrow(df) > MAX_POINTS){
+      ggp <- ggp + scattermore::geom_scattermore(aes(x = df[,comp[1]], y = df[,comp[2]]), pointsize = POINT_SIZE, pixels = POINT_RES)
+    }else{
+      ggp <- ggp + geom_point(aes(x = df[,comp[1]], y = df[,comp[2]]))
+    }
+
+    ggp <- ggp + labs(color = legend.title) + theme(legend.position="bottom") + coord_fixed(ratio=1)
+
+    if("R2" %in% names(model)){
       txt.expression <- paste0("Loadings (",attr(aux.model, "model"),") - ")
-
-      ggp <- ggplot(as.data.frame(df)) +
-        geom_point(aes(x = df[,comp[1]], y = df[,comp[2]])) +
-        coord_fixed(ratio=1) +
-        # ggtitle(label = bquote("Loadings (aux.model) - "~R^2 == .(max(aux.model@aux.modelDF[,2])))) +
-        # xlab(label = paste0("p",as.character(comp[1]), " (", as.character(aux.model@aux.modelDF$R2X[comp[1]]*100), " %)")) +
-        # ylab(label = paste0("p",as.character(comp[2]), " (", as.character(aux.model@aux.modelDF$R2X[comp[2]]*100), " %)"))
-        ggtitle(label = bquote(.(txt.expression) ~R^2 == "not R2 yet")) +
-        xlab(label = paste0("comp_",as.character(comp[1]), " (", as.character("NA"), " %)")) +
-        ylab(label = paste0("comp_",as.character(comp[2]), " (", as.character("NA"), " %)"))
+      r2_1 <- round(model$R2[[comp[1]]], 4)
+      r2_2 <- round(model$R2[[comp[2]]], 4)
+      r2 <- round(sum(r2_1, r2_2), 4)
+      ggp <- ggp + ggtitle(label = bquote(.(txt.expression) ~R^2 == .(r2))) +
+        xlab(label = paste0("comp_",as.character(comp[1]), " (", as.character(r2_1*100), " %)")) +
+        ylab(label = paste0("comp_",as.character(comp[2]), " (", as.character(r2_2*100), " %)"))
+    }else{
+      txt.expression <- paste0("Loadings (",attr(aux.model, "model"),")")
+      ggp <- ggp + ggtitle(label = bquote(.(txt.expression))) +
+        xlab(label = paste0("comp_",as.character(comp[1]))) +
+        ylab(label = paste0("comp_",as.character(comp[2])))
     }
 
-    if(allNames){
-      ggp <- ggp + ggrepel::geom_text_repel(data = as.data.frame(df),
-                                            aes(x = as.data.frame(df)[,comp[1]],
-                                                y = as.data.frame(df)[,comp[2]]),
-                                            label = rownames(as.data.frame(df)), size=text.size)
-    }else if(names){
-      ggp <- ggp + ggrepel::geom_text_repel(data = subdata, aes(x = subdata[,comp[1]],
-                                                                y = subdata[,comp[2]]),
-                                            label = rownames(subdata), size=text.size)
+    if(names & !is.null(subdata_loading)){
+      ggp <- ggp + ggrepel::geom_text_repel(data = subdata_loading, aes(x = subdata_loading[,comp[1]],
+                                                                        y = subdata_loading[,comp[2]]),
+                                            max.overlaps = getOption("ggrepel.max.overlaps", default = overlaps),
+                                            label = rownames(subdata_loading), size=text.size)
     }
 
-    if(!is.null(radius) & nrow(subdata)!=0){
+    if(!is.null(radius) & !is.null(subdata_loading)){
       if(requireNamespace("ggforce", quietly = TRUE)){
         ggp <- ggp + ggforce::geom_circle(aes(x0 = 0, y0 = 0, r = radius))
       }
     }
 
-  }
-
-  if(mode=="biplot"){
+  }else if(mode=="biplot"){
     if(ncol(aux.model$X$loadings)==1){
       message("The model has only 1 component")
-      df <- cbind(aux.model$X$scores, aux.model$X$scores)
+
+      df <- as.data.frame(cbind(aux.model$X$scores, aux.model$X$scores))
       colnames(df) <- c("p1", "p2")
-      df <- as.data.frame(df)
 
-      comp = c(1, 1)
-
-      txt.expression <- paste0("Biplot (",attr(aux.model, "model"),") - ")
-
-      ggp <- ggplot(df) +
-        geom_point(aes(x = df[,comp[1]], y = df[,comp[2]], color = factor)) +
-        stat_ellipse(aes(x = df[,comp[1]], y = df[,comp[2]], fill = factor), geom = "polygon", alpha = 0.1, show.legend=F) +
-        coord_fixed(ratio=1) +
-        ggtitle(label = bquote(.(txt.expression) ~R^2 == "not R2 yet")) +
-        xlab(label = paste0("comp_",as.character(comp[1]), " (", as.character("NA"), " %)")) +
-        ylab(label = paste0("comp_",as.character(comp[2]), " (", as.character("NA"), " %)")) +
-        labs(color = legend.title) + theme(legend.position="bottom")
-
-      if(requireNamespace("RColorConesa", quietly = TRUE)){
-        ggp <- ggp + scale_color_manual(values = RColorConesa::colorConesa(length(unique(factor)), reverse = colorReverse)) +
-          scale_fill_manual(values = RColorConesa::colorConesa(length(unique(factor)), reverse = colorReverse))
-      }
-
-      df_loading <- as.data.frame(cbind(aux.model$X$loadings, aux.model$X$loadings))
+      df_loading <- as.data.frame(cbind(aux.model$X$loadings[,1], aux.model$X$loadings[,1]))
       max.loadings <- apply(abs(df_loading), 2, max)
       max.scores <- apply(abs(df), 2, max)
-
-      ratio <- max.scores / max.loadings
-
-      df_loading <- as.data.frame(t(apply(df_loading, 1, function(x){x * ratio})))
-      subdata_loading <- df_loading[apply(df_loading[,comp],1,function(x){any(abs(x) > (radius * max(ratio[comp[1]])))}),]
-      for(i in 1:nrow(df_loading)){
-        if(rownames(df_loading[i,comp,drop=F]) %in% rownames(subdata_loading)){
-          next
-        }else{
-          #check radius
-          aux <- df_loading[i,comp,drop=F]
-          y_value <- sqrt((radius * max(ratio[comp[1]]))^2-aux[,1]^2)
-          if(y_value < abs(aux[,2])){
-            subdata_loading <- rbind(subdata_loading, df_loading[i,,drop=F])
-          }
-        }
-      }
-
-      df.2 <- cbind(df_loading[,comp[1]], df_loading[,comp[2]])
-      colnames(df.2) <- c("l1", "l2")
-      df.2 <- as.data.frame(df.2)
-      ggp <- ggp + geom_point(data = df.2, aes(x = df.2[,comp[1]], y = df.2[,comp[2]]), shape = 15)
-
     }else{
       df <- as.data.frame(aux.model$X$scores)
-      mh <- mahalanobis(x = aux.model$X$scores[,comp], center = F, cov = cov(aux.model$X$scores[,comp]))
-      subdata <- as.data.frame(aux.model$X$scores)[names(mh)[mh>mahalanovis_limit],]
-      for(i in 1:nrow(df)){
-        if(rownames(df[i,comp,drop=F]) %in% rownames(subdata)){
-          next
-        }else{
-          #check radius
-          aux <- df[i,comp,drop=F]
-          y_value <- sqrt(mahalanovis_limit^2-aux[,1]^2)
-          if(y_value < abs(aux[,2])){
-            subdata <- rbind(subdata, df[i,,drop=F])
-          }
-        }
-      }
-
-      txt.expression <- paste0("Biplot (",attr(aux.model, "model"),") - ")
-
-      ggp <- ggplot(as.data.frame(df)) +
-        geom_point(aes(x = df[,comp[1]], y = df[,comp[2]], color = factor)) +
-        stat_ellipse(aes(x = df[,comp[1]], y = df[,comp[2]], fill = factor), geom = "polygon", alpha = 0.1, show.legend=F) +
-        coord_fixed(ratio=1) +
-        ggtitle(label = bquote(.(txt.expression) ~R^2 == "not R2 yet")) +
-        xlab(label = paste0("comp_",as.character(comp[1]), " (", as.character("NA"), " %)")) +
-        ylab(label = paste0("comp_",as.character(comp[2]), " (", as.character("NA"), " %)")) +
-        labs(color = legend.title) + theme(legend.position="bottom")
-
-      if(requireNamespace("RColorConesa", quietly = TRUE)){
-        ggp <- ggp + scale_color_manual(values = RColorConesa::colorConesa(length(unique(factor)), reverse = colorReverse)) +
-          scale_fill_manual(values = RColorConesa::colorConesa(length(unique(factor)), reverse = colorReverse))
-      }
 
       df_loading <- as.data.frame(aux.model$X$loadings)
       max.loadings <- apply(abs(df_loading), 2, max)
       max.scores <- apply(abs(df), 2, max)
+    }
 
-      ratio <- max.scores / max.loadings
+    #scale scores to -1,1
+    df <- norm01(df[,comp])*2-1
+    ggp <- ggplot(as.data.frame(df))
 
-      df_loading <- as.data.frame(t(apply(df_loading, 1, function(x){x * ratio})))
+    if(nrow(df) > MAX_POINTS){
+      ggp <- ggp + scattermore::geom_scattermore(aes(x = df[,comp[1]], y = df[,comp[2]], color = factor), pointsize = POINT_SIZE, pixels = POINT_RES)
+    }else{
+      ggp <- ggp + geom_point(aes(x = df[,comp[1]], y = df[,comp[2]], color = factor))
+    }
 
-      subdata_loading <- df_loading[apply(df_loading[,comp],1,function(x){any(abs(x) > (radius * max(ratio[comp[1]])))}),]
-      for(i in 1:nrow(df)){
-        if(rownames(df[i,comp,drop=F]) %in% rownames(subdata_loading)){
-          next
-        }else{
-          #check radius
-          aux <- df[i,comp,drop=F]
-          y_value <- sqrt(abs((radius * max(ratio[comp[1]]))^2-aux[,1]^2))
-          if(y_value < abs(aux[,2])){
-            subdata_loading <- rbind(subdata_loading, df[i,,drop=F])
-          }
-        }
-      }
+    ggp <- ggp + labs(color = legend.title) + theme(legend.position="bottom") + coord_fixed(ratio=1)
+    ggp <- ggp + stat_ellipse(aes(x = df[,comp[1]], y = df[,comp[2]], fill = factor), geom = "polygon", alpha = 0.1, show.legend=F)
 
+    if("R2" %in% names(model)){
+      txt.expression <- paste0("Biplot (",attr(aux.model, "model"),") - ")
+      r2_1 <- round(model$R2[[comp[1]]], 4)
+      r2_2 <- round(model$R2[[comp[2]]], 4)
+      r2 <- round(sum(r2_1, r2_2), 4)
+      ggp <- ggp + ggtitle(label = bquote(.(txt.expression) ~R^2 == .(r2))) +
+        xlab(label = paste0("comp_",as.character(comp[1]), " (", as.character(r2_1*100), " %)")) +
+        ylab(label = paste0("comp_",as.character(comp[2]), " (", as.character(r2_2*100), " %)"))
+    }else{
+      txt.expression <- paste0("Biplot (",attr(aux.model, "model"),")")
+      ggp <- ggp + ggtitle(label = bquote(.(txt.expression))) +
+        xlab(label = paste0("comp_",as.character(comp[1]))) +
+        ylab(label = paste0("comp_",as.character(comp[2])))
+    }
+
+    if(requireNamespace("RColorConesa", quietly = TRUE)){
       ggp <- ggp +
-        geom_point(data = df_loading, aes(x = df_loading[,comp[1]], y = df_loading[,comp[2]]), shape = 15)
+        RColorConesa::scale_color_conesa(reverse = colorReverse) +
+        RColorConesa::scale_fill_conesa(reverse = colorReverse)
+    }
 
-      if(allNames){
-        ggp <- ggp + ggrepel::geom_text_repel(data = as.data.frame(df_loading), aes(x = as.data.frame(df_loading)[,comp[1]], y = as.data.frame(df_loading)[,comp[2]]), label = rownames(as.data.frame(df_loading)), size=text.size)
-      }else if(names){
-        ggp <- ggp + ggrepel::geom_text_repel(data = subdata_loading, aes(x = subdata_loading[,comp[1]], y = subdata_loading[,comp[2]]), label = rownames(subdata_loading), size=text.size)
+    if(nrow(df_loading)<MAX_LOADINGS){
+      subdata_loading <- df_loading
+    }else if(!is.null(top)){
+      aux_loadings <- apply(df_loading,1,function(x){sqrt(crossprod(as.numeric(x[comp])))})
+      aux_loadings <- aux_loadings[order(aux_loadings, decreasing = T)]
+      subdata_loading <- df_loading[names(aux_loadings)[1:top],]
+    }else if(!is.null(radius)){
+      subdata_loading <- df_loading[apply(df_loading,1,function(x){sqrt(crossprod(as.numeric(x[comp])))>radius}),]
+    }else{
+      subdata_loading <- NULL
+    }
+
+    #depending on DF instead of df_loadings - ARROWS
+    if(any(!is.null(top), !is.null(radius))){
+
+      no_selected_loadings <- df_loading[!rownames(df_loading) %in% rownames(subdata_loading),]
+      if(nrow(no_selected_loadings)!=0 & !only_top){
+        ggp <- ggp + geom_segment(data = no_selected_loadings, lineend = "butt", linejoin = "mitre", size = 0.2,
+                                  aes(x = 0, y = 0, xend = no_selected_loadings[,comp[1]],
+                                      yend = no_selected_loadings[,comp[2]]),
+                                  arrow = arrow(length = unit(0.1, "cm")))
       }
 
-      if(!is.null(radius) & nrow(subdata)!=0){
-        if(requireNamespace("ggforce", quietly = TRUE)){
-          ggp <- ggp + ggforce::geom_circle(aes(x0 = 0, y0 = 0, r = radius * max(ratio[comp[1]])))
-        }
-      }
+      ggp <- ggp + geom_segment(data = subdata_loading, lineend = "butt", linejoin = "mitre",
+                                size = 0.33, aes(x = 0, y = 0, xend = subdata_loading[,comp[1]],
+                                                 yend = subdata_loading[,comp[2]]),
+                                arrow = arrow(length = unit(0.1, "cm")))
+
+    }else{
+      #show all loadings
+      no_selected_loadings <- df_loading[!rownames(df_loading) %in% rownames(subdata_loading),]
+      ggp <- ggp + geom_segment(data = no_selected_loadings, lineend = "butt", linejoin = "mitre", size = 0.2,
+                                aes(x = 0, y = 0, xend = no_selected_loadings[,comp[1]],
+                                    yend = no_selected_loadings[,comp[2]]),
+                                arrow = arrow(length = unit(0.1, "cm")))
+    }
+
+    if(names & !is.null(subdata_loading)){
+      ggp <- ggp + ggrepel::geom_text_repel(data = subdata_loading, aes(x = subdata_loading[,comp[1]],
+                                                                        y = subdata_loading[,comp[2]]),
+                                            max.overlaps = getOption("ggrepel.max.overlaps", default = overlaps),
+                                            label = rownames(subdata_loading), size=text.size)
+    }
+
+    if(is.null(top) & !is.null(radius) & nrow(df) < MAX_POINTS){
+      ggp <- ggp + ggforce::geom_circle(aes(x0 = 0, y0 = 0, r = radius))
     }
 
   }
 
-  return(list(plot = ggp, outliers = rownames(subdata)))
+  #reorder legend
+  if(!is.null(factor) & length(levels(factor))>3){
+    ggp <- ggp + guides(color=guide_legend(nrow = ceiling(length(levels(factor))/3), byrow = T))
+  }
+
+  return(list(plot = ggp, outliers = rownames(subdata_loading)))
+}
+
+norm01 <- function(x){
+  if(max(x)-min(x) != 0){
+    return((x-min(x))/(max(x)-min(x)))
+  }else{
+    return(x/length(x))
+  }
 }
 
 #' plot_cox.event.list

@@ -24,6 +24,7 @@ Imports:
     progress,
     purrr,
     risksetROC,
+    scattermore,
     smoothROCtime,
     stats,
     survival,

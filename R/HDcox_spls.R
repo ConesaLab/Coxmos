@@ -102,20 +102,13 @@ splsdrcox <- function (X, Y,
   checkY.colnames(Y)
 
   #### ZERO VARIANCE - ALWAYS
-  variablesDeleted <- NULL
-  if(remove_near_zero_variance){
-    lst.zv <- deleteZeroVarianceVariables(data = X, info = T, mustKeep = toKeep.zv)
-    variablesDeleted <- lst.zv$variablesDeleted[,1]
-    if(!is.null(variablesDeleted)){
-      X <- X[,!colnames(X) %in% variablesDeleted]
-    }
-  }else if(remove_zero_variance){
-    lst.zv <- deleteZeroVarianceVariables(data = X, info = T, mustKeep = toKeep.zv, onlyZero = T)
-    variablesDeleted <- lst.zv$variablesDeleted[,1]
-    if(!is.null(variablesDeleted)){
-      X <- X[,!colnames(X) %in% variablesDeleted]
-    }
-  }
+  lst_dnz <- deleteZeroOrNearZeroVariance(X = X,
+                                          remove_near_zero_variance = remove_near_zero_variance,
+                                          remove_zero_variance = remove_zero_variance,
+                                          toKeep.zv = toKeep.zv,
+                                          freqCut = 95/5)
+  X <- lst_dnz$X
+  variablesDeleted <- lst_dnz$variablesDeleted
 
   #### SCALING
   lst_scale <- XY.scale(X, Y, x.center, x.scale, y.center, y.scale)
@@ -468,20 +461,13 @@ splsdrcox.modelPerComponent <- function (X, Y,
   event <- Y[,"event"]
 
   #### ZERO VARIANCE - ALWAYS
-  variablesDeleted <- NULL
-  if(remove_near_zero_variance){
-    lst.zv <- deleteZeroVarianceVariables(data = X, info = T, mustKeep = toKeep.zv)
-    variablesDeleted <- lst.zv$variablesDeleted[,1]
-    if(!is.null(variablesDeleted)){
-      X <- X[,!colnames(X) %in% variablesDeleted]
-    }
-  }else if(remove_zero_variance){
-    lst.zv <- deleteZeroVarianceVariables(data = X, info = T, mustKeep = toKeep.zv, onlyZero = T)
-    variablesDeleted <- lst.zv$variablesDeleted[,1]
-    if(!is.null(variablesDeleted)){
-      X <- X[,!colnames(X) %in% variablesDeleted]
-    }
-  }
+  lst_dnz <- deleteZeroOrNearZeroVariance(X = X,
+                                          remove_near_zero_variance = remove_near_zero_variance,
+                                          remove_zero_variance = remove_zero_variance,
+                                          toKeep.zv = toKeep.zv,
+                                          freqCut = 95/5)
+  X <- lst_dnz$X
+  variablesDeleted <- lst_dnz$variablesDeleted
 
   #### SCALING
   lst_scale <- XY.scale(X, Y, x.center, x.scale, y.center, y.scale)
@@ -822,20 +808,13 @@ cv.splsdrcox <- function (X, Y,
   max.ncomp <- check.maxPredictors(X, Y, MIN_EPV, max.ncomp, verbose = verbose)
 
   #### REQUIREMENTS
-  variablesDeleted <- NULL
-  if(remove_near_zero_variance){
-    lst.zv <- deleteZeroVarianceVariables(data = X, info = T, mustKeep = toKeep.zv)
-    variablesDeleted <- lst.zv$variablesDeleted[,1]
-    if(!is.null(variablesDeleted)){
-      X <- X[,!colnames(X) %in% variablesDeleted]
-    }
-  }else if(remove_zero_variance){
-    lst.zv <- deleteZeroVarianceVariables(data = X, info = T, mustKeep = toKeep.zv, onlyZero = T)
-    variablesDeleted <- lst.zv$variablesDeleted[,1]
-    if(!is.null(variablesDeleted)){
-      X <- X[,!colnames(X) %in% variablesDeleted]
-    }
-  }
+  lst_dnz <- deleteZeroOrNearZeroVariance(X = X,
+                                          remove_near_zero_variance = remove_near_zero_variance,
+                                          remove_zero_variance = remove_zero_variance,
+                                          toKeep.zv = toKeep.zv,
+                                          freqCut = 95/5)
+  X <- lst_dnz$X
+  variablesDeleted <- lst_dnz$variablesDeleted
 
   ######
   # CV #

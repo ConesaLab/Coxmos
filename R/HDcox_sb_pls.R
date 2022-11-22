@@ -92,32 +92,13 @@ sb.plsicox <- function (X, Y,
   checkY.colnames(Y)
 
   #### ZERO VARIANCE - ALWAYS
-  variablesDeleted <- NULL
-  if(remove_near_zero_variance){
-    lst.zv <- purrr::map(X, ~deleteZeroVarianceVariables(data = ., info = T, mustKeep = toKeep.zv))
-    variablesDeleted <- purrr::map(lst.zv, ~.$variablesDeleted[,1])
-    if(any(unlist(lapply(variablesDeleted, is.null)))){ #if any not null
-      for(n in names(variablesDeleted)){
-        if(is.null(variablesDeleted[[n]])){
-          next
-        }else{
-          X[[n]] <- X[[n]][,!colnames(X[[n]]) %in% variablesDeleted[[n]]]
-        }
-      }
-    }
-  }else if(remove_zero_variance){
-    lst.zv <- purrr::map(X, ~deleteZeroVarianceVariables(data = ., info = T, mustKeep = toKeep.zv, onlyZero = T))
-    variablesDeleted <- purrr::map(lst.zv, ~.$variablesDeleted[,1])
-    if(any(unlist(lapply(variablesDeleted, is.null)))){ #if any not null
-      for(n in names(variablesDeleted)){
-        if(is.null(variablesDeleted[[n]])){
-          next
-        }else{
-          X[[n]] <- X[[n]][,!colnames(X[[n]]) %in% variablesDeleted[[n]]]
-        }
-      }
-    }
-  }
+  lst_dnz <- deleteZeroOrNearZeroVariance.mb(X = X,
+                                            remove_near_zero_variance = remove_near_zero_variance,
+                                            remove_zero_variance = remove_zero_variance,
+                                            toKeep.zv = toKeep.zv,
+                                            freqCut = 95/5)
+  X <- lst_dnz$X
+  variablesDeleted <- lst_dnz$variablesDeleted
 
   #### SCALING
   lst_scale <- XY.mb.scale(X, Y, x.center, x.scale, y.center, y.scale)
@@ -155,7 +136,11 @@ sb.plsicox <- function (X, Y,
 
   #colnames(data) <- apply(expand.grid(colnames(lst_sb.pls[[1]]$X$scores), names(Xh)), 1, paste, collapse="_")
   colnames(data) <- cn.merge
-  cox_model <- cox(X = data, Y = Yh, x.center = F, x.scale = F, y.center = F, y.scale = F, remove_near_zero_variance = F, remove_zero_variance = F, remove_non_significant = remove_non_significant, FORCE = T)
+  cox_model <- cox(X = data, Y = Yh,
+                   x.center = F, x.scale = F,
+                   y.center = F, y.scale = F,
+                   remove_near_zero_variance = F, remove_zero_variance = F,
+                   remove_non_significant = remove_non_significant, FORCE = T)
 
   ##########
   # RETURN #
@@ -249,32 +234,13 @@ cv.sb.plsicox <- function(X, Y,
   }
 
   #### ZERO VARIANCE - ALWAYS
-  variablesDeleted <- NULL
-  if(remove_near_zero_variance){
-    lst.zv <- purrr::map(X, ~deleteZeroVarianceVariables(data = ., info = T, mustKeep = toKeep.zv))
-    variablesDeleted <- purrr::map(lst.zv, ~.$variablesDeleted[,1])
-    if(any(unlist(lapply(variablesDeleted, is.null)))){ #if any not null
-      for(n in names(variablesDeleted)){
-        if(is.null(variablesDeleted[[n]])){
-          next
-        }else{
-          X[[n]] <- X[[n]][,!colnames(X[[n]]) %in% variablesDeleted[[n]]]
-        }
-      }
-    }
-  }else if(remove_zero_variance){
-    lst.zv <- purrr::map(X, ~deleteZeroVarianceVariables(data = ., info = T, mustKeep = toKeep.zv, onlyZero = T))
-    variablesDeleted <- purrr::map(lst.zv, ~.$variablesDeleted[,1])
-    if(any(unlist(lapply(variablesDeleted, is.null)))){ #if any not null
-      for(n in names(variablesDeleted)){
-        if(is.null(variablesDeleted[[n]])){
-          next
-        }else{
-          X[[n]] <- X[[n]][,!colnames(X[[n]]) %in% variablesDeleted[[n]]]
-        }
-      }
-    }
-  }
+  lst_dnz <- deleteZeroOrNearZeroVariance.mb(X = X,
+                                            remove_near_zero_variance = remove_near_zero_variance,
+                                            remove_zero_variance = remove_zero_variance,
+                                            toKeep.zv = toKeep.zv,
+                                            freqCut = 95/5)
+  X <- lst_dnz$X
+  variablesDeleted <- lst_dnz$variablesDeleted
 
   max.ncomp <- check.mb.ncomp(X, max.ncomp)
 
@@ -499,32 +465,13 @@ fast.cv.sb.plsicox <- function(X, Y,
   }
 
   #### ZERO VARIANCE - ALWAYS
-  variablesDeleted <- NULL
-  if(remove_near_zero_variance){
-    lst.zv <- purrr::map(X, ~deleteZeroVarianceVariables(data = ., info = T, mustKeep = toKeep.zv))
-    variablesDeleted <- purrr::map(lst.zv, ~.$variablesDeleted[,1])
-    if(any(unlist(lapply(variablesDeleted, is.null)))){ #if any not null
-      for(n in names(variablesDeleted)){
-        if(is.null(variablesDeleted[[n]])){
-          next
-        }else{
-          X[[n]] <- X[[n]][,!colnames(X[[n]]) %in% variablesDeleted[[n]]]
-        }
-      }
-    }
-  }else if(remove_zero_variance){
-    lst.zv <- purrr::map(X, ~deleteZeroVarianceVariables(data = ., info = T, mustKeep = toKeep.zv, onlyZero = T))
-    variablesDeleted <- purrr::map(lst.zv, ~.$variablesDeleted[,1])
-    if(any(unlist(lapply(variablesDeleted, is.null)))){ #if any not null
-      for(n in names(variablesDeleted)){
-        if(is.null(variablesDeleted[[n]])){
-          next
-        }else{
-          X[[n]] <- X[[n]][,!colnames(X[[n]]) %in% variablesDeleted[[n]]]
-        }
-      }
-    }
-  }
+  lst_dnz <- deleteZeroOrNearZeroVariance.mb(X = X,
+                                            remove_near_zero_variance = remove_near_zero_variance,
+                                            remove_zero_variance = remove_zero_variance,
+                                            toKeep.zv = toKeep.zv,
+                                            freqCut = 95/5)
+  X <- lst_dnz$X
+  variablesDeleted <- lst_dnz$variablesDeleted
 
   #### SCALING
   lst_scale <- XY.mb.scale(X, Y, x.center, x.scale, y.center, y.scale)

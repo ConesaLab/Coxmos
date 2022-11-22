@@ -173,8 +173,10 @@ lst_models_time <- list(plsicox_model,
                         plsdacox_model,
                         eval_results)
 
-## ---- fig.small=T-------------------------------------------------------------
+## -----------------------------------------------------------------------------
 ggp_time <- plot_time.models(lst_models_time)
+
+## ---- fig.small=T-------------------------------------------------------------
 ggp_time
 
 ## -----------------------------------------------------------------------------
@@ -196,6 +198,30 @@ lst_ph_ggplot <- plot_proportionalHazard.list(lst_models)
 
 ## ---- fig.small=T-------------------------------------------------------------
 lst_ph_ggplot$`SPLS-DRCOX`
+
+## -----------------------------------------------------------------------------
+ggp_scores <- plot_HDcox.PLS.model(model = lst_models$`SPLS-DRCOX`, 
+                                   comp = c(1,2), mode = "scores")
+
+## ---- fig.small=T-------------------------------------------------------------
+ggp_scores$plot
+
+## -----------------------------------------------------------------------------
+ggp_loadings <- plot_HDcox.PLS.model(model = lst_models$`SPLS-DRCOX`, 
+                                     comp = c(1,2), mode = "loadings",
+                                     top = 10) #length from 0,0
+
+## ---- fig.small=T-------------------------------------------------------------
+ggp_loadings$plot
+
+## -----------------------------------------------------------------------------
+ggp_biplot <- plot_HDcox.PLS.model(model = lst_models$`SPLS-DRCOX`, 
+                                   comp = c(1,2), mode = "biplot",
+                                   top = 15,
+                                   only_top = T)
+
+## ---- fig.small=T-------------------------------------------------------------
+ggp_biplot$plot
 
 ## -----------------------------------------------------------------------------
 ggp.simulated_beta <- plot_pseudobeta.list(lst_models = lst_models, 

@@ -104,20 +104,14 @@ splsdrcox_mixOmics <- function (X, Y,
 
   checkY.colnames(Y)
 
-  variablesDeleted <- NULL
-  if(remove_near_zero_variance){
-    lst.zv <- deleteZeroVarianceVariables(data = X, info = T, mustKeep = toKeep.zv)
-    variablesDeleted <- lst.zv$variablesDeleted[,1]
-    if(!is.null(variablesDeleted)){
-      X <- X[,!colnames(X) %in% variablesDeleted]
-    }
-  }else if(remove_zero_variance){
-    lst.zv <- deleteZeroVarianceVariables(data = X, info = T, mustKeep = toKeep.zv, onlyZero = T)
-    variablesDeleted <- lst.zv$variablesDeleted[,1]
-    if(!is.null(variablesDeleted)){
-      X <- X[,!colnames(X) %in% variablesDeleted]
-    }
-  }
+  #### ZERO VARIANCE - ALWAYS
+  lst_dnz <- deleteZeroOrNearZeroVariance(X = X,
+                                          remove_near_zero_variance = remove_near_zero_variance,
+                                          remove_zero_variance = remove_zero_variance,
+                                          toKeep.zv = toKeep.zv,
+                                          freqCut = 95/5)
+  X <- lst_dnz$X
+  variablesDeleted <- lst_dnz$variablesDeleted
 
   #### UPDATE test.keepX - in case many variables are deleted
   test.keepX <- test.keepX[!test.keepX>ncol(X)]
@@ -405,20 +399,13 @@ cv.splsdrcox_mixOmics <- function (X, Y,
   max.ncomp <- check.maxPredictors(X, Y, MIN_EPV, max.ncomp, verbose = verbose)
 
   #### REQUIREMENTS
-  variablesDeleted <- NULL
-  if(remove_near_zero_variance){
-    lst.zv <- deleteZeroVarianceVariables(data = X, info = T, mustKeep = toKeep.zv)
-    variablesDeleted <- lst.zv$variablesDeleted[,1]
-    if(!is.null(variablesDeleted)){
-      X <- X[,!colnames(X) %in% variablesDeleted]
-    }
-  }else if(remove_zero_variance){
-    lst.zv <- deleteZeroVarianceVariables(data = X, info = T, mustKeep = toKeep.zv, onlyZero = T)
-    variablesDeleted <- lst.zv$variablesDeleted[,1]
-    if(!is.null(variablesDeleted)){
-      X <- X[,!colnames(X) %in% variablesDeleted]
-    }
-  }
+  lst_dnz <- deleteZeroOrNearZeroVariance(X = X,
+                                          remove_near_zero_variance = remove_near_zero_variance,
+                                          remove_zero_variance = remove_zero_variance,
+                                          toKeep.zv = toKeep.zv,
+                                          freqCut = 95/5)
+  X <- lst_dnz$X
+  variablesDeleted <- lst_dnz$variablesDeleted
 
   ######
   # CV #

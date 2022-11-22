@@ -1,3 +1,48 @@
+#' deleteZeroOrNearZeroVariance.mb
+#'
+#' @param X Data.frame
+#' @param remove_near_zero_variance Logical. Remove NEAR zero variance
+#' @param remove_zero_variance Logical. Remove ZERO variance
+#' @param toKeep.zv Variables to keep.
+#' @param freqCut the cutoff for the ratio of the most common value to the second most common value
+#'
+#' @export
+
+deleteZeroOrNearZeroVariance.mb <- function(X, remove_near_zero_variance = F, remove_zero_variance = T, toKeep.zv = NULL, freqCut = 95/5){
+
+  auxX <- X
+
+  variablesDeleted <- NULL
+  if(remove_near_zero_variance){
+    lst.zv <- purrr::map(auxX, ~deleteZeroVarianceVariables(data = ., info = T, mustKeep = toKeep.zv, freqCut = freqCut))
+    variablesDeleted <- purrr::map(lst.zv, ~.$variablesDeleted[,1])
+    if(any(unlist(lapply(variablesDeleted, is.null)))){ #if any not null
+      for(n in names(variablesDeleted)){
+        if(is.null(variablesDeleted[[n]])){
+          next
+        }else{
+          auxX[[n]] <- auxX[[n]][,!colnames(auxX[[n]]) %in% variablesDeleted[[n]]]
+        }
+      }
+    }
+  }else if(remove_zero_variance){
+    lst.zv <- purrr::map(auxX, ~deleteZeroVarianceVariables(data = ., info = T, mustKeep = toKeep.zv, onlyZero = T))
+    variablesDeleted <- purrr::map(lst.zv, ~.$variablesDeleted[,1])
+    if(any(unlist(lapply(variablesDeleted, is.null)))){ #if any not null
+      for(n in names(variablesDeleted)){
+        if(is.null(variablesDeleted[[n]])){
+          next
+        }else{
+          auxX[[n]] <- auxX[[n]][,!colnames(auxX[[n]]) %in% variablesDeleted[[n]]]
+        }
+      }
+    }
+  }
+
+  return(list(X = auxX, variablesDeleted = variablesDeleted))
+
+}
+
 checkXY.mb.class <- function(X, Y, verbose = T){
   # Check if X and Y are matrices
   if (!is.list(X)) {
