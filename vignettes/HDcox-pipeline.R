@@ -226,7 +226,8 @@ ggp_biplot$plot
 ## -----------------------------------------------------------------------------
 ggp.simulated_beta <- plot_pseudobeta.list(lst_models = lst_models, 
                                            error.bar = T, onlySig = T, alpha = 0.05, 
-                                           zero.rm = T, auto.limits = T, top = 20)
+                                           zero.rm = T, auto.limits = T, top = 20,
+                                           show_percentage = T, size_percentage = 3)
 
 ## ---- fig.small=T-------------------------------------------------------------
 ggp.simulated_beta$`SPLS-DRCOX`$plot

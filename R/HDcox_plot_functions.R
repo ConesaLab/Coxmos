@@ -1206,13 +1206,16 @@ w.starplot.HDcox <- function(model, zero.rm = F, top = NULL, auto.limits = T){
   return(ggp_loading)
 }
 
-coxweightplot.fromVector.HDcox <- function(model, vector, sd.min = NULL, sd.max = NULL, zero.rm = F, top = NULL, auto.limits = T, block = NULL){
+coxweightplot.fromVector.HDcox <- function(model, vector, sd.min = NULL, sd.max = NULL, zero.rm = F, top = NULL, auto.limits = T,
+                                           block = NULL, show_percentage = T, size_percentage = 3){
 
   #DFCALLS
   variables <- pp <- NULL
 
   loading_values <- vector
   ggp_loading <- NULL
+  lst_top_loadings <- NULL
+  lst_all_loadings <- NULL
   df <- NULL
   limit_color = 300
 
@@ -1282,10 +1285,59 @@ coxweightplot.fromVector.HDcox <- function(model, vector, sd.min = NULL, sd.max 
                                         limits = c(-1*auto.limits,auto.limits), name = "Beta value")
     }
 
-    if(is.null(block)){
-      ggp <- ggp + ggtitle(paste0(attr(model, "model"), " - Survival Weight"))
+    #add total positive and negative values
+    risk_t.val = sum(loading_values[loading_values>0,])
+    preventive_t.val = sum(loading_values[loading_values<=0,])
+
+    risk_val = sum(df[df$pp>0,]$pp)
+    preventive_val = sum(df[df$pp<=0,]$pp)
+
+    perc_risk = risk_t.val / (risk_t.val+abs(preventive_t.val))
+    perc_preventive = abs(preventive_t.val) / (risk_t.val+abs(preventive_t.val))
+
+    risk_explained = risk_val/risk_t.val*100
+    preventive_explained = preventive_val/preventive_t.val*100
+
+    total_explained = risk_explained*perc_risk + preventive_explained*perc_preventive
+
+    if(!is.null(top)){
+      txt.subtitle = paste0("Top ", top, " variables explain a ", round(total_explained, 2), " % of the model.")
     }else{
-      ggp <- ggp + ggtitle(paste0(attr(model, "model"), " - Survival Weight [", block, "]"))
+      txt.subtitle = paste0("Variables explain a ", round(total_explained, 2), " % of the model.")
+    }
+
+
+    explained_perc = NULL
+    for(value in df$pp){
+      if(value>0){
+        explained_perc = c(explained_perc, value / risk_t.val * perc_risk * 100)
+      }else{
+        explained_perc = c(explained_perc, abs(value) / abs(preventive_t.val) * perc_preventive * 100)
+      }
+    }
+    df$explained = explained_perc
+
+    df.all <- as.data.frame(loading_values)
+    colnames(df.all) <- "value"
+    explained_perc = NULL
+    for(value in df.all$value){
+      if(value>0){
+        explained_perc = c(explained_perc, value / risk_t.val * perc_risk * 100)
+      }else{
+        explained_perc = c(explained_perc, abs(value) / abs(preventive_t.val) * perc_preventive * 100)
+      }
+    }
+    df.all$perc.explained = explained_perc
+
+    if(show_percentage & !is.null(top)){
+      df$explained_text <- paste0(round(df$explained, 2), " %")
+      ggp <- ggp + geom_text(aes(label = df$explained_text, y = sign(df$pp)*max(pp)*0.025), size = size_percentage)
+    }
+
+    if(is.null(block)){
+      ggp <- ggp + ggtitle(paste0(attr(model, "model"), " - Survival Weight"), subtitle = txt.subtitle)
+    }else{
+      ggp <- ggp + ggtitle(paste0(attr(model, "model"), " - Survival Weight [", block, "]"), subtitle = txt.subtitle)
     }
 
     if(nrow(df)>limit_color){
@@ -1318,10 +1370,18 @@ coxweightplot.fromVector.HDcox <- function(model, vector, sd.min = NULL, sd.max 
       ggp <- ggp + geom_errorbar(aes(ymin=sd.min, ymax=sd.max), width=.35, position=position_dodge(.2))
     }
 
+    if(ncol(loading_values)==1){
+      return(list(plot = ggp, top_coefficients = df, coefficients = df.all))
+    }
+
     ggp_loading[[i]] = ggp
+    lst_top_loadings[[i]] <- df
+    lst_all_loadings[[i]] <- df.all
   }
   names(ggp_loading) <- colnames(loading_values)
-  return(ggp_loading)
+  names(lst_top_loadings) <- colnames(loading_values)
+  names(lst_all_loadings) <- colnames(loading_values)
+  return(list(plot = ggp_loading, top_coefficients = lst_top_loadings, coefficients = lst_all_loadings))
 }
 
 #' plot_pseudobeta.list
@@ -1333,15 +1393,18 @@ coxweightplot.fromVector.HDcox <- function(model, vector, sd.min = NULL, sd.max 
 #' @param zero.rm Logical. Remove variables with a pseudobeta equal to 0.
 #' @param top Plot the top X variables with the higher pseudobetas in absolute value.
 #' @param auto.limits Compute Y limit automatically
+#' @param show_percentage Show contribution percentage for each variable
+#' @param size_percentage Size of percentage text
 #'
 #' @export
 
-plot_pseudobeta.list <- function(lst_models, error.bar = T, onlySig = F, alpha = 0.05, zero.rm = F, top = NULL, auto.limits = T){
+plot_pseudobeta.list <- function(lst_models, error.bar = T, onlySig = F, alpha = 0.05, zero.rm = F, top = NULL, auto.limits = T, show_percentage = T, size_percentage = 3){
 
   lst_plots <- purrr::map(lst_models, ~plot_pseudobeta(model = .,
                                                        error.bar = error.bar,
                                                        onlySig = onlySig, alpha = alpha,
-                                                       zero.rm = zero.rm, auto.limits = auto.limits, top = top))
+                                                       zero.rm = zero.rm, auto.limits = auto.limits, top = top,
+                                                       show_percentage = show_percentage, size_percentage = size_percentage))
 
   return(lst_plots)
 }
@@ -1355,10 +1418,12 @@ plot_pseudobeta.list <- function(lst_models, error.bar = T, onlySig = F, alpha =
 #' @param zero.rm Logical. Remove variables with a pseudobeta equal to 0.
 #' @param top Plot the top X variables with the higher pseudobetas in absolute value.
 #' @param auto.limits Compute Y limit automatically
+#' @param show_percentage Show contribution percentage for each variable
+#' @param size_percentage Size of percentage text
 #'
 #' @export
 
-plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zero.rm = F, top = NULL, auto.limits = T){
+plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zero.rm = F, top = NULL, auto.limits = T, show_percentage = T, size_percentage = 3){
 
   if(!attr(model, "model") %in% c(pkg.env$pls_methods, pkg.env$multiblock_methods)){
     stop("Model must be one of the follow models: 'PLS-ICOX', 'sPLS-DRCOX', 'sPLS-DRCOX-MixOmics', 'PLS-DACOX-MixOmics', 'SB.PLS-ICOX', 'SB.sPLS-DRCOX', 'MB.sPLS-DRCOX', 'MB.sPLS-DACOX'")
@@ -1409,8 +1474,10 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
     }
 
     plot <- coxweightplot.fromVector.HDcox(model = model, vector = vector,
-                                           sd.min = sd.min, sd.max = sd.max, auto.limits = T,
-                                           zero.rm = zero.rm, top = top)[[1]]
+                                           sd.min = sd.min, sd.max = sd.max, auto.limits = auto.limits,
+                                           zero.rm = zero.rm, top = top,
+                                           show_percentage = show_percentage,
+                                           size_percentage = size_percentage)
 
   }else if(attr(model, "model") %in% pkg.env$multiblock_methods){
 
@@ -1483,21 +1550,37 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
         plot[[b]] = NULL
       }else{
         plot[[b]] <- coxweightplot.fromVector.HDcox(model = model, vector = vector[[b]],
-                                               sd.min = sd.min[[b]], sd.max = sd.max[[b]], auto.limits = T,
-                                               zero.rm = zero.rm, top = top, block = b)[[1]]
+                                               sd.min = sd.min[[b]], sd.max = sd.max[[b]], auto.limits = auto.limits,
+                                               zero.rm = zero.rm, top = top, block = b,
+                                               show_percentage = show_percentage,
+                                               size_percentage = size_percentage)[[1]]
       }
 
     }
 
   }
 
-  colnames(vector) <- "coef"
+  if(attr(model, "model") %in% pkg.env$pls_methods){
+    vector <- plot$coefficients
+    return(list(plot = plot$plot,
+                beta = vector,
+                sd.min = sd.min,
+                sd.max = sd.max))
+  }else{
 
-  #it will be a list for mb approaches
-  return(list(plot = plot,
-              beta = vector,
-              sd.min = sd.min,
-              sd.max = sd.max))
+    aux_vector <- NULL
+    aux_plot <- NULL
+    for(b in names(model$X$data)){
+      aux_vector[[b]] <- plot[[b]]$plot
+      aux_plot[[b]] <- plot[[b]]$coefficients
+    }
+
+    return(list(plot = aux_plot,
+                beta = aux_vector,
+                sd.min = sd.min,
+                sd.max = sd.max))
+  }
+
 }
 
 #' plot_pseudobeta.newPatient.list

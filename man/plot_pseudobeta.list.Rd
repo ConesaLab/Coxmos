@@ -11,7 +11,9 @@ plot_pseudobeta.list(
   alpha = 0.05,
   zero.rm = F,
   top = NULL,
-  auto.limits = T
+  auto.limits = T,
+  show_percentage = T,
+  size_percentage = 3
 )
 }
 \arguments{
@@ -28,6 +30,10 @@ plot_pseudobeta.list(
 \item{top}{Plot the top X variables with the higher pseudobetas in absolute value.}
 
 \item{auto.limits}{Compute Y limit automatically}
+
+\item{show_percentage}{Show contribution percentage for each variable}
+
+\item{size_percentage}{Size of percentage text}
 }
 \description{
 plot_pseudobeta.list
