@@ -92,15 +92,15 @@
 #' @export
 
 mb.splsdacox <- function (X, Y,
-                                  n.comp = 4, vector = NULL,
+                          n.comp = 4, vector = NULL,
                           x.center = TRUE, x.scale = FALSE,
                           y.center = FALSE, y.scale = FALSE,
-                                  remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
-                                  remove_non_significant = T,
-                                  MIN_NVAR = 10, MAX_NVAR = 10000, n.cut_points = 3,
-                                  MIN_AUC_INCREASE = 0.01,
-                                  EVAL_METHOD = "AUC", pred.method = "cenROC", max.iter = 200,
-                                  MIN_EPV = 5, returnData = T, PARALLEL = F, verbose = F){
+                          remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
+                          remove_non_significant = T,
+                          MIN_NVAR = 10, MAX_NVAR = 10000, n.cut_points = 3,
+                          MIN_AUC_INCREASE = 0.01,
+                          EVAL_METHOD = "AUC", pred.method = "cenROC", max.iter = 200,
+                          MIN_EPV = 5, returnData = T, PARALLEL = F, verbose = F){
 
   t1 <- Sys.time()
 
@@ -416,18 +416,18 @@ mb.splsdacox <- function (X, Y,
 #' @export
 
 cv.mb.splsdacox <- function(X, Y,
-                                  max.ncomp = 10, vector = NULL,
-                                  n_run = 5, k_folds = 10,
+                            max.ncomp = 10, vector = NULL,
+                            n_run = 5, k_folds = 10,
                             x.center = TRUE, x.scale = FALSE,
                             y.center = FALSE, y.scale = FALSE,
-                                  remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
-                                  remove_non_significant_models = F, alpha = 0.05,
-                                  MIN_NVAR = 10, MAX_NVAR = 10000,
-                                  w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
-                                  MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
-                                  pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
-                                  MIN_EPV = 5, return_models = F,
-                                  PARALLEL = F, verbose = F, seed = 123){
+                            remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
+                            remove_non_significant_models = F, alpha = 0.05,
+                            MIN_NVAR = 10, MAX_NVAR = 10000,
+                            w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
+                            MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
+                            pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
+                            MIN_EPV = 5, return_models = F,
+                            PARALLEL = F, verbose = F, seed = 123){
 
   t1 <- Sys.time()
 

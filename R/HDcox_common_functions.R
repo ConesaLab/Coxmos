@@ -118,7 +118,7 @@ print.HDcox <- function(x, ...){
           time_vector <- unlist(lapply(time_vector, function(x){gsub("time_", "", x)[[1]]}))
           cat(paste0("\t",c,": ", paste0(time_vector, collapse = ", "), "\n"))
         }else{
-          ave <- mean(x$df[x$df$method==m,c,drop=T])
+          ave <- mean(x$df[x$df$method==m,c,drop=T], na.rm = T)
           cat(paste0("\t",c,": ", round(ave, 5), "\n"))
         }
 
@@ -1145,6 +1145,13 @@ getAUC_RUN_AND_COMP_sPLS <- function(fast_mode, max.ncomp, eta.list, n_run, df_r
         for(r in 1:n_run){
           aux.run <- df_results_evals[which(df_results_evals$n.comps==max.ncomp[[l]] & df_results_evals$eta==eta.list[[e]] & df_results_evals$runs==r),!colnames(df_results_evals) %in% c("fold")]
 
+          #could happen cause some times the models compute lesser number of components
+          if(nrow(aux.run)==0){
+            eval_aux.r <- rep(NA,ncol(df_results_evals))
+            eval_aux.run <- rbind(eval_aux.run, eval_aux.r)
+            next
+          }
+
           if(method.train %in% pkg.env$sb.splsdrcox){
             eval_aux.r <- apply(aux.run[,!colnames(aux.run) %in% c("n.var")], 2, function(x){mean(x, na.rm = T)})
             eval_aux.r <- as.data.frame(t(eval_aux.r))
@@ -1186,6 +1193,10 @@ getAUC_RUN_AND_COMP_sPLS <- function(fast_mode, max.ncomp, eta.list, n_run, df_r
             eval_aux.r[["AUC"]] <- lst_AUC_component[[l]][[e]][[r]]$AUC
           }
           eval_aux.run <- rbind(eval_aux.run, eval_aux.r)
+        }
+
+        if(all(is.na(eval_aux.run))){
+          next
         }
 
         df_results_evals_run <- rbind(df_results_evals_run, eval_aux.run)
@@ -1725,7 +1736,8 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
   #AUC per RUN AND COMP
   st_AUC_RUN_COMP <- getAUC_RUN_AND_COMP_sPLS(fast_mode = fast_mode, max.ncomp = max.ncomp, n_run = n_run, eta.list = eta.list, df_results_evals = df_results_evals,
                                               optimal_comp_flag = optimal_comp_flag, optimal_comp_index = optimal_comp_index, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                              lst_AUC_component = lst_AUC_component, df_results_evals_run = df_results_evals_run, df_results_evals_comp = df_results_evals_comp, method.train = method.train)
+                                              lst_AUC_component = lst_AUC_component, df_results_evals_run = df_results_evals_run, df_results_evals_comp = df_results_evals_comp,
+                                              method.train = method.train)
 
   df_results_evals_run <- st_AUC_RUN_COMP$df_results_evals_run
   df_results_evals_comp <- st_AUC_RUN_COMP$df_results_evals_comp
@@ -2715,7 +2727,7 @@ eval_models4.0 <- function(lst_models, X_test, Y_test, pred.method, pred.attr = 
       future::plan("multisession", workers = min(length(lst_models), n_cores))
     }
 
-    lst_eval <- furrr::future_map(lst_models, ~evaluation_list_HDcox(., X_test, Y_test, pred.method, pred.attr, times, PARALLEL = F, verbose = verbose, progress_bar))
+    lst_eval <- furrr::future_map(lst_models, ~evaluation_list_HDcox(model = ., X_test, Y_test, pred.method, pred.attr, times, PARALLEL = F, verbose = verbose, progress_bar))
     future::plan("sequential")
 
     # }else if(PARALLEL & method %in% c()){
@@ -2726,7 +2738,7 @@ eval_models4.0 <- function(lst_models, X_test, Y_test, pred.method, pred.attr = 
     #
     #   te-tt
   }else{
-    lst_eval <- purrr::map(lst_models, ~evaluation_list_HDcox(., X_test, Y_test, pred.method, pred.attr, times, PARALLEL = F, verbose, progress_bar))
+    lst_eval <- purrr::map(lst_models, ~evaluation_list_HDcox(model = ., X_test, Y_test, pred.method, pred.attr, times, PARALLEL = F, verbose, progress_bar))
   }
 
   names(lst_eval) <- names(lst_models)
