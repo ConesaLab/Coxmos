@@ -300,16 +300,19 @@ pat_histogram <- plot_patient.eventHistogram(patient = new_pat,
                                              model = lst_models$`SPLS-DRCOX`, 
                                              type = "lp")
 
+## ---- fig.small=T-------------------------------------------------------------
+pat_histogram
+
 ## ---- eval=F------------------------------------------------------------------
 #  #plot_divergent.biplot - for num and qual variables
+
+## -----------------------------------------------------------------------------
+knitr::kable(Y_test[1:5,])
 
 ## -----------------------------------------------------------------------------
 lst_cox.comparison <- plot_cox.comparePatients.list(lst_models = lst_models, 
                                      df.pat = X_test[1:5,], 
                                      error.bar = T, zero.rm = T, onlySig = T, alpha = 0.05, top = 5)
-
-## -----------------------------------------------------------------------------
-knitr::kable(Y_test[1:5,])
 
 ## ---- fig.small=T-------------------------------------------------------------
 lst_cox.comparison$`SPLS-DRCOX`$plot

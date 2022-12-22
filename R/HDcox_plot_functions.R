@@ -1657,7 +1657,8 @@ plot_pseudobeta.newPatient <- function(model, new_pat, error.bar = T, onlySig = 
   }
 
   #lp.new_pat_manual <- norm_patient[,rownames(coefficients)] %*% coefficients #predict lp
-  lp.new_pat_variable <- norm_patient[,rownames(coefficients)] * coefficients #predict terms
+  lp.new_pat_variable <- as.data.frame(norm_patient[,rownames(coefficients)] * coefficients$value) #predict terms
+  colnames(lp.new_pat_variable) <- "value"
 
   lp.new_pat_variable.min <- NULL
   lp.new_pat_variable.max <- NULL
@@ -1752,7 +1753,7 @@ plot_pseudobeta.newPatient <- function(model, new_pat, error.bar = T, onlySig = 
   }
 
   if(requireNamespace("RColorConesa", quietly = TRUE)){
-    ggp <- ggp + RColorConesa::scale_color_conesa(palette = "warm", continuous = T)
+    ggp <- ggp + RColorConesa::scale_fill_conesa(palette = "warm", continuous = T)
   }
 
   ggp <- ggp + guides(color= "none")
@@ -1771,17 +1772,23 @@ plot_pseudobeta.newPatient <- function(model, new_pat, error.bar = T, onlySig = 
     ggp.aux2 <- ggp.simulated_beta$plot
     ggp.aux2 <- ggp.aux2 + guides(fill = "none")
 
-    sign.beta <- coefficients>0
+    sign.beta <- coefficients$value>0
+    names(sign.beta)<-rownames(coefficients)
     sign.pat <- df.pat$lp>0
     same.sign <- sign.beta == sign.pat
-    same.sign <- same.sign[rownames(ggp.simulated_beta$plot$data),,drop=F]
+    same.sign <- same.sign[rownames(ggp.simulated_beta$plot$data)]
 
     ggp.aux$mapping$fill[[2]] <- same.sign
     ggp.aux <- ggp.aux + guides(fill = guide_legend(title="Same beta direction:")) + theme(legend.position="left")
 
+    #overwriting fill generates a message
+    suppressMessages({
     if(requireNamespace("RColorConesa", quietly = TRUE)){
       ggp.aux <- ggp.aux + RColorConesa::scale_fill_conesa(reverse = T)
+    }else{
+      ggp.aux <- ggp.aux + scale_fill_discrete()
     }
+    })
 
     ggp <- ggpubr::ggarrange(ggp.aux, ggp.aux2, ncol = 2, widths = c(0.5, 0.5), align = "h")
   }
@@ -1837,13 +1844,13 @@ plot_cox.comparePatients <- function(model, df.pat, error.bar = F, onlySig = T, 
                                               alpha = alpha, zero.rm = zero.rm, auto.limits = auto.limits, top = top)
 
   coefficients <- ggp.simulated_beta$beta
-  coefficients <- coefficients[order(coefficients, decreasing = T),,drop=F]
+  coefficients <- coefficients[order(coefficients$value, decreasing = T),,drop=F]
 
   if(!is.null(top)){
     if(top < nrow(coefficients)){
       aux_df <- coefficients
-      aux_df[,"coef"] <- abs(aux_df[,"coef",drop=F])
-      aux_df <- aux_df[order(aux_df[,"coef",drop=F], decreasing = T),,drop=F]
+      aux_df[,"value"] <- abs(aux_df[,"value",drop=F])
+      aux_df <- aux_df[order(aux_df[,"value",drop=T], decreasing = T),,drop=F]
       aux_df <- aux_df[1:top,,drop=F]
       coefficients <- coefficients[rownames(coefficients) %in% rownames(aux_df),,drop=F]
     }
@@ -1862,14 +1869,14 @@ plot_cox.comparePatients <- function(model, df.pat, error.bar = F, onlySig = T, 
 
   #lp.new_pat_manual <- norm_patient[,rownames(coefficients)] %*% coefficients #predict lp
   lp.new_pat_variable <- apply(norm_patient[,rownames(coefficients),drop=F], 1, function(x){
-    x * coefficients #predict terms
+    x * coefficients$value #predict terms
   })
 
   #Compute LP without top variables
   #can be change for getLPforNewPatient(model = model, new_pat = patient, time = time, type = type, method = "cox")
   #for each patient on the data frame
 
-  lp.pats <- norm_patient[,rownames(ggp.simulated_beta$beta)] %*% ggp.simulated_beta$beta
+  lp.pats <- norm_patient[,rownames(ggp.simulated_beta$beta)] %*% ggp.simulated_beta$beta$value
   colnames(lp.pats) <- "linear predictor"
 
   rownames(lp.new_pat_variable) <- rownames(coefficients)
@@ -1894,8 +1901,8 @@ plot_cox.comparePatients <- function(model, df.pat, error.bar = F, onlySig = T, 
   auto.limits <- NULL
   if(auto.limits.flag){
     if(!is.null(sd.min) & !is.null(sd.max)){
-      auto.limits_min <- round2any(x = max(c(abs(coefficients-sd.min),abs(lp.new_pat_variable[lp.new_pat_variable$lp.flag==T,]$value))), accuracy = accuracy, f = ceiling)
-      auto.limits_max <- round2any(x = max(c(abs(coefficients+sd.max),abs(lp.new_pat_variable[lp.new_pat_variable$lp.flag==T,]$value))), accuracy = accuracy, f = ceiling)
+      auto.limits_min <- round2any(x = max(c(abs(coefficients$value-sd.min),abs(lp.new_pat_variable[lp.new_pat_variable$lp.flag==T,]$value))), accuracy = accuracy, f = ceiling)
+      auto.limits_max <- round2any(x = max(c(abs(coefficients$value+sd.max),abs(lp.new_pat_variable[lp.new_pat_variable$lp.flag==T,]$value))), accuracy = accuracy, f = ceiling)
       auto.limits <- max(auto.limits_min, auto.limits_max)
     }else{
       auto.limits <- round2any(max(abs(lp.new_pat_variable$value)), accuracy = accuracy, f = ceiling)
@@ -1905,7 +1912,7 @@ plot_cox.comparePatients <- function(model, df.pat, error.bar = F, onlySig = T, 
   }
 
   ggp <- ggplot(lp.new_pat_variable[lp.new_pat_variable$lp.flag==F,], aes(x = var, y = value, fill = patients)) +
-    geom_bar(stat = "identity", position = "dodge")
+    geom_bar(stat = "identity", position = "dodge") + xlab(label = "Variables")
   ggp2 <- ggplot(lp.new_pat_variable[lp.new_pat_variable$lp.flag==T,], aes(x = var, y = value, fill = patients)) +
     geom_bar(stat = "identity", position = "dodge")
   #guides(color = "none")
