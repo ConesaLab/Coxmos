@@ -1298,14 +1298,26 @@ coxweightplot.fromVector.HDcox <- function(model, vector, sd.min = NULL, sd.max 
     risk_explained = risk_val/risk_t.val*100
     preventive_explained = preventive_val/preventive_t.val*100
 
+    if(is.nan(risk_explained)){
+      risk_explained <- 0
+    }
+    if(is.nan(preventive_explained)){
+      preventive_explained <- 0
+    }
+
     total_explained = risk_explained*perc_risk + preventive_explained*perc_preventive
 
     if(!is.null(top)){
-      txt.subtitle = paste0("Top ", top, " variables explain a ", round(total_explained, 2), " % of the model.")
+      if(top < nrow(loading_values)){
+        txt.subtitle = paste0("Top ", top, " variables explain a ", round(total_explained, 2), " % of the model.")
+      }else{
+        #all variables selected
+        txt.subtitle = paste0("Variables explain a ", round(total_explained, 2), " % of the model.")
+      }
+
     }else{
       txt.subtitle = paste0("Variables explain a ", round(total_explained, 2), " % of the model.")
     }
-
 
     explained_perc = NULL
     for(value in df$pp){
@@ -1553,7 +1565,7 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
                                                sd.min = sd.min[[b]], sd.max = sd.max[[b]], auto.limits = auto.limits,
                                                zero.rm = zero.rm, top = top, block = b,
                                                show_percentage = show_percentage,
-                                               size_percentage = size_percentage)[[1]]
+                                               size_percentage = size_percentage)
       }
 
     }
@@ -1568,11 +1580,11 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
                 sd.max = sd.max))
   }else{
 
-    aux_vector <- NULL
-    aux_plot <- NULL
+    aux_vector <- list()
+    aux_plot <- list()
     for(b in names(model$X$data)){
-      aux_vector[[b]] <- plot[[b]]$plot
-      aux_plot[[b]] <- plot[[b]]$coefficients
+      aux_vector[[b]] <- plot[[b]]$coefficients
+      aux_plot[[b]] <- plot[[b]]$plot
     }
 
     return(list(plot = aux_plot,
@@ -3117,11 +3129,29 @@ getLPKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL,
 getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
 
   # DFCALLS
-  lst_vars <- info_logrank_qual <- NULL
+  vars <- lst_vars <- info_logrank_qual <- NULL
 
-  if(attr(model, "model") %in% c(pkg.env$pls_methods, pkg.env$multiblock_methods)){
+  if(attr(model, "model") %in% pkg.env$pls_methods){
 
     if(!all(is.null(model$survival_model))){
+      vars <- names(model$survival_model$fit$coefficients)
+    }else{
+      if(verbose){
+        message("Survival cox model not found")
+      }
+      return(NA)
+    }
+
+  }else if(attr(model, "model") %in% pkg.env$multiblock_methods){
+
+    if(!all(is.null(model$survival_model))){
+      for(b in names(model$X$data)){
+        if(attr(model, "model") %in% c(pkg.env$sb.plsicox, pkg.env$sb.splsdrcox)){
+          lst_vars[[b]] <- colnames(model[[4]][[b]]$X$W.star)
+        }else{
+          lst_vars[[b]] <- colnames(model$X$W.star[[b]])
+        }
+      }
       vars <- names(model$survival_model$fit$coefficients)
     }else{
       if(verbose){
@@ -3145,7 +3175,11 @@ getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NUL
     vars_data <- list()
     for(b in names(model$X$data)){
       unique_vars <- deleteIllegalChars(unique(unlist(lst_vars[[b]])))
-      vars_data[[b]] <- as.data.frame(model$X$scores[[b]][rownames(model$X$scores[[b]]),unique_vars,drop=F])
+      if(attr(model, "model") %in% c(pkg.env$sb.plsicox, pkg.env$sb.splsdrcox)){
+        vars_data[[b]] <- as.data.frame(model[[4]][[b]]$X$scores[rownames(model[[4]][[b]]$X$scores),unique_vars,drop=F])
+      }else{
+        vars_data[[b]] <- as.data.frame(model$X$scores[[b]][rownames(model$X$scores[[b]]),unique_vars,drop=F])
+      }
     }
   }
 
