@@ -2432,6 +2432,51 @@ plot_events <- function(Y, roundTo = 0.25, categories = c("Censored","Death"), y
   return(list(plot = ggp_density, df = dd))
 }
 
+#' plot_PLS_HDcox
+#'
+#' @param model HDcox model
+#' @param comp Numeric vector. Two values for choosing with two components to plot
+#' @param mode scores, loadings o biplot
+#' @param factor factor to color. If NULL, event will be used.
+#' @param legend.title Legend title
+#' @param top Number. How many loading names to show.
+#' @param only_top Logical. If TRUE, only top/radius loading will be shown in loading or biplot graph
+#' @param radius Radius to plot variable names
+#' @param names Logical. Show loading names for top variables or outside radius
+#' @param colorReverse Logical. Color reverse.
+#' @param text.size Text size.
+#' @param overlaps Number of overlaps to show loading names (default = 10)
+#'
+#' @export
+
+plot_PLS_HDcox <- function(model, comp = c(1,2), mode = "scores", factor = NULL, legend.title = NULL, top = NULL, only_top = F, radius = NULL, names = T, colorReverse = F, text.size = 2, overlaps = 10){
+  if(attr(model, "model") %in% pkg.env$pls_methods){
+    plot_HDcox.PLS.model(model = model,
+                         comp = comp,
+                         mode = mode,
+                         factor = factor,
+                         legend.title = legend.title,
+                         top = top, only_top = only_top,
+                         radius = radius, names = names,
+                         colorReverse = colorReverse, text.size = text.size,
+                         overlaps = overlaps)
+
+  }else if(attr(model, "model") %in% pkg.env$multiblock_methods){
+    plot_HDcox.MB.PLS.model(model = model,
+                            comp = comp,
+                            mode = mode,
+                            factor = factor,
+                            legend.title = legend.title,
+                            top = top, only_top = only_top,
+                            radius = radius, names = names,
+                            colorReverse = colorReverse, text.size = text.size,
+                            overlaps = overlaps)
+  }else{
+    stop("Model must be a PLS HDcox model.")
+  }
+
+}
+
 #' plot_HDcox.PLS.model
 #'
 #' @param model HDcox model
