@@ -475,10 +475,15 @@ knitr::kable(Y_test[rownames(new_pat),])
 ```
 
 ```{r}
-ggp.simulated_beta_newPat <- plot_pseudobeta.newPatient.list(lst_models = lst_models, 
+ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient.list(lst_models = lst_models, 
                                                              new_pat = new_pat,
                                                              error.bar = T, onlySig = T, alpha = 0.05,
                                                              zero.rm = T, auto.limits = T, show.betas = T, top = 20)
+
+# ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient(model = lst_models$`SPLS-DRCOX`, 
+#                                                         new_pat = new_pat,
+#                                                         error.bar = T, onlySig = T, alpha = 0.05,
+#                                                         zero.rm = T, auto.limits = T, show.betas = T, top = 20)
 ```
 
 Opposite direction means its value is under the mean for risk one or over the mean for protective ones.

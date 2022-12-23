@@ -1595,7 +1595,7 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
 
 }
 
-#' plot_pseudobeta.newPatient.list
+#' plot_pseudobeta_newPatient.list
 #'
 #' @param lst_models HDcox model
 #' @param new_pat Row of new patients
@@ -1609,10 +1609,10 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
 #'
 #' @export
 
-plot_pseudobeta.newPatient.list <- function(lst_models, new_pat, error.bar = T, onlySig = T, alpha = 0.05, zero.rm = T,
+plot_pseudobeta_newPatient.list <- function(lst_models, new_pat, error.bar = T, onlySig = T, alpha = 0.05, zero.rm = T,
                                             top = NULL, auto.limits = T, show.betas = F){
 
-  lst_plots <- purrr::map(lst_models, ~plot_pseudobeta.newPatient(model = .,
+  lst_plots <- purrr::map(lst_models, ~plot_pseudobeta_newPatient(model = .,
                                                                   new_pat = new_pat,
                                                                   error.bar = error.bar,
                                                                   onlySig = onlySig, alpha = alpha,
@@ -1636,6 +1636,27 @@ plot_pseudobeta.newPatient.list <- function(lst_models, new_pat, error.bar = T, 
 #' @param show.betas Show original betas
 #'
 #' @export
+plot_pseudobeta_newPatient <- function(model, new_pat, error.bar = T, onlySig = T, alpha = 0.05, zero.rm = T,
+                                       top = NULL, auto.limits = T, show.betas = F){
+
+  if(attr(model, "model") %in% pkg.env$pls_methods){
+    plot_pseudobeta.newPatient(model = model,
+                               new_pat = new_pat,
+                               error.bar = error.bar,
+                               onlySig = onlySig, alpha = alpha,
+                               zero.rm = zero.rm, top = top,
+                               auto.limits = auto.limits, show.betas = show.betas)
+  }else if(attr(model, "model") %in% pkg.env$multiblock_methods){
+    plot_MB.pseudobeta.newPatient(model = model,
+                                  new_pat = new_pat,
+                                  error.bar = error.bar,
+                                  onlySig = onlySig, alpha = alpha,
+                                  zero.rm = zero.rm, top = top,
+                                  auto.limits = auto.limits, show.betas = show.betas)
+  }else{
+    stop("Model not belong to any PLS or MB HDcox methods.")
+  }
+}
 
 plot_pseudobeta.newPatient <- function(model, new_pat, error.bar = T, onlySig = T, alpha = 0.05, zero.rm = T,
                                        top = NULL, auto.limits = T, show.betas = F){
@@ -1806,6 +1827,184 @@ plot_pseudobeta.newPatient <- function(model, new_pat, error.bar = T, onlySig = 
   }
 
   return(list(plot = ggp, lp.var = lp.new_pat_variable, norm_pat = norm_patient, pat = new_pat))
+
+}
+
+plot_MB.pseudobeta.newPatient <- function(model, new_pat, error.bar = T, onlySig = T, alpha = 0.05, zero.rm = T,
+                                       top = NULL, auto.limits = T, show.betas = F){
+
+  #checks
+  if(!all(names(new_pat) == names(model$X$data))){
+    stop("New patint has to have the same blocks as the model.")
+  }
+
+  #DFCALLS
+  lp <- lp.min <- lp.max <- NULL
+
+  #plot
+  ggp.simulated_beta <- plot_pseudobeta(model = model, error.bar = error.bar, onlySig = onlySig,
+                                        alpha = alpha, zero.rm = zero.rm, auto.limits = auto.limits, top = top)
+
+  coefficients <- ggp.simulated_beta$beta #list
+
+  coeff.min <- NULL
+  coeff.max <- NULL
+
+  if(error.bar){
+    coeff.min <- ggp.simulated_beta$sd.min
+    coeff.max <- ggp.simulated_beta$sd.max
+  }
+
+  #norm patient
+  norm_patient <- list()
+  lp.new_pat_variable <- list()
+
+  lst_plots <- list()
+  lst_lp.var <- list()
+
+  #for each block... that is returned in gg.suimulated_beta...
+  for(b in names(model$X$data)[names(model$X$data) %in% names(ggp.simulated_beta$plot)]){
+
+    new_pat[[b]] <- new_pat[[b]][,names(model$X$x.mean[[b]]),drop=F]
+
+    if(!is.null(model$X$x.mean[[b]]) & !is.null(model$X$x.sd[[b]])){
+      norm_patient[[b]] <- scale(new_pat[[b]], center = model$X$x.mean[[b]], scale = model$X$x.sd[[b]])
+    }else if(!is.null(model$X$x.mean[[b]])){
+      norm_patient[[b]] <- scale(new_pat[[b]], center = model$X$x.mean[[b]], scale = F)
+    }else if(!is.null(model$X$x.sd[[b]])){
+      norm_patient[[b]] <- scale(new_pat[[b]], center = F, scale = model$X$x.sd[[b]])
+    }else{
+      norm_patient <- new_pat
+    }
+
+    lp.new_pat_variable[[b]] <- as.data.frame(norm_patient[[b]][,rownames(coefficients[[b]])] * coefficients[[b]]$value) #predict terms
+    colnames(lp.new_pat_variable[[b]]) <- "value"
+
+    lp.new_pat_variable.min <- NULL
+    lp.new_pat_variable.max <- NULL
+
+    if(error.bar){
+      if(b %in% names(coeff.min)){
+        lp.new_pat_variable.min <- norm_patient[[b]][,rownames(coeff.min[[b]])] * coeff.min[[b]]
+        lp.new_pat_variable.max <- norm_patient[[b]][,rownames(coeff.max[[b]])] * coeff.max[[b]]
+      }
+    }
+
+    #filter pat_variables using psudobeta plot (top could be applied)
+    lp.new_pat_variable[[b]] <- lp.new_pat_variable[[b]][rownames(ggp.simulated_beta$plot[[b]]$data),,drop=F]
+    lp.new_pat_variable.min <- lp.new_pat_variable.min[rownames(ggp.simulated_beta$plot[[b]]$data),,drop=F]
+    lp.new_pat_variable.max <- lp.new_pat_variable.max[rownames(ggp.simulated_beta$plot[[b]]$data),,drop=F]
+
+    coefficients[[b]] <- coefficients[[b]][rownames(lp.new_pat_variable[[b]]),,drop=F]
+
+    #terms
+    if(error.bar){
+      df.pat <- data.frame("lp" = lp.new_pat_variable[[b]][,1],
+                           "lp.min" = lp.new_pat_variable.min[,1],
+                           "lp.max" = lp.new_pat_variable.max[,1],
+                           "var" = rownames(lp.new_pat_variable[[b]]))
+    }else{
+      df.pat <- data.frame("lp" = lp.new_pat_variable[[b]][,1],
+                           "lp.min" = 0,
+                           "lp.max" = 0,
+                           "var" = rownames(lp.new_pat_variable[[b]]))
+    }
+
+    df.pat$lp <- as.numeric(df.pat$lp)
+    df.pat$lp.min <- as.numeric(df.pat$lp.min)
+    df.pat$lp.max <- as.numeric(df.pat$lp.max)
+    df.pat$var <- factor(df.pat$var, levels = unique(df.pat$var))
+
+    accuracy <- 0.1
+
+    if(show.betas){
+      if(error.bar){
+        val_min <- as.numeric(max(abs(coeff.min[[b]]), abs(df.pat$lp.min)))
+        val_max <- as.numeric(max(abs(coeff.max[[b]]), abs(df.pat$lp.max)))
+        auto.limits_min <- round2any(val_min, accuracy = accuracy, f = ceiling)
+        auto.limits_max <- round2any(val_max, accuracy = accuracy, f = ceiling)
+        auto.limits <- max(auto.limits_min, auto.limits_max)
+      }else{
+        auto.limits <- round2any(max(abs(coefficients[[b]]), abs(df.pat$lp)), accuracy = accuracy, f = ceiling)
+      }
+    }else{ #not show.betas
+      if(error.bar){
+        auto.limits_min <- round2any(max(abs(df.pat$lp.min)), accuracy = accuracy, f = ceiling)
+        auto.limits_max <- round2any(max(abs(df.pat$lp.max)), accuracy = accuracy, f = ceiling)
+        auto.limits <- max(auto.limits_min, auto.limits_max)
+      }else{
+        auto.limits <- round2any(max(abs(df.pat$lp)), accuracy = accuracy, f = ceiling)
+      }
+    }
+
+    ggp <- ggplot(df.pat, aes(x = var, y = lp, fill = lp, color = 1)) +
+      geom_bar(stat = "identity", position = "dodge")
+
+    if(error.bar){
+      ggp <- ggp + geom_errorbar(aes(ymin=lp.min, ymax=lp.max), width=.35, position=position_dodge(.2))
+    }
+
+    if(!show.betas){
+      if(requireNamespace("RColorConesa", quietly = TRUE)){
+        ggp <- ggp + scale_fill_gradient2(low = RColorConesa::getConesaPalettes()$warm["blue"],
+                                          mid = "white", midpoint = 0,
+                                          high = RColorConesa::getConesaPalettes()$warm["magenta"],
+                                          limits = c(-1*auto.limits,auto.limits), name = "Beta value")
+      }else{
+        ggp <- ggp + scale_fill_gradient2(low = "blue",
+                                          mid = "white", midpoint = 0,
+                                          high = "red",
+                                          limits = c(-1*auto.limits,auto.limits), name = "Beta value")
+      }
+    }
+
+    if(requireNamespace("RColorConesa", quietly = TRUE)){
+      ggp <- ggp + RColorConesa::scale_fill_conesa(palette = "warm", continuous = T)
+    }
+
+    ggp <- ggp + guides(color= "none")
+    ggp <- ggp + ylab(label = "Linear Predictor")
+    ggp <- ggp + xlab(label = "Variables")
+    ggp <- ggp + ggtitle(label = paste0("Observation - ", rownames(new_pat[[b]])))
+
+    if(length(unique(df.pat$var))>15){
+      ggp <- ggp + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+    }
+
+    if(show.betas){
+
+      ggp.aux <- ggp + scale_y_continuous(n.breaks = 10, limits = c(-1*auto.limits, auto.limits))
+
+      ggp.aux2 <- ggp.simulated_beta$plot[[b]]
+      ggp.aux2 <- ggp.aux2 + guides(fill = "none")
+
+      sign.beta <- coefficients[[b]]$value>0
+      names(sign.beta)<-rownames(coefficients[[b]])
+      sign.pat <- df.pat$lp>0
+      same.sign <- sign.beta == sign.pat
+      same.sign <- same.sign[rownames(ggp.simulated_beta$plot[[b]]$data)]
+
+      ggp.aux$mapping$fill[[2]] <- same.sign
+      ggp.aux <- ggp.aux + guides(fill = guide_legend(title="Same beta direction:")) + theme(legend.position="left")
+
+      #overwriting fill generates a message
+      suppressMessages({
+        if(requireNamespace("RColorConesa", quietly = TRUE)){
+          ggp.aux <- ggp.aux + RColorConesa::scale_fill_conesa(reverse = T)
+        }else{
+          ggp.aux <- ggp.aux + scale_fill_discrete()
+        }
+      })
+
+      ggp <- ggpubr::ggarrange(ggp.aux, ggp.aux2, ncol = 2, widths = c(0.5, 0.5), align = "h")
+    }
+
+    lst_plots[[b]] <- ggp
+    lst_lp.var[[b]] <- lp.new_pat_variable
+
+  }
+
+  return(list(plot = lst_plots, lp.var = lst_lp.var, norm_pat = norm_patient, pat = new_pat))
 
 }
 
