@@ -33,22 +33,22 @@ library(RColorConesa)
 #theme_set(theme_colorConesa()) #under development
 
 ## -----------------------------------------------------------------------------
-# load Tasic dataset
-data("X_small_data_E.MTAB.386")
-data("Y_small_data_E.MTAB.386")
+# load dataset
+data("X_small_mo.data_Glioblastoma", package = "HDcox")
+data("Y_small_mo.data_Glioblastoma", package = "HDcox")
 
-X <- X_small_data_E.MTAB.386
-Y <- Y_small_data_E.MTAB.386
+X <- X_small_mo.data_Glioblastoma
+Y <- Y_small_mo.data_Glioblastoma
 
-rm(X_small_data_E.MTAB.386, Y_small_data_E.MTAB.386)
+rm(X_small_mo.data_Glioblastoma, Y_small_mo.data_Glioblastoma)
 
 ## ---- echo = FALSE------------------------------------------------------------
-knitr::kable(X[1:5,1:5])
+knitr::kable(X$genes[1:5,1:5]);knitr::kable(X$miRNA[1:5,1:5]);knitr::kable(X$clinical[1:5,1:5])
 
 knitr::kable(Y[1:5,])
 
 ## -----------------------------------------------------------------------------
-ggp_density.event <- plot_events(Y = Y, roundTo = 0.25, categories = c("Censored","Death")) #name for F and T
+ggp_density.event <- plot_events(Y = Y, roundTo = 150, categories = c("Censored","Death")) #name for F and T
 
 ## ----fig.small = T------------------------------------------------------------
 ggp_density.event$plot
@@ -60,86 +60,167 @@ index_train <- caret::createDataPartition(Y$event,
                                           list = FALSE,
                                           times = 1)
 
-X_train <- X[index_train,] #1103
+X_train <- list()
+X_test <- list()
+for(omic in names(X)){
+  X_train[[omic]] <- X[[omic]][index_train,,drop=F]
+  X_test[[omic]] <- X[[omic]][-index_train,,drop=F]
+}
+
 Y_train <- Y[index_train,]
-X_test <- X[-index_train,] #472
 Y_test <- Y[-index_train,]
 
-## ---- eval = FALSE, message=T, error=F----------------------------------------
-#  # classical approach
-#  cox_model <- cox(X = X_train, Y = Y_train, x.center = T, x.scale = F)
-
 ## -----------------------------------------------------------------------------
-EPV <- sum(Y_train$event==1) / ncol(X_train)
-EPV
+for(b in names(X_train)){
+  EPV <- sum(Y_train$event==1) / ncol(X_train[[b]])
+  message(paste0("EPV = ", round(EPV, 2), ", for block ", b))
+}
+
+
+## ---- eval = T, message=F-----------------------------------------------------
+x.center = c(genes = T, miRNA = T, clinical = T) #if vector, must be named
+x.scale = c(genes = F, miRNA = F, clinical = T) #if vector, must be named
 
 ## ---- eval = FALSE, message=F-------------------------------------------------
-#  # run cv.plsicox
-#  cv.plsicox_res <- cv.plsicox(X = X_train, Y = Y_train,
-#                             max.ncomp =  4,
-#                             n_run = 2, k_folds = 10,
-#                             x.scale = T,
-#                             remove_near_zero_variance = F, remove_zero_variance = F,
-#                             PARALLEL = T, verbose = F)
-#  cv.plsicox_res #1min 8s.
+#  # run cv.sb.plsicox
+#  cv.sb.plsicox_res <- cv.sb.plsicox(X = X_train, Y = Y_train,
+#                                     max.ncomp = 4,
+#                                     n_run = 2, k_folds = 10,
+#                                     x.center = x.center, x.scale = x.scale,
+#                                     remove_near_zero_variance = T,
+#                                     PARALLEL = T, verbose = F)
+#  
+#  cv.sb.plsicox_res #3min 10s.
 
 ## ---- eval = FALSE, fig.small=T-----------------------------------------------
 #  # plot cv.plsicox
-#  cv.plsicox_res$plot_AUC
+#  cv.sb.plsicox_res$plot_AUC
 
 ## -----------------------------------------------------------------------------
-plsicox_model <- plsicox(X = X_train, Y = Y_train, 
-                         n.comp = 3, #n.comp = cv.plsicox_res$opt.comp
-                         x.center = T, x.scale = F)
+sb.plsicox_model <- sb.plsicox(X = X_train,
+                               Y = Y_train,
+                               n.comp = 4, #cv.sb.plsicox_res$opt.comp
+                               x.center = x.center, x.scale = x.scale,
+                               remove_near_zero_variance = T,
+                               returnData = T, verbose = F)
 
-plsicox_model
+sb.plsicox_model
+
+## -----------------------------------------------------------------------------
+sb.plsicox_model <- sb.plsicox(X = X_train,
+                               Y = Y_train,
+                               n.comp = 4, #cv.sb.plsicox_res$opt.comp
+                               x.center = x.center, x.scale = x.scale,
+                               remove_near_zero_variance = T,
+                               remove_non_significant = T,
+                               returnData = T, verbose = F)
+
+sb.plsicox_model
+
+## ---- eval=FALSE, message=F---------------------------------------------------
+#  # run cv.sb.plsicox
+#  fast.sb.plsicox_model <- fast.cv.sb.plsicox(X = X_train, Y = Y_train,
+#                                               max.ncomp = 4,
+#                                               n_run = 2, k_folds = 10,
+#                                               x.center = x.center, x.scale = x.scale,
+#                                               remove_near_zero_variance = T,
+#                                               remove_non_significant = T,
+#                                               PARALLEL = T, verbose = F)
+#  
+#  fast.sb.plsicox_model #6min 7s.
+
+## ---- eval = FALSE, message=F-------------------------------------------------
+#  # run cv.sb.plsicox
+#  cv.sb.splsdrcox_res <- cv.sb.splsdrcox(X = X_train, Y = Y_train,
+#                                         max.ncomp = 4, eta.list = c(0.25,0.5,0.75),
+#                                         n_run = 2, k_folds = 10,
+#                                         x.center = x.center, x.scale = x.scale,
+#                                         remove_near_zero_variance = T,
+#                                         remove_non_significant = T,
+#                                         PARALLEL = T, verbose = F)
+#  
+#  cv.sb.splsdrcox_res #5min
+
+## -----------------------------------------------------------------------------
+sb.splsdrcox_model <- sb.splsdrcox(X = X_train, 
+                                   Y = Y_train, 
+                                   n.comp = 1, eta = 0.75, #n.comp = cv.splsdrcox_res$opt.comp, eta = cv.splsdrcox_res$opt.eta
+                                   x.center = x.center, x.scale = x.scale,
+                                   remove_near_zero_variance = T,
+                                   remove_non_significant = T,
+                                   returnData = T, verbose = F)
+
+sb.splsdrcox_model
+
+## ---- eval=FALSE, message=F---------------------------------------------------
+#  # run cv.sb.plsicox
+#  fast.sb.splsdrcox_model <- fast.cv.sb.splsdrcox(X = X_train, Y = Y_train,
+#                                                  max.ncomp = 4, eta.list = c(0.25,0.5,0.75),
+#                                                  n_run = 2, k_folds = 10,
+#                                                  x.center = x.center, x.scale = x.scale,
+#                                                  remove_near_zero_variance = T,
+#                                                  remove_non_significant = T,
+#                                                  PARALLEL = T, verbose = F)
+#  
+#  fast.sb.splsdrcox_model #7.5min
 
 ## ---- eval = FALSE, message=F-------------------------------------------------
 #  # run cv.splsdrcox
-#  cv.splsdrcox_res <- cv.splsdrcox(X = X_train, Y = Y_train,
-#                                   max.ncomp = 4, eta.list = seq(0,0.5,0.25), #penalty
-#                                   n_run = 2, k_folds = 10,
-#                                   x.scale = T,
-#                                   remove_near_zero_variance = F, remove_zero_variance = F,
-#                                   PARALLEL = T, verbose = F)
+#  cv.mb.splsdrcox_res <- cv.mb.splsdrcox(X = X_train, Y = Y_train,
+#                                         max.ncomp = 4, vector = NULL, #NULL - autodetection
+#                                         n_run = 2, k_folds = 10,
+#                                         x.center = x.center, x.scale = x.scale,
+#                                         remove_near_zero_variance = T,
+#                                         remove_zero_variance = T,
+#                                         PARALLEL = T, verbose = F)
 #  
-#  cv.splsdrcox_res #2min 40s.
+#  cv.mb.splsdrcox_res #2min
 
 ## -----------------------------------------------------------------------------
-splsdrcox_model <- splsdrcox(X = X_train, Y = Y_train, 
-                             n.comp = 2, eta = 0.25, #n.comp = cv.splsdrcox_res$opt.comp, eta = cv.splsdrcox_res$opt.eta
-                             x.center = T, x.scale = F)
+mb.splsdrcox_model <- mb.splsdrcox(X = X_train, Y = Y_train, 
+                                        n.comp = 4, #cv.mb.splsdrcox_res$opt.comp
+                                        vector = list(genes = 10, miRNA = 10, clinical = 10), #cv.mb.splsdrcox_res$opt.nvar
+                                        x.center = x.center, x.scale = x.scale, 
+                                        remove_near_zero_variance = T, 
+                                        remove_zero_variance = T,
+                                        verbose = F)
 
-splsdrcox_model
+mb.splsdrcox_model
 
 ## ---- eval = FALSE, message=F-------------------------------------------------
 #  # run cv.splsdrcox
-#  cv.plsdacox_res <- cv.plsdacox_mixOmics(X = X_train, Y = Y_train,
-#                                          max.ncomp = 4,  #penalty
-#                                          n_run = 2, k_folds = 10,
-#                                          x.scale = T,
-#                                          remove_near_zero_variance = F, remove_zero_variance = F,
-#                                          PARALLEL = T, verbose = F)
+#  cv.mb.splsdacox_res <- cv.mb.splsdacox(X = X_train, Y = Y_train,
+#                                     max.ncomp = 4, vector = NULL, #NULL - autodetection
+#                                     n_run = 2, k_folds = 10,
+#                                     x.center = x.center, x.scale = x.scale,
+#                                     remove_near_zero_variance = T,
+#                                     remove_zero_variance = T,
+#                                     PARALLEL = T, verbose = F)
 #  
-#  cv.plsdacox_res #2min
+#  cv.mb.splsdacox_res #2min
 
 ## -----------------------------------------------------------------------------
-plsdacox_model <- plsdacox_mixOmics(X = X_train, Y = Y_train, 
-                                    n.comp = 3, #cv.plsdacox_res$opt.comp
-                                    x.center = T, x.scale = F)
+mb.splsdacox_model <- mb.splsdacox(X = X_train, Y = Y_train, 
+                                        n.comp = 3, #cv.mb.splsdacox_res$opt.comp
+                                        vector = list(genes = 10, miRNA = 255, clinical = 10), #cv.mb.splsdacox_res$opt.nvar
+                                        x.center = x.center, x.scale = x.scale, 
+                                        remove_near_zero_variance = T, 
+                                        remove_zero_variance = T,
+                                        verbose = F)
 
-plsdacox_model
+mb.splsdacox_model
 
 ## -----------------------------------------------------------------------------
-lst_models <- list("PLS-ICOX" = plsicox_model,
-                   "SPLS-DRCOX" = splsdrcox_model,
-                   "PLS-DACOX" = plsdacox_model)
+lst_models <- list("SB.PLS-ICOX" = sb.plsicox_model,
+                   "SB.sPLS-DRCOX" = sb.splsdrcox_model,
+                   "MB.sPLS-DRCOX" = mb.splsdrcox_model,
+                   "MB.sPLS-DACOX" = mb.splsdacox_model)
 
 eval_results <- eval_models4.0(lst_models = lst_models,
                                X_test = X_test, Y_test = Y_test, 
                                pred.method = "cenROC",
                                pred.attr = "mean",
-                               times = seq(1,4,0.5), max_time_points = 15, 
+                               times = NULL, max_time_points = 15, 
                                PARALLEL = T)
 
 # lst_evaluators <- c(cenROC = "cenROC", 
@@ -168,9 +249,10 @@ lst_eval_results$lst_plot_comparisons$t.test
 # lst_eval_results$cenROC$lst_plot_comparisons$t.test
 
 ## -----------------------------------------------------------------------------
-lst_models_time <- list(plsicox_model,
-                        splsdrcox_model,
-                        plsdacox_model,
+lst_models_time <- list(sb.plsicox_model,
+                        sb.splsdrcox_model,
+                        mb.splsdrcox_model,
+                        mb.splsdacox_model,
                         eval_results)
 
 ## -----------------------------------------------------------------------------
@@ -184,44 +266,44 @@ lst_forest_plot <- purrr::map(lst_models, ~survminer::ggforest(.$survival_model$
                                                                data = .$survival_model$fit$model))
 
 ## ---- fig.small=T-------------------------------------------------------------
-lst_forest_plot$`SPLS-DRCOX`
+lst_forest_plot$`SB.sPLS-DRCOX`
 
 ## -----------------------------------------------------------------------------
 density.plots.lp <- plot_cox.event.list(lst_models, type = "lp")
 
 ## ---- fig.small=T-------------------------------------------------------------
-density.plots.lp$`SPLS-DRCOX`$plot.density
-density.plots.lp$`SPLS-DRCOX`$plot.histogram
+density.plots.lp$`SB.sPLS-DRCOX`$plot.density
+density.plots.lp$`SB.sPLS-DRCOX`$plot.histogram
 
 ## -----------------------------------------------------------------------------
 lst_ph_ggplot <- plot_proportionalHazard.list(lst_models)
 
 ## ---- fig.small=T-------------------------------------------------------------
-lst_ph_ggplot$`SPLS-DRCOX`
+lst_ph_ggplot$`SB.sPLS-DRCOX`
 
 ## -----------------------------------------------------------------------------
-ggp_scores <- plot_PLS_HDcox(model = lst_models$`SPLS-DRCOX`, 
+ggp_scores <- plot_PLS_HDcox(model = lst_models$`SB.sPLS-DRCOX`, 
                              comp = c(1,2), mode = "scores")
 
 ## ---- fig.small=T-------------------------------------------------------------
-ggp_scores$plot
+ggp_scores$plot_block
 
 ## -----------------------------------------------------------------------------
-ggp_loadings <- plot_PLS_HDcox(model = lst_models$`SPLS-DRCOX`, 
+ggp_loadings <- plot_PLS_HDcox(model = lst_models$`SB.sPLS-DRCOX`, 
                                comp = c(1,2), mode = "loadings",
                                top = 10) #length from 0,0
 
 ## ---- fig.small=T-------------------------------------------------------------
-ggp_loadings$plot
+ggp_loadings$plot_block
 
 ## -----------------------------------------------------------------------------
-ggp_biplot <- plot_PLS_HDcox(model = lst_models$`SPLS-DRCOX`, 
+ggp_biplot <- plot_PLS_HDcox(model = lst_models$`SB.sPLS-DRCOX`, 
                              comp = c(1,2), mode = "biplot",
                              top = 15,
                              only_top = T)
 
 ## ---- fig.small=T-------------------------------------------------------------
-ggp_biplot$plot
+ggp_biplot$plot_block
 
 ## -----------------------------------------------------------------------------
 ggp.simulated_beta <- plot_pseudobeta.list(lst_models = lst_models, 
@@ -230,7 +312,7 @@ ggp.simulated_beta <- plot_pseudobeta.list(lst_models = lst_models,
                                            show_percentage = T, size_percentage = 3)
 
 ## ---- fig.small=T-------------------------------------------------------------
-ggp.simulated_beta$`SPLS-DRCOX`$plot
+ggp.simulated_beta$`SB.sPLS-DRCOX`$plot
 
 ## -----------------------------------------------------------------------------
 LST_KM_RES_LP <- getAutoKM.list(type = "LP",
@@ -242,7 +324,7 @@ LST_KM_RES_LP <- getAutoKM.list(type = "LP",
                                 only_sig = T, alpha = 0.05)
 
 ## ---- fig.small=T-------------------------------------------------------------
-LST_KM_RES_LP$`SPLS-DRCOX`$LST_PLOTS$LP
+LST_KM_RES_LP$`SB.sPLS-DRCOX`$LST_PLOTS$LP
 
 ## -----------------------------------------------------------------------------
 LST_KM_RES_COMP <- getAutoKM.list(type = "COMP",
@@ -254,8 +336,7 @@ LST_KM_RES_COMP <- getAutoKM.list(type = "COMP",
                                   only_sig = T, alpha = 0.05)
 
 ## ---- fig.small=T-------------------------------------------------------------
-LST_KM_RES_COMP$`SPLS-DRCOX`$LST_PLOTS$comp_1
-LST_KM_RES_COMP$`SPLS-DRCOX`$LST_PLOTS$comp_2
+LST_KM_RES_COMP$`SB.sPLS-DRCOX`$LST_PLOTS$genes$comp_1
 
 ## -----------------------------------------------------------------------------
 LST_KM_RES_VAR <- getAutoKM.list(type = "VAR",
@@ -267,14 +348,18 @@ LST_KM_RES_VAR <- getAutoKM.list(type = "VAR",
                                  only_sig = T, alpha = 0.05)
 
 ## ---- fig.small=T-------------------------------------------------------------
-LST_KM_RES_VAR$`SPLS-DRCOX`$LST_PLOTS$POSTN
-LST_KM_RES_VAR$`SPLS-DRCOX`$LST_PLOTS$SIRT5
+LST_KM_RES_VAR$`SB.sPLS-DRCOX`$LST_PLOTS$genes$MOXD1
+LST_KM_RES_VAR$`SB.sPLS-DRCOX`$LST_PLOTS$miRNA$hsa_miR_148a
 
 ## -----------------------------------------------------------------------------
-new_pat <- X_test[1,,drop=F]
+new_pat <- list()
+for(b in names(X_test)){
+  new_pat[[b]] <- X_test[[b]][1,,drop=F]
+}
+
 
 ## -----------------------------------------------------------------------------
-knitr::kable(Y_test[rownames(new_pat),])
+knitr::kable(Y_test[rownames(new_pat$genes),])
 
 ## -----------------------------------------------------------------------------
 ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient.list(lst_models = lst_models, 
@@ -282,18 +367,18 @@ ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient.list(lst_models = lst_mo
                                                              error.bar = T, onlySig = T, alpha = 0.05,
                                                              zero.rm = T, auto.limits = T, show.betas = T, top = 20)
 
-# ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient(model = lst_models$`SPLS-DRCOX`, 
+# ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient(model = lst_models$`MB.sPLS-DACOX`, 
 #                                                         new_pat = new_pat,
 #                                                         error.bar = T, onlySig = T, alpha = 0.05,
 #                                                         zero.rm = T, auto.limits = T, show.betas = T, top = 20)
 
 ## ---- fig.small=T-------------------------------------------------------------
-ggp.simulated_beta_newPat$`SPLS-DRCOX`$plot
+ggp.simulated_beta_newPat$`SB.sPLS-DRCOX`$plot
 
 ## -----------------------------------------------------------------------------
 pat_density <- plot_patient.eventDensity(patient = new_pat, 
                                          time = NULL, 
-                                         model = lst_models$`SPLS-DRCOX`, 
+                                         model = lst_models$`SB.sPLS-DRCOX`, 
                                          type = "lp")
 
 ## ---- fig.small=T-------------------------------------------------------------
@@ -302,23 +387,31 @@ pat_density
 ## -----------------------------------------------------------------------------
 pat_histogram <- plot_patient.eventHistogram(patient = new_pat, 
                                              time = NULL, 
-                                             model = lst_models$`SPLS-DRCOX`, 
+                                             model = lst_models$`SB.sPLS-DRCOX`, 
                                              type = "lp")
 
 ## ---- fig.small=T-------------------------------------------------------------
 pat_histogram
 
-## ---- eval=F------------------------------------------------------------------
-#  #plot_divergent.biplot - for num and qual variables
+## -----------------------------------------------------------------------------
+sub_X_test <- list()
+for(b in names(X_test)){
+  sub_X_test[[b]] <- X_test[[b]][1:5,]
+}
+
 
 ## -----------------------------------------------------------------------------
 knitr::kable(Y_test[1:5,])
 
 ## -----------------------------------------------------------------------------
 lst_cox.comparison <- plot_LP.multiplePatients.list(lst_models = lst_models, 
-                                     df.pat = X_test[1:5,], 
+                                     df.pat = sub_X_test, 
                                      error.bar = T, zero.rm = T, onlySig = T, alpha = 0.05, top = 5)
 
+# lst_cox.comparison <- plot_LP.multiplePatients(model = lst_models$`SB.PLS-ICOX`, 
+#                                      df.pat = sub_X_test, 
+#                                      error.bar = T, zero.rm = T, onlySig = T, alpha = 0.05, top = 5)
+
 ## ---- fig.small=T-------------------------------------------------------------
-lst_cox.comparison$`SPLS-DRCOX`$plot
+lst_cox.comparison$`SB.sPLS-DRCOX`$plot
 

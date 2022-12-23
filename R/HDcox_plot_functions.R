@@ -1597,7 +1597,7 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
 
 #' plot_pseudobeta_newPatient.list
 #'
-#' @param lst_models HDcox model
+#' @param lst_models List of HDcox model
 #' @param new_pat Row of new patients
 #' @param error.bar Logical. Show error bar
 #' @param onlySig Logical. Compute psudobetas using only significant components.
@@ -2008,7 +2008,7 @@ plot_MB.pseudobeta.newPatient <- function(model, new_pat, error.bar = T, onlySig
 
 }
 
-#' plot_cox.comparePatients.list
+#' plot_LP.multiplePatients.list
 #'
 #' @param lst_models List HDcox models
 #' @param df.pat Dataframe of observations
@@ -2021,19 +2021,19 @@ plot_MB.pseudobeta.newPatient <- function(model, new_pat, error.bar = T, onlySig
 #'
 #' @export
 #'
-plot_cox.comparePatients.list <- function(lst_models, df.pat, error.bar = F, onlySig = T, alpha = 0.05, zero.rm = T,
+plot_LP.multiplePatients.list <- function(lst_models, df.pat, error.bar = F, onlySig = T, alpha = 0.05, zero.rm = T,
                                 auto.limits = T, top = NULL){
 
-  lst_plots <- purrr::map(lst_models, ~plot_cox.comparePatients(model = ., df.pat = df.pat, error.bar = error.bar, onlySig = onlySig,
+  lst_plots <- purrr::map(lst_models, ~plot_LP.multiplePatients(model = ., df.pat = df.pat, error.bar = error.bar, onlySig = onlySig,
                                                            alpha = alpha, zero.rm = zero.rm,
                                                            auto.limits = auto.limits, top = top))
 
   return(lst_plots)
 }
 
-#' plot_cox.comparePatients
+#' plot_LP.multiplePatients
 #'
-#' @param model HDcox model
+#' @param model HDcox models
 #' @param df.pat Dataframe of observations
 #' @param error.bar Show error bar.
 #' @param onlySig Show only significant variables.
@@ -2043,6 +2043,27 @@ plot_cox.comparePatients.list <- function(lst_models, df.pat, error.bar = F, onl
 #' @param top Number. Show top variables.
 #'
 #' @export
+#'
+plot_LP.multiplePatients <- function(model, df.pat, error.bar = F, onlySig = T, alpha = 0.05, zero.rm = T,
+                                     auto.limits = T, top = NULL){
+  if(attr(model, "model") %in% pkg.env$pls_methods){
+    plot_cox.comparePatients(model = model,
+                             df.pat = df.pat,
+                             error.bar = error.bar,
+                             onlySig = onlySig, alpha = alpha,
+                             zero.rm = zero.rm, top = top,
+                             auto.limits = auto.limits)
+  }else if(attr(model, "model") %in% pkg.env$multiblock_methods){
+    plot_MB.cox.comparePatients(model = model,
+                                df.pat = df.pat,
+                                error.bar = error.bar,
+                                onlySig = onlySig, alpha = alpha,
+                                zero.rm = zero.rm, top = top,
+                                auto.limits = auto.limits)
+  }else{
+    stop("Model not belong to any PLS or MB HDcox methods.")
+  }
+}
 
 plot_cox.comparePatients <- function(model, df.pat, error.bar = F, onlySig = T, alpha = 0.05, zero.rm = T,
                                 auto.limits = T, top = NULL){
@@ -2149,7 +2170,7 @@ plot_cox.comparePatients <- function(model, df.pat, error.bar = F, onlySig = T, 
   }
 
   res_all.plot <- ggp
-  res_lp.plot <- ggp2
+  res_lp.plot <- ggp2 + xlab(label = "")
 
   ggp <- ggp + guides(fill = "none")
   ggp2 <- ggp2 + ylab(label = "") + xlab(label = "")
@@ -2157,6 +2178,141 @@ plot_cox.comparePatients <- function(model, df.pat, error.bar = F, onlySig = T, 
   pp <- ggpubr::ggarrange(ggp, ggp2, ncol = 2, widths = c(0.8, 0.2), align = "h")
 
   return(list(plot = pp, var.plot = res_all.plot, lp.plot = res_lp.plot, lp = lp.pats, lp.var = lp.new_pat_variable, norm_patients = norm_patient, patients = df.pat))
+}
+
+
+plot_MB.cox.comparePatients <- function(model, df.pat, error.bar = F, onlySig = T, alpha = 0.05, zero.rm = T,
+                                     auto.limits = T, top = NULL){
+
+  #DFCALLS
+  value <- patients <- NULL
+
+  #plot
+  ggp.simulated_beta <- plot_pseudobeta(model = model, error.bar = error.bar, onlySig = onlySig,
+                                        alpha = alpha, zero.rm = zero.rm, auto.limits = auto.limits, top = top)
+
+  lst_coefficients <- ggp.simulated_beta$beta
+
+  lst_plot <- list()
+  lst_var.plot <- list()
+  lst_lp.plot <- list()
+  lst_lp <- list()
+  lst_lp.var <- list()
+  lst_norm_patients <- list()
+
+  # blocks in ggp.simulated_beta$plot
+  for(b in names(model$X$data)[names(model$X$data) %in% names(ggp.simulated_beta$plot)]){
+    coefficients <- lst_coefficients[[b]][order(lst_coefficients[[b]]$value, decreasing = T),,drop=F]
+
+    if(!is.null(top)){
+      if(top < nrow(coefficients)){
+        aux_df <- coefficients
+        aux_df[,"value"] <- abs(aux_df[,"value",drop=F])
+        aux_df <- aux_df[order(aux_df[,"value",drop=T], decreasing = T),,drop=F]
+        aux_df <- aux_df[1:top,,drop=F]
+        coefficients <- coefficients[rownames(coefficients) %in% rownames(aux_df),,drop=F]
+      }
+    }
+
+    #norm patient
+    if(!is.null(model$X$x.mean[[b]]) & !is.null(model$X$x.sd[[b]])){
+      norm_patient <- scale(df.pat[[b]][,names(model$X$x.mean[[b]])], center = model$X$x.mean[[b]], scale = model$X$x.sd[[b]])
+    }else if(!is.null(model$X$x.mean[[b]])){
+      norm_patient <- scale(df.pat[[b]][,names(model$X$x.mean[[b]])], center = model$X$x.mean[[b]], scale = F)
+    }else if(!is.null(model$X$x.sd[[b]])){
+      norm_patient <- scale(df.pat[[b]][,names(model$X$x.sd[[b]])], center = F, scale = model$X$x.sd[[b]])
+    }else{
+      norm_patient <- df.pat[[b]]
+    }
+
+    #lp.new_pat_manual <- norm_patient[,rownames(coefficients)] %*% coefficients #predict lp
+    lp.new_pat_variable <- apply(norm_patient[,rownames(coefficients),drop=F], 1, function(x){
+      x * coefficients$value #predict terms
+    })
+
+    #Compute LP without top variables
+    #can be change for getLPforNewPatient(model = model, new_pat = patient, time = time, type = type, method = "cox")
+    #for each patient on the data frame
+
+    lp.pats <- norm_patient[,rownames(ggp.simulated_beta$beta[[b]])] %*% ggp.simulated_beta$beta[[b]]$value
+    colnames(lp.pats) <- "linear predictor"
+
+    rownames(lp.new_pat_variable) <- rownames(coefficients)
+    lp.new_pat_variable <- rbind(lp.new_pat_variable, lp.pats[,1])
+    rownames(lp.new_pat_variable)[nrow(lp.new_pat_variable)] <- "linear predictor"
+    lp.new_pat_variable <- as.data.frame(lp.new_pat_variable)
+    lp.new_pat_variable$var <- rownames(lp.new_pat_variable)
+
+    lp.new_pat_variable <- tidyr::pivot_longer(lp.new_pat_variable, !var, names_to = "patients", values_to = "value")
+
+    lp.new_pat_variable$var <- factor(lp.new_pat_variable$var, levels = unique(lp.new_pat_variable$var))
+
+    lp.new_pat_variable$lp.flag <- ifelse(lp.new_pat_variable$var == "linear predictor", T, F)
+    lp.new_pat_variable$lp.flag <- factor(lp.new_pat_variable$lp.flag)
+
+    lp.new_pat_variable$patients <- factor(lp.new_pat_variable$patients, levels = rownames(df.pat[[b]]))
+
+    accuracy <- 0.1
+    auto.limits.flag = T
+    sd.min <- ggp.simulated_beta$sd.min[[b]][rownames(coefficients),]
+    sd.max <- ggp.simulated_beta$sd.max[[b]][rownames(coefficients),]
+    auto.limits <- NULL
+    if(auto.limits.flag){
+      if(!is.null(sd.min) & !is.null(sd.max)){
+        auto.limits_min <- round2any(x = max(c(abs(coefficients$value-sd.min),abs(lp.new_pat_variable[lp.new_pat_variable$lp.flag==T,]$value))), accuracy = accuracy, f = ceiling)
+        auto.limits_max <- round2any(x = max(c(abs(coefficients$value+sd.max),abs(lp.new_pat_variable[lp.new_pat_variable$lp.flag==T,]$value))), accuracy = accuracy, f = ceiling)
+        auto.limits <- max(auto.limits_min, auto.limits_max)
+      }else{
+        auto.limits <- round2any(max(abs(lp.new_pat_variable$value)), accuracy = accuracy, f = ceiling)
+      }
+    }else{
+      auto.limits <- round2any(max(c(abs(sd.max), abs(sd.min), abs(lp.new_pat_variable$value))), accuracy = accuracy, f = ceiling)
+    }
+
+    ggp <- ggplot(lp.new_pat_variable[lp.new_pat_variable$lp.flag==F,], aes(x = var, y = value, fill = patients)) +
+      geom_bar(stat = "identity", position = "dodge") + xlab(label = "Variables")
+    ggp2 <- ggplot(lp.new_pat_variable[lp.new_pat_variable$lp.flag==T,], aes(x = var, y = value, fill = patients)) +
+      geom_bar(stat = "identity", position = "dodge")
+    #guides(color = "none")
+
+    if(requireNamespace("RColorConesa", quietly = TRUE)){
+      ggp <- ggp + RColorConesa::scale_fill_conesa(palette = "complete", continuous = F)
+      ggp2 <- ggp2 + RColorConesa::scale_fill_conesa(palette = "complete", continuous = F)
+    }
+
+    if(!auto.limits.flag){
+      #ggp <- ggp + scale_y_continuous(breaks=seq(-1*auto.limits, auto.limits, 0.1))
+      ggp <- ggp + scale_y_continuous(n.breaks = 10)
+      ggp2 <- ggp2 + scale_y_continuous(n.breaks = 10)
+    }else{
+      #ggp <- ggp + scale_y_continuous(breaks=seq(-1*auto.limits, auto.limits, 0.1), limits = c(-1*auto.limits, auto.limits))
+      ggp <- ggp + scale_y_continuous(n.breaks = 10, limits = c(-1*auto.limits, auto.limits))
+      ggp2 <- ggp2 + scale_y_continuous(n.breaks = 10, limits = c(-1*auto.limits, auto.limits))
+    }
+
+    if(length(unique(lp.new_pat_variable$var))>15){
+      ggp <- ggp + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+      ggp2 <- ggp2 + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+    }
+
+    res_all.plot <- ggp
+    res_lp.plot <- ggp2 + xlab(label = "")
+
+    ggp <- ggp + guides(fill = "none")
+    ggp2 <- ggp2 + ylab(label = "") + xlab(label = "")
+
+    pp <- ggpubr::ggarrange(ggp, ggp2, ncol = 2, widths = c(0.8, 0.2), align = "h")
+
+    lst_plot[[b]] <- pp
+    lst_var.plot[[b]] <- res_all.plot
+    lst_lp.plot[[b]] <- res_lp.plot
+    lst_lp[[b]] <- lp.pats
+    lst_lp.var[[b]] <- lp.new_pat_variable
+    lst_norm_patients[[b]] <- norm_patient
+
+  }
+
+  return(list(plot = lst_plot, var.plot = lst_var.plot, lp.plot = lst_lp.plot, lp = lst_lp, lp.var = lst_lp.var, norm_patients = lst_norm_patients, patients = df.pat))
 }
 
 #' patient.eventDensity

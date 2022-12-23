@@ -526,7 +526,7 @@ pat_histogram
 knitr::kable(Y_test[1:5,])
 ```
 ```{r}
-lst_cox.comparison <- plot_cox.comparePatients.list(lst_models = lst_models, 
+lst_cox.comparison <- plot_LP.multiplePatients.list(lst_models = lst_models, 
                                      df.pat = X_test[1:5,], 
                                      error.bar = T, zero.rm = T, onlySig = T, alpha = 0.05, top = 5)
 ```

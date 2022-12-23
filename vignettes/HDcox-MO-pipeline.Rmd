@@ -1,0 +1,651 @@
+---
+title: "Step-by-step guide to the MO-HDcox pipeline"
+author: 
+    name: "Pedro Salguero García"
+    affiliation: "Institute for Integrative Systems Biology (I2SysBio) and Polytechnic University of Valencia, Valencia, Spain"
+    email: pedrosalguerog@gmail.com
+package: HDcox
+date: "Last updated: `r format(Sys.time(), '%d %B, %Y')`"
+output: 
+    rmarkdown::html_vignette:
+        toc: true
+vignette: >
+  %\VignetteIndexEntry{Step-by-step guide to the MO-HDcox pipeline}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+<style type="text/css">
+.main-container {
+  max-width: 1080px !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+body {
+  max-width: 1080px !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+
+```{r, include = FALSE}
+dpi = 125
+
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  dpi=dpi, 
+  fig.retina=1, 
+  fig.width=1440/dpi, #4:3 FHD
+  fig.height=1080/dpi, 
+  out.width="100%",
+  crop = NULL,
+  warning = T, 
+  error = T
+)
+
+rm(dpi)
+```
+
+# Introduction
+
+The **HDcox** R package contains the necessary functions to reproduce the
+pipeline in [this paper*](),
+a study by *Salguero-Garcia et al.* in which we analyze ....
+
+The pipeline includes ... basic analysis blocks:
+
+1. **Cross-validation and performing survival models for high dimensional data sets**. First, ... 
+
+2. **Comparing multiple survival models**. ...
+
+3. **Understanding the results in terms of the original variables**. ...
+
+# Installation
+
+HDcox can be installed from GitHub using `devtools`:
+
+```{r, eval = FALSE}
+install.packages("devtools")
+devtools::install_github("ConesaLab/HDcox", build_vignettes = TRUE)
+```
+
+# Getting ready
+
+To run the analyses in this vignette, you'll first need to load `HDcox`:
+
+```{r setup, results = "hide"}
+# load HDcox
+library(HDcox)
+```
+
+In addition, we'll require some additional packages for data formatting. Most of them are signaled as `HDcox` dependencies, 
+so they will already be installed in your system.
+
+To generate plots, we make use of the `RColorConesa` R package.
+After install:
+
+```{r, eval = FALSE}
+# install.packages("devtools")
+devtools::install_github("ConesaLab/RColorConesa")
+```
+
+...you can load and set the theme of your R session as follows:
+
+```{r}
+library(RColorConesa)
+#theme_set(theme_colorConesa()) #under development
+```
+
+# Input data
+
+The HDcox pipeline requires two matrices as input. First one must be the features under study, and the second one a matrix with two columns called **time** and **event** for survival information.
+
+To generate the matrices, we first processed the data from ... Details to this process can be found in [our manuscript]() 
+(see Supplementary Note and Methods).
+
+If you wish to reproduce the analyses in Salguero-Garcia et al. [[1]](#1)), you can load the
+`mo.data_Glioblastoma` object to use our dataset:
+
+```{r}
+# load dataset
+data("X_small_mo.data_Glioblastoma", package = "HDcox")
+data("Y_small_mo.data_Glioblastoma", package = "HDcox")
+
+X <- X_small_mo.data_Glioblastoma
+Y <- Y_small_mo.data_Glioblastoma
+
+rm(X_small_mo.data_Glioblastoma, Y_small_mo.data_Glioblastoma)
+```
+
+These contain a `list` of three blocks and a `data.frame` object. Out toy example has a total of **225 observations, 500 genes, 500 mi-RNAs and 37 clinical variables**:
+
+```{r, echo = FALSE}
+knitr::kable(X$genes[1:5,1:5]);knitr::kable(X$miRNA[1:5,1:5]);knitr::kable(X$clinical[1:5,1:5])
+
+knitr::kable(Y[1:5,])
+```
+
+As can be observed, clinical variables were transform to binary/dummy variables for factors.
+
+```{r}
+ggp_density.event <- plot_events(Y = Y, roundTo = 150, categories = c("Censored","Death")) #name for F and T
+```
+
+```{r fig.small = T}
+ggp_density.event$plot
+```
+
+# Cross-validation and performing survival models for high dimensional data sets
+
+...
+
+HDcox provides multiple functions with different methodologies.
+
+* Classical approaches: cox, coxSW and coxEN
+* PLS approaces: plsicox, splsdrcox, splsdrcox_mixOmics and plsdacox_mixOmics
+
+More information for each approach ...
+
+And also, we are going to split the data into train/test (70-30 %).
+
+## TRAIN - TEST
+
+```{r}
+set.seed(123)
+index_train <- caret::createDataPartition(Y$event,
+                                          p = .7, #70% train
+                                          list = FALSE,
+                                          times = 1)
+
+X_train <- list()
+X_test <- list()
+for(omic in names(X)){
+  X_train[[omic]] <- X[[omic]][index_train,,drop=F]
+  X_test[[omic]] <- X[[omic]][-index_train,,drop=F]
+}
+
+Y_train <- Y[index_train,]
+Y_test <- Y[-index_train,]
+```
+
+EVP per block:
+
+```{r}
+for(b in names(X_train)){
+  EPV <- sum(Y_train$event==1) / ncol(X_train[[b]])
+  message(paste0("EPV = ", round(EPV, 2), ", for block ", b))
+}
+
+```
+
+As classical and PLS approach can not be perform in multiomic data, several multiomic methods have been designed. The methods are divided into two categories:
+
+1. **Single-Block approach**. ... 
+1. **MultiOmic-Block approach**. ... 
+
+But first, we establish the center and scale for each block:
+
+```{r, eval = T, message=F}
+x.center = c(genes = T, miRNA = T, clinical = T) #if vector, must be named
+x.scale = c(genes = F, miRNA = F, clinical = T) #if vector, must be named
+```
+
+## sb.PLS-ICOX
+
+sb.PLS-ICOX method
+
+```{r, eval = FALSE, message=F}
+# run cv.sb.plsicox
+cv.sb.plsicox_res <- cv.sb.plsicox(X = X_train, Y = Y_train,
+                                   max.ncomp = 4,
+                                   n_run = 2, k_folds = 10, 
+                                   x.center = x.center, x.scale = x.scale,
+                                   remove_near_zero_variance = T,
+                                   PARALLEL = T, verbose = F)
+
+cv.sb.plsicox_res #3min 10s.
+```
+
+```{r, eval = FALSE, fig.small=T}
+# plot cv.plsicox
+cv.sb.plsicox_res$plot_AUC
+```
+
+So plsicox_model ...
+
+```{r}
+sb.plsicox_model <- sb.plsicox(X = X_train,
+                               Y = Y_train,
+                               n.comp = 4, #cv.sb.plsicox_res$opt.comp
+                               x.center = x.center, x.scale = x.scale,
+                               remove_near_zero_variance = T,
+                               returnData = T, verbose = F)
+
+sb.plsicox_model
+```
+
+In case some components get a P-Value greater than the cutoff for significant, we can drop them by the parameter "remove_non_significant".
+
+```{r}
+sb.plsicox_model <- sb.plsicox(X = X_train,
+                               Y = Y_train,
+                               n.comp = 4, #cv.sb.plsicox_res$opt.comp
+                               x.center = x.center, x.scale = x.scale,
+                               remove_near_zero_variance = T,
+                               remove_non_significant = T,
+                               returnData = T, verbose = F)
+
+sb.plsicox_model
+```
+
+In this case, we optimized each omic/block to use the same number of components. But there is another methodology that allow to select a different number of components per block call "fast.sb.plsicox".
+
+In this case, the cross validation returns the model automatically.
+
+```{r, eval=FALSE, message=F}
+# run cv.sb.plsicox
+fast.sb.plsicox_model <- fast.cv.sb.plsicox(X = X_train, Y = Y_train,
+                                             max.ncomp = 4,
+                                             n_run = 2, k_folds = 10, 
+                                             x.center = x.center, x.scale = x.scale,
+                                             remove_near_zero_variance = T,
+                                             remove_non_significant = T,
+                                             PARALLEL = T, verbose = F)
+
+fast.sb.plsicox_model #6min 7s.
+```
+
+## sb.sPLS-DRCOX
+
+Also, we have implemented the sPLS-DRCOX approach for the single block approach.
+
+```{r, eval = FALSE, message=F}
+# run cv.sb.plsicox
+cv.sb.splsdrcox_res <- cv.sb.splsdrcox(X = X_train, Y = Y_train,
+                                       max.ncomp = 4, eta.list = c(0.25,0.5,0.75),
+                                       n_run = 2, k_folds = 10, 
+                                       x.center = x.center, x.scale = x.scale,
+                                       remove_near_zero_variance = T, 
+                                       remove_non_significant = T,
+                                       PARALLEL = T, verbose = F)
+
+cv.sb.splsdrcox_res #5min
+```
+
+So sb.splsdrcox_model ...
+
+```{r}
+sb.splsdrcox_model <- sb.splsdrcox(X = X_train, 
+                                   Y = Y_train, 
+                                   n.comp = 1, eta = 0.75, #n.comp = cv.splsdrcox_res$opt.comp, eta = cv.splsdrcox_res$opt.eta
+                                   x.center = x.center, x.scale = x.scale,
+                                   remove_near_zero_variance = T,
+                                   remove_non_significant = T,
+                                   returnData = T, verbose = F)
+
+sb.splsdrcox_model
+```
+In this case, we optimized each omic/block to use the same number of components. But there is another methodology that allow to select a different number of components per block call "fast.cv.sb.splsdrcox".
+
+In this case, the cross validation returns the model automatically.
+
+```{r, eval=FALSE, message=F}
+# run cv.sb.plsicox
+fast.sb.splsdrcox_model <- fast.cv.sb.splsdrcox(X = X_train, Y = Y_train,
+                                                max.ncomp = 4, eta.list = c(0.25,0.5,0.75),
+                                                n_run = 2, k_folds = 10, 
+                                                x.center = x.center, x.scale = x.scale,
+                                                remove_near_zero_variance = T,
+                                                remove_non_significant = T,
+                                                PARALLEL = T, verbose = F)
+
+fast.sb.splsdrcox_model #7.5min
+```
+
+## MB.sPLS-DRCOX
+
+Also we are going to run cross-validation techniques for MB.sPLSDRCOX of the PLS methods.
+
+```{r, eval = FALSE, message=F}
+# run cv.splsdrcox
+cv.mb.splsdrcox_res <- cv.mb.splsdrcox(X = X_train, Y = Y_train, 
+                                       max.ncomp = 4, vector = NULL, #NULL - autodetection
+                                       n_run = 2, k_folds = 10, 
+                                       x.center = x.center, x.scale = x.scale, 
+                                       remove_near_zero_variance = T, 
+                                       remove_zero_variance = T,
+                                       PARALLEL = T, verbose = F)
+
+cv.mb.splsdrcox_res #2min
+```
+
+So mb.splsdrcox_model ...
+
+```{r}
+mb.splsdrcox_model <- mb.splsdrcox(X = X_train, Y = Y_train, 
+                                        n.comp = 4, #cv.mb.splsdrcox_res$opt.comp
+                                        vector = list(genes = 10, miRNA = 10, clinical = 10), #cv.mb.splsdrcox_res$opt.nvar
+                                        x.center = x.center, x.scale = x.scale, 
+                                        remove_near_zero_variance = T, 
+                                        remove_zero_variance = T,
+                                        verbose = F)
+
+mb.splsdrcox_model
+```
+
+## MB.sPLS-DACOX
+
+Also we are going to run cross-validation techniques for MB.sPLSDACOX of the PLS methods.
+
+```{r, eval = FALSE, message=F}
+# run cv.splsdrcox
+cv.mb.splsdacox_res <- cv.mb.splsdacox(X = X_train, Y = Y_train, 
+                                   max.ncomp = 4, vector = NULL, #NULL - autodetection
+                                   n_run = 2, k_folds = 10, 
+                                   x.center = x.center, x.scale = x.scale, 
+                                   remove_near_zero_variance = T, 
+                                   remove_zero_variance = T,
+                                   PARALLEL = T, verbose = F)
+
+cv.mb.splsdacox_res #2min
+```
+
+So mb.splsdacox_model ...
+
+```{r}
+mb.splsdacox_model <- mb.splsdacox(X = X_train, Y = Y_train, 
+                                        n.comp = 3, #cv.mb.splsdacox_res$opt.comp
+                                        vector = list(genes = 10, miRNA = 255, clinical = 10), #cv.mb.splsdacox_res$opt.nvar
+                                        x.center = x.center, x.scale = x.scale, 
+                                        remove_near_zero_variance = T, 
+                                        remove_zero_variance = T,
+                                        verbose = F)
+
+mb.splsdacox_model
+```
+
+# Comparing multiple survival models
+
+## Comparing for multiple evaluators at the same time.
+
+```{r}
+lst_models <- list("SB.PLS-ICOX" = sb.plsicox_model,
+                   "SB.sPLS-DRCOX" = sb.splsdrcox_model,
+                   "MB.sPLS-DRCOX" = mb.splsdrcox_model,
+                   "MB.sPLS-DACOX" = mb.splsdacox_model)
+
+eval_results <- eval_models4.0(lst_models = lst_models,
+                               X_test = X_test, Y_test = Y_test, 
+                               pred.method = "cenROC",
+                               pred.attr = "mean",
+                               times = NULL, max_time_points = 15, 
+                               PARALLEL = T)
+
+# lst_evaluators <- c(cenROC = "cenROC", 
+#                     risksetROC = "risksetROC")
+# 
+# eval_results <- purrr::map(lst_evaluators, ~eval_models4.0(lst_models = lst_models,
+#                                                            X_test = X_test, Y_test = Y_test, 
+#                                                            pred.method = .,
+#                                                            pred.attr = "mean",
+#                                                            times = seq(1,4,0.5), max_time_points = 15, 
+#                                                            PARALLEL = T))
+```
+
+```{r}
+eval_results
+#eval_results$cenROC
+```
+
+## Plot comparison
+
+```{r}
+lst_eval_results <- plot_evaluation(eval_results)
+#lst_eval_results <- plot_evaluation.list(eval_results)
+```
+
+```{r, fig.small=T}
+lst_eval_results$lst_plots$lineplot.mean
+lst_eval_results$lst_plot_comparisons$t.test
+
+# lst_eval_results$cenROC$lst_plots$lineplot.mean
+# lst_eval_results$cenROC$lst_plot_comparisons$t.test
+```
+
+## Computing time comparison (we use the cross validation models)
+
+We should add the cross validations models in order to see which method takes more time.
+
+```{r}
+lst_models_time <- list(sb.plsicox_model,
+                        sb.splsdrcox_model,
+                        mb.splsdrcox_model,
+                        mb.splsdacox_model,
+                        eval_results)
+```
+
+```{r}
+ggp_time <- plot_time.models(lst_models_time)
+```
+
+```{r, fig.small=T}
+ggp_time
+```
+
+## Forest plots
+
+```{r}
+lst_forest_plot <- purrr::map(lst_models, ~survminer::ggforest(.$survival_model$fit, 
+                                                               data = .$survival_model$fit$model))
+```
+
+```{r, fig.small=T}
+lst_forest_plot$`SB.sPLS-DRCOX`
+```
+
+## Density plots for each prediction
+
+```{r}
+density.plots.lp <- plot_cox.event.list(lst_models, type = "lp")
+```
+
+```{r, fig.small=T}
+density.plots.lp$`SB.sPLS-DRCOX`$plot.density
+density.plots.lp$`SB.sPLS-DRCOX`$plot.histogram
+```
+
+## PH Assumption
+
+```{r}
+lst_ph_ggplot <- plot_proportionalHazard.list(lst_models)
+```
+
+```{r, fig.small=T}
+lst_ph_ggplot$`SB.sPLS-DRCOX`
+```
+
+## Studying PLS model
+
+```{r}
+ggp_scores <- plot_PLS_HDcox(model = lst_models$`SB.sPLS-DRCOX`, 
+                             comp = c(1,2), mode = "scores")
+```
+
+```{r, fig.small=T}
+ggp_scores$plot_block
+```
+
+```{r}
+ggp_loadings <- plot_PLS_HDcox(model = lst_models$`SB.sPLS-DRCOX`, 
+                               comp = c(1,2), mode = "loadings",
+                               top = 10) #length from 0,0
+```
+
+```{r, fig.small=T}
+ggp_loadings$plot_block
+```
+
+```{r}
+ggp_biplot <- plot_PLS_HDcox(model = lst_models$`SB.sPLS-DRCOX`, 
+                             comp = c(1,2), mode = "biplot",
+                             top = 15,
+                             only_top = T)
+```
+
+```{r, fig.small=T}
+ggp_biplot$plot_block
+```
+
+# Understanding the results in terms of the original variables
+
+## Psudobeta
+
+```{r}
+ggp.simulated_beta <- plot_pseudobeta.list(lst_models = lst_models, 
+                                           error.bar = T, onlySig = T, alpha = 0.05, 
+                                           zero.rm = T, auto.limits = T, top = 20,
+                                           show_percentage = T, size_percentage = 3)
+```
+
+```{r, fig.small=T}
+ggp.simulated_beta$`SB.sPLS-DRCOX`$plot
+```
+
+## Kaplan-Meier
+
+### Full model
+
+```{r}
+LST_KM_RES_LP <- getAutoKM.list(type = "LP",
+                                lst_models = lst_models,
+                                comp = 1:4,
+                                top = 10,
+                                ori_data = T,
+                                BREAKTIME = NULL,
+                                only_sig = T, alpha = 0.05)
+```
+
+```{r, fig.small=T}
+LST_KM_RES_LP$`SB.sPLS-DRCOX`$LST_PLOTS$LP
+```
+
+### Per components
+
+```{r}
+LST_KM_RES_COMP <- getAutoKM.list(type = "COMP",
+                                  lst_models = lst_models,
+                                  comp = 1:4,
+                                  top = 10,
+                                  ori_data = T,
+                                  BREAKTIME = NULL,
+                                  only_sig = T, alpha = 0.05)
+```
+
+```{r, fig.small=T}
+LST_KM_RES_COMP$`SB.sPLS-DRCOX`$LST_PLOTS$genes$comp_1
+```
+
+### Per original variables
+
+Matches psudobetas
+
+```{r}
+LST_KM_RES_VAR <- getAutoKM.list(type = "VAR",
+                                 lst_models = lst_models,
+                                 comp = 1:4,
+                                 top = 10,
+                                 ori_data = T,
+                                 BREAKTIME = NULL,
+                                 only_sig = T, alpha = 0.05)
+```
+
+```{r, fig.small=T}
+LST_KM_RES_VAR$`SB.sPLS-DRCOX`$LST_PLOTS$genes$MOXD1
+LST_KM_RES_VAR$`SB.sPLS-DRCOX`$LST_PLOTS$miRNA$hsa_miR_148a
+```
+
+# New patients
+
+```{r}
+new_pat <- list()
+for(b in names(X_test)){
+  new_pat[[b]] <- X_test[[b]][1,,drop=F]
+}
+
+```
+
+```{r}
+knitr::kable(Y_test[rownames(new_pat$genes),])
+```
+
+```{r}
+ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient.list(lst_models = lst_models, 
+                                                             new_pat = new_pat,
+                                                             error.bar = T, onlySig = T, alpha = 0.05,
+                                                             zero.rm = T, auto.limits = T, show.betas = T, top = 20)
+
+# ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient(model = lst_models$`MB.sPLS-DACOX`, 
+#                                                         new_pat = new_pat,
+#                                                         error.bar = T, onlySig = T, alpha = 0.05,
+#                                                         zero.rm = T, auto.limits = T, show.betas = T, top = 20)
+```
+
+Opposite direction means its value is under the mean for risk one or over the mean for protective ones.
+
+```{r, fig.small=T}
+ggp.simulated_beta_newPat$`SB.sPLS-DRCOX`$plot
+```
+
+## Add patient to density plot
+
+```{r}
+pat_density <- plot_patient.eventDensity(patient = new_pat, 
+                                         time = NULL, 
+                                         model = lst_models$`SB.sPLS-DRCOX`, 
+                                         type = "lp")
+```
+
+```{r, fig.small=T}
+pat_density
+```
+
+```{r}
+pat_histogram <- plot_patient.eventHistogram(patient = new_pat, 
+                                             time = NULL, 
+                                             model = lst_models$`SB.sPLS-DRCOX`, 
+                                             type = "lp")
+```
+
+```{r, fig.small=T}
+pat_histogram
+```
+
+## COX compare patients
+
+```{r}
+sub_X_test <- list()
+for(b in names(X_test)){
+  sub_X_test[[b]] <- X_test[[b]][1:5,]
+}
+
+```
+
+```{r}
+knitr::kable(Y_test[1:5,])
+```
+
+```{r}
+lst_cox.comparison <- plot_LP.multiplePatients.list(lst_models = lst_models, 
+                                     df.pat = sub_X_test, 
+                                     error.bar = T, zero.rm = T, onlySig = T, alpha = 0.05, top = 5)
+
+# lst_cox.comparison <- plot_LP.multiplePatients(model = lst_models$`SB.PLS-ICOX`, 
+#                                      df.pat = sub_X_test, 
+#                                      error.bar = T, zero.rm = T, onlySig = T, alpha = 0.05, top = 5)
+```
+
+```{r, fig.small=T}
+lst_cox.comparison$`SB.sPLS-DRCOX`$plot
+```
