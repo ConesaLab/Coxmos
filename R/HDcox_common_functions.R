@@ -1,5 +1,4 @@
 #' @importFrom caret nearZeroVar createFolds
-#' @import cenROC
 #' @importFrom cowplot plot_grid
 #' @import furrr
 #' @importFrom future availableCores plan
