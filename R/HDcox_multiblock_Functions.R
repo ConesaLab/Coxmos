@@ -53,6 +53,12 @@ checkXY.mb.class <- function(X, Y, verbose = T){
   }else{
     if(all(unlist(lapply(X, class)) %in% "data.frame")){
       X <- lapply(X, data.matrix)
+    }else if(all(unlist(lapply(X, function(x){class(x)[[1]]})) %in% c("data.frame", "matrix"))){
+      for(block in names(X)){
+        if(class(X[[block]])[[1]]=="data.frame"){
+          X[[block]] <- data.matrix(X[[block]])
+        }
+      }
     }else if(!all(unlist(lapply(X, class)) %in% c("matrix", "array"))){
       stop("X elements are not a matrix or a data.frame\n")
     }
