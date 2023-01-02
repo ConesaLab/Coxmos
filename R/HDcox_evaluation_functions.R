@@ -553,7 +553,7 @@ cenROC_tryCatch <- function(Y, censor, M, t, method, ktype, alpha, plot, verbose
 
       #our function #extracted from GitHub
       cenROC(Y = Y, censor = censor, M = M,
-                     t = t, method = method, ktype = ktype, alpha = alpha, plot = plot)
+             t = t, method = method, ktype = ktype, alpha = alpha, plot = plot)
     },
     # Specifying error message
     error = function(e){

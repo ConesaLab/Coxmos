@@ -122,12 +122,16 @@ rm(X_small_data_E.MTAB.386, Y_small_data_E.MTAB.386)
 These contain two `data.frame` objects. After quality control
 (see Methods in [Salguero-Garcia et al.]() 
 [[1]](#1)), the `data_E.MTAB.386.RData` data contains expression data for **126 observations** 
-and **10357 genes**:
+and **500 genes**:
 
 ```{r, echo = FALSE}
 knitr::kable(X[1:5,1:5])
 
 knitr::kable(Y[1:5,])
+```
+
+```{r, echo = FALSE}
+knitr::kable(dim(X))
 ```
 
 ```{r}
@@ -191,11 +195,17 @@ Also we are going to run cross-validation techniques for PLS-ICOX method.
 ```{r, eval = FALSE, message=F}
 # run cv.plsicox
 cv.plsicox_res <- cv.plsicox(X = X_train, Y = Y_train,
-                           max.ncomp =  4,
-                           n_run = 2, k_folds = 10, 
-                           x.scale = T,
-                           remove_near_zero_variance = F, remove_zero_variance = F,
-                           PARALLEL = T, verbose = F)
+                             max.ncomp =  4,
+                             n_run = 2, k_folds = 10, 
+                             x.scale = T, x.center = T, 
+                             y.center = F, y.scale = F,
+                             remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
+                             remove_non_significant_models = F, alpha = 0.05, 
+                             w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
+                             MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
+                             pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
+                             MIN_EPV = 5, return_models = F,
+                             PARALLEL = T, verbose = F, seed = 123)
 cv.plsicox_res #1min 8s.
 ```
 

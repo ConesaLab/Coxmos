@@ -2639,23 +2639,17 @@ getVectorOfTime <- function(Y, max_time_points, verbose = F){
 
 checkLibraryEvaluator <- function(pred.method){
   #Check evaluator installed:
-  if(!pred.method == "cenROC"){
-    if(pred.method == "survivalROC" & !requireNamespace("survivalROC", quietly = TRUE)){
+  if(!pred.method == pkg.env$AUC_cenROC){
+    if(!pred.method %in% c(pkg.env$AUC_survivalROC, pkg.env$AUC_nsROC, pkg.env$AUC_smoothROCtime_C, pkg.env$AUC_smoothROCtime_I, pkg.env$AUC_risksetROC)){
+      stop(paste0("A non-valid method has been selected. Select one of: ", paste0(c(pkg.env$AUC_cenROC, pkg.env$AUC_survivalROC, pkg.env$AUC_nsROC, pkg.env$AUC_smoothROCtime_C, pkg.env$AUC_smoothROCtime_I, pkg.env$AUC_risksetROC), collapse = ", ")))
+    }else if(pred.method == pkg.env$AUC_survivalROC & !requireNamespace("survivalROC", quietly = TRUE)){
       stop("Library 'survivalROC' is required to evaluate with the selected method.")
-    }
-    else if(pred.method == "nsROC" & !requireNamespace("nsROC", quietly = TRUE)){
+    }else if(pred.method == pkg.env$AUC_nsROC & !requireNamespace("nsROC", quietly = TRUE)){
       stop("Library 'nsROC' is required to evaluate with the selected method.")
-    }
-    else if(pred.method == "smoothROCtime_C" & !requireNamespace("smoothROCtime", quietly = TRUE)){
+    }else if(pred.method %in% c(pkg.env$AUC_smoothROCtime_C, pkg.env$AUC_smoothROCtime_I) & !requireNamespace("smoothROCtime", quietly = TRUE)){
       stop("Library 'smoothROCtime' is required to evaluate with the selected method.")
-    }
-    else if(pred.method == "smoothROCtime_I" & !requireNamespace("smoothROCtime", quietly = TRUE)){
-      stop("Library 'smoothROCtime' is required to evaluate with the selected method.")
-    }
-    else if(pred.method == "risksetROC" & !requireNamespace("risksetROC", quietly = TRUE)){
+    }else if(pred.method == pkg.env$AUC_risksetROC & !requireNamespace("risksetROC", quietly = TRUE)){
       stop("Library 'risksetROC' is required to evaluate with the selected method.")
-    }else{
-      stop("A non-valid method has been selected.")
     }
   }
 }

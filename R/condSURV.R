@@ -39,6 +39,8 @@
 #' Beran(time = obj$Stime, status = obj$event, covariate = colonCS$age,
 #' x = 45, y = 730, bw = h, lower.tail = TRUE)
 #'
+#' @include
+#' @useDynLib mypackage, .registration=TRUE
 Beran <-
   function(time, status, covariate, delta, x, y, kernel = "gaussian", bw,
            lower.tail = FALSE) {

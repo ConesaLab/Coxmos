@@ -593,3 +593,21 @@ wquantile <- function(X, wt, p = 0.5)
 
   return(qua)
 }
+
+#' Weighted variance estimation
+#'
+#' @param X The numeric data vector.
+#' @param wt The non-negative weight vector.
+#' @param na.rm The character indicator wether to consider missing value(s) or not. The defult is FALSE.
+#' @keywords internal
+
+wvar <- function(X, wt, na.rm = FALSE) {
+  if (na.rm) {
+    wt <- wt[i <- !is.na(X)]
+    X <- X[i]
+  }
+  wsum <- sum(wt)
+  wmean = sum(wt * X) / wsum
+  varr = sum(wt * (X - wmean) ^ 2) / (wsum)
+  return(varr)
+}
