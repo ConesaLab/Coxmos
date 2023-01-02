@@ -381,6 +381,9 @@ cv.splsdrcox_mixOmics <- function (X, Y,
   # WARNINGS #
   ############
 
+  #Check evaluator installed:
+  checkLibraryEvaluator(pred.method)
+
   pb_text <- "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated remaining time: :eta]"
 
   #### REQUIREMENTS

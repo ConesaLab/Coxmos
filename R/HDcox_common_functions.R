@@ -7,17 +7,14 @@
 #' @importFrom ggpubr ggarrange annotate_figure
 #' @import glmnet
 #' @importFrom mixOmics spls plsda block.spls block.splsda tune.spls
-#' @import nsROC
 #' @import progress
 #' @import purrr
-#' @import risksetROC
 #' @importFrom scattermore geom_scattermore
-#' @import smoothROCtime
 #' @import stats
 #' @import survival
-#' @import survivalROC
 #' @import survminer
 #' @importFrom tidyr pivot_longer starts_with
+#' @import utils
 
 pkg.env <- new.env(parent = emptyenv())
 assign(x = 'model_class', value = "HDcox", pkg.env)
@@ -2640,6 +2637,29 @@ getVectorOfTime <- function(Y, max_time_points, verbose = F){
   return(times)
 }
 
+checkLibraryEvaluator <- function(pred.method){
+  #Check evaluator installed:
+  if(!pred.method == "cenROC"){
+    if(pred.method == "survivalROC" & !requireNamespace("survivalROC", quietly = TRUE)){
+      stop("Library 'survivalROC' is required to evaluate with the selected method.")
+    }
+    else if(pred.method == "nsROC" & !requireNamespace("nsROC", quietly = TRUE)){
+      stop("Library 'nsROC' is required to evaluate with the selected method.")
+    }
+    else if(pred.method == "smoothROCtime_C" & !requireNamespace("smoothROCtime", quietly = TRUE)){
+      stop("Library 'smoothROCtime' is required to evaluate with the selected method.")
+    }
+    else if(pred.method == "smoothROCtime_I" & !requireNamespace("smoothROCtime", quietly = TRUE)){
+      stop("Library 'smoothROCtime' is required to evaluate with the selected method.")
+    }
+    else if(pred.method == "risksetROC" & !requireNamespace("risksetROC", quietly = TRUE)){
+      stop("Library 'risksetROC' is required to evaluate with the selected method.")
+    }else{
+      stop("A non-valid method has been selected.")
+    }
+  }
+}
+
 #### ### ### ### ### ### ### ### ### ### ### ### ### ## #
 ## Eval all models by the pred.methods the user defined #
 #### ### ### ### ### ### ### ### ### ### ### ### ### ## #
@@ -2662,6 +2682,9 @@ getVectorOfTime <- function(Y, max_time_points, verbose = F){
 
 ## Eval all models by the pred.methods the user defined
 eval_models4.0 <- function(lst_models, X_test, Y_test, pred.method, pred.attr = "mean", times = NULL, PARALLEL = F, max_time_points = 15, verbose = F, progress_bar = T){
+
+  #Check evaluator installed:
+  checkLibraryEvaluator(pred.method)
 
   if(all(is.null(lst_models))){
     stop("List of model is NULL")

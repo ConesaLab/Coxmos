@@ -548,7 +548,11 @@ cenROC_tryCatch <- function(Y, censor, M, t, method, ktype, alpha, plot, verbose
   invisible(utils::capture.output(out <- tryCatch(
     # Specifying expression
     expr = {
-      cenROC::cenROC(Y = Y, censor = censor, M = M,
+      # cenROC::cenROC(Y = Y, censor = censor, M = M,
+      #                t = t, method = method, ktype = ktype, alpha = alpha, plot = plot)
+
+      #our function #extracted from GitHub
+      cenROC(Y = Y, censor = censor, M = M,
                      t = t, method = method, ktype = ktype, alpha = alpha, plot = plot)
     },
     # Specifying error message
@@ -636,16 +640,25 @@ getAUC_from_LP <- function(linear.predictors, Y, times, bestModel = NULL, method
     for(t in times){
       #https://cran.r-project.org/web/packages/risksetROC/risksetROC.pdf
       if(method == pkg.env$AUC_risksetROC){
-        out <- risksetROC::CoxWeights(linear.predictors$fit, Stime = Y$time, status = Y$event,
-                                      predict.time = t)
+        # out <- risksetROC::CoxWeights(linear.predictors$fit, Stime = Y$time, status = Y$event,
+        #                               predict.time = t)
+
+        out <- risksetROC_tryCatch(linear.predictors$fit, Stime = Y$time, status = Y$event,
+                                   predict.time = t)
+
         AUC <- out$AUC
       }else if(method == pkg.env$AUC_survivalROC){
         #https://cran.r-project.org/web/packages/survivalROC/
         #needs at least 2 events per time and time can not be day 0
         if(!sum(Y[Y$event==1,]$time<=t)<2 & t != 0){
-          out <- survivalROC::survivalROC(Stime = Y$time, status = Y$event, marker = linear.predictors$fit,
-                                          predict.time = t, method = "NNE",
-                                          span = 0.25 * nrow(Y)^(-0.20))
+          # out <- survivalROC::survivalROC(Stime = Y$time, status = Y$event, marker = linear.predictors$fit,
+          #                                 predict.time = t, method = "NNE",
+          #                                 span = 0.25 * nrow(Y)^(-0.20))
+
+          out <- survivalROC_tryCatch(Stime = Y$time, status = Y$event, marker = linear.predictors$fit,
+                                      predict.time = t, method = "NNE",
+                                      span = 0.25 * nrow(Y)^(-0.20))
+
           AUC <- out$AUC
         }else{
           AUC <- NA
@@ -655,19 +668,23 @@ getAUC_from_LP <- function(linear.predictors, Y, times, bestModel = NULL, method
         #needs at least 2 events per time and time can not be day 0
         #Y is a matrix
         if(!sum(Y[Y[,"event"]==1,"time"]<=t)<2 & t != 0){
-          out <- tryCatch(
-            # Specifying expression
-            expr = {
-              cenROC::cenROC(Y = Y[,"time"], censor = Y[,"event"], M = linear.predictors$fit,
-                             t = t, method = "tra", ktype  ="normal", alpha = 0.05, plot = F) #problems in simulated data
-            },
-            # Specifying error message
-            error = function(e){
-              return(NULL)
-            }
-          )
+          # out <- tryCatch(
+          #   # Specifying expression
+          #   expr = {
+          #     cenROC::cenROC(Y = Y[,"time"], censor = Y[,"event"], M = linear.predictors$fit,
+          #                    t = t, method = "tra", ktype  ="normal", alpha = 0.05, plot = F) #problems in simulated data
+          #   },
+          #   # Specifying error message
+          #   error = function(e){
+          #     return(NULL)
+          #   }
+          # )
+          out <- cenROC_tryCatch(Y = Y[,"time"], censor = Y[,"event"], M = linear.predictors$fit,
+                                 t = t, method = "tra", ktype  ="normal", alpha = 0.05, plot = F, verbose = F)
 
           if(is.null(out)){
+            AUC <- NA
+          }else if(is.na(out)){
             AUC <- NA
           }else{
             AUC <- out$AUC$AUC
@@ -681,16 +698,28 @@ getAUC_from_LP <- function(linear.predictors, Y, times, bestModel = NULL, method
         #Y is a matrix
         #cumulative/dynamic approach
         if(!sum(Y[Y[,"event"]==1,"time"]<=t)<2 & t != 0){
-          out <- nsROC::cdROC(stime = Y[,"time"],
-                              status = Y[,"event"],
-                              marker = linear.predictors$fit,
-                              predict.time = t,
-                              method = "wKM", # Cox, KM, wKM (last with kernel-weighted)
-                              kernel = "normal", #normal, Epanechnikov, other (only if wKM)
-                              ci = F, #a lot of time and problems with NAs in bootstraping
-                              boot.n = 200,
-                              conf.level = 0.95,
-                              seed = 123)
+          # out <- nsROC::cdROC(stime = Y[,"time"],
+          #                     status = Y[,"event"],
+          #                     marker = linear.predictors$fit,
+          #                     predict.time = t,
+          #                     method = "wKM", # Cox, KM, wKM (last with kernel-weighted)
+          #                     kernel = "normal", #normal, Epanechnikov, other (only if wKM)
+          #                     ci = F, #a lot of time and problems with NAs in bootstraping
+          #                     boot.n = 200,
+          #                     conf.level = 0.95,
+          #                     seed = 123)
+
+          out <- nsROC_tryCatch(stime = Y[,"time"],
+                                status = Y[,"event"],
+                                marker = linear.predictors$fit,
+                                predict.time = t,
+                                method = "wKM", # Cox, KM, wKM (last with kernel-weighted)
+                                kernel = "normal", #normal, Epanechnikov, other (only if wKM)
+                                ci = F, #a lot of time and problems with NAs in bootstraping
+                                boot.n = 200,
+                                conf.level = 0.95,
+                                seed = 123)
+
           AUC <- out$auc
         }else{
           AUC <- NA
@@ -709,20 +738,23 @@ getAUC_from_LP <- function(linear.predictors, Y, times, bestModel = NULL, method
         d <- cbind(Y$time, Y$event, linear.predictors$fit)
         #default naive.pdf for banwidth matrix
 
+        # invisible(utils::capture.output(out <- tryCatch(
+        #   # Specifying expression
+        #   expr = {
+        #     #smoothROCtime::stRoc(data = d, t = times[new_times], tcr = "C", meth = "2") #Cumulative/Dynamic with p-kernel method #too much problems
+        #     smoothROCtime::stRoc(data = d, t = times[new_times], tcr = "C", meth = "1") #Cumulative/Dynamic with smooth method
+        #   },
+        #   # Specifying error message
+        #   error = function(e){
+        #     NULL
+        #   }
+        # )))
 
-        invisible(utils::capture.output(out <- tryCatch(
-          # Specifying expression
-          expr = {
-            #smoothROCtime::stRoc(data = d, t = times[new_times], tcr = "C", meth = "2") #Cumulative/Dynamic with p-kernel method #too much problems
-            smoothROCtime::stRoc(data = d, t = times[new_times], tcr = "C", meth = "1") #Cumulative/Dynamic with smooth method
-          },
-          # Specifying error message
-          error = function(e){
-            NULL
-          }
-        )))
+        out <- smoothROCtime_tryCatch(data = d, t = times[new_times], tcr = "C", meth = "1")
 
         if(is.null(out)){
+          AUC <- NA
+        }else if(is.na(out)){
           AUC <- NA
         }else{
           AUC <- NULL
@@ -746,18 +778,22 @@ getAUC_from_LP <- function(linear.predictors, Y, times, bestModel = NULL, method
       if(!all(new_times == FALSE)){
         d <- cbind(Y$time, Y$event, linear.predictors$fit)
 
-        invisible(utils::capture.output(out <- tryCatch(
-          # Specifying expression
-          expr = {
-            smoothROCtime::stRoc(data = d, t = times[new_times], tcr = "I") #Incident/Dynamic
-          },
-          # Specifying error message
-          error = function(e){
-            NULL
-          }
-        )))
+        # invisible(utils::capture.output(out <- tryCatch(
+        #   # Specifying expression
+        #   expr = {
+        #     smoothROCtime::stRoc(data = d, t = times[new_times], tcr = "I") #Incident/Dynamic
+        #   },
+        #   # Specifying error message
+        #   error = function(e){
+        #     NULL
+        #   }
+        # )))
+
+        out <- smoothROCtime_tryCatch(data = d, t = times[new_times], tcr = "I")
 
         if(is.null(out)){
+          AUC <- NA
+        }else if(is.na(out)){
           AUC <- NA
         }else{
           AUC <- NULL

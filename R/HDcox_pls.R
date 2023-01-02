@@ -424,6 +424,9 @@ cv.plsicox <- function (X, Y,
   # WARNINGS #
   ############
 
+  #Check evaluator installed:
+  checkLibraryEvaluator(pred.method)
+
   #### REQUIREMENTS
   checkY.colnames(Y)
   check.cv.weights(c(w_AIC, w_c.index, w_AUC))
