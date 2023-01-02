@@ -750,7 +750,7 @@ getAUC_from_LP <- function(linear.predictors, Y, times, bestModel = NULL, method
         #   }
         # )))
 
-        out <- smoothROCtime_tryCatch(data = d, t = times[new_times], tcr = "C", meth = "1")
+        out <- smoothROCtime_tryCatch(data = d, times = times[new_times], tcr = "C", meth = "1")
 
         if(is.null(out)){
           AUC <- NA
@@ -789,7 +789,7 @@ getAUC_from_LP <- function(linear.predictors, Y, times, bestModel = NULL, method
         #   }
         # )))
 
-        out <- smoothROCtime_tryCatch(data = d, t = times[new_times], tcr = "I")
+        out <- smoothROCtime_tryCatch(data = d, times = times[new_times], tcr = "I")
 
         if(is.null(out)){
           AUC <- NA

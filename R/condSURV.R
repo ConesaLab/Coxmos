@@ -25,22 +25,7 @@
 #' @author Luis Meira-Machado and Marta Sestelo
 #' @references R. Beran. Nonparametric regression with randomly censored
 #' survival data. Technical report, University of California, Berkeley, 1981.
-#' @examples
-#'
-#' obj <- with(colonCS, survCS(time1, event1, Stime, event))
-#'
-#' #P(T>y|age=45)
-#' library(KernSmooth)
-#' h <- dpik(colonCS$age)
-#' Beran(time = obj$Stime, status = obj$event, covariate = colonCS$age,
-#' x = 45, y = 730, bw = h)
-#'
-#' #P(T<=y|age=45)
-#' Beran(time = obj$Stime, status = obj$event, covariate = colonCS$age,
-#' x = 45, y = 730, bw = h, lower.tail = TRUE)
-#'
-#' @include
-#' @useDynLib mypackage, .registration=TRUE
+#' @useDynLib HDcox
 Beran <-
   function(time, status, covariate, delta, x, y, kernel = "gaussian", bw,
            lower.tail = FALSE) {

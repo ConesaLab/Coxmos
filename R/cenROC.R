@@ -4,7 +4,7 @@
 #'  The ROC curves can be either empirical (non-smoothed) or smoothed with/wtihout boundary correction. It also calculates the time-dependent area under the ROC curve (AUC).
 #'  Edited by Pedro Salguero to remove the PLOT argument.
 #' @usage cenROC(Y, M, censor, t, U = NULL, h = NULL, bw = "NR", method = "tra",
-#'     ktype = "normal", ktype1 = "normal", B = 0, alpha = 0.05, plot = "TRUE")
+#'     ktype = "normal", ktype1 = "normal", B = 0, alpha = 0.05, plot = F)
 #' @param Y The numeric vector of event-times or observed times.
 #' @param M The numeric vector of marker values for which the time-dependent ROC curves is computed.
 #' @param censor The censoring indicator, \code{1} if event, \code{0} otherwise.
@@ -17,7 +17,7 @@
 #' @param ktype1 A character string specifying the desired kernel needed for Beran weight calculation. The possible options are "\code{normal}", "\code{epanechnikov}", "\code{tricube}", "\code{boxcar}", "\code{triangular}", or "\code{quartic}". The defaults is "\code{normal}" kernel density.
 #' @param B The number of bootstrap samples to be used for variance estimation. The default is \code{0}, no variance estimation.
 #' @param alpha The significance level. The default is \code{0.05}.
-#' @param plot The logical parameter to see the ROC curve plot. The default is \code{TRUE}.
+#' @param plot The logical parameter to see the ROC curve plot. The default is \code{TRUE}. Currently disabled.
 #' @details The empirical (non-smoothed) ROC estimate and the smoothed ROC estimate with/without boundary correction can be obtained using this function.
 #' The smoothed ROC curve estimators require selecting two bandwidth parametrs: one for Beran’s weight calculation and one for smoothing the ROC curve.
 #' For the latter, three data-driven methods: the normal reference "\code{NR}", the plug-in "\code{PI}" and the cross-validation "\code{CV}" were implemented.
@@ -33,11 +33,6 @@
 #' @return    \code{Dt      } The vector of estimated event status.
 #' @return    \code{M       } The vector of Marker values.
 #' @importFrom stats pnorm qnorm quantile approx bw.SJ integrate sd
-#' @examples library(cenROC)
-#'
-#' data(mayo)
-#' cenROC(Y=mayo$time, M=mayo$mayoscore5, censor=mayo$censor, t=365*6)$AUC
-#'
 #' @author
 #' Kassu Mehari Beyene, Catholic University of Louvain. \code{<kasu.beyene@uclouvain.be>}
 #'
@@ -91,7 +86,7 @@ cenROC <- function(Y, M, censor, t, U = NULL, h = NULL, bw = "NR",  method = "tr
 #' @return Return a vectors:
 #' @return \code{positive    }    \code{P(T<t|Y,censor,M)}.
 #' @return \code{negative    }     \code{P(T>t|Y,censor,M)}.
-#' @references Beyene, K. M. and El Ghouch A. (2019). Smoothed time-dependent ROC curves for right-censored survival data. <\url{https://dial.uclouvain.be/pr/boreal/object/boreal:219643}>.
+#' @references Beyene, K. M. and El Ghouch A. (2019). Smoothed time-dependent ROC curves for right-censored survival data. <https://dial.uclouvain.be/pr/boreal/object/boreal:219643>.
 #' @references Li, Liang, Bo Hu and Tom Greene (2018).  A simple method to estimate the time-dependent receiver operating characteristic curve and the area under the curve with right censored data, Statistical Methods in Medical Research, 27(8): 2264-2278.
 #' @references Pablo Martínez-Camblor and Gustavo F. Bayón and Sonia Pérez-Fernández (2016). Cumulative/dynamic roc curve estimation, Journal of Statistical Computation and Simulation, 86(17): 3582-3594.
 #' @keywords internal
@@ -141,7 +136,7 @@ Csurv <- function(Y, M, censor, t, h = NULL, kernel="normal") {
 #' @param method is the method of ROC curve estimation. The possible options are \code{emp} emperical metod; \code{untra} smooth without boundary correction and \code{tra} is smooth ROC curve estimation with boundary correction.
 #' @param ktype A character string giving the type kernel to be used: "\code{normal}", "\code{epanechnikov}", "\code{biweight}", or "\code{triweight}".
 #' @author Beyene K. Mehari and El Ghouch Anouar
-#' @references Beyene, K. M. and El Ghouch A. (2019). Smoothed time-dependent ROC curves for right-censored survival data. <\url{https://dial.uclouvain.be/pr/boreal/object/boreal:219643}>.
+#' @references Beyene, K. M. and El Ghouch A. (2019). Smoothed time-dependent ROC curves for right-censored survival data. <https://dial.uclouvain.be/pr/boreal/object/boreal:219643>.
 #' @keywords internal
 
 RocFun <- function(U, D, M, bw = "NR", method, ktype) {
@@ -285,15 +280,6 @@ kfunc <- function(ktype = "normal", difmat)
 #'
 #' Anouar El Ghouch, Catholic University of Louvain. \code{<anouar.elghouch@uclouvain.be>}
 #' @references Beyene, K. M. and El Ghouch A. (2020). Smoothed time-dependent ROC curves for right-censored survival data. \emph{submitted}.
-#' @examples library(cenROC)
-#'
-#' X <- rnorm(100) # random data vector
-#' wt <- runif(100) # weight vector
-#'
-#' ## Normal reference bandwidth selection
-#' NR(X = X, wt = wt)$bw
-#'
-
 
 NR <- function (X, wt, ktype="normal") {
   nx <- length(X)
@@ -322,15 +308,6 @@ NR <- function (X, wt, ktype="normal") {
 #'
 #' Anouar El Ghouch, Catholic University of Louvain. \code{<anouar.elghouch@uclouvain.be>}
 #' @references Beyene, K. M. and El Ghouch A. (2020). Smoothed time-dependent ROC curves for right-censored survival data. \emph{submitted}.
-#' @examples library(cenROC)
-#'
-#' X <- rnorm(100) # random data vector
-#' wt <- runif(100) # weight vector
-#'
-#' ## Plug-in bandwidth selection
-#' PI(X = X, wt = wt)$bw
-#'
-
 
 PI <- function(X, wt, ktype="normal")
 {
@@ -386,17 +363,6 @@ PI <- function(X, wt, ktype="normal")
 #' @references Beyene, K. M. and El Ghouch A. (2020). Smoothed time-dependent ROC curves for right-censored survival data. \emph{submitted}.
 #' @references Bowman A., Hall P. and Trvan T.(1998). Bandwidth selection for the smoothing of distribution functions. \emph{Biometrika} 85:799-808.
 #' @references Quintela-del-Rio, A. and Estevez-Perez, G. (2015). \code{kerdiest:} Nonparametric kernel estimation of the distribution function, bandwidth selection and estimation of related functions. \code{R} package version 1.2.
-#' @examples
-#' \dontrun{library(cenROC)
-#'
-#' X <- rnorm(100) # random data vector
-#' wt <- runif(100) # weight vector
-#'
-#' ## Cross-validation bandwidth selection
-#' CV(X = X, wt = wt)$bw
-#'
-#' }
-
 
 CV <- function(X, wt, ktype = "normal")
 {

@@ -47,6 +47,9 @@ knitr::kable(X[1:5,1:5])
 
 knitr::kable(Y[1:5,])
 
+## ---- echo = FALSE------------------------------------------------------------
+knitr::kable(dim(X))
+
 ## -----------------------------------------------------------------------------
 ggp_density.event <- plot_events(Y = Y, roundTo = 0.25, categories = c("Censored","Death")) #name for F and T
 
@@ -76,11 +79,17 @@ EPV
 ## ---- eval = FALSE, message=F-------------------------------------------------
 #  # run cv.plsicox
 #  cv.plsicox_res <- cv.plsicox(X = X_train, Y = Y_train,
-#                             max.ncomp =  4,
-#                             n_run = 2, k_folds = 10,
-#                             x.scale = T,
-#                             remove_near_zero_variance = F, remove_zero_variance = F,
-#                             PARALLEL = T, verbose = F)
+#                               max.ncomp =  4,
+#                               n_run = 2, k_folds = 10,
+#                               x.scale = T, x.center = T,
+#                               y.center = F, y.scale = F,
+#                               remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
+#                               remove_non_significant_models = F, alpha = 0.05,
+#                               w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
+#                               MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
+#                               pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
+#                               MIN_EPV = 5, return_models = F,
+#                               PARALLEL = T, verbose = F, seed = 123)
 #  cv.plsicox_res #1min 8s.
 
 ## ---- eval = FALSE, fig.small=T-----------------------------------------------
