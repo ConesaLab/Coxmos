@@ -97,7 +97,7 @@ mb.splsdacox <- function (X, Y,
                           y.center = FALSE, y.scale = FALSE,
                           remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
                           remove_non_significant = T,
-                          MIN_NVAR = 10, MAX_NVAR = 10000, n.cut_points = 3,
+                          MIN_NVAR = 10, MAX_NVAR = 10000, n.cut_points = 5,
                           MIN_AUC_INCREASE = 0.01,
                           EVAL_METHOD = "AUC", pred.method = "cenROC", max.iter = 200,
                           MIN_EPV = 5, returnData = T, PARALLEL = F, verbose = F){
