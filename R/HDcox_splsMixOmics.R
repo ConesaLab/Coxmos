@@ -18,6 +18,12 @@
 #' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, remove_near_zero_variance variables will be removed.
 #' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, remove_zero_variance variables will be removed.
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.
+#' @param MIN_NVAR Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
+#' @param MAX_NVAR Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
+#' @param n.cut_points Numeric. Number of start cut points for look the optimal number of variable. 2 cut points mean start with the minimum and maximum. 3 start with minimum, maximum and middle point...(default: 3)
+#' @param MIN_AUC_INCREASE Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
+#' @param EVAL_METHOD Numeric. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
+#' @param pred.method Character. AUC method for evaluation. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC")
 #' @param MIN_EPV Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.
 #' @param returnData Logical. Return original and normalized X and Y matrices.
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
@@ -207,8 +213,8 @@ splsdrcox_mixOmics <- function (X, Y,
       }
     }else{
         message("Vector does not has the proper structure. Optimizing best n. variables by using your vector as start vector.")
-        keepX <- getBestVector(Xh, DR_coxph, Yh, n.comp, max.iter, vector, MIN_AUC_INCREASE, MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, cut_points = n.cut_points,
-                                 EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = F, mode = "splsda", verbose = verbose)
+        keepX <- getBestVector(Xh, DR_coxph, Yh, n.comp, max.iter, vector = NULL, MIN_AUC_INCREASE, MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, cut_points = n.cut_points,
+                                 EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = F, mode = "spls", verbose = verbose)
     }
   }
 
@@ -643,6 +649,7 @@ splsdrcox_mixOmics_old <- function (X, Y,
 #' @param X Numeric matrix. Predictor variables
 #' @param Y Numeric matrix. Response variables. It assumes it has two columns named as "time" and "event". For event column, values can be 0/1 or FALSE/TRUE for censored and event samples.
 #' @param max.ncomp Numeric. Maximum number of PLS components to compute for the cross validation.
+#' @param vector Numeric vector. Used for computing best number of variables. If NULL, an automatic detection is perform.
 #' @param n_run Number. Number of runs for cross validation.
 #' @param k_folds Number. Number of folds for cross validation.
 #' @param n_run.mixOmics Positive integer. Number of times the Cross-Validation process should be repeated. nrepeat > 2 is required for robust tuning. See details. More infor at mixOmics::tune.spls.
@@ -657,11 +664,16 @@ splsdrcox_mixOmics_old <- function (X, Y,
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.
 #' @param remove_non_significant_models Logical. If remove_non_significant_models = TRUE, non-significant models are removed before computing the evaluation.#'
 #' @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
+#' @param MIN_NVAR Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
+#' @param MAX_NVAR Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
+#' @param n.cut_points Numeric. Number of start cut points for look the optimal number of variable. 2 cut points mean start with the minimum and maximum. 3 start with minimum, maximum and middle point...(default: 3)
+#' @param MIN_AUC_INCREASE Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
+#' @param EVAL_METHOD Numeric. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
+#' @param pred.method Character. AUC method for evaluation. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC")
 #' @param w_AIC Numeric. Weight for AIC evaluator. All three weights must sum 1 (default: 0).
 #' @param w_c.index Numeric. Weight for C-Index evaluator. All three weights must sum 1 (default: 0).
 #' @param w_AUC Numeric. Weight for AUC evaluator. All three weights must sum 1 (default: 1).
 #' @param times Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 15 points will be selected equally distributed.
-#' @param MIN_AUC_INCREASE Numeric. Minimum improvement between different EN.alpha.list to continue evaluating. If not reached for the next MIN_COMP_TO_CHECK penalties and the minimum MIN_AUC is reach, the evaluation stop.
 #' @param MIN_AUC Numeric. Minimum AUC desire.
 #' @param MIN_COMP_TO_CHECK Numeric. Number of penalties to check whether the AUC improves.
 #' @param pred.attr Character. Method for average the AUC. Must be one of the following: "mean" or "median" (default: "mean").
@@ -748,7 +760,6 @@ cv.splsdrcox_mixOmics <- function (X, Y,
                                          MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
                                          MIN_AUC_INCREASE = MIN_AUC_INCREASE,
                                          EVAL_METHOD = EVAL_METHOD,
-                                         test.keepX = test.keepX,
                                          x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
                                          remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
                                          total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
@@ -775,9 +786,9 @@ cv.splsdrcox_mixOmics <- function (X, Y,
     t2 <- Sys.time()
     time <- difftime(t2,t1,units = "mins")
     if(return_models){
-      return(cv.splsdrcox_mixOmics_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, time = time)))
+      return(cv.splsdrcox_mixOmics_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, time = time)))
     }else{
-      return(cv.splsdrcox_mixOmics_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, time = time)))
+      return(cv.splsdrcox_mixOmics_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, time = time)))
     }
   }
 
@@ -837,6 +848,7 @@ cv.splsdrcox_mixOmics <- function (X, Y,
   ##########
   # RETURN #
   ##########
+  best_model_info$n.var <- as.numeric(as.character(best_model_info$n.var)) #just in case be a factor
 
   message(paste0("Best model obtained."))
 
@@ -845,9 +857,9 @@ cv.splsdrcox_mixOmics <- function (X, Y,
 
   invisible(gc())
   if(return_models){
-    return(cv.splsdrcox_mixOmics_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = best_model_info$n.comps, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, time = time)))
+    return(cv.splsdrcox_mixOmics_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.nvar = best_model_info$n.var, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, time = time)))
   }else{
-    return(cv.splsdrcox_mixOmics_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = NULL, pred.method = pred.method, opt.comp = best_model_info$n.comps, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, time = time)))
+    return(cv.splsdrcox_mixOmics_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = NULL, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.nvar = best_model_info$n.var, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, time = time)))
   }
 }
 

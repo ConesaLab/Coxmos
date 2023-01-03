@@ -19,11 +19,15 @@ cv.plsdacox_mixOmics(
   toKeep.zv = NULL,
   remove_non_significant_models = F,
   alpha = 0.05,
+  MIN_NVAR = 10,
+  MAX_NVAR = 1000,
+  n.cut_points = 5,
+  MIN_AUC_INCREASE = 0.01,
+  EVAL_METHOD = "AUC",
   w_AIC = 0,
   w_c.index = 0,
   w_AUC = 1,
   times = NULL,
-  MIN_AUC_INCREASE = 0.01,
   MIN_AUC = 0.8,
   MIN_COMP_TO_CHECK = 3,
   pred.attr = "mean",
@@ -66,6 +70,16 @@ cv.plsdacox_mixOmics(
 
 \item{alpha}{Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).}
 
+\item{MIN_NVAR}{Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
+
+\item{MAX_NVAR}{Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
+
+\item{n.cut_points}{Numeric. Number of start cut points for look the optimal number of variable. 2 cut points mean start with the minimum and maximum. 3 start with minimum, maximum and middle point...(default: 3)}
+
+\item{MIN_AUC_INCREASE}{Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
+
+\item{EVAL_METHOD}{Numeric. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
+
 \item{w_AIC}{Numeric. Weight for AIC evaluator. All three weights must sum 1 (default: 0).}
 
 \item{w_c.index}{Numeric. Weight for C-Index evaluator. All three weights must sum 1 (default: 0).}
@@ -73,8 +87,6 @@ cv.plsdacox_mixOmics(
 \item{w_AUC}{Numeric. Weight for AUC evaluator. All three weights must sum 1 (default: 1).}
 
 \item{times}{Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 15 points will be selected equally distributed.}
-
-\item{MIN_AUC_INCREASE}{Numeric. Minimum improvement between different EN.alpha.list to continue evaluating. If not reached for the next MIN_COMP_TO_CHECK penalties and the minimum MIN_AUC is reach, the evaluation stop.}
 
 \item{MIN_AUC}{Numeric. Minimum AUC desire.}
 

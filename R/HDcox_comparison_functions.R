@@ -734,8 +734,8 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
     res_splsdrcox_mixOmics <- NA
   }
 
-  #plsda+cox
-  if(pkg.env$plsdacox_mixomics %in% methods){
+  #splsda+cox
+  if(pkg.env$splsdacox_mixomics %in% methods){
 
     event <- Y_train[,"event"]
     if(!is.factor(event)){
@@ -743,11 +743,11 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
     }
 
     if(length(levels(event))==1){ #case 100% event [we cannot discriminate between classes]
-      res_plsdacox_mixOmics = NA
+      res_splsdacox_mixOmics = NA
     }else{
 
       if(auto){
-        cv.plsdacox_mixOmics_res <- cv.plsdacox_mixOmics(X = X_train, Y = data.matrix(Y_train),
+        cv.splsdacox_mixOmics_res <- cv.splsdacox_mixOmics(X = X_train, Y = data.matrix(Y_train),
                                        max.ncomp = max.ncomp, n_run = n_run, k_folds = k_folds,
                                        alpha = alpha, remove_non_significant_models = remove_non_significant_models, max.iter = 500,
                                        w_AIC = w_AIC, w_c.index = w_c.index, w_AUC = w_AUC, times = times,
@@ -757,15 +757,15 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
                                        fast_mode = fast_mode, return_models = return_models, MIN_EPV = MIN_EPV,
                                        pred.attr = pred.attr, pred.method = pred.method, seed = seed)
 
-        res_plsdacox_mixOmics <- plsdacox_mixOmics(X_train, Y_train,
-                                 n.comp = cv.plsdacox_mixOmics_res$opt.comp,
+        res_splsdacox_mixOmics <- splsdacox_mixOmics(X_train, Y_train,
+                                 n.comp = cv.splsdacox_mixOmics_res$opt.comp,
                                  x.center = x.center, x.scale = x.scale,
                                  y.center = y.center, y.scale = y.scale,
                                  max.iter = 500, returnData = F)
 
       }else{
 
-        res_plsdacox_mixOmics <- plsdacox_mixOmics(X_train, Y_train,
+        res_splsdacox_mixOmics <- splsdacox_mixOmics(X_train, Y_train,
                                  n.comp = ncomp,
                                  x.center = x.center, x.scale = x.scale,
                                  y.center = y.center, y.scale = y.scale,
@@ -775,7 +775,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
 
     }#more than one Y$event class
   }else{
-    res_plsdacox_mixOmics <- NA
+    res_splsdacox_mixOmics <- NA
   }
 
   ##### Save cox_models
@@ -815,10 +815,10 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
     lst_res[[pkg.env$splsdrcox_mixomics]] <- NA
   }
 
-  if(!length(res_plsdacox_mixOmics) == 1){
-    lst_res[[pkg.env$plsdacox_mixomics]] <- res_plsdacox_mixOmics
+  if(!length(res_splsdacox_mixOmics) == 1){
+    lst_res[[pkg.env$splsdacox_mixomics]] <- res_splsdacox_mixOmics
   }else{
-    lst_res[[pkg.env$plsdacox_mixomics]] <- NA
+    lst_res[[pkg.env$splsdacox_mixomics]] <- NA
   }
 
   return(lst_res)

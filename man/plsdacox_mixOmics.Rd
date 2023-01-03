@@ -7,7 +7,8 @@
 plsdacox_mixOmics(
   X,
   Y,
-  n.comp = 2,
+  n.comp = 4,
+  vector = NULL,
   x.center = TRUE,
   x.scale = FALSE,
   y.center = FALSE,
@@ -15,7 +16,13 @@ plsdacox_mixOmics(
   remove_near_zero_variance = T,
   remove_zero_variance = T,
   toKeep.zv = NULL,
-  max.iter = 500,
+  MIN_NVAR = 10,
+  MAX_NVAR = 1000,
+  n.cut_points = 5,
+  MIN_AUC_INCREASE = 0.01,
+  EVAL_METHOD = "AUC",
+  pred.method = "cenROC",
+  max.iter = 200,
   MIN_EPV = 5,
   returnData = T,
   verbose = F
@@ -41,6 +48,18 @@ plsdacox_mixOmics(
 \item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, remove_zero_variance variables will be removed.}
 
 \item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.}
+
+\item{MIN_NVAR}{Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
+
+\item{MAX_NVAR}{Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
+
+\item{n.cut_points}{Numeric. Number of start cut points for look the optimal number of variable. 2 cut points mean start with the minimum and maximum. 3 start with minimum, maximum and middle point...(default: 3)}
+
+\item{MIN_AUC_INCREASE}{Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
+
+\item{EVAL_METHOD}{Numeric. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
+
+\item{pred.method}{Character. AUC method for evaluation. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC")}
 
 \item{max.iter}{Maximum number of iterations for PLS convergence.}
 
