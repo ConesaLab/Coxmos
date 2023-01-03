@@ -2714,7 +2714,7 @@ plot_HDcox.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor =
       txt.expression <- paste0("Scores (",attr(aux.model, "model"),") - ")
       r2_1 <- round(model$R2[[comp[1]]], 4)
       r2_2 <- round(model$R2[[comp[2]]], 4)
-      r2 <- round(sum(r2_1, r2_2), 4)
+      r2 <- round(sum(unlist(model$R2)), 4)
       ggp <- ggp + ggtitle(label = bquote(.(txt.expression) ~R^2 == .(r2))) +
         xlab(label = paste0("comp_",as.character(comp[1]), " (", as.character(r2_1*100), " %)")) +
         ylab(label = paste0("comp_",as.character(comp[2]), " (", as.character(r2_2*100), " %)"))
