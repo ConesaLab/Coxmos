@@ -135,13 +135,13 @@ knitr::kable(dim(X), col.names = "X")
 knitr::kable(dim(Y), col.names = "Y")
 ```
 
-**HDcox** has a series of plots to understand the distribution of the data. One of them is the plot of events along time. The function
+**HDcox** has a series of plots to understand the distribution of the data. One of them is the plot of events along time. The function requires the Y matrix. As optional arguments, the user can specify the name for each category (character vector of length two) 
 
 ```{r}
 ggp_density.event <- plot_events(Y = Y, 
-                                 roundTo = 0.25, 
                                  categories = c("Censored","Death"), #name for FALSE/0 (Censored) and TRUE/1 (Event)
                                  y.text = "Number of observations", 
+                                 roundTo = 0.25, 
                                  max.breaks = 30) 
 ```
 
