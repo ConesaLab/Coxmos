@@ -2535,6 +2535,11 @@ plot_divergent.biplot <- function(X, Y, NAMEVAR1, NAMEVAR2, breaks, x.text = "N.
 
 plot_events <- function(Y, roundTo = 0.25, categories = c("Censored","Death"), y.text = "Number of patients", max.breaks = 20){
 
+  #REQUIREMENTS
+  if(length(categories)>2 | length(categories)<2){
+    stop("categories parameter must be a character vector of length two.")
+  }
+
   #DFCALLS
   Category <- Time <- Values <- x.names <- breaks<- NULL
 

@@ -106,7 +106,9 @@ To generate the matrices, we first processed the data from ... Details to this p
 (see Supplementary Note and Methods).
 
 If you wish to reproduce the analyses in Salguero-Garcia et al. [[1]](#1)), you can load the
-`data_E.MTAB.386.RData` object to use our dataset:
+`data_E.MTAB.386.RData` object. After quality control (see Methods in [Salguero-Garcia et al.]() 
+[[1]](#1))the data contains expression data for **126 observations** 
+and **10357 genes**. However, for this vignette we are going to load a small version of the dataset with **126 observations** and only **500 genes** as follows:
 
 ```{r}
 # load Tasic dataset
@@ -119,23 +121,28 @@ Y <- Y_small_data_E.MTAB.386
 rm(X_small_data_E.MTAB.386, Y_small_data_E.MTAB.386)
 ```
 
-These contain two `data.frame` objects. After quality control
-(see Methods in [Salguero-Garcia et al.]() 
-[[1]](#1)), the `data_E.MTAB.386.RData` data contains expression data for **126 observations** 
-and **500 genes**:
+**X** and **Y** are two `data.frame` objects. **X** is related to the explanatory variables. Rows are observations and columns are the different variables of interest. For **Y** matrix, rows are the observations with the same row names as **X**, and it has to have two columns. The first one "time" and the second one "event". "time" refers to the following up time until the event or until the last control if the observation is a right censored observation. The event could be TRUE/FALSE or 1/0 for those observations that have reach the event or are censored. An example could be show in the next code:
 
 ```{r, echo = FALSE}
 knitr::kable(X[1:5,1:5])
 
 knitr::kable(Y[1:5,])
 ```
+As we said, the dimension of each object is 126x500 for **X** matrix, and 126x2 for **Y** matrix.
 
 ```{r, echo = FALSE}
-knitr::kable(dim(X))
+knitr::kable(dim(X), col.names = "X")
+knitr::kable(dim(Y), col.names = "Y")
 ```
 
+**HDcox** has a series of plots to understand the distribution of the data. One of them is the plot of events along time. The function
+
 ```{r}
-ggp_density.event <- plot_events(Y = Y, roundTo = 0.25, categories = c("Censored","Death")) #name for F and T
+ggp_density.event <- plot_events(Y = Y, 
+                                 roundTo = 0.25, 
+                                 categories = c("Censored","Death"), #name for FALSE/0 (Censored) and TRUE/1 (Event)
+                                 y.text = "Number of observations", 
+                                 max.breaks = 30) 
 ```
 
 ```{r fig.small = T}
