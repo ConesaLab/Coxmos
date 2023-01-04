@@ -820,7 +820,7 @@ predict.HDcox <- function(object, ..., newdata = NULL){
     colnames(predicted_scores) <- apply(expand.grid(colnames(model$X$scores[[1]]), names(model$X$loadings)), 1, paste, collapse="_")
 
   }else{
-    # "PLS-DACOX-MixOmics" does not perform the normalization for mixOmics, just this
+    # "sPLS-DACOX-MixOmics" does not perform the normalization for mixOmics, just this
     predicted_scores <- X_test %*% model$X$W.star
     colnames(predicted_scores) <- colnames(model$X$scores)
     rownames(predicted_scores) <- rownames(X_test)
@@ -2036,7 +2036,6 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
                                 lst_X_train, lst_Y_train, vector = NULL,
                                 max.ncomp, eta.list = NULL, EN.alpha.list = NULL, n_run, k_folds,
                                 MIN_NVAR = 10, MAX_NVAR = 10000, MIN_AUC_INCREASE = 0.01, n.cut_points = 5, EVAL_METHOD = "AUC",
-                                n_run.mixOmics = NULL, k_folds.mixOmics = NULL, test.keepX = NULL,
                                 x.center, x.scale, y.center, y.scale,
                                 remove_non_significant = F,
                                 remove_near_zero_variance = F, remove_zero_variance = F,  toKeep.zv = NULL,
@@ -2051,7 +2050,7 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
 
   ## CHECK METHOD
   if(is.null(eta.list) & is.null(EN.alpha.list) & !method %in% c(pkg.env$plsicox, pkg.env$splsdacox_mixomics, pkg.env$splsdrcox_mixomics, pkg.env$sb.plsicox, pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
-    stop_quietly("Method must be one of 'PLS-ICOX', 'PLS-DACOX-MixOmics', 'MB.sPLS-DACOX' or 'sPLS-DRCOX-MixOmics' if 'eta.list' and 'EN.alpha.list' is NULL.")
+    stop_quietly("Method must be one of 'PLS-ICOX', 'sPLS-DACOX-MixOmics', 'MB.sPLS-DACOX' or 'sPLS-DRCOX-MixOmics' if 'eta.list' and 'EN.alpha.list' is NULL.")
   }else if(!is.null(eta.list) & is.null(EN.alpha.list)  & !method %in% c(pkg.env$splsdrcox, pkg.env$sb.splsdrcox)){
     stop_quietly("Method must be 'sPLS-DRCOX' if 'eta.list' is not NULL.")
   }else if(!is.null(EN.alpha.list) & !method %in% c(pkg.env$coxEN)){
@@ -2975,9 +2974,9 @@ getBestVector <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN
     n_cores <- future::availableCores() - 1
 
     if(.Platform$OS.type == "unix") {
-      future::plan("multicore", workers = min(length(list_KeepX), n_cores))
+      future::plan("multicore", workers = min(length(vector), n_cores))
     }else{
-      future::plan("multisession", workers = min(length(list_KeepX), n_cores))
+      future::plan("multisession", workers = min(length(vector), n_cores))
     }
 
     t1 <- Sys.time()
@@ -3072,33 +3071,33 @@ getBestVector <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN
     names(aux_vector) <- aux_vector
 
     ### OTHER KEEP_VECTOR
-    list_KeepX_aux <- new_vector
-    list_KeepX_aux <- list_KeepX_aux[order(list_KeepX_aux)]
+    vector_aux <- new_vector
+    vector_aux <- vector_aux[order(vector_aux)]
 
     ## Compute next c_index
     if(PARALLEL){
       n_cores <- future::availableCores() - 1
 
       if(.Platform$OS.type == "unix") {
-        future::plan("multicore", workers = min(length(list_KeepX_aux), n_cores))
+        future::plan("multicore", workers = min(length(vector_aux), n_cores))
       }else{
-        future::plan("multisession", workers = min(length(list_KeepX_aux), n_cores))
+        future::plan("multisession", workers = min(length(vector_aux), n_cores))
       }
 
       t1 <- Sys.time()
       if(mode %in% "spls"){
-        lst_cox_value <- furrr::future_map(list_KeepX_aux, ~getCIndex_AUC_CoxModel_spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter), .progress = F)
+        lst_cox_value <- furrr::future_map(vector_aux, ~getCIndex_AUC_CoxModel_spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter), .progress = F)
       }else{
-        lst_cox_value <- furrr::future_map(list_KeepX_aux, ~getCIndex_AUC_CoxModel_splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter), .progress = F)
+        lst_cox_value <- furrr::future_map(vector_aux, ~getCIndex_AUC_CoxModel_splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter), .progress = F)
       }
       t2 <- Sys.time()
       future::plan("sequential")
     }else{
       t1 <- Sys.time()
       if(mode %in% "spls"){
-        lst_cox_value <- purrr::map(list_KeepX_aux, ~getCIndex_AUC_CoxModel_spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter), .progress = F)
+        lst_cox_value <- purrr::map(vector_aux, ~getCIndex_AUC_CoxModel_spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter), .progress = F)
       }else{
-        lst_cox_value <- purrr::map(list_KeepX_aux, ~getCIndex_AUC_CoxModel_splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter), .progress = F)
+        lst_cox_value <- purrr::map(vector_aux, ~getCIndex_AUC_CoxModel_splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter), .progress = F)
       }
       t2 <- Sys.time()
     }
@@ -3112,7 +3111,7 @@ getBestVector <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN
       }
     }
 
-    rownames(df_cox_value_aux) <- list_KeepX_aux
+    rownames(df_cox_value_aux) <- vector_aux
     #index <- which.max(rowSums(df_cox_value_aux)) #MAX VAR_MEDIA
     #index <- which.max(df_cox_value_aux[,"Y"]) #MAX Y?
     index <- which.max(df_cox_value_aux) #MAX CONCORDANCE
@@ -3125,7 +3124,7 @@ getBestVector <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN
       }
     }else{
       best_c_index <- best_c_index_aux
-      best_keepX <- list_KeepX_aux[[index]]
+      best_keepX <- vector_aux[[index]]
       if(verbose){
         message(paste0("New Vector: \n"), paste0(paste0("Value ", names(best_keepX), ": ", unlist(purrr::map(best_keepX, ~unique(.)))), "\n"), paste0("Pred. Value: ", round(best_c_index_aux, 4), "n"))
       }

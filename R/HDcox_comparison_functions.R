@@ -508,10 +508,14 @@ super.evalResults2DataFrame <- function(eval_results){
 }
 
 train_all_models2.5 <- function(lst_X_train, lst_Y_train,
-                                methods = c("cox", "coxSW", "coxEN", "PLS-ICOX", "sPLS-DRCOX", "sPLS-DRCOX-MixOmics", "PLS-DACOX-MixOmics"),
+                                methods = c("cox", "coxSW", "coxEN", "PLS-ICOX", "sPLS-DRCOX", "sPLS-DRCOX-MixOmics", "sPLS-DACOX-MixOmics"),
                                 ncomp = 5, EN.alpha = 0.5, eta = 0.5, comp_calculation = "manual",
                                 n_run = 2, k_folds = 10, fast_mode = F, pred.method = "cenROC",
-                                x.center = TRUE, x.scale = FALSE, y.center = FALSE, y.scale = FALSE, MIN_EPV = 0){
+                                x.center = TRUE, x.scale = FALSE,
+                                y.center = FALSE, y.scale = FALSE, MIN_EPV = 0,
+                                vector = NULL,
+                                MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 5,
+                                EVAL_METHOD = "cenROC"){
 
   X_train <- lst_X_train
   Y_train <- lst_Y_train
@@ -705,29 +709,37 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
     if(auto){
       cv.splsdrcox_mixOmics_res <- cv.splsdrcox_mixOmics(X = X_train, Y = data.matrix(Y_train),
                                                        max.ncomp = max.ncomp, n_run = n_run, k_folds = k_folds,
-                                                       n_run.mixOmics = 3, k_folds.mixOmics = 4, test.keepX = test.keepX,
                                                        alpha = alpha, remove_non_significant_models = remove_non_significant_models,
                                                        w_AIC = w_AIC, w_c.index = w_c.index, w_AUC = w_AUC, times = times,
                                                        MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
                                                        x.scale = x.scale, x.center = x.center, y.scale = y.scale, y.center = y.center,
+                                                       vector = vector,
+                                                       MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
+                                                       EVAL_METHOD = EVAL_METHOD,
                                                        fast_mode = fast_mode, return_models = return_models, MIN_EPV = MIN_EPV,
                                                        pred.attr = pred.attr, pred.method = pred.method, seed = seed)
 
       res_splsdrcox_mixOmics <- splsdrcox_mixOmics(X = X_train,
                                                  Y = data.matrix(Y_train),
                                                  n.comp = cv.splsdrcox_mixOmics_res$opt.comp,
+                                                 vector = cv.splsdrcox_mixOmics_res$opt.nvar,
+                                                 MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
+                                                 EVAL_METHOD = EVAL_METHOD,
                                                  x.center = x.center, x.scale = x.scale,
                                                  y.scale = y.scale, y.center = y.center,
-                                                 n_run.mixOmics = 5, k_folds.mixOmics = 10, test.keepX = test.keepX, returnData = F)
+                                                 returnData = F)
 
     }else{
       #solo un spls
       res_splsdrcox_mixOmics <- splsdrcox_mixOmics(X = X_train,
                                                  Y = data.matrix(Y_train),
                                                  n.comp = ncomp,
+                                                 vector = vector,
+                                                 MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
+                                                 EVAL_METHOD = EVAL_METHOD,
                                                  x.center = x.center, x.scale = x.scale,
                                                  y.scale = y.scale, y.center = y.center,
-                                                 n_run.mixOmics = 5, k_folds.mixOmics = 10, test.keepX = test.keepX, returnData = F)
+                                                 returnData = F)
 
     }
   }else{
@@ -754,11 +766,17 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
                                        MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
                                        x.scale = x.scale, x.center = x.center,
                                        y.scale = y.scale, y.center = y.center,
+                                       vector = vector,
+                                       MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
+                                       EVAL_METHOD = EVAL_METHOD,
                                        fast_mode = fast_mode, return_models = return_models, MIN_EPV = MIN_EPV,
                                        pred.attr = pred.attr, pred.method = pred.method, seed = seed)
 
         res_splsdacox_mixOmics <- splsdacox_mixOmics(X_train, Y_train,
                                  n.comp = cv.splsdacox_mixOmics_res$opt.comp,
+                                 vector = cv.splsdacox_mixOmics_res$opt.nvar,
+                                 MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
+                                 EVAL_METHOD = EVAL_METHOD,
                                  x.center = x.center, x.scale = x.scale,
                                  y.center = y.center, y.scale = y.scale,
                                  max.iter = 500, returnData = F)
@@ -767,6 +785,9 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
 
         res_splsdacox_mixOmics <- splsdacox_mixOmics(X_train, Y_train,
                                  n.comp = ncomp,
+                                 vector = vector,
+                                 MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
+                                 EVAL_METHOD = EVAL_METHOD,
                                  x.center = x.center, x.scale = x.scale,
                                  y.center = y.center, y.scale = y.scale,
                                  max.iter = 500, returnData = F)

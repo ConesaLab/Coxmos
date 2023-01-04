@@ -1438,7 +1438,7 @@ plot_pseudobeta.list <- function(lst_models, error.bar = T, onlySig = F, alpha =
 plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zero.rm = F, top = NULL, auto.limits = T, show_percentage = T, size_percentage = 3){
 
   if(!attr(model, "model") %in% c(pkg.env$pls_methods, pkg.env$multiblock_methods)){
-    stop("Model must be one of the follow models: 'PLS-ICOX', 'sPLS-DRCOX', 'sPLS-DRCOX-MixOmics', 'PLS-DACOX-MixOmics', 'SB.PLS-ICOX', 'SB.sPLS-DRCOX', 'MB.sPLS-DRCOX', 'MB.sPLS-DACOX'")
+    stop("Model must be one of the follow models: 'PLS-ICOX', 'sPLS-DRCOX', 'sPLS-DRCOX-MixOmics', 'sPLS-DACOX-MixOmics', 'SB.PLS-ICOX', 'SB.sPLS-DRCOX', 'MB.sPLS-DRCOX', 'MB.sPLS-DACOX'")
   }
 
   if(all(is.null(model$survival_model))){
@@ -2684,7 +2684,7 @@ plot_HDcox.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor =
   }else if(attr(aux.model, "model") %in% c(pkg.env$multiblock_methods)){
     stop_quietly("For single block models, use the function 'plot_HDcox.MB.PLS.model'")
   }else if(!attr(aux.model, "model") %in% c(pkg.env$pls_methods, pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
-    stop_quietly("'model' must be a HDcox object PLS class ('PLS-ICOX','sPLS-DRCOX','sPLS-DRCOX-MixOmics', or 'PLS-DACOX-MixOmics'.")
+    stop_quietly("'model' must be a HDcox object PLS class ('PLS-ICOX','sPLS-DRCOX','sPLS-DRCOX-MixOmics', or 'sPLS-DACOX-MixOmics'.")
   }
 
   if(mode=="scores"){

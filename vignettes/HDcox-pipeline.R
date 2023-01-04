@@ -123,26 +123,26 @@ splsdrcox_model
 
 ## ---- eval = FALSE, message=F-------------------------------------------------
 #  # run cv.splsdrcox
-#  cv.plsdacox_res <- cv.plsdacox_mixOmics(X = X_train, Y = Y_train,
+#  cv.splsdacox_res <- cv.splsdacox_mixOmics(X = X_train, Y = Y_train,
 #                                          max.ncomp = 4,  #penalty
 #                                          n_run = 2, k_folds = 10,
 #                                          x.scale = T,
 #                                          remove_near_zero_variance = F, remove_zero_variance = F,
 #                                          PARALLEL = T, verbose = F)
 #  
-#  cv.plsdacox_res #2min
+#  cv.splsdacox_res #2min
 
 ## -----------------------------------------------------------------------------
-plsdacox_model <- plsdacox_mixOmics(X = X_train, Y = Y_train, 
-                                    n.comp = 3, #cv.plsdacox_res$opt.comp
+splsdacox_model <- splsdacox_mixOmics(X = X_train, Y = Y_train, 
+                                    n.comp = 3, #cv.splsdacox_res$opt.comp
                                     x.center = T, x.scale = F)
 
-plsdacox_model
+splsdacox_model
 
 ## -----------------------------------------------------------------------------
 lst_models <- list("PLS-ICOX" = plsicox_model,
                    "SPLS-DRCOX" = splsdrcox_model,
-                   "PLS-DACOX" = plsdacox_model)
+                   "PLS-DACOX" = splsdacox_model)
 
 eval_results <- eval_models4.0(lst_models = lst_models,
                                X_test = X_test, Y_test = Y_test, 
@@ -179,7 +179,7 @@ lst_eval_results$lst_plot_comparisons$t.test
 ## -----------------------------------------------------------------------------
 lst_models_time <- list(plsicox_model,
                         splsdrcox_model,
-                        plsdacox_model,
+                        splsdacox_model,
                         eval_results)
 
 ## -----------------------------------------------------------------------------
