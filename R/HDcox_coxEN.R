@@ -156,14 +156,12 @@ coxEN <- function(X, Y,
       return(NA)
     },
     warning = function(e){
-      #message(paste0(e$message))
       if(verbose){
-        message("Model probably has a convergence issue...")
+        message("Model probably has a convergence issue...\n")
       }
-      defaultW <- getOption("warn")
-      options(warn = -1)
-      res <- glmnet::glmnet(x = Xh, y = survival::Surv(time = Yh[,"time"], event = Yh[,"event"]), family = "cox", EN.alpha = EN.alpha, standardize = F, pmax = max_n_predictors, nlambda=200)
-      options(warn = defaultW)
+      suppressWarnings(
+        res <- glmnet::glmnet(x = Xh, y = survival::Surv(time = Yh[,"time"], event = Yh[,"event"]), family = "cox", EN.alpha = EN.alpha, standardize = F, pmax = max_n_predictors, nlambda=200)
+      )
       list(res = res, problem = T)
     }
   )
@@ -296,19 +294,19 @@ coxEN <- function(X, Y,
 
   invisible(gc())
   return(coxEN_class(list(X = list("data" = if(returnData) Xh else NA, "x.mean" = xmeans, "x.sd" = xsds),
-                        Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
-                        survival_model = survival_model,
-                        opt.lambda = best_lambda,
-                        EN.alpha = EN.alpha,
-                        selected_variables = selected_variables,
-                        call = func_call,
-                        X_input = if(returnData) X_original else NA,
-                        Y_input = if(returnData) Y_original else NA,
-                        convergence_issue = problem,
-                        alpha = alpha,
-                        removed_variables = removed_variables,
-                        nzv = variablesDeleted,
-                        time = time)))
+                          Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
+                          survival_model = survival_model,
+                          opt.lambda = best_lambda,
+                          EN.alpha = EN.alpha,
+                          selected_variables = selected_variables,
+                          call = func_call,
+                          X_input = if(returnData) X_original else NA,
+                          Y_input = if(returnData) Y_original else NA,
+                          convergence_issue = problem,
+                          alpha = alpha,
+                          removed_variables = removed_variables,
+                          nzv = variablesDeleted,
+                          time = time)))
 }
 
 #### ### ### ### ###
@@ -320,6 +318,7 @@ coxEN <- function(X, Y,
 #' @param X Numeric matrix. Predictor variables
 #' @param Y Numeric matrix. Response variables. It assumes it has two columns named as "time" and "event". For event column, values can be 0/1 or FALSE/TRUE for censored and event samples.
 #' @param EN.alpha.list Numeric vector. Elasticnet mixing parameter values to test in cross validation. EN.alpha=1 is the lasso penalty, and alpha=0 the ridge penalty.
+#' @param max.variables Numeric. Maximum number of variables you want to keep in the cox model. If MIN_EPV is not meet, the value will be change automatically.
 #' @param n_run Number. Number of runs for cross validation.
 #' @param k_folds Number. Number of folds for cross validation.
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
@@ -331,7 +330,6 @@ coxEN <- function(X, Y,
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.
 #' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
 #' @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
-#' @param max.variables Numeric. Maximum number of variables you want to keep in the cox model. If MIN_EPV is not meet, the value will be change automatically.
 #' @param w_AIC Numeric. Weight for AIC evaluator. All three weights must sum 1 (default: 0).
 #' @param w_c.index Numeric. Weight for C-Index evaluator. All three weights must sum 1 (default: 0).
 #' @param w_AUC Numeric. Weight for AUC evaluator. All three weights must sum 1 (default: 1).
@@ -353,12 +351,12 @@ coxEN <- function(X, Y,
 
 cv.coxEN <- function(X, Y,
                      EN.alpha.list = seq(0,1,0.1),
+                     max.variables = 15,
                      n_run = 10, k_folds = 10,
                      x.center = TRUE, x.scale = FALSE,
                      y.center = FALSE, y.scale = FALSE,
                      remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
                      remove_non_significant = F, alpha = 0.05,
-                     max.variables = 15,
                      w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
                      MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                      pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
@@ -413,15 +411,15 @@ cv.coxEN <- function(X, Y,
   total_models <- k_folds * n_run * length(EN.alpha.list)
 
   comp_model_lst <- get_HDCOX_models2.0(method = pkg.env$coxEN,
-                                     lst_X_train = lst_X_train, lst_Y_train = lst_Y_train, eta.list = NULL, max.ncomp = NULL,
-                                     EN.alpha.list = EN.alpha.list, n_run = n_run, k_folds = k_folds,
-                                     x.center = x.center, x.scale = x.scale,
-                                     y.center = y.center, y.scale = y.scale,
-                                     remove_non_significant = remove_non_significant,
-                                     remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
-                                     alpha = alpha,
-                                     total_models = total_models, MIN_EPV = MIN_EPV,
-                                     PARALLEL = PARALLEL, verbose = verbose)
+                                        lst_X_train = lst_X_train, lst_Y_train = lst_Y_train, eta.list = NULL, max.ncomp = NULL,
+                                        EN.alpha.list = EN.alpha.list, n_run = n_run, k_folds = k_folds,
+                                        x.center = x.center, x.scale = x.scale,
+                                        y.center = y.center, y.scale = y.scale,
+                                        remove_non_significant = remove_non_significant,
+                                        remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
+                                        alpha = alpha,
+                                        total_models = total_models, MIN_EPV = MIN_EPV,
+                                        PARALLEL = PARALLEL, verbose = verbose)
 
   # comp_model_lst <- get_HDCOX_models(method = pkg.env$coxEN,
   #                                    lst_X_train = lst_X_train, lst_Y_train = lst_Y_train, eta.list = NULL,
@@ -492,7 +490,8 @@ cv.coxEN <- function(X, Y,
                                      fast_mode = fast_mode, pred.method = pred.method, pred.attr = pred.attr,
                                      max.ncomp = EN.alpha.list, n_run = n_run, k_folds = k_folds,
                                      MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                     w_AUC = w_AUC, total_models = total_models, method.train = pkg.env$coxEN, PARALLEL = F)
+                                     w_AUC = w_AUC, total_models = total_models,
+                                     method.train = pkg.env$coxEN, PARALLEL = F)
 
     df_results_evals_comp <- lst_df$df_results_evals_comp
     df_results_evals_run <- lst_df$df_results_evals_run
@@ -507,7 +506,7 @@ cv.coxEN <- function(X, Y,
   # BEST MODEL #
   ##############
 
-  df_results_evals_comp <- cv.getScoreFromWeight(df_results_evals_comp, w_AIC, w_c.index, w_AUC, colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC")
+  df_results_evals_comp <- cv.getScoreFromWeight(lst_cox_mean = df_results_evals_comp, w_AIC, w_c.index, w_AUC, colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC")
 
   flag_no_models = F
 

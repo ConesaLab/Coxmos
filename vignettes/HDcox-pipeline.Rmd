@@ -66,7 +66,7 @@ The pipeline includes ... basic analysis blocks:
 
 HDcox can be installed from GitHub using `devtools`:
 
-```{r, eval = FALSE}
+```{r, eval=FALSE}
 install.packages("devtools")
 devtools::install_github("ConesaLab/HDcox", build_vignettes = TRUE)
 ```
@@ -86,7 +86,7 @@ so they will already be installed in your system.
 To generate plots, we make use of the `RColorConesa` R package.
 After install:
 
-```{r, eval = FALSE}
+```{r, eval=FALSE}
 # install.packages("devtools")
 devtools::install_github("ConesaLab/RColorConesa")
 ```
@@ -135,76 +135,126 @@ knitr::kable(dim(X), col.names = "X")
 knitr::kable(dim(Y), col.names = "Y")
 ```
 
-**HDcox** has a series of plots to understand the distribution of the data. One of them is the plot of events along time. The function requires the Y matrix. As optional arguments, the user can specify the name for each category (character vector of length two) 
+**HDcox** has a series of plots to understand the distribution of the data. One of them is the plot of events along time. The function requires the Y matrix. As optional arguments, the user can specify: 
+
+1. *max.breaks* Number of breaks for the histogram. 
+2. *roundTo* the minimum numeric value for round break-times values. E.g. 0.25, a value of 1.32 will be rounded to 1.25 (numbers shall be rounded off to multipliers of 0.25).
+1. *categories* the name for each category (character vector of length two)
+2. *y.text* the name for the y axis
 
 ```{r}
 ggp_density.event <- plot_events(Y = Y, 
                                  categories = c("Censored","Death"), #name for FALSE/0 (Censored) and TRUE/1 (Event)
                                  y.text = "Number of observations", 
-                                 roundTo = 0.25, 
-                                 max.breaks = 30) 
+                                 roundTo = 0.5, 
+                                 max.breaks = 10) 
 ```
 
 ```{r fig.small = T}
 ggp_density.event$plot
 ```
 
-# Cross-validation and performing survival models for high dimensional data sets
+# Survival models for low/high dimensional data sets
 
-...
+After loading the data, it may be of interest for the user to perform a survival analysis in order to examine the relationship between explanatory variables and the outcome. However, traditional methods are only applicable for low-dimensional datasets. To address this issue, we have developed a set of functions that utilize (s)PLS techniques in combination with Cox analysis for the analysis of high-dimensional datasets.
 
-HDcox provides multiple functions with different methodologies.
+*HDcox* provides the following methodologies:
 
-* Classical approaches: cox, coxSW and coxEN
-* PLS approaces: plsicox, splsdrcox, splsdrcox_mixOmics and plsdacox_mixOmics
+* Classical approaches: COX, COX StepWise and COX Elastic Net.
+* PLS approaches: PLS-ICOX, sPLS-DRCOX, sPLS-DRCOX-MixOmics and sPLS-DACOX-MixOmics.
 
-More information for each approach ...
+More information for each approach could be found in the help section for each function. The function name for each methodology are:
 
-And also, we are going to split the data into train/test (70-30 %).
+* Classical approaches: cox, coxSW and coxEN.
+* PLS approaches: plsicox, splsdrcox, splsdrcox_mixOmics and splsdacox_mixOmics.
 
-## TRAIN - TEST
+To perform a survival analysis with our example, we will use methodologies that can work with high-dimensional data. These are the set of methodologies that use PLS and COX Elastic Net techniques.
+
+The first thing we are going to do is split our data into a training set and a test set. This split will be made with a proportion of 80% of the data for training and 20% for test.
+
+## TRAIN/TEST
+
+First, we will divide our data into a training and testing set using the `createDataPartition` function from the R package caret. We will use a 80%/20% split for training and testing, respectively, and set a seed for reproducible results.
 
 ```{r}
 set.seed(123)
 index_train <- caret::createDataPartition(Y$event,
-                                          p = .7, #70% train
+                                          p = .8, #80% train
                                           list = FALSE,
                                           times = 1)
 
-X_train <- X[index_train,] #1103
+X_train <- X[index_train,] #101x500
 Y_train <- Y[index_train,]
-X_test <- X[-index_train,] #472
+X_test <- X[-index_train,] #25x500
 Y_test <- Y[-index_train,]
 ```
 
-## Clasical approach - !!!
+## Clasical approach
 
-If we tried classical approaches...
+We have already mentioned that we need to work with a high-dimensional methodology. However, if we try to run a classical analysis with one of our functions such as a Cox analysis using the entire matrix X, we will get an error due to the specification of the MIN_EPV parameter. This parameter, set by default to 5, establishes a minimum ratio of variables that should be included in a survival model according to the number of patients who experience the event (Events / Variables of X). According to literature, values greater than 10 should be used to obtain models with good predictions, but this value should not be lower than 5.
 
-```{r, eval = FALSE, message=T, error=F}
+```{r, eval=FALSE, message=T, error=F}
 # classical approach
-cox_model <- cox(X = X_train, Y = Y_train, x.center = T, x.scale = F)
+cox_model <- cox(X = X_train, Y = Y_train, 
+                 x.center = T, x.scale = F, 
+                 y.center = F, y.scale = F, 
+                 remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL, 
+                 remove_non_significant = F, alpha = 0.05, 
+                 MIN_EPV = 5, FORCE = F, returnData = T, verbose = T)
 ```
 
-Classical approaches can not manage high dimensional data and the assumption of having a value greater than 5/10 for the **EPV** (events per variable) is not reached
+Despite specifying an EPV of 5, we should have a maximum of 9 variables in our final survival model in relation to the number of events found in our training set. To compute our EPV, we can used the function `getEPV()` that requires the matrix X and Y as input.
 
 ```{r}
-EPV <- sum(Y_train$event==1) / ncol(X_train)
+EPV <- getEPV(X_train, Y_train)
 EPV
 ```
+As previously mentioned, our data set is high dimensional in terms of variables and patients, but also has an EPV value of `r EPV`, which is much lower than the recommended value in the literature.
 
-So we are ready to run cross-validation techniques in order to select a low number of variables and/or reduce the dimensionality of the data with the PLS methods.
+Once the problem has been demonstrated, we will proceed to launch the methods that allow us to work with high dimensionality. For this, it will not only be necessary to launch the methods themselves that calculate the survival model, but also a cross validation to estimate the optimal values for each methodology.
+
+## Cox Elastic Net
+
+```{r, eval=FALSE, warning=F}
+# run cv.plsicox
+cv.coxen_res <- cv.coxEN(X = X_train, Y = Y_train, 
+                         EN.alpha.list = seq(0,0.9,0.1),
+                         max.variables = ncol(X_train),
+                         n_run = 1, k_folds = 2, 
+                         x.center = T, x.scale = F, 
+                         y.center = F, y.scale = F,
+                         remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+                         remove_non_significant = F, alpha = 0.05, 
+                         w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
+                         MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
+                         pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
+                         MIN_EPV = 5, return_models = F,
+                         PARALLEL = T, verbose = T, seed = 123)
+cv.coxen_res #1.5min.
+```
+
+```{r}
+coxen_model <- coxEN(X = X_train, Y = Y_train, 
+                     EN.alpha = 0, 
+                     x.center = T, x.scale = F, 
+                     y.center = F, y.scale = F, 
+                     remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL, 
+                     remove_non_significant = F, alpha = 0.05, 
+                     MIN_EPV = 5, returnData = T, verbose = F)
+
+coxen_model
+```
 
 ## PLS-ICOX
 
 Also we are going to run cross-validation techniques for PLS-ICOX method.
 
-```{r, eval = FALSE, message=F}
+```{r, eval=FALSE, message=F}
 # run cv.plsicox
 cv.plsicox_res <- cv.plsicox(X = X_train, Y = Y_train,
                              max.ncomp =  4,
                              n_run = 2, k_folds = 10, 
-                             x.scale = T, x.center = T, 
+                             x.center = T, x.scale = F, 
                              y.center = F, y.scale = F,
                              remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
                              remove_non_significant_models = F, alpha = 0.05, 
@@ -216,7 +266,7 @@ cv.plsicox_res <- cv.plsicox(X = X_train, Y = Y_train,
 cv.plsicox_res #1min 8s.
 ```
 
-```{r, eval = FALSE, fig.small=T}
+```{r, eval=FALSE, fig.small=T}
 # plot cv.plsicox
 cv.plsicox_res$plot_AUC
 ```
@@ -235,7 +285,7 @@ plsicox_model
 
 Also we are going to run cross-validation techniques for sPLS-DRCOX method.
 
-```{r, eval = FALSE, message=F}
+```{r, eval=FALSE, message=F}
 # run cv.splsdrcox
 cv.splsdrcox_res <- cv.splsdrcox(X = X_train, Y = Y_train, 
                                  max.ncomp = 4, eta.list = seq(0,0.5,0.25), #penalty
@@ -261,7 +311,7 @@ splsdrcox_model
 
 Also we are going to run cross-validation techniques for PLSDACOX of the PLS methods.
 
-```{r, eval = FALSE, message=F}
+```{r, eval=FALSE, message=F}
 # run cv.splsdrcox
 cv.splsdacox_res <- cv.splsdacox_mixOmics(X = X_train, Y = Y_train, 
                                         max.ncomp = 4,  #penalty

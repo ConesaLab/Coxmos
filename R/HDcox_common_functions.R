@@ -126,6 +126,23 @@ print.HDcox <- function(x, ...){
 
 }
 
+#' getEPV
+#'
+#' @param X matrix
+#' @param Y matrix
+#'
+#' @export
+
+getEPV <- function(X,Y){
+  if("event" %in% colnames(Y)){
+    EPV <- sum(Y$event) / ncol(X_train)
+  }else{
+    stop("Column event has not been detected in Y matrix.")
+  }
+
+  return(EPV)
+}
+
 deleteZeroVarianceVariables <- function(data, mustKeep = NULL, names = NULL, info=T, freqCut = 95/5, onlyZero = F){
 
   if(!is.null(names)){
@@ -1011,7 +1028,7 @@ getAUC_RUN_AND_COMP <- function(fast_mode, max.ncomp, n_run, df_results_evals, o
         }else{
           eval_aux.r <- apply(aux.run, 2, function(x){mean(x, na.rm = T)})
           m.freq_var <- as.numeric(names(table(aux.run$n.var)[table(aux.run$n.var) == max(table(aux.run$n.var))]))
-          eval_aux.r[["n.var"]] <- m.freq_var
+          eval_aux.r[["n.var"]] <- min(m.freq_var) #in case of same quantity, get lower variables
         }
 
         if(optimal_comp_flag & l > (optimal_comp_index+MIN_COMP_TO_CHECK)){
@@ -1059,7 +1076,7 @@ getAUC_RUN_AND_COMP <- function(fast_mode, max.ncomp, n_run, df_results_evals, o
       }else{
         eval_aux <- apply(aux.l, 2, function(x){mean(x, na.rm = T)})
         m.freq_var <- as.numeric(names(table(aux.l$n.var)[table(aux.l$n.var) == max(table(aux.l$n.var))]))
-        eval_aux[["n.var"]] <- m.freq_var
+        eval_aux[["n.var"]] <- min(m.freq_var) #in case of same quantity, get lower variables
       }
 
       AUC_mean <- NULL

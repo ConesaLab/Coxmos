@@ -18,6 +18,15 @@ cv.getScoreFromWeight <- function(lst_cox_mean, w_AIC, w_c.index, w_AUC, colname
     }
   }
 
+  if(all(is.nan(aux))){
+    #all values the same, same models across penalties or components...
+    aux[,"AIC"] <- lst_cox_mean$AIC
+    aux[,"c_index"] <- lst_cox_mean$c_index
+    if(w_AUC!=0){
+      aux[,"AUC"] <- lst_cox_mean$AUC
+    }
+  }
+
   if(w_AUC!=0){
     score = aux %*% c(w_AIC, w_c.index, w_AUC)
   }else{

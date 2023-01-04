@@ -2526,14 +2526,14 @@ plot_divergent.biplot <- function(X, Y, NAMEVAR1, NAMEVAR2, breaks, x.text = "N.
 #' plot_events
 #'
 #' @param Y Y matrix
+#' @param max.breaks Number maximum of breaks in X axis.
 #' @param roundTo Round time to which value.
 #' @param categories Categories to print.
 #' @param y.text Label for Y axis
-#' @param max.breaks Number maximum of breaks in X axis.
 #'
 #' @export
 
-plot_events <- function(Y, roundTo = 0.25, categories = c("Censored","Death"), y.text = "Number of patients", max.breaks = 20){
+plot_events <- function(Y, max.breaks = 20, roundTo = 0.1, categories = c("Censored","Death"), y.text = "Number of patients"){
 
   #REQUIREMENTS
   if(length(categories)>2 | length(categories)<2 | class(categories)!="character"){
@@ -2552,6 +2552,16 @@ plot_events <- function(Y, roundTo = 0.25, categories = c("Censored","Death"), y
     stop("max.breaks parameter must be a numeric vector of length one.")
   }
 
+  if(roundTo == 0){
+    #select the decimals of Y
+    if(length(grep("\\.", Y$time))>0){
+      roundTo = 1*10^-(nchar(gsub("\\.", "", as.character(Y$time[[1]])))-1)
+    }else{
+      roundTo = 0.1
+    }
+
+  }
+
   #DFCALLS
   Category <- Time <- Values <- x.names <- breaks<- NULL
 
@@ -2560,17 +2570,9 @@ plot_events <- function(Y, roundTo = 0.25, categories = c("Censored","Death"), y
     Y$event <- as.logical(Y$event)
   }
 
-  time_aux <- round2any(as.numeric(Y$time), roundTo)
-
-  while(length(unique(time_aux))>max.breaks){
-    roundTo = roundTo + 0.05
-    time_aux <- round2any(as.numeric(Y$time), roundTo)
-  }
-
-  Y$time <- round2any(as.numeric(Y$time), roundTo)
-  breaks = seq(min(Y$time), max(Y$time), by=roundTo)
-  breaks = round2any(breaks, 0.1)
-  breaks = c(breaks,max(breaks)+roundTo)
+  breaks_size = round2any((max(Y$time) - min(Y$time)) / (max.breaks+1), roundTo, f = ceiling)
+  breaks = seq(min(Y$time), max(Y$time)+breaks_size, by=breaks_size)
+  breaks = round2any(breaks, roundTo)
   x.names <- cut(x = Y$time, breaks = breaks, include.lowest = T)
 
   Y$time_g <- x.names
@@ -2586,6 +2588,12 @@ plot_events <- function(Y, roundTo = 0.25, categories = c("Censored","Death"), y
 
   dd <- data.frame(Time=vt, Category=vcategory, Values=vvalues)
   dd$Time <- factor(dd$Time, levels = levels(x.names))
+
+  #check last group
+  if(all(dd$Values[c(length(dd$Values)-1,length(dd$Values))]==0)){
+    dd <- dd[-c(length(dd$Values)-1,length(dd$Values)),]
+    dd <- droplevels.data.frame(dd)
+  }
 
   ggp_density <- ggplot(dd, aes(fill=Category, x=Time, y=Values)) +
     #geom_bar(position="stack", stat="identity") +
