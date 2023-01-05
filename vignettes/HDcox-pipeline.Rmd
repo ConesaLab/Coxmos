@@ -213,14 +213,24 @@ As previously mentioned, our data set is high dimensional in terms of variables 
 
 Once the problem has been demonstrated, we will proceed to launch the methods that allow us to work with high dimensionality. For this, it will not only be necessary to launch the methods themselves that calculate the survival model, but also a cross validation to estimate the optimal values for each methodology.
 
+## Cross Validation
+
+In order to perform survival analysis with our high-dimensional data, we have implemented a series of methods that utilize techniques such as Cox Elastic Net and partial least squares (PLS). To evaluate the performance of these methods, we have implemented cross-validation, which allows us to estimate the optimal parameters for future predictions based on metrics such as AIC, C-INDEX, and AUC. By default AUC metric is used with the "cenROC" evaluator as it has provided the best results in our tests. However, the multiple metrics could be used changed the weights in their parameters. Furthermore, other evaluators have been implemented ("risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C" and "smoothROCtime_I").
+
+In addition, we have included options for normalizing data, filtering variables, and setting the minimum EPV, as well as specific parameters for each method, such as the alpha value for Cox Elastic Net and the number of components for PLS models. Overall, our cross-validation methodology allows us to effectively analyze high-dimensional survival data and optimize our model parameters.
+
 ## Cox Elastic Net
 
+Cox Elastic Net is based on the R package "glmnet" for survival analysis. However, the structure of the object and the way the analysis is performed has been updated by using our cross-validation methodology to estimate the optimal parameters for future predictions.
+
+During the cross validation, we will iterate over the different alpha values between 0 and 1 (lasso and ridge regression) and as maximum number of variables we select the dimension of the X matrix itself. However, since the EPV requirement will not be met, the number of variables will be limited to the maximum of 9, as previously determined.
+
 ```{r, eval=FALSE, warning=F}
-# run cv.plsicox
+# run cv.coxEN
 cv.coxen_res <- cv.coxEN(X = X_train, Y = Y_train, 
-                         EN.alpha.list = seq(0,0.9,0.1),
+                         EN.alpha.list = seq(0,1,0.1),
                          max.variables = ncol(X_train),
-                         n_run = 1, k_folds = 2, 
+                         n_run = 2, k_folds = 10, 
                          x.center = T, x.scale = F, 
                          y.center = F, y.scale = F,
                          remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
@@ -229,13 +239,14 @@ cv.coxen_res <- cv.coxEN(X = X_train, Y = Y_train,
                          MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                          pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                          MIN_EPV = 5, return_models = F,
-                         PARALLEL = T, verbose = T, seed = 123)
+                         PARALLEL = T, verbose = F, seed = 123)
 cv.coxen_res #1.5min.
 ```
 
 ```{r}
 coxen_model <- coxEN(X = X_train, Y = Y_train, 
-                     EN.alpha = 0, 
+                     EN.alpha = 0, #cv.coxen_res$opt.EN.alpha
+                     max.variables = 8, #cv.coxen_res$opt.nvar
                      x.center = T, x.scale = F, 
                      y.center = F, y.scale = F, 
                      remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL, 
@@ -244,26 +255,40 @@ coxen_model <- coxEN(X = X_train, Y = Y_train,
 
 coxen_model
 ```
+As can be seen in the resulting cox model, some of the selected variables have not been significant. If we wish to calculate a model where all selected variables are significant, we should update the remove_non_significant parameter to TRUE.
+
+```{r}
+coxen_model <- coxEN(X = X_train, Y = Y_train, 
+                     EN.alpha = 0, #cv.coxen_res$opt.EN.alpha
+                     max.variables = 8, #cv.coxen_res$opt.nvar
+                     x.center = T, x.scale = F, 
+                     y.center = F, y.scale = F, 
+                     remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL, 
+                     remove_non_significant = T, alpha = 0.05, 
+                     MIN_EPV = 5, returnData = T, verbose = F)
+
+coxen_model
+```
 
 ## PLS-ICOX
 
-Also we are going to run cross-validation techniques for PLS-ICOX method.
+In the same way, we will also perform a cross validation for the PLS-based models, starting with the PLS-ICOX methodology. In this case, the internal construction of the weights of the PLS model for the calculation of the components of the X matrix is based on univariate cox models. After this, we are able to reduce the dimensionality of our data set to ultimately launch a cox model with the latent variables or principal components of the PLS model.
 
 ```{r, eval=FALSE, message=F}
 # run cv.plsicox
 cv.plsicox_res <- cv.plsicox(X = X_train, Y = Y_train,
-                             max.ncomp =  4,
+                             max.ncomp =  10,
                              n_run = 2, k_folds = 10, 
                              x.center = T, x.scale = F, 
                              y.center = F, y.scale = F,
-                             remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
+                             remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
                              remove_non_significant_models = F, alpha = 0.05, 
                              w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
                              MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                              pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                              MIN_EPV = 5, return_models = F,
                              PARALLEL = T, verbose = F, seed = 123)
-cv.plsicox_res #1min 8s.
+cv.plsicox_res #3.7min.
 ```
 
 ```{r, eval=FALSE, fig.small=T}
@@ -271,40 +296,75 @@ cv.plsicox_res #1min 8s.
 cv.plsicox_res$plot_AUC
 ```
 
-So plsicox_model ...
+We will generate a PLS-ICOX model with a total of two principal components based on the results obtained from the cross validation.
 
 ```{r}
 plsicox_model <- plsicox(X = X_train, Y = Y_train, 
-                         n.comp = 3, #n.comp = cv.plsicox_res$opt.comp
-                         x.center = T, x.scale = F)
+                         n.comp = 2, #n.comp = cv.plsicox_res$opt.comp
+                         x.center = T, x.scale = F,
+                         y.center = F, y.scale = F,
+                         remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+                         tol = 500, 
+                         MIN_EPV = 5, returnData = T, verbose = F)
 
 plsicox_model
 ```
 
 ## sPLS-DRCOX
 
-Also we are going to run cross-validation techniques for sPLS-DRCOX method.
+Next, we will perform a cross validation for the sPLS-DRCOX methodology. In this case, an sPLS model is run using the deviance residuals of a null Cox model as the Y matrix. The penalties for variable selection follow the strategy used in the R package "plsRcox" from which the idea for the methodology was derived.
 
 ```{r, eval=FALSE, message=F}
 # run cv.splsdrcox
 cv.splsdrcox_res <- cv.splsdrcox(X = X_train, Y = Y_train, 
-                                 max.ncomp = 4, eta.list = seq(0,0.5,0.25), #penalty
+                                 max.ncomp = 10, eta.list = seq(0,0.5,0.25), #penalty
                                  n_run = 2, k_folds = 10, 
-                                 x.scale = T, 
-                                 remove_near_zero_variance = F, remove_zero_variance = F,
-                                 PARALLEL = T, verbose = F)
+                                 x.center = T, x.scale = F, 
+                                 y.center = F, y.scale = F,
+                                 remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+                                 remove_non_significant_models = F, alpha = 0.05, 
+                                 w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
+                                 MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
+                                 pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
+                                 MIN_EPV = 5, return_models = F,
+                                 PARALLEL = T, verbose = F, seed = 123)
 
 cv.splsdrcox_res #2min 40s.
 ```
 
-So splsdrcox_model ...
+"Based on the results obtained through cross validation, we will create a PLS-DRCOX model with a single component and no eta penalty as seen in the cross validation.
 
 ```{r}
 splsdrcox_model <- splsdrcox(X = X_train, Y = Y_train, 
-                             n.comp = 2, eta = 0.25, #n.comp = cv.splsdrcox_res$opt.comp, eta = cv.splsdrcox_res$opt.eta
-                             x.center = T, x.scale = F)
+                             n.comp = 1, eta = 0, #n.comp = cv.splsdrcox_res$opt.comp, eta = cv.splsdrcox_res$opt.eta
+                             x.center = T, x.scale = F,
+                             y.center = F, y.scale = F,
+                             remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+                             MIN_EPV = 5, returnData = T, verbose = F)
 
 splsdrcox_model
+```
+
+## sPLS-DRCOX MixOmics Penalty
+
+For sPLS-DRCOX methodology we implemented another kind of penalty based on an heuristic variable selection and the MixOmics algorithms. In this case, the penalty is based on a vector of variables. We can select a specific value to select that number of variables, but if we keep the value in NULL, the number of variable will be selected automaticly.
+
+```{r, eval=FALSE, message=F}
+# run cv.splsdrcox
+cv.splsdrcox_mo_res <- cv.splsdrcox_mixOmics(X = X_train, Y = Y_train, 
+                                             max.ncomp = 10, vector = NULL,
+                                             n_run = 2, k_folds = 10, 
+                                             x.center = T, x.scale = F, 
+                                             y.center = F, y.scale = F,
+                                             remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+                                             remove_non_significant_models = F, alpha = 0.05, 
+                                             w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
+                                             MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
+                                             pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
+                                             MIN_EPV = 5, return_models = F,
+                                             PARALLEL = T, verbose = F, seed = 123)
+
+cv.splsdrcox_mo_res #2min 40s.
 ```
 
 ## PLS-DACOX
@@ -314,11 +374,17 @@ Also we are going to run cross-validation techniques for PLSDACOX of the PLS met
 ```{r, eval=FALSE, message=F}
 # run cv.splsdrcox
 cv.splsdacox_res <- cv.splsdacox_mixOmics(X = X_train, Y = Y_train, 
-                                        max.ncomp = 4,  #penalty
-                                        n_run = 2, k_folds = 10, 
-                                        x.scale = T, 
-                                        remove_near_zero_variance = F, remove_zero_variance = F,
-                                        PARALLEL = T, verbose = F)
+                                          max.ncomp = 4,  vector = NULL,
+                                          n_run = 2, k_folds = 10, 
+                                          x.center = T, x.scale = F, 
+                                          y.center = F, y.scale = F,
+                                          remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+                                          remove_non_significant_models = F, alpha = 0.05, 
+                                          w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
+                                          MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
+                                          pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
+                                          MIN_EPV = 5, return_models = F,
+                                          PARALLEL = T, verbose = F, seed = 123)
 
 cv.splsdacox_res #2min
 ```

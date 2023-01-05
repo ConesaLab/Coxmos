@@ -76,7 +76,7 @@ print.HDcox <- function(x, ...){
     cat("The method used is ", attr(x, "model"), ".\n\n", sep = "")
 
     if(!is.null(x$removed_variables)){
-      cat("A total of ", length(x$nzv), " have been removed due to Zero or Near-Zero Variance filter", ".\n\n", sep = "")
+      cat("A total of ", length(x$nzv), " variables have been removed due to Zero or Near-Zero Variance filter", ".\n\n", sep = "")
     }
 
     if(!all(is.null(x$survival_model))){
@@ -135,7 +135,7 @@ print.HDcox <- function(x, ...){
 
 getEPV <- function(X,Y){
   if("event" %in% colnames(Y)){
-    EPV <- sum(Y$event) / ncol(X_train)
+    EPV <- sum(Y$event) / ncol(X)
   }else{
     stop("Column event has not been detected in Y matrix.")
   }
@@ -348,7 +348,8 @@ check.maxPredictors.cox <- function(X, Y, MIN_EPV = 5, FORCE){
 
   if(ncol(X) > max_n_predictors){
     if(!FORCE){
-      stop_quietly(paste0("As Y matrix has a low number of events, X matrix should have a maximum of ", max_n_predictors, " variables or decrease MIN_EPV parameter.\nProgram stopped."))
+      EPV <- getEPV(X, Y)
+      stop(paste0("The ratio of Y events to the number of variables used does not meet the minimum EPV. The X matrix should have a maximum of ", max_n_predictors, " variables, or the MIN_EPV parameter should be lowered to ", EPV,"."))
     }
   }
 }
@@ -2051,7 +2052,8 @@ getSubModel.mb <- function(model, comp, remove_non_significant){
 
 get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
                                 lst_X_train, lst_Y_train, vector = NULL,
-                                max.ncomp, eta.list = NULL, EN.alpha.list = NULL, n_run, k_folds,
+                                max.ncomp, eta.list = NULL, EN.alpha.list = NULL, max.variables = 15,
+                                n_run, k_folds,
                                 MIN_NVAR = 10, MAX_NVAR = 10000, MIN_AUC_INCREASE = 0.01, n.cut_points = 5, EVAL_METHOD = "AUC",
                                 x.center, x.scale, y.center, y.scale,
                                 remove_non_significant = F,
@@ -2337,6 +2339,9 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
 
     names(lst_inputs) <- lst_names
 
+    #### !!!!! PARALLEL IS NOT WORKING WITH THE NEW ARGUMENT max.variables !!!!!
+    PARALLEL = F
+
     if(PARALLEL){
       n_cores <- max(future::availableCores() - 1, 1)
 
@@ -2350,12 +2355,28 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
         lst_all_models <- furrr::future_map(lst_inputs, ~coxEN(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
                                                                Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
                                                                EN.alpha = EN.alpha.list[[.$alpha_index]],
+                                                               max.variables = max.variables,
                                                                x.center = x.center, x.scale = x.scale,
                                                                y.center = y.center, y.scale = y.scale,
                                                                remove_non_significant = remove_non_significant,
                                                                remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
                                                                alpha = alpha, MIN_EPV = MIN_EPV, verbose = verbose,
                                                                returnData = F), .options = furrr_options(seed = 123))
+
+        #test with for:
+        # for(i in lst_inputs){
+        #   coxEN(X = data.matrix(lst_X_train[[lst_inputs[[1]]$run]][[lst_inputs[[1]]$fold]]),
+        #         Y = data.matrix(lst_Y_train[[lst_inputs[[1]]$run]][[lst_inputs[[1]]$fold]]),
+        #         EN.alpha = EN.alpha.list[[lst_inputs[[1]]$alpha_index]],
+        #         max.variables = max.variables,
+        #         x.center = x.center, x.scale = x.scale,
+        #         y.center = y.center, y.scale = y.scale,
+        #         remove_non_significant = remove_non_significant,
+        #         remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
+        #         alpha = alpha, MIN_EPV = MIN_EPV, verbose = verbose,
+        #         returnData = F)
+        # }
+
       }
 
       future::plan("sequential")
@@ -2366,6 +2387,7 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
         lst_all_models <- purrr::map(lst_inputs, ~coxEN(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
                                                         Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
                                                         EN.alpha = EN.alpha.list[[.$alpha_index]],
+                                                        max.variables = max.variables,
                                                         x.center = x.center, x.scale = x.scale,
                                                         y.center = y.center, y.scale = y.scale,
                                                         remove_non_significant = remove_non_significant,

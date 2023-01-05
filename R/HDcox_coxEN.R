@@ -8,6 +8,7 @@
 #' @param X Numeric matrix. Predictor variables
 #' @param Y Numeric matrix. Response variables. It assumes it has two columns named as "time" and "event". For event column, values can be 0/1 or FALSE/TRUE for censored and event samples.
 #' @param EN.alpha Numeric. Elasticnet mixing parameter. EN.alpha=1 is the lasso penalty, and alpha=0 the ridge penalty.
+#' @param max.variables Numeric. Maximum number of variables you want to keep in the cox model. If MIN_EPV is not meet, the value will be change automatically.
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
 #' @param y.center Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).
@@ -68,7 +69,7 @@
 #' @export
 
 coxEN <- function(X, Y,
-                  EN.alpha = 0.5,
+                  EN.alpha = 0.5, max.variables = 15,
                   x.center = TRUE, x.scale = FALSE,
                   y.center = FALSE, y.scale = FALSE,
                   remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
@@ -111,8 +112,9 @@ coxEN <- function(X, Y,
 
   X_norm <- Xh
 
-  ####MAX PREDICTORS
-  max_variables <- check.maxPredictors(X, Y, MIN_EPV, ncol(X))
+  #### MAX PREDICTORS
+  max.variables <- check.ncomp(X, max.variables)
+  max.variables <- check.maxPredictors(X, Y, MIN_EPV, max.variables, verbose = verbose)
 
   #### REMOVING event in time 0 patients
   if(any(Yh[,"time"]==0)){
@@ -123,9 +125,6 @@ coxEN <- function(X, Y,
     Yh <- Yh[!rownames(Yh) %in% pat_names,]
     Xh <- Xh[rownames(Xh) %in% rownames(Yh),]
   }
-
-  #### MAX PREDICTORS
-  max_n_predictors <- getMaxNPredictors(n.var = ncol(X), Y, MIN_EPV)
 
   #### INITIALISING VARIABLES
   best_cox <- NULL
@@ -147,7 +146,8 @@ coxEN <- function(X, Y,
   EN_cox <- tryCatch(
     # Specifying expression
     expr = {
-      glmnet::glmnet(x = Xh, y = survival::Surv(time = Yh[,"time"], event = Yh[,"event"]), family = "cox", alpha = EN.alpha, standardize = F, pmax = max_n_predictors, nlambda=200)
+      glmnet::glmnet(x = Xh, y = survival::Surv(time = Yh[,"time"], event = Yh[,"event"]),
+                     family = "cox", alpha = EN.alpha, standardize = F, pmax = max.variables, nlambda=200)
     },
     # Specifying error message
     error = function(e){
@@ -160,7 +160,8 @@ coxEN <- function(X, Y,
         message("Model probably has a convergence issue...\n")
       }
       suppressWarnings(
-        res <- glmnet::glmnet(x = Xh, y = survival::Surv(time = Yh[,"time"], event = Yh[,"event"]), family = "cox", EN.alpha = EN.alpha, standardize = F, pmax = max_n_predictors, nlambda=200)
+        res <- glmnet::glmnet(x = Xh, y = survival::Surv(time = Yh[,"time"], event = Yh[,"event"]),
+                              family = "cox", EN.alpha = EN.alpha, standardize = F, pmax = max.variables, nlambda=200)
       )
       list(res = res, problem = T)
     }
@@ -234,6 +235,7 @@ coxEN <- function(X, Y,
                             Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
                             survival_model = survival_model,
                             EN.alpha = EN.alpha,
+                            n.var = max.variables,
                             #alpha = alpha,
                             call = func_call,
                             X_input = if(returnData) X_original else NA,
@@ -298,6 +300,7 @@ coxEN <- function(X, Y,
                           survival_model = survival_model,
                           opt.lambda = best_lambda,
                           EN.alpha = EN.alpha,
+                          n.var = max.variables,
                           selected_variables = selected_variables,
                           call = func_call,
                           X_input = if(returnData) X_original else NA,
@@ -409,9 +412,9 @@ cv.coxEN <- function(X, Y,
   # TRAIN MODELS #
   ################
   total_models <- k_folds * n_run * length(EN.alpha.list)
-
   comp_model_lst <- get_HDCOX_models2.0(method = pkg.env$coxEN,
-                                        lst_X_train = lst_X_train, lst_Y_train = lst_Y_train, eta.list = NULL, max.ncomp = NULL,
+                                        lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
+                                        eta.list = NULL, max.ncomp = NULL, max.variables = max.variables,
                                         EN.alpha.list = EN.alpha.list, n_run = n_run, k_folds = k_folds,
                                         x.center = x.center, x.scale = x.scale,
                                         y.center = y.center, y.scale = y.scale,
@@ -559,9 +562,9 @@ cv.coxEN <- function(X, Y,
 
   invisible(gc())
   if(return_models){
-    return(cv.coxEN_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = comp_model_lst, pred.method = pred.method, opt.EN.alpha = best_model_info$eta, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, time = time)))
+    return(cv.coxEN_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = comp_model_lst, pred.method = pred.method, opt.EN.alpha = best_model_info$eta, opt.nvar = best_model_info$n.var, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, time = time)))
   }else{
-    return(cv.coxEN_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = NULL, pred.method = pred.method, opt.EN.alpha = best_model_info$eta, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, time = time)))
+    return(cv.coxEN_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = NULL, pred.method = pred.method, opt.EN.alpha = best_model_info$eta, opt.nvar = best_model_info$n.var, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, time = time)))
   }
 }
 

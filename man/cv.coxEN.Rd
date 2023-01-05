@@ -8,6 +8,7 @@ cv.coxEN(
   X,
   Y,
   EN.alpha.list = seq(0, 1, 0.1),
+  max.variables = 15,
   n_run = 10,
   k_folds = 10,
   x.center = TRUE,
@@ -19,7 +20,6 @@ cv.coxEN(
   toKeep.zv = NULL,
   remove_non_significant = F,
   alpha = 0.05,
-  max.variables = 15,
   w_AIC = 0,
   w_c.index = 0,
   w_AUC = 1,
@@ -44,6 +44,8 @@ cv.coxEN(
 
 \item{EN.alpha.list}{Numeric vector. Elasticnet mixing parameter values to test in cross validation. EN.alpha=1 is the lasso penalty, and alpha=0 the ridge penalty.}
 
+\item{max.variables}{Numeric. Maximum number of variables you want to keep in the cox model. If MIN_EPV is not meet, the value will be change automatically.}
+
 \item{n_run}{Number. Number of runs for cross validation.}
 
 \item{k_folds}{Number. Number of folds for cross validation.}
@@ -65,8 +67,6 @@ cv.coxEN(
 \item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
 
 \item{alpha}{Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).}
-
-\item{max.variables}{Numeric. Maximum number of variables you want to keep in the cox model. If MIN_EPV is not meet, the value will be change automatically.}
 
 \item{w_AIC}{Numeric. Weight for AIC evaluator. All three weights must sum 1 (default: 0).}
 

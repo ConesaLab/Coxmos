@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 rm(dpi)
 
-## ---- eval = FALSE------------------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #  install.packages("devtools")
 #  devtools::install_github("ConesaLab/HDcox", build_vignettes = TRUE)
 
@@ -24,7 +24,7 @@ rm(dpi)
 # load HDcox
 library(HDcox)
 
-## ---- eval = FALSE------------------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #  # install.packages("devtools")
 #  devtools::install_github("ConesaLab/RColorConesa")
 
@@ -48,10 +48,15 @@ knitr::kable(X[1:5,1:5])
 knitr::kable(Y[1:5,])
 
 ## ---- echo = FALSE------------------------------------------------------------
-knitr::kable(dim(X))
+knitr::kable(dim(X), col.names = "X")
+knitr::kable(dim(Y), col.names = "Y")
 
 ## -----------------------------------------------------------------------------
-ggp_density.event <- plot_events(Y = Y, roundTo = 0.25, categories = c("Censored","Death")) #name for F and T
+ggp_density.event <- plot_events(Y = Y, 
+                                 categories = c("Censored","Death"), #name for FALSE/0 (Censored) and TRUE/1 (Event)
+                                 y.text = "Number of observations", 
+                                 roundTo = 0.5, 
+                                 max.breaks = 10) 
 
 ## ----fig.small = T------------------------------------------------------------
 ggp_density.event$plot
@@ -59,29 +64,63 @@ ggp_density.event$plot
 ## -----------------------------------------------------------------------------
 set.seed(123)
 index_train <- caret::createDataPartition(Y$event,
-                                          p = .7, #70% train
+                                          p = .8, #80% train
                                           list = FALSE,
                                           times = 1)
 
-X_train <- X[index_train,] #1103
+X_train <- X[index_train,] #101x500
 Y_train <- Y[index_train,]
-X_test <- X[-index_train,] #472
+X_test <- X[-index_train,] #25x500
 Y_test <- Y[-index_train,]
 
-## ---- eval = FALSE, message=T, error=F----------------------------------------
+## ---- eval=FALSE, message=T, error=F------------------------------------------
 #  # classical approach
-#  cox_model <- cox(X = X_train, Y = Y_train, x.center = T, x.scale = F)
+#  cox_model <- cox(X = X_train, Y = Y_train,
+#                   x.center = T, x.scale = F,
+#                   y.center = F, y.scale = F,
+#                   remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
+#                   remove_non_significant = F, alpha = 0.05,
+#                   MIN_EPV = 5, FORCE = F, returnData = T, verbose = T)
 
 ## -----------------------------------------------------------------------------
-EPV <- sum(Y_train$event==1) / ncol(X_train)
+EPV <- getEPV(X_train, Y_train)
 EPV
 
-## ---- eval = FALSE, message=F-------------------------------------------------
+## ---- eval=FALSE, warning=F---------------------------------------------------
+#  # run cv.plsicox
+#  cv.coxen_res <- cv.coxEN(X = X_train, Y = Y_train,
+#                           EN.alpha.list = seq(0,0.9,0.1),
+#                           max.variables = ncol(X_train),
+#                           n_run = 1, k_folds = 2,
+#                           x.center = T, x.scale = F,
+#                           y.center = F, y.scale = F,
+#                           remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+#                           remove_non_significant = F, alpha = 0.05,
+#                           w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
+#                           MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
+#                           pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
+#                           MIN_EPV = 5, return_models = F,
+#                           PARALLEL = T, verbose = T, seed = 123)
+#  cv.coxen_res #1.5min.
+
+## -----------------------------------------------------------------------------
+coxen_model <- coxEN(X = X_train, Y = Y_train, 
+                     EN.alpha = 0, #cv.coxen_res$opt.EN.alpha
+                     max.variables = 4, #cv.coxen_res$opt.nvar
+                     x.center = T, x.scale = F, 
+                     y.center = F, y.scale = F, 
+                     remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL, 
+                     remove_non_significant = F, alpha = 0.05, 
+                     MIN_EPV = 5, returnData = T, verbose = F)
+
+coxen_model
+
+## ---- eval=FALSE, message=F---------------------------------------------------
 #  # run cv.plsicox
 #  cv.plsicox_res <- cv.plsicox(X = X_train, Y = Y_train,
 #                               max.ncomp =  4,
 #                               n_run = 2, k_folds = 10,
-#                               x.scale = T, x.center = T,
+#                               x.center = T, x.scale = F,
 #                               y.center = F, y.scale = F,
 #                               remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
 #                               remove_non_significant_models = F, alpha = 0.05,
@@ -92,7 +131,7 @@ EPV
 #                               PARALLEL = T, verbose = F, seed = 123)
 #  cv.plsicox_res #1min 8s.
 
-## ---- eval = FALSE, fig.small=T-----------------------------------------------
+## ---- eval=FALSE, fig.small=T-------------------------------------------------
 #  # plot cv.plsicox
 #  cv.plsicox_res$plot_AUC
 
@@ -103,7 +142,7 @@ plsicox_model <- plsicox(X = X_train, Y = Y_train,
 
 plsicox_model
 
-## ---- eval = FALSE, message=F-------------------------------------------------
+## ---- eval=FALSE, message=F---------------------------------------------------
 #  # run cv.splsdrcox
 #  cv.splsdrcox_res <- cv.splsdrcox(X = X_train, Y = Y_train,
 #                                   max.ncomp = 4, eta.list = seq(0,0.5,0.25), #penalty
@@ -121,7 +160,7 @@ splsdrcox_model <- splsdrcox(X = X_train, Y = Y_train,
 
 splsdrcox_model
 
-## ---- eval = FALSE, message=F-------------------------------------------------
+## ---- eval=FALSE, message=F---------------------------------------------------
 #  # run cv.splsdrcox
 #  cv.splsdacox_res <- cv.splsdacox_mixOmics(X = X_train, Y = Y_train,
 #                                          max.ncomp = 4,  #penalty

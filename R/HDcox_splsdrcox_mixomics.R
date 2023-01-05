@@ -126,11 +126,11 @@ splsdrcox_mixOmics <- function (X, Y,
   X <- lst_dnz$X
   variablesDeleted <- lst_dnz$variablesDeleted
 
-  #### UPDATE test.keepX - in case many variables are deleted
-  test.keepX <- test.keepX[!test.keepX>ncol(X)]
-  if(!length(unique(test.keepX))>1){
-    stop("Vector test.keepX must be a numeric vector of length greater than two.")
-  }
+  # #### UPDATE test.keepX - in case many variables are deleted
+  # test.keepX <- test.keepX[!test.keepX>ncol(X)]
+  # if(!length(unique(test.keepX))>1){
+  #   stop("Vector test.keepX must be a numeric vector of length greater than two.")
+  # }
 
   #### SCALING
   lst_scale <- XY.scale(X, Y, x.center, x.scale, y.center, y.scale)

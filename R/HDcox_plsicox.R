@@ -134,16 +134,18 @@ plsicox <- function (X, Y,
   stopped = F
   for(h in 1:n.comp){
 
-    #residuals^2
-    residuals <- sqrt(colSums(Xh^2, na.rm=TRUE))
+    # Break if residuals is not the solution because in some cases, it is not a problem to compute wh vector. !!!!
 
-    #break iteration
-    if(any(residuals<tol)){
-      bad_var <- paste0(names(residuals)[residuals < tol], collapse = ", ")
-      message(paste0(paste0("Individual COX model cannot be computed for variables (", bad_var, "). Stopped at component ", h, ".")))
-      stopped = T
-      break
-    }
+    # #residuals^2
+    # residuals <- sqrt(colSums(Xh^2, na.rm=TRUE))
+    #
+    # #break iteration
+    # if(any(residuals<tol)){
+    #   bad_var <- paste0(names(residuals)[residuals < tol], collapse = ", ")
+    #   message(paste0(paste0("Individual COX model cannot be computed for variables (", bad_var, "). Stopped at component ", h, ".")))
+    #   stopped = T
+    #   break
+    # }
 
     #### ### ### ### ### ### ### ### ### ### ### #
     #                                            #

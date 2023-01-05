@@ -8,6 +8,7 @@ coxEN(
   X,
   Y,
   EN.alpha = 0.5,
+  max.variables = 15,
   x.center = TRUE,
   x.scale = FALSE,
   y.center = FALSE,
@@ -28,6 +29,8 @@ coxEN(
 \item{Y}{Numeric matrix. Response variables. It assumes it has two columns named as "time" and "event". For event column, values can be 0/1 or FALSE/TRUE for censored and event samples.}
 
 \item{EN.alpha}{Numeric. Elasticnet mixing parameter. EN.alpha=1 is the lasso penalty, and alpha=0 the ridge penalty.}
+
+\item{max.variables}{Numeric. Maximum number of variables you want to keep in the cox model. If MIN_EPV is not meet, the value will be change automatically.}
 
 \item{x.center}{Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).}
 

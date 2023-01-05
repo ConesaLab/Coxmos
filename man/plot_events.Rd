@@ -6,22 +6,22 @@
 \usage{
 plot_events(
   Y,
-  roundTo = 0.25,
+  max.breaks = 20,
+  roundTo = 0.1,
   categories = c("Censored", "Death"),
-  y.text = "Number of patients",
-  max.breaks = 20
+  y.text = "Number of patients"
 )
 }
 \arguments{
 \item{Y}{Y matrix}
+
+\item{max.breaks}{Number maximum of breaks in X axis.}
 
 \item{roundTo}{Round time to which value.}
 
 \item{categories}{Categories to print.}
 
 \item{y.text}{Label for Y axis}
-
-\item{max.breaks}{Number maximum of breaks in X axis.}
 }
 \description{
 plot_events
