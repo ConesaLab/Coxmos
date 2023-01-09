@@ -1,12 +1,10 @@
 #' @importFrom caret nearZeroVar createFolds
 #' @importFrom cowplot plot_grid
-#' @import furrr
 #' @importFrom future availableCores plan
 #' @import ggrepel
 #' @import ggplot2
 #' @importFrom ggpubr ggarrange annotate_figure
 #' @import glmnet
-#' @importFrom mixOmics spls plsda block.spls block.splsda tune.spls
 #' @import progress
 #' @import purrr
 #' @importFrom scattermore geom_scattermore
@@ -15,6 +13,10 @@
 #' @import survminer
 #' @importFrom tidyr pivot_longer starts_with
 #' @import utils
+#'
+#' @import furrr
+#'
+#' @importFrom mixOmics spls plsda block.spls block.splsda tune.spls
 
 pkg.env <- new.env(parent = emptyenv())
 assign(x = 'model_class', value = "HDcox", pkg.env)
@@ -2161,15 +2163,15 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
       }else if(method==pkg.env$splsdrcox_mixomics){
         lst_all_models <- furrr::future_map(lst_inputs, ~splsdrcox_mixOmics(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
                                                                            Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
-                                                                 n.comp = .$comp,
-                                                                 x.center = x.center, x.scale = x.scale,
-                                                                 y.center = y.center, y.scale = y.scale,
-                                                                 remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
-                                                                 vector = vector,
-                                                                 MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
-                                                                 MIN_AUC_INCREASE = MIN_AUC_INCREASE,
-                                                                 EVAL_METHOD = EVAL_METHOD,
-                                                                 MIN_EPV = MIN_EPV, returnData = F, verbose = verbose), .options = furrr_options(seed = 123))
+                                                                           n.comp = .$comp,
+                                                                           x.center = x.center, x.scale = x.scale,
+                                                                           y.center = y.center, y.scale = y.scale,
+                                                                           remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
+                                                                           vector = vector,
+                                                                           MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
+                                                                           MIN_AUC_INCREASE = MIN_AUC_INCREASE,
+                                                                           EVAL_METHOD = EVAL_METHOD,
+                                                                           MIN_EPV = MIN_EPV, returnData = F, verbose = verbose), .options = furrr_options(seed = 123))
 
       }else if(method==pkg.env$sb.plsicox){
         lst_all_models <- furrr::future_map(lst_inputs, ~sb.plsicox(X = lst_X_train[[.$run]][[.$fold]],
@@ -2338,9 +2340,6 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
     }
 
     names(lst_inputs) <- lst_names
-
-    #### !!!!! PARALLEL IS NOT WORKING WITH THE NEW ARGUMENT max.variables !!!!!
-    PARALLEL = F
 
     if(PARALLEL){
       n_cores <- max(future::availableCores() - 1, 1)

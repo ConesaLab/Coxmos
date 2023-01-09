@@ -440,10 +440,10 @@ save_ggplot_lst.svg <- function(lst_plots, folder = NULL, prefix = NULL, suffix 
 #' @examples
 #' \dontrun{
 #'   lst_models = {"cox" = cox_model, "PLS-ICOX" = cv.plsicox_model, "sPLS-DRCOX" = cv.splsdrcox_model}
-#'   plot_time.models(lst_models, x.text = "Method")
+#'   plot_time.list(lst_models, x.text = "Method")
 #' }
 
-plot_time.models <- function(lst_models, x.text = "Method", y.text = NULL){
+plot_time.list <- function(lst_models, x.text = "Method", y.text = NULL){
 
   if(is.null(names(lst_models))){
     names(lst_models) <- unlist(lapply(lst_models, function(x){
@@ -478,23 +478,39 @@ plot_time.models <- function(lst_models, x.text = "Method", y.text = NULL){
     }
   }
 
-  lst_times$total <- total_time
+  lst_times$Total <- total_time
 
   df.times <- do.call(rbind.data.frame, lst_times)
   colnames(df.times) <- "times"
   df.times$method <- names(lst_times)
   rownames(df.times) <- NULL
 
-  max <- round2any(max(df.times$times), 10, f = ceiling)
-  divisions <- 10
+  roundTo = 0
+  max.breaks = 10
+  if(roundTo == 0){
+    #select the decimals of Y
+    if(length(grep("\\.", df.times$times))>0){
+      ch <- gsub("\\.", "", as.character(min(df.times$times)/max.breaks))
+      cont = 0
+      for(c in 1:nchar(ch)){
+        if(substr(ch,c,c) == "0"){
+          cont = cont + 1
+        }else{
+          break
+        }
+      }
+      roundTo = 1*10^-cont
+    }else{
+      roundTo = 0.1
+    }
 
-  if(((max - round(min(df.times$times))) / divisions)>2){
-    dist <- round2any(((max - round(min(df.times$times))) / divisions), 10, f = ceiling)
-  }else{
-    dist <- round2any(((max - round(min(df.times$times))) / divisions), 1, f = ceiling)
   }
 
-  accuracy <- dist * 0.1
+  breaks_size = round2any(max(df.times$times), roundTo, f = ceiling) / max.breaks
+  breaks = seq(0, max(df.times$times)+breaks_size, by=breaks_size)
+
+  accuracy <- roundTo
+  max <- max(breaks)
 
   df.times$times <- round(df.times$times, digits = 4)
   x.var = "method"
@@ -509,7 +525,7 @@ plot_time.models <- function(lst_models, x.text = "Method", y.text = NULL){
 
   ggp_time <- ggplot(df.times, aes_string(x = x.var, y = y.var, fill = x.color)) +
     geom_bar(stat="identity") +
-    scale_y_continuous(breaks = seq(0, max, by = dist)) +
+    scale_y_continuous(breaks = breaks) +
     geom_text(aes_string(label = "times"), vjust = 0, nudge_y = accuracy)
 
   if(requireNamespace("RColorConesa", quietly = TRUE)){
@@ -3266,6 +3282,59 @@ norm01 <- function(x){
   }else{
     return(x/length(x))
   }
+}
+
+#' plot_forest.list
+#' @description Forest plot for HDcox models using the R library plot_forest
+#' @param lst_models List of HDcox models
+#' @param title title of the plot.
+#' @param cpositions relative positions of first three columns in the OX scale.
+#' @param fontsize relative size of annotations in the plot. Default value: 0.7.
+#' @param refLabel label for reference levels of factor variables.
+#' @param noDigits number of digits for estimates and p-values in the plot.
+#'
+#' @export
+
+plot_forest.list <- function(lst_models,
+                             title = "Hazard Ratio",
+                             cpositions = c(0.02, 0.22, 0.4),
+                             fontsize = 0.7,
+                             refLabel = "reference",
+                             noDigits = 2){
+
+  lst_forest_plot <- purrr::map(lst_models, ~plot_forest(model = .,
+                                                         title = paste0(title, " - ", .$class), cpositions = cpositions,
+                                                         fontsize = fontsize, refLabel = refLabel, noDigits = noDigits))
+
+  return(lst_forest_plot)
+
+}
+
+#' plot_forest
+#' @description Forest plot for HDcox models using the R library plot_forest
+#' @param model HDcox model
+#' @param title title of the plot.
+#' @param cpositions relative positions of first three columns in the OX scale.
+#' @param fontsize relative size of annotations in the plot. Default value: 0.7.
+#' @param refLabel label for reference levels of factor variables.
+#' @param noDigits number of digits for estimates and p-values in the plot.
+#'
+#' @export
+
+plot_forest <- function(model,
+                        title = "Hazard Ratio",
+                        cpositions = c(0.02, 0.22, 0.4),
+                        fontsize = 0.7,
+                        refLabel = "reference",
+                        noDigits = 2){
+
+  if(!attr(model, "model") %in% pkg.env$all_methods){
+    stop(paste0("Model must be one of the following HDcox models: ", paste0(pkg.env$all_methods, collapse = ", ")))
+  }
+  ggp <- survminer::ggforest(model = model$survival_model$fit,
+                             data = model$survival_model$fit$model,
+                             main = title, cpositions = cpositions, fontsize = fontsize, refLabel = refLabel, noDigits = noDigits)
+  return(ggp)
 }
 
 #' plot_cox.event.list

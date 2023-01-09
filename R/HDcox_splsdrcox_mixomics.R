@@ -126,12 +126,6 @@ splsdrcox_mixOmics <- function (X, Y,
   X <- lst_dnz$X
   variablesDeleted <- lst_dnz$variablesDeleted
 
-  # #### UPDATE test.keepX - in case many variables are deleted
-  # test.keepX <- test.keepX[!test.keepX>ncol(X)]
-  # if(!length(unique(test.keepX))>1){
-  #   stop("Vector test.keepX must be a numeric vector of length greater than two.")
-  # }
-
   #### SCALING
   lst_scale <- XY.scale(X, Y, x.center, x.scale, y.center, y.scale)
   Xh <- lst_scale$Xh
@@ -309,6 +303,7 @@ splsdrcox_mixOmics <- function (X, Y,
                                        SCR = SCR,
                                        SCT = SCT,
                                        nzv = variablesDeleted,
+                                       class = pkg.env$splsdrcox_mixomics,
                                        time = time)))
 }
 
@@ -433,13 +428,6 @@ cv.splsdrcox_mixOmics <- function (X, Y,
                                          x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
                                          remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
                                          total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
-
-  # comp_model_lst  <- get_HDCOX_models(method = pkg.env$splsdrcox_mixomics,
-  #                               lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
-  #                               max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL, n_run = n_run, k_folds = k_folds,
-  #                               n_run.mixOmics = n_run.mixOmics, k_folds.mixOmics = k_folds.mixOmics, test.keepX = test.keepX,
-  #                               x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
-  #                               total_models = total_models)
 
   ##########################
   # BEST MODEL FOR CV DATA #

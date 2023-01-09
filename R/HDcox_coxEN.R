@@ -245,6 +245,7 @@ coxEN <- function(X, Y,
                             removed_variables = removed_variables,
                             opt.lambda = best_lambda,
                             convergence_issue = problem,
+                            class = pkg.env$coxEN,
                             time = time)))
   }
 
@@ -309,6 +310,7 @@ coxEN <- function(X, Y,
                           alpha = alpha,
                           removed_variables = removed_variables,
                           nzv = variablesDeleted,
+                          class = pkg.env$coxEN,
                           time = time)))
 }
 

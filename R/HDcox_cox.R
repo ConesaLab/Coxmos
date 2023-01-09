@@ -178,6 +178,7 @@ cox <- function (X, Y,
                           Y_input = if(returnData) Y_original else NA,
                           nsv = NULL,
                           nzv = variablesDeleted,
+                          class = pkg.env$cox,
                           time = time)))
   }
 
@@ -295,6 +296,7 @@ cox <- function (X, Y,
                         Y_input = if(returnData) Y_original else NA,
                         nsv = removed_variables,
                         nzv = variablesDeleted,
+                        class = pkg.env$cox,
                         time = time)))
 }
 

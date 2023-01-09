@@ -224,6 +224,7 @@ splsdacox_mixOmics <- function (X, Y,
                                       X_input = if(returnData) X_original else NA,
                                       Y_input = if(returnData) Y_original else NA,
                                       nzv = variablesDeleted,
+                                      class = pkg.env$splsdacox_mixomics,
                                       time = time)))
 }
 

@@ -395,6 +395,7 @@ mb.splsdrcox <- function (X, Y,
                                          SCR = SCR,
                                          SCT = SCT,
                                          nzv = variablesDeleted,
+                                         class = pkg.env$mb.splsdrcox,
                                          time = time)))
 }
 

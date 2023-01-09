@@ -64,7 +64,7 @@ ggp_density.event$plot
 ## -----------------------------------------------------------------------------
 set.seed(123)
 index_train <- caret::createDataPartition(Y$event,
-                                          p = .8, #80% train
+                                          p = .7, #80% train
                                           list = FALSE,
                                           times = 1)
 
@@ -87,11 +87,11 @@ EPV <- getEPV(X_train, Y_train)
 EPV
 
 ## ---- eval=FALSE, warning=F---------------------------------------------------
-#  # run cv.plsicox
+#  # run cv.coxEN
 #  cv.coxen_res <- cv.coxEN(X = X_train, Y = Y_train,
-#                           EN.alpha.list = seq(0,0.9,0.1),
+#                           EN.alpha.list = seq(0,1,0.1),
 #                           max.variables = ncol(X_train),
-#                           n_run = 1, k_folds = 2,
+#                           n_run = 2, k_folds = 10,
 #                           x.center = T, x.scale = F,
 #                           y.center = F, y.scale = F,
 #                           remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
@@ -100,13 +100,13 @@ EPV
 #                           MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
 #                           pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
 #                           MIN_EPV = 5, return_models = F,
-#                           PARALLEL = T, verbose = T, seed = 123)
+#                           PARALLEL = F, verbose = F, seed = 123)
 #  cv.coxen_res #1.5min.
 
 ## -----------------------------------------------------------------------------
 coxen_model <- coxEN(X = X_train, Y = Y_train, 
                      EN.alpha = 0, #cv.coxen_res$opt.EN.alpha
-                     max.variables = 4, #cv.coxen_res$opt.nvar
+                     max.variables = 6, #cv.coxen_res$opt.nvar
                      x.center = T, x.scale = F, 
                      y.center = F, y.scale = F, 
                      remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL, 
@@ -115,21 +115,33 @@ coxen_model <- coxEN(X = X_train, Y = Y_train,
 
 coxen_model
 
+## -----------------------------------------------------------------------------
+coxen_model <- coxEN(X = X_train, Y = Y_train, 
+                     EN.alpha = 0, #cv.coxen_res$opt.EN.alpha
+                     max.variables = 8, #cv.coxen_res$opt.nvar
+                     x.center = T, x.scale = F, 
+                     y.center = F, y.scale = F, 
+                     remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL, 
+                     remove_non_significant = T, alpha = 0.05, 
+                     MIN_EPV = 5, returnData = T, verbose = F)
+
+coxen_model
+
 ## ---- eval=FALSE, message=F---------------------------------------------------
 #  # run cv.plsicox
 #  cv.plsicox_res <- cv.plsicox(X = X_train, Y = Y_train,
-#                               max.ncomp =  4,
+#                               max.ncomp = 10,
 #                               n_run = 2, k_folds = 10,
 #                               x.center = T, x.scale = F,
 #                               y.center = F, y.scale = F,
-#                               remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
+#                               remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
 #                               remove_non_significant_models = F, alpha = 0.05,
-#                               w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
+#                               w_AIC = 0, w_c.index = 0, w_AUC = 1, times = NULL,
 #                               MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
 #                               pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
 #                               MIN_EPV = 5, return_models = F,
 #                               PARALLEL = T, verbose = F, seed = 123)
-#  cv.plsicox_res #1min 8s.
+#  cv.plsicox_res #3.7min.
 
 ## ---- eval=FALSE, fig.small=T-------------------------------------------------
 #  # plot cv.plsicox
@@ -137,58 +149,116 @@ coxen_model
 
 ## -----------------------------------------------------------------------------
 plsicox_model <- plsicox(X = X_train, Y = Y_train, 
-                         n.comp = 3, #n.comp = cv.plsicox_res$opt.comp
-                         x.center = T, x.scale = F)
+                         n.comp = 1, #n.comp = cv.plsicox_res$opt.comp
+                         x.center = T, x.scale = F,
+                         y.center = F, y.scale = F,
+                         remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+                         tol = 500, 
+                         MIN_EPV = 5, returnData = T, verbose = F)
 
 plsicox_model
 
 ## ---- eval=FALSE, message=F---------------------------------------------------
 #  # run cv.splsdrcox
 #  cv.splsdrcox_res <- cv.splsdrcox(X = X_train, Y = Y_train,
-#                                   max.ncomp = 4, eta.list = seq(0,0.5,0.25), #penalty
+#                                   max.ncomp = 10, eta.list = seq(0,0.9,0.1), #penalty
 #                                   n_run = 2, k_folds = 10,
-#                                   x.scale = T,
-#                                   remove_near_zero_variance = F, remove_zero_variance = F,
-#                                   PARALLEL = T, verbose = F)
+#                                   x.center = T, x.scale = F,
+#                                   y.center = F, y.scale = F,
+#                                   remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+#                                   remove_non_significant_models = F, alpha = 0.05,
+#                                   w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
+#                                   MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
+#                                   pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
+#                                   MIN_EPV = 5, return_models = F,
+#                                   PARALLEL = F, verbose = F, seed = 123)
 #  
 #  cv.splsdrcox_res #2min 40s.
 
 ## -----------------------------------------------------------------------------
 splsdrcox_model <- splsdrcox(X = X_train, Y = Y_train, 
-                             n.comp = 2, eta = 0.25, #n.comp = cv.splsdrcox_res$opt.comp, eta = cv.splsdrcox_res$opt.eta
-                             x.center = T, x.scale = F)
+                             n.comp = 1, eta = 0, #n.comp = cv.splsdrcox_res$opt.comp, eta = cv.splsdrcox_res$opt.eta
+                             x.center = T, x.scale = F,
+                             y.center = F, y.scale = F,
+                             remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+                             MIN_EPV = 5, returnData = T, verbose = F)
 
 splsdrcox_model
 
-## ---- eval=FALSE, message=F---------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
+#  # run cv.splsdrcox
+#  cv.splsdrcox_mo_res <- cv.splsdrcox_mixOmics(X = X_train, Y = Y_train,
+#                                               max.ncomp = 10, vector = NULL,
+#                                               MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 10, EVAL_METHOD = "cenROC",
+#                                               n_run = 2, k_folds = 10,
+#                                               x.center = T, x.scale = F,
+#                                               y.center = F, y.scale = F,
+#                                               remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+#                                               remove_non_significant_models = F, alpha = 0.05,
+#                                               w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
+#                                               MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
+#                                               pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
+#                                               MIN_EPV = 5, return_models = F,
+#                                               PARALLEL = F, verbose = T, seed = 123)
+#  
+#  cv.splsdrcox_mo_res #2min 40s.
+
+## -----------------------------------------------------------------------------
+splsdrcox_mo_model <- splsdrcox_mixOmics(X = X_train, Y = Y_train, 
+                                         n.comp = 1, vector = 500,
+                                         x.center = T, x.scale = F,
+                                         y.center = F, y.scale = F,
+                                         remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+                                         MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 5,
+                                         MIN_AUC_INCREASE = 0.01,
+                                         EVAL_METHOD = "AUC", pred.method = "cenROC", max.iter = 200,
+                                         MIN_EPV = 5, returnData = T, verbose = F)
+
+splsdrcox_mo_model
+
+## ---- eval=FALSE--------------------------------------------------------------
 #  # run cv.splsdrcox
 #  cv.splsdacox_res <- cv.splsdacox_mixOmics(X = X_train, Y = Y_train,
-#                                          max.ncomp = 4,  #penalty
-#                                          n_run = 2, k_folds = 10,
-#                                          x.scale = T,
-#                                          remove_near_zero_variance = F, remove_zero_variance = F,
-#                                          PARALLEL = T, verbose = F)
+#                                            max.ncomp = 10,  vector = NULL,
+#                                            n_run = 2, k_folds = 10,
+#                                            x.center = T, x.scale = F,
+#                                            y.center = F, y.scale = F,
+#                                            remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+#                                            remove_non_significant_models = F, alpha = 0.05,
+#                                            w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
+#                                            MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
+#                                            pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
+#                                            MIN_EPV = 5, return_models = F,
+#                                            PARALLEL = F, verbose = F, seed = 123)
 #  
 #  cv.splsdacox_res #2min
 
 ## -----------------------------------------------------------------------------
-splsdacox_model <- splsdacox_mixOmics(X = X_train, Y = Y_train, 
-                                    n.comp = 3, #cv.splsdacox_res$opt.comp
-                                    x.center = T, x.scale = F)
+splsdacox_mo_model <- splsdacox_mixOmics(X = X_train, Y = Y_train, 
+                                         n.comp = 2, vector = 500,
+                                         x.center = T, x.scale = F,
+                                         y.center = F, y.scale = F,
+                                         remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+                                         MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 5,
+                                         MIN_AUC_INCREASE = 0.01,
+                                         EVAL_METHOD = "AUC", pred.method = "cenROC", max.iter = 200,
+                                         MIN_EPV = 5, returnData = T, verbose = F)
 
-splsdacox_model
+splsdacox_mo_model
 
 ## -----------------------------------------------------------------------------
-lst_models <- list("PLS-ICOX" = plsicox_model,
-                   "SPLS-DRCOX" = splsdrcox_model,
-                   "PLS-DACOX" = splsdacox_model)
+lst_models <- list("COX-EN" = coxen_model,
+                   "PLS-ICOX" = plsicox_model,
+                   "sPLS-DRCOX" = splsdrcox_model,
+                   "sPLS-DRCOX-MixOmics" = splsdrcox_mo_model,
+                   "sPLS-DACOX-MixOmics" = splsdacox_mo_model)
 
 eval_results <- eval_models4.0(lst_models = lst_models,
                                X_test = X_test, Y_test = Y_test, 
                                pred.method = "cenROC",
                                pred.attr = "mean",
                                times = seq(1,4,0.5), max_time_points = 15, 
-                               PARALLEL = T)
+                               PARALLEL = F)
 
 # lst_evaluators <- c(cenROC = "cenROC", 
 #                     risksetROC = "risksetROC")
@@ -198,7 +268,7 @@ eval_results <- eval_models4.0(lst_models = lst_models,
 #                                                            pred.method = .,
 #                                                            pred.attr = "mean",
 #                                                            times = seq(1,4,0.5), max_time_points = 15, 
-#                                                            PARALLEL = T))
+#                                                            PARALLEL = F))
 
 ## -----------------------------------------------------------------------------
 eval_results
@@ -209,16 +279,18 @@ lst_eval_results <- plot_evaluation(eval_results)
 #lst_eval_results <- plot_evaluation.list(eval_results)
 
 ## ---- fig.small=T-------------------------------------------------------------
-lst_eval_results$lst_plots$lineplot.mean
-lst_eval_results$lst_plot_comparisons$t.test
+lst_eval_results$lst_plots$lineplot
+lst_eval_results$lst_plot_comparisons$anova
 
 # lst_eval_results$cenROC$lst_plots$lineplot.mean
 # lst_eval_results$cenROC$lst_plot_comparisons$t.test
 
 ## -----------------------------------------------------------------------------
-lst_models_time <- list(plsicox_model,
+lst_models_time <- list(coxen_model,
+                        plsicox_model,
                         splsdrcox_model,
-                        splsdacox_model,
+                        splsdrcox_mo_model,
+                        splsdacox_mo_model,
                         eval_results)
 
 ## -----------------------------------------------------------------------------
@@ -228,34 +300,33 @@ ggp_time <- plot_time.models(lst_models_time)
 ggp_time
 
 ## -----------------------------------------------------------------------------
-lst_forest_plot <- purrr::map(lst_models, ~survminer::ggforest(.$survival_model$fit, 
-                                                               data = .$survival_model$fit$model))
+lst_forest_plot <- plot_forest.list(lst_models)
 
 ## ---- fig.small=T-------------------------------------------------------------
-lst_forest_plot$`SPLS-DRCOX`
+lst_forest_plot$`sPLS-DACOX-MixOmics`
 
 ## -----------------------------------------------------------------------------
 density.plots.lp <- plot_cox.event.list(lst_models, type = "lp")
 
 ## ---- fig.small=T-------------------------------------------------------------
-density.plots.lp$`SPLS-DRCOX`$plot.density
-density.plots.lp$`SPLS-DRCOX`$plot.histogram
+density.plots.lp$`sPLS-DACOX-MixOmics`$plot.density
+density.plots.lp$`sPLS-DACOX-MixOmics`$plot.histogram
 
 ## -----------------------------------------------------------------------------
 lst_ph_ggplot <- plot_proportionalHazard.list(lst_models)
 
 ## ---- fig.small=T-------------------------------------------------------------
-lst_ph_ggplot$`SPLS-DRCOX`
+lst_ph_ggplot$`sPLS-DACOX-MixOmics`
 
 ## -----------------------------------------------------------------------------
-ggp_scores <- plot_PLS_HDcox(model = lst_models$`SPLS-DRCOX`, 
+ggp_scores <- plot_PLS_HDcox(model = lst_models$`sPLS-DACOX-MixOmics`, 
                              comp = c(1,2), mode = "scores")
 
 ## ---- fig.small=T-------------------------------------------------------------
 ggp_scores$plot
 
 ## -----------------------------------------------------------------------------
-ggp_loadings <- plot_PLS_HDcox(model = lst_models$`SPLS-DRCOX`, 
+ggp_loadings <- plot_PLS_HDcox(model = lst_models$`sPLS-DACOX-MixOmics`, 
                                comp = c(1,2), mode = "loadings",
                                top = 10) #length from 0,0
 
@@ -263,7 +334,7 @@ ggp_loadings <- plot_PLS_HDcox(model = lst_models$`SPLS-DRCOX`,
 ggp_loadings$plot
 
 ## -----------------------------------------------------------------------------
-ggp_biplot <- plot_PLS_HDcox(model = lst_models$`SPLS-DRCOX`, 
+ggp_biplot <- plot_PLS_HDcox(model = lst_models$`sPLS-DACOX-MixOmics`, 
                              comp = c(1,2), mode = "biplot",
                              top = 15,
                              only_top = T)
@@ -278,7 +349,7 @@ ggp.simulated_beta <- plot_pseudobeta.list(lst_models = lst_models,
                                            show_percentage = T, size_percentage = 3)
 
 ## ---- fig.small=T-------------------------------------------------------------
-ggp.simulated_beta$`SPLS-DRCOX`$plot
+ggp.simulated_beta$`sPLS-DACOX-MixOmics`$plot
 
 ## -----------------------------------------------------------------------------
 LST_KM_RES_LP <- getAutoKM.list(type = "LP",
@@ -290,7 +361,7 @@ LST_KM_RES_LP <- getAutoKM.list(type = "LP",
                                 only_sig = T, alpha = 0.05)
 
 ## ---- fig.small=T-------------------------------------------------------------
-LST_KM_RES_LP$`SPLS-DRCOX`$LST_PLOTS$LP
+LST_KM_RES_LP$`sPLS-DACOX-MixOmics`$LST_PLOTS$LP
 
 ## -----------------------------------------------------------------------------
 LST_KM_RES_COMP <- getAutoKM.list(type = "COMP",
@@ -302,8 +373,8 @@ LST_KM_RES_COMP <- getAutoKM.list(type = "COMP",
                                   only_sig = T, alpha = 0.05)
 
 ## ---- fig.small=T-------------------------------------------------------------
-LST_KM_RES_COMP$`SPLS-DRCOX`$LST_PLOTS$comp_1
-LST_KM_RES_COMP$`SPLS-DRCOX`$LST_PLOTS$comp_2
+LST_KM_RES_COMP$`sPLS-DACOX-MixOmics`$LST_PLOTS$comp_1
+LST_KM_RES_COMP$`sPLS-DACOX-MixOmics`$LST_PLOTS$comp_2
 
 ## -----------------------------------------------------------------------------
 LST_KM_RES_VAR <- getAutoKM.list(type = "VAR",
@@ -315,8 +386,8 @@ LST_KM_RES_VAR <- getAutoKM.list(type = "VAR",
                                  only_sig = T, alpha = 0.05)
 
 ## ---- fig.small=T-------------------------------------------------------------
-LST_KM_RES_VAR$`SPLS-DRCOX`$LST_PLOTS$POSTN
-LST_KM_RES_VAR$`SPLS-DRCOX`$LST_PLOTS$SIRT5
+LST_KM_RES_VAR$`sPLS-DACOX-MixOmics`$LST_PLOTS$POSTN
+LST_KM_RES_VAR$`sPLS-DACOX-MixOmics`$LST_PLOTS$SIRT5
 
 ## -----------------------------------------------------------------------------
 new_pat <- X_test[1,,drop=F]
@@ -330,18 +401,18 @@ ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient.list(lst_models = lst_mo
                                                              error.bar = T, onlySig = T, alpha = 0.05,
                                                              zero.rm = T, auto.limits = T, show.betas = T, top = 20)
 
-# ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient(model = lst_models$`SPLS-DRCOX`, 
+# ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient(model = lst_models$`sPLS-DACOX-MixOmics`, 
 #                                                         new_pat = new_pat,
 #                                                         error.bar = T, onlySig = T, alpha = 0.05,
 #                                                         zero.rm = T, auto.limits = T, show.betas = T, top = 20)
 
 ## ---- fig.small=T-------------------------------------------------------------
-ggp.simulated_beta_newPat$`SPLS-DRCOX`$plot
+ggp.simulated_beta_newPat$`sPLS-DACOX-MixOmics`$plot
 
 ## -----------------------------------------------------------------------------
 pat_density <- plot_patient.eventDensity(patient = new_pat, 
                                          time = NULL, 
-                                         model = lst_models$`SPLS-DRCOX`, 
+                                         model = lst_models$`sPLS-DACOX-MixOmics`, 
                                          type = "lp")
 
 ## ---- fig.small=T-------------------------------------------------------------
@@ -350,7 +421,7 @@ pat_density
 ## -----------------------------------------------------------------------------
 pat_histogram <- plot_patient.eventHistogram(patient = new_pat, 
                                              time = NULL, 
-                                             model = lst_models$`SPLS-DRCOX`, 
+                                             model = lst_models$`sPLS-DACOX-MixOmics`, 
                                              type = "lp")
 
 ## ---- fig.small=T-------------------------------------------------------------
@@ -368,5 +439,5 @@ lst_cox.comparison <- plot_LP.multiplePatients.list(lst_models = lst_models,
                                      error.bar = T, zero.rm = T, onlySig = T, alpha = 0.05, top = 5)
 
 ## ---- fig.small=T-------------------------------------------------------------
-lst_cox.comparison$`SPLS-DRCOX`$plot
+lst_cox.comparison$`sPLS-DACOX-MixOmics`$plot
 

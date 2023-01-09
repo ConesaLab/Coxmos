@@ -253,6 +253,10 @@ plsicox <- function (X, Y,
 
     func_call <- match.call()
     invisible(gc())
+
+    t2 <- Sys.time()
+    time <- difftime(t2,t1,units = "mins")
+
     return(plsicox_class(list(X = list("data" = if(returnData) X_norm else NA, "loadings" = NULL, "weightings" = NULL, "weightings_norm" = NULL, "W.star" = NULL, "scores" = NULL, "E" = NULL, "x.mean" = xmeans, "x.sd" = xsds),
                               Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
                               beta_matrix = NULL, #NEED TO BE COMPUTED
@@ -260,7 +264,10 @@ plsicox <- function (X, Y,
                               n.comp = n.comp,
                               call = func_call,
                               X_input = if(returnData) X_original else NA,
-                              Y_input = if(returnData) Y_original else NA)))
+                              Y_input = if(returnData) Y_original else NA,
+                              nzv = variablesDeleted,
+                              class = pkg.env$plsicox,
+                              time = time)))
   }
 
   cox_model = NULL
@@ -364,6 +371,7 @@ plsicox <- function (X, Y,
                             X_input = if(returnData) X_original else NA,
                             Y_input = if(returnData) Y_original else NA,
                             nzv = variablesDeleted,
+                            class = pkg.env$plsicox,
                             time = time)))
 }
 
@@ -414,7 +422,7 @@ cv.plsicox <- function (X, Y,
                         y.center = FALSE, y.scale = FALSE,
                         remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
                         remove_non_significant_models = F, alpha = 0.05,
-                        w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
+                        w_AIC = 0, w_c.index = 0, w_AUC = 1, times = NULL,
                         MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                         pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                         MIN_EPV = 5, return_models = F,

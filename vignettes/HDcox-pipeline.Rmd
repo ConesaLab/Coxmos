@@ -170,16 +170,16 @@ More information for each approach could be found in the help section for each f
 
 To perform a survival analysis with our example, we will use methodologies that can work with high-dimensional data. These are the set of methodologies that use PLS and COX Elastic Net techniques.
 
-The first thing we are going to do is split our data into a training set and a test set. This split will be made with a proportion of 80% of the data for training and 20% for test.
+The first thing we are going to do is split our data into a training set and a test set. This split will be made with a proportion of 70% of the data for training and 30% for test.
 
 ## TRAIN/TEST
 
-First, we will divide our data into a training and testing set using the `createDataPartition` function from the R package caret. We will use a 80%/20% split for training and testing, respectively, and set a seed for reproducible results.
+First, we will divide our data into a training and testing set using the `createDataPartition` function from the R package caret. We will use a 70%/30% split for training and testing, respectively, and set a seed for reproducible results.
 
 ```{r}
 set.seed(123)
 index_train <- caret::createDataPartition(Y$event,
-                                          p = .8, #80% train
+                                          p = .7, #80% train
                                           list = FALSE,
                                           times = 1)
 
@@ -203,7 +203,7 @@ cox_model <- cox(X = X_train, Y = Y_train,
                  MIN_EPV = 5, FORCE = F, returnData = T, verbose = T)
 ```
 
-Despite specifying an EPV of 5, we should have a maximum of 9 variables in our final survival model in relation to the number of events found in our training set. To compute our EPV, we can used the function `getEPV()` that requires the matrix X and Y as input.
+Despite specifying an EPV of 5, we should have a maximum of 6 variables in our final survival model in relation to the number of events found in our training set. To compute our EPV, we can used the function `getEPV()` that requires the matrix X and Y as input.
 
 ```{r}
 EPV <- getEPV(X_train, Y_train)
@@ -239,14 +239,14 @@ cv.coxen_res <- cv.coxEN(X = X_train, Y = Y_train,
                          MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                          pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                          MIN_EPV = 5, return_models = F,
-                         PARALLEL = T, verbose = F, seed = 123)
+                         PARALLEL = F, verbose = F, seed = 123)
 cv.coxen_res #1.5min.
 ```
 
 ```{r}
 coxen_model <- coxEN(X = X_train, Y = Y_train, 
                      EN.alpha = 0, #cv.coxen_res$opt.EN.alpha
-                     max.variables = 8, #cv.coxen_res$opt.nvar
+                     max.variables = 6, #cv.coxen_res$opt.nvar
                      x.center = T, x.scale = F, 
                      y.center = F, y.scale = F, 
                      remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL, 
@@ -277,13 +277,13 @@ In the same way, we will also perform a cross validation for the PLS-based model
 ```{r, eval=FALSE, message=F}
 # run cv.plsicox
 cv.plsicox_res <- cv.plsicox(X = X_train, Y = Y_train,
-                             max.ncomp =  10,
+                             max.ncomp = 10,
                              n_run = 2, k_folds = 10, 
                              x.center = T, x.scale = F, 
                              y.center = F, y.scale = F,
                              remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
                              remove_non_significant_models = F, alpha = 0.05, 
-                             w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
+                             w_AIC = 0, w_c.index = 0, w_AUC = 1, times = NULL,
                              MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                              pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                              MIN_EPV = 5, return_models = F,
@@ -300,7 +300,7 @@ We will generate a PLS-ICOX model with a total of two principal components based
 
 ```{r}
 plsicox_model <- plsicox(X = X_train, Y = Y_train, 
-                         n.comp = 2, #n.comp = cv.plsicox_res$opt.comp
+                         n.comp = 1, #n.comp = cv.plsicox_res$opt.comp
                          x.center = T, x.scale = F,
                          y.center = F, y.scale = F,
                          remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
@@ -317,7 +317,7 @@ Next, we will perform a cross validation for the sPLS-DRCOX methodology. In this
 ```{r, eval=FALSE, message=F}
 # run cv.splsdrcox
 cv.splsdrcox_res <- cv.splsdrcox(X = X_train, Y = Y_train, 
-                                 max.ncomp = 10, eta.list = seq(0,0.5,0.25), #penalty
+                                 max.ncomp = 10, eta.list = seq(0,0.9,0.1), #penalty
                                  n_run = 2, k_folds = 10, 
                                  x.center = T, x.scale = F, 
                                  y.center = F, y.scale = F,
@@ -327,7 +327,7 @@ cv.splsdrcox_res <- cv.splsdrcox(X = X_train, Y = Y_train,
                                  MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                                  pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                                  MIN_EPV = 5, return_models = F,
-                                 PARALLEL = T, verbose = F, seed = 123)
+                                 PARALLEL = F, verbose = F, seed = 123)
 
 cv.splsdrcox_res #2min 40s.
 ```
@@ -347,12 +347,15 @@ splsdrcox_model
 
 ## sPLS-DRCOX MixOmics Penalty
 
-For sPLS-DRCOX methodology we implemented another kind of penalty based on an heuristic variable selection and the MixOmics algorithms. In this case, the penalty is based on a vector of variables. We can select a specific value to select that number of variables, but if we keep the value in NULL, the number of variable will be selected automaticly.
+For sPLS-DRCOX methodology we implemented another kind of penalty based on an heuristic variable selection and the MixOmics algorithms. In this case, the penalty is based on a vector of variables. We can select a specific value to select that number of variables, but if we keep the value in NULL, the number of variable will be selected automatically. 
 
-```{r, eval=FALSE, message=F}
+With this method, the user can specify the minimum and maximum number of variables and the number of cutpoints (how many number of variables to test between the minimum and the maximum number of variables) to be tested. After the first iteration, the algorithm will select the optimal number of variables and will further investigate better results between the existing cut points and the optimal value selected.
+
+```{r, eval=FALSE}
 # run cv.splsdrcox
 cv.splsdrcox_mo_res <- cv.splsdrcox_mixOmics(X = X_train, Y = Y_train, 
-                                             max.ncomp = 10, vector = NULL,
+                                             max.ncomp = 10, vector = NULL, 
+                                             MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 10, EVAL_METHOD = "cenROC",
                                              n_run = 2, k_folds = 10, 
                                              x.center = T, x.scale = F, 
                                              y.center = F, y.scale = F,
@@ -362,19 +365,35 @@ cv.splsdrcox_mo_res <- cv.splsdrcox_mixOmics(X = X_train, Y = Y_train,
                                              MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                                              pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                                              MIN_EPV = 5, return_models = F,
-                                             PARALLEL = T, verbose = F, seed = 123)
+                                             PARALLEL = F, verbose = T, seed = 123)
 
 cv.splsdrcox_mo_res #2min 40s.
 ```
 
-## PLS-DACOX
+After the cross validation, the user can select the exact number of components and variables to use in their model.
 
-Also we are going to run cross-validation techniques for PLSDACOX of the PLS methods.
+```{r}
+splsdrcox_mo_model <- splsdrcox_mixOmics(X = X_train, Y = Y_train, 
+                                         n.comp = 1, vector = 500,
+                                         x.center = T, x.scale = F,
+                                         y.center = F, y.scale = F,
+                                         remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+                                         MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 5,
+                                         MIN_AUC_INCREASE = 0.01,
+                                         EVAL_METHOD = "AUC", pred.method = "cenROC", max.iter = 200,
+                                         MIN_EPV = 5, returnData = T, verbose = F)
 
-```{r, eval=FALSE, message=F}
+splsdrcox_mo_model
+```
+
+## sPLS-DACOX
+
+Finally, we will launch a COX-based sPLS-DA model. This algorithm is the simplest of all and with the least statistical development, but depending on the data set it can provide better results than the previous methods. In this case, we launch an sPLS-DA on the classification of patients according to whether they have suffered or not the study event without taking into account the time until the event. Then, we launch a Cox model using the latent variables of the model and using the entire Y matrix with its times and events/censored.
+
+```{r, eval=FALSE}
 # run cv.splsdrcox
 cv.splsdacox_res <- cv.splsdacox_mixOmics(X = X_train, Y = Y_train, 
-                                          max.ncomp = 4,  vector = NULL,
+                                          max.ncomp = 10,  vector = NULL,
                                           n_run = 2, k_folds = 10, 
                                           x.center = T, x.scale = F, 
                                           y.center = F, y.scale = F,
@@ -384,36 +403,50 @@ cv.splsdacox_res <- cv.splsdacox_mixOmics(X = X_train, Y = Y_train,
                                           MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                                           pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                                           MIN_EPV = 5, return_models = F,
-                                          PARALLEL = T, verbose = F, seed = 123)
+                                          PARALLEL = F, verbose = F, seed = 123)
 
 cv.splsdacox_res #2min
 ```
 
-So splsdacox_model ...
+Once the best model is obtained through cross validation, it must be calculated using the desired parameters.
 
 ```{r}
-splsdacox_model <- splsdacox_mixOmics(X = X_train, Y = Y_train, 
-                                    n.comp = 3, #cv.splsdacox_res$opt.comp
-                                    x.center = T, x.scale = F)
+splsdacox_mo_model <- splsdacox_mixOmics(X = X_train, Y = Y_train, 
+                                         n.comp = 2, vector = 500,
+                                         x.center = T, x.scale = F,
+                                         y.center = F, y.scale = F,
+                                         remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+                                         MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 5,
+                                         MIN_AUC_INCREASE = 0.01,
+                                         EVAL_METHOD = "AUC", pred.method = "cenROC", max.iter = 200,
+                                         MIN_EPV = 5, returnData = T, verbose = F)
 
-splsdacox_model
+splsdacox_mo_model
 ```
 
 # Comparing multiple survival models
 
+Next, we will analyze the results obtained from the multiple models to see which one obtains the best predictions based on our data. To do this, we will use the test set that has not been used for the training of any model.
+
 ## Comparing for multiple evaluators at the same time.
 
+Initially, we will compare the area under the curve (AUC) for each of the methods according to the evaluator we want. The function is developed to simultaneously evaluate multiple evaluators. However, we will continue working with a single evaluator. In this case "cenROC". On the other hand, we must provide a list of the different models as well as the X and Y test set we want to evaluate.
+
+When evaluating survival model results, we must indicate at which temporal points we want to perform the evaluation. As we already specified a NULL value for the "times" variable in the cross-validation and let the method divide the temporal points equally. Here we will specify a vector of points of interest.
+
 ```{r}
-lst_models <- list("PLS-ICOX" = plsicox_model,
-                   "SPLS-DRCOX" = splsdrcox_model,
-                   "PLS-DACOX" = splsdacox_model)
+lst_models <- list("COX-EN" = coxen_model,
+                   "PLS-ICOX" = plsicox_model,
+                   "sPLS-DRCOX" = splsdrcox_model,
+                   "sPLS-DRCOX-MixOmics" = splsdrcox_mo_model,
+                   "sPLS-DACOX-MixOmics" = splsdacox_mo_model)
 
 eval_results <- eval_models4.0(lst_models = lst_models,
                                X_test = X_test, Y_test = Y_test, 
                                pred.method = "cenROC",
                                pred.attr = "mean",
                                times = seq(1,4,0.5), max_time_points = 15, 
-                               PARALLEL = T)
+                               PARALLEL = F)
 
 # lst_evaluators <- c(cenROC = "cenROC", 
 #                     risksetROC = "risksetROC")
@@ -423,8 +456,10 @@ eval_results <- eval_models4.0(lst_models = lst_models,
 #                                                            pred.method = .,
 #                                                            pred.attr = "mean",
 #                                                            times = seq(1,4,0.5), max_time_points = 15, 
-#                                                            PARALLEL = T))
+#                                                            PARALLEL = F))
 ```
+
+We can print the results obtained in the console where we can see, for each of the selected methods, the training time and the time it took to be evaluated, as well as their AIC, C-Index and AUC metrics and at which time points it was evaluated.
 
 ```{r}
 eval_results
@@ -433,14 +468,18 @@ eval_results
 
 ## Plot comparison
 
+However, we can also obtain graphical results where we can compare each method over time, as well as their average scores using the function "plot_evaluation".
+
 ```{r}
 lst_eval_results <- plot_evaluation(eval_results)
 #lst_eval_results <- plot_evaluation.list(eval_results)
 ```
 
+After performing the cross-validation, we obtain a list in R that contains two new lists. The first of these refers to the evaluation over time for each of the methods used, as well as a variant where the average value of each of them is shown. On the other hand, we can compare the mean results of each method using: T-test, Wilcoxon-test, anova or Kruskal-Wallis.
+
 ```{r, fig.small=T}
-lst_eval_results$lst_plots$lineplot.mean
-lst_eval_results$lst_plot_comparisons$t.test
+lst_eval_results$lst_plots$lineplot
+lst_eval_results$lst_plot_comparisons$anova
 
 # lst_eval_results$cenROC$lst_plots$lineplot.mean
 # lst_eval_results$cenROC$lst_plot_comparisons$t.test
@@ -448,59 +487,89 @@ lst_eval_results$lst_plot_comparisons$t.test
 
 ## Computing time comparison (we use the cross validation models)
 
-We should add the cross validations models in order to see which method takes more time.
+Another possible comparison is related to the computation times for cross-validation, model creation, and evaluation. In this case, as the cross-validations were not launched for the vignette, we will check which method is the fastest among the others based solely on its construction given the correct parameters.
 
 ```{r}
-lst_models_time <- list(plsicox_model,
+lst_models_time <- list(coxen_model,
+                        plsicox_model,
                         splsdrcox_model,
-                        splsdacox_model,
+                        splsdrcox_mo_model,
+                        splsdacox_mo_model,
                         eval_results)
 ```
 
 ```{r}
-ggp_time <- plot_time.models(lst_models_time)
+ggp_time <- plot_time.list(lst_models_time)
 ```
 
 ```{r, fig.small=T}
 ggp_time
 ```
 
+# Individual interpretations of the results
+
+Following the cross validation, we have selected the sPLS-DACOX methodology as the most suitable model for our data. We will now study and interpret its results based on the study variables or latent variables used. In this case, we will examine some graphs of the model.
+
 ## Forest plots
 
+A forest plot can be obtained as the first graph using the survminer R package. However, the function has been restructured to allow for simultaneous launch of an HDcox class model or a list of HDcox models using the plot_forest() or plot_forest.list() function.
+
 ```{r}
-lst_forest_plot <- purrr::map(lst_models, ~survminer::ggforest(.$survival_model$fit, 
-                                                               data = .$survival_model$fit$model))
+lst_forest_plot <- plot_forest.list(lst_models)
 ```
 
 ```{r, fig.small=T}
-lst_forest_plot$`SPLS-DRCOX`
+lst_forest_plot$`sPLS-DACOX-MixOmics`
 ```
 
-## Density plots for each prediction
+## Density plots
+
+Another type of graph implemented for all models, whether they belong to the classical branch or to PLS-based models, is the visualization of observations by event according to the values predicted by the Cox models. 
+
+The R package "coxph" allows for several types of predictions to be made on a Cox model that we use in our function, which are:
+
+* Linear predictors "lp": are the expected values of the response variable (in this case, time until the event of interest) for each observation, based on the Cox model. These values can be calculated from the mean of the predictor variable values and the constant term of the model.
+
+* Risk of experiencing an event "risk": is a measure of the probability that an event will occur for each observation, based on the Cox model. The risk value can be calculated from the predictor values and the constant term of the model.
+
+* Number of events expected to be experienced over time with these specific individual characteristics "expected": are the expected number of events that would occur for each observation, based on the Cox model and a specified period of time.
+
+* Terms: are the variables included in the Cox model.
+
+* Survival probability "survival": is the probability that an individual will not experience the event of interest during a specified period of time, based on the Cox model. The survival probability can be calculated from the predictor values and the constant term of the model.
+
+According to the predicted value, we can classify the observations along their possible values and see their distribution for each of the different models.
 
 ```{r}
 density.plots.lp <- plot_cox.event.list(lst_models, type = "lp")
 ```
 
 ```{r, fig.small=T}
-density.plots.lp$`SPLS-DRCOX`$plot.density
-density.plots.lp$`SPLS-DRCOX`$plot.histogram
+density.plots.lp$`sPLS-DACOX-MixOmics`$plot.density
+density.plots.lp$`sPLS-DACOX-MixOmics`$plot.histogram
 ```
 
 ## PH Assumption
+
+The following graph is related to one of the assumptions of the Cox models, called proportional hazard. 
+
+In a Cox proportional hazards model, the proportional hazards assumption states that the hazard ratio (the risk of experiencing the event of interest) is constant over time for a given set of predictor variables. This means that the effect of the predictors on the hazard ratio does not change over time. This assumption is important because it allows for the interpretation of the model's coefficients as measures of the effect of the predictors on the hazard ratio. Violations of the proportional hazards assumption can occur if the effect of the predictors on the hazard ratio changes over time or if there is an interaction between the predictors and time. In these cases, the coefficients of the model may not accurately reflect the effect of the predictors on the hazard ratio and the results of the model may not be reliable.
+
+In this way, to visualize and check if the assumption is violated, the function plot_proportionalHazard.list() or plot_proportionalHazard() can be called, depending on whether a list of models or a specific model is to be evaluated.
 
 ```{r}
 lst_ph_ggplot <- plot_proportionalHazard.list(lst_models)
 ```
 
-```{r, fig.small=T}
-lst_ph_ggplot$`SPLS-DRCOX`
-```
+Variables or components with a significant P-Value indicate that the assumption is being violated.
 
+```{r, fig.small=T}
+lst_ph_ggplot$`sPLS-DACOX-MixOmics`
+```
 ## Studying PLS model
 
 ```{r}
-ggp_scores <- plot_PLS_HDcox(model = lst_models$`SPLS-DRCOX`, 
+ggp_scores <- plot_PLS_HDcox(model = lst_models$`sPLS-DACOX-MixOmics`, 
                              comp = c(1,2), mode = "scores")
 ```
 
@@ -509,7 +578,7 @@ ggp_scores$plot
 ```
 
 ```{r}
-ggp_loadings <- plot_PLS_HDcox(model = lst_models$`SPLS-DRCOX`, 
+ggp_loadings <- plot_PLS_HDcox(model = lst_models$`sPLS-DACOX-MixOmics`, 
                                comp = c(1,2), mode = "loadings",
                                top = 10) #length from 0,0
 ```
@@ -518,7 +587,7 @@ ggp_loadings <- plot_PLS_HDcox(model = lst_models$`SPLS-DRCOX`,
 ggp_loadings$plot
 ```
 ```{r}
-ggp_biplot <- plot_PLS_HDcox(model = lst_models$`SPLS-DRCOX`, 
+ggp_biplot <- plot_PLS_HDcox(model = lst_models$`sPLS-DACOX-MixOmics`, 
                              comp = c(1,2), mode = "biplot",
                              top = 15,
                              only_top = T)
@@ -540,7 +609,7 @@ ggp.simulated_beta <- plot_pseudobeta.list(lst_models = lst_models,
 ```
 
 ```{r, fig.small=T}
-ggp.simulated_beta$`SPLS-DRCOX`$plot
+ggp.simulated_beta$`sPLS-DACOX-MixOmics`$plot
 ```
 
 ## Kaplan-Meier
@@ -558,7 +627,7 @@ LST_KM_RES_LP <- getAutoKM.list(type = "LP",
 ```
 
 ```{r, fig.small=T}
-LST_KM_RES_LP$`SPLS-DRCOX`$LST_PLOTS$LP
+LST_KM_RES_LP$`sPLS-DACOX-MixOmics`$LST_PLOTS$LP
 ```
 
 ### Per components
@@ -574,8 +643,8 @@ LST_KM_RES_COMP <- getAutoKM.list(type = "COMP",
 ```
 
 ```{r, fig.small=T}
-LST_KM_RES_COMP$`SPLS-DRCOX`$LST_PLOTS$comp_1
-LST_KM_RES_COMP$`SPLS-DRCOX`$LST_PLOTS$comp_2
+LST_KM_RES_COMP$`sPLS-DACOX-MixOmics`$LST_PLOTS$comp_1
+LST_KM_RES_COMP$`sPLS-DACOX-MixOmics`$LST_PLOTS$comp_2
 ```
 
 ### Per original variables
@@ -593,8 +662,8 @@ LST_KM_RES_VAR <- getAutoKM.list(type = "VAR",
 ```
 
 ```{r, fig.small=T}
-LST_KM_RES_VAR$`SPLS-DRCOX`$LST_PLOTS$POSTN
-LST_KM_RES_VAR$`SPLS-DRCOX`$LST_PLOTS$SIRT5
+LST_KM_RES_VAR$`sPLS-DACOX-MixOmics`$LST_PLOTS$POSTN
+LST_KM_RES_VAR$`sPLS-DACOX-MixOmics`$LST_PLOTS$SIRT5
 ```
 
 # New patients
@@ -613,7 +682,7 @@ ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient.list(lst_models = lst_mo
                                                              error.bar = T, onlySig = T, alpha = 0.05,
                                                              zero.rm = T, auto.limits = T, show.betas = T, top = 20)
 
-# ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient(model = lst_models$`SPLS-DRCOX`, 
+# ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient(model = lst_models$`sPLS-DACOX-MixOmics`, 
 #                                                         new_pat = new_pat,
 #                                                         error.bar = T, onlySig = T, alpha = 0.05,
 #                                                         zero.rm = T, auto.limits = T, show.betas = T, top = 20)
@@ -622,7 +691,7 @@ ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient.list(lst_models = lst_mo
 Opposite direction means its value is under the mean for risk one or over the mean for protective ones.
 
 ```{r, fig.small=T}
-ggp.simulated_beta_newPat$`SPLS-DRCOX`$plot
+ggp.simulated_beta_newPat$`sPLS-DACOX-MixOmics`$plot
 ```
 
 ## Add patient to density plot
@@ -630,7 +699,7 @@ ggp.simulated_beta_newPat$`SPLS-DRCOX`$plot
 ```{r}
 pat_density <- plot_patient.eventDensity(patient = new_pat, 
                                          time = NULL, 
-                                         model = lst_models$`SPLS-DRCOX`, 
+                                         model = lst_models$`sPLS-DACOX-MixOmics`, 
                                          type = "lp")
 ```
 
@@ -641,7 +710,7 @@ pat_density
 ```{r}
 pat_histogram <- plot_patient.eventHistogram(patient = new_pat, 
                                              time = NULL, 
-                                             model = lst_models$`SPLS-DRCOX`, 
+                                             model = lst_models$`sPLS-DACOX-MixOmics`, 
                                              type = "lp")
 ```
 
@@ -665,5 +734,5 @@ lst_cox.comparison <- plot_LP.multiplePatients.list(lst_models = lst_models,
 ```
 
 ```{r, fig.small=T}
-lst_cox.comparison$`SPLS-DRCOX`$plot
+lst_cox.comparison$`sPLS-DACOX-MixOmics`$plot
 ```

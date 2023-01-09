@@ -162,6 +162,7 @@ sb.splsdrcox <- function (X, Y,
                                 X_input = if(returnData) X_original else NA,
                                 Y_input = if(returnData) Y_original else NA,
                                 nzv = variablesDeleted,
+                                class = pkg.env$sb.splsdrcox,
                                 time = time)))
 }
 
@@ -559,6 +560,7 @@ fast.cv.sb.splsdrcox <- function(X, Y,
                                 call = func_call,
                                 X_input = if(returnData) X_original else NA,
                                 Y_input = if(returnData) Y_original else NA,
+                                class = pkg.env$sb.splsdrcox,
                                 time = time)))
 }
 

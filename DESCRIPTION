@@ -1,6 +1,6 @@
 Package: HDcox
 Title: High Dimensional Cox
-Version: 0.1
+Version: 0.0.1
 Authors@R: 
     person("Pedro", "Salguero Garcia", , "pedrosalguerog@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-1879-3374"))
@@ -10,6 +10,7 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.2
 Imports: 
+    BiocManager,
     caret,
     cowplot,
     furrr,
@@ -27,6 +28,8 @@ Imports:
     survminer,
     tidyr,
     utils
+Remotes: 
+    BiocManager::install(mixOmics)
 Suggests:
     nsROC,
     smoothROCtime,
@@ -38,6 +41,7 @@ Suggests:
     RColorConesa,
     rmarkdown,
     splines
+Enhances:
 Depends: 
     R (>= 4.1.0)
 LazyData: true
