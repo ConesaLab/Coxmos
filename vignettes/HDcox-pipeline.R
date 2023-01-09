@@ -294,7 +294,7 @@ lst_models_time <- list(coxen_model,
                         eval_results)
 
 ## -----------------------------------------------------------------------------
-ggp_time <- plot_time.models(lst_models_time)
+ggp_time <- plot_time.list(lst_models_time)
 
 ## ---- fig.small=T-------------------------------------------------------------
 ggp_time
