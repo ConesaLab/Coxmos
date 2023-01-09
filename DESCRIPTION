@@ -28,8 +28,7 @@ Imports:
     survminer,
     tidyr,
     utils
-Remotes: 
-    BiocManager::install(mixOmics)
+Remotes:
 Suggests:
     nsROC,
     smoothROCtime,
