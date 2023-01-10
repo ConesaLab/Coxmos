@@ -62,9 +62,9 @@ ggp_density.event <- plot_events(Y = Y,
 ggp_density.event$plot
 
 ## -----------------------------------------------------------------------------
-set.seed(123)
+set.seed(321)
 index_train <- caret::createDataPartition(Y$event,
-                                          p = .7, #80% train
+                                          p = .9, #80% train
                                           list = FALSE,
                                           times = 1)
 
@@ -100,13 +100,13 @@ EPV
 #                           MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
 #                           pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
 #                           MIN_EPV = 5, return_models = F,
-#                           PARALLEL = F, verbose = F, seed = 123)
+#                           PARALLEL = T, verbose = F, seed = 123)
 #  cv.coxen_res #1.5min.
 
 ## -----------------------------------------------------------------------------
 coxen_model <- coxEN(X = X_train, Y = Y_train, 
                      EN.alpha = 0, #cv.coxen_res$opt.EN.alpha
-                     max.variables = 6, #cv.coxen_res$opt.nvar
+                     max.variables = 9, #cv.coxen_res$opt.nvar
                      x.center = T, x.scale = F, 
                      y.center = F, y.scale = F, 
                      remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL, 
@@ -141,7 +141,7 @@ coxen_model
 #                               pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
 #                               MIN_EPV = 5, return_models = F,
 #                               PARALLEL = T, verbose = F, seed = 123)
-#  cv.plsicox_res #3.7min.
+#  cv.plsicox_res #3.03min.
 
 ## ---- eval=FALSE, fig.small=T-------------------------------------------------
 #  # plot cv.plsicox
@@ -171,13 +171,17 @@ plsicox_model
 #                                   MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
 #                                   pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
 #                                   MIN_EPV = 5, return_models = F,
-#                                   PARALLEL = F, verbose = F, seed = 123)
+#                                   PARALLEL = T, verbose = F, seed = 123)
 #  
-#  cv.splsdrcox_res #2min 40s.
+#  cv.splsdrcox_res #16.78min
+
+## ---- eval=FALSE, fig.small=T-------------------------------------------------
+#  # plot cv.plsicox
+#  cv.splsdrcox_res$plot_AUC
 
 ## -----------------------------------------------------------------------------
 splsdrcox_model <- splsdrcox(X = X_train, Y = Y_train, 
-                             n.comp = 1, eta = 0, #n.comp = cv.splsdrcox_res$opt.comp, eta = cv.splsdrcox_res$opt.eta
+                             n.comp = 6, eta = 0.8, #n.comp = cv.splsdrcox_res$opt.comp, eta = cv.splsdrcox_res$opt.eta
                              x.center = T, x.scale = F,
                              y.center = F, y.scale = F,
                              remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,

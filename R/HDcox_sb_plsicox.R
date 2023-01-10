@@ -184,8 +184,8 @@ sb.plsicox <- function (X, Y,
 #' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, remove_zero_variance variables will be removed.
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.
 #' @param remove_non_significant_models Logical. If remove_non_significant_models = TRUE, non-significant models are removed before computing the evaluation.
-#' @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
 #' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
+#' @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
 #' @param w_AIC Numeric. Weight for AIC evaluator. All three weights must sum 1 (default: 0).
 #' @param w_c.index Numeric. Weight for C-Index evaluator. All three weights must sum 1 (default: 0).
 #' @param w_AUC Numeric. Weight for AUC evaluator. All three weights must sum 1 (default: 1).
@@ -210,8 +210,7 @@ cv.sb.plsicox <- function(X, Y,
                           x.center = TRUE, x.scale = FALSE,
                           y.center = FALSE, y.scale = FALSE,
                           remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
-                          remove_non_significant_models = F, alpha = 0.05,
-                          remove_non_significant = F, #remove components in backwards in cox model
+                          remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,
                           w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
                           MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                           pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
@@ -271,7 +270,8 @@ cv.sb.plsicox <- function(X, Y,
                                    lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
                                    max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL,
                                    n_run = n_run, k_folds = k_folds,
-                                   remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL, remove_non_significant = remove_non_significant,
+                                   remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
+                                   remove_non_significant = remove_non_significant,
                                    x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
                                    total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
 
@@ -396,8 +396,8 @@ cv.sb.plsicox <- function(X, Y,
 #' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, remove_zero_variance variables will be removed.
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.
 #' @param remove_non_significant_models Logical. If remove_non_significant_models = TRUE, non-significant models are removed before computing the evaluation.
-#' @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
 #' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
+#' @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
 #' @param w_AIC Numeric. Weight for AIC evaluator. All three weights must sum 1 (default: 0).
 #' @param w_c.index Numeric. Weight for C-Index evaluator. All three weights must sum 1 (default: 0).
 #' @param w_AUC Numeric. Weight for AUC evaluator. All three weights must sum 1 (default: 1).
@@ -423,8 +423,7 @@ fast.cv.sb.plsicox <- function(X, Y,
                                x.center = TRUE, x.scale = FALSE,
                                y.center = FALSE, y.scale = FALSE,
                                remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
-                               remove_non_significant_models = F, alpha = 0.05,
-                               remove_non_significant = F, #remove components in backwards in cox model
+                               remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,
                                w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
                                MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                                pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
@@ -504,15 +503,18 @@ fast.cv.sb.plsicox <- function(X, Y,
                                    MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
                                    x.scale = x.scale[[b]], x.center = x.center[[b]], y.scale = y.scale, y.center = y.center,
                                    remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
+                                   remove_non_significant = remove_non_significant,
                                    fast_mode = fast_mode, return_models = return_models, MIN_EPV = MIN_EPV,
                                    pred.attr = pred.attr, pred.method = pred.method, seed = seed, PARALLEL = PARALLEL)
 
     lst_sb.pls[[b]] <- plsicox(X = Xh[[b]],
-                                 Y = Yh,
-                                 n.comp = cv.splsdrcox_res$opt.comp,
-                                 remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL, returnData = F,
-                                 x.center = x.center[[b]], x.scale = x.scale[[b]],
-                                 y.scale = y.scale, y.center = y.center)
+                               Y = Yh,
+                               n.comp = cv.splsdrcox_res$opt.comp,
+                               remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
+                               remove_non_significant = remove_non_significant,
+                               returnData = F,
+                               x.center = x.center[[b]], x.scale = x.scale[[b]],
+                               y.scale = y.scale, y.center = y.center)
   }
 
   # CHECK ALL MODELS SAME COMPONENTS
@@ -529,6 +531,14 @@ fast.cv.sb.plsicox <- function(X, Y,
   #colnames(data) <- apply(expand.grid(colnames(lst_sb.pls[[1]]$X$scores), names(Xh)), 1, paste, collapse="_")
   colnames(data) <- cn.merge
   cox_model <- cox(X = data, Y = Yh, x.center = F, x.scale = F, y.center = F, y.scale = F, remove_non_significant = remove_non_significant, FORCE = T)
+
+  #RETURN a MODEL with ALL significant Variables from complete, deleting one by one in backward method
+  if(remove_non_significant){
+    lst_rnsc <- removeNonSignificativeCox(cox = cox_model$fit, alpha = alpha, cox_input = cbind(data, Yh))
+
+    cox_model$fit <- lst_rnsc$cox
+    removed_variables <- lst_rnsc$removed_variables
+  }
 
   ##########
   # RETURN #
@@ -547,6 +557,8 @@ fast.cv.sb.plsicox <- function(X, Y,
                                 call = func_call,
                                 X_input = if(returnData) X_original else NA,
                                 Y_input = if(returnData) Y_original else NA,
+                               alpha = alpha,
+                               removed_variables_cox = removed_variables,
                                 class = pkg.env$sb.plsicox,
                                 time = time)))
 }

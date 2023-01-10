@@ -4,13 +4,12 @@ Version: 0.0.1
 Authors@R: 
     person("Pedro", "Salguero Garcia", , "pedrosalguerog@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-1879-3374"))
-Description: Cox analysis for high dimensional data. HDcox proportionate a serie of classical cox and PLS-cox functions to manage and work with high dimensional data sets. Furthermore, cross validation, plots, and extra functions for the understanding of the results are provided.
+Description: Cox analysis for high dimensional data. HDcox proportionate a serie of classical cox and (s)PLS-COX functions to manage and work with high dimensional data sets. Furthermore, cross validation, plots, and extra functions for the understanding of the results are provided.
 License: CC BY 4.0
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.2
-Imports: 
-    BiocManager,
+Imports:
     caret,
     cowplot,
     furrr,
@@ -19,7 +18,6 @@ Imports:
     ggplot2,
     ggpubr,
     glmnet,
-    mixOmics,
     progress,
     purrr,
     scattermore,
@@ -42,7 +40,8 @@ Suggests:
     splines
 Enhances:
 Depends: 
-    R (>= 4.1.0)
+    R (>= 4.1.0),
+    mixOmics (>= 6.18.1)
 LazyData: true
 NeedsCompilation: yes
 VignetteBuilder: knitr

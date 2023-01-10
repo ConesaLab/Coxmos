@@ -9,6 +9,10 @@
 #' @param Y Numeric matrix. Response variables. It assumes it has two columns named as "time" and "event". For event column, values can be 0/1 or FALSE/TRUE for censored and event samples.
 #' @param n.comp Numeric. Number of principal components to compute in the PLS model.
 #' @param vector Numeric vector. Used for computing best number of variables. If NULL, an automatic detection is perform.
+#' @param MIN_NVAR Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
+#' @param MAX_NVAR Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
+#' @param n.cut_points Numeric. Number of start cut points for look the optimal number of variable. 2 cut points mean start with the minimum and maximum. 3 start with minimum, maximum and middle point...(default: 3)
+#' @param MIN_AUC_INCREASE Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
 #' @param y.center Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).
@@ -16,10 +20,8 @@
 #' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, remove_near_zero_variance variables will be removed.
 #' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, remove_zero_variance variables will be removed.
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.
-#' @param MIN_NVAR Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
-#' @param MAX_NVAR Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
-#' @param n.cut_points Numeric. Number of start cut points for look the optimal number of variable. 2 cut points mean start with the minimum and maximum. 3 start with minimum, maximum and middle point...(default: 3)
-#' @param MIN_AUC_INCREASE Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
+#' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
+#' @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
 #' @param EVAL_METHOD Numeric. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
 #' @param pred.method Character. AUC method for evaluation. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC")
 #' @param max.iter Maximum number of iterations for PLS convergence.
@@ -74,11 +76,12 @@
 
 splsdacox_mixOmics <- function (X, Y,
                                n.comp = 4, vector = NULL,
+                               MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 5,
+                               MIN_AUC_INCREASE = 0.01,
                                x.center = TRUE, x.scale = FALSE,
                                y.center = FALSE, y.scale = FALSE,
                                remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
-                               MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 5,
-                               MIN_AUC_INCREASE = 0.01,
+                               remove_non_significant = F, alpha = 0.05,
                                EVAL_METHOD = "AUC", pred.method = "cenROC", max.iter = 200,
                                MIN_EPV = 5, returnData = T, verbose = F){
 
@@ -193,6 +196,14 @@ splsdacox_mixOmics <- function (X, Y,
     }
   )
 
+  #RETURN a MODEL with ALL significant Variables from complete, deleting one by one in backward method
+  if(remove_non_significant){
+    lst_rnsc <- removeNonSignificativeCox(cox = cox_model$fit, alpha = alpha, cox_input = d)
+
+    cox_model$fit <- lst_rnsc$cox
+    removed_variables <- lst_rnsc$removed_variables
+  }
+
   survival_model = NULL
   if(!length(cox_model$fit) == 1){
     survival_model <- getInfoCoxModel(cox_model$fit)
@@ -223,6 +234,8 @@ splsdacox_mixOmics <- function (X, Y,
                                       call = func_call,
                                       X_input = if(returnData) X_original else NA,
                                       Y_input = if(returnData) Y_original else NA,
+                                      alpha = alpha,
+                                      removed_variables_cox = removed_variables,
                                       nzv = variablesDeleted,
                                       class = pkg.env$splsdacox_mixomics,
                                       time = time)))
@@ -249,6 +262,7 @@ splsdacox_mixOmics <- function (X, Y,
 #' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, remove_zero_variance variables will be removed.
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.
 #' @param remove_non_significant_models Logical. If remove_non_significant_models = TRUE, non-significant models are removed before computing the evaluation.
+#' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
 #' @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
 #' @param MIN_NVAR Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
 #' @param MAX_NVAR Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
@@ -281,7 +295,7 @@ cv.splsdacox_mixOmics <- function(X, Y,
                         x.center = TRUE, x.scale = FALSE,
                         y.center = FALSE, y.scale = FALSE,
                         remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
-                        remove_non_significant_models = F, alpha = 0.05,
+                        remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,
                         MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 5,
                         MIN_AUC_INCREASE = 0.01,
                         EVAL_METHOD = "AUC",
@@ -350,6 +364,7 @@ cv.splsdacox_mixOmics <- function(X, Y,
                                        EVAL_METHOD = EVAL_METHOD,
                                        x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
                                        remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
+                                       remove_non_significant = remove_non_significant,
                                        total_models = total_models, max.iter = max.iter, PARALLEL = PARALLEL, verbose = verbose)
 
   # comp_model_lst <- get_HDCOX_models(method = pkg.env$splsdacox_mixomics,

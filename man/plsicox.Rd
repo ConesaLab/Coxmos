@@ -15,6 +15,8 @@ plsicox(
   remove_near_zero_variance = T,
   remove_zero_variance = F,
   toKeep.zv = NULL,
+  remove_non_significant = F,
+  alpha = 0.05,
   tol = 1e-08,
   MIN_EPV = 5,
   returnData = T,
@@ -41,6 +43,10 @@ plsicox(
 \item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, remove_zero_variance variables will be removed.}
 
 \item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.}
+
+\item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
+
+\item{alpha}{Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).}
 
 \item{tol}{Numeric. Tolerance for computing PLS components.}
 

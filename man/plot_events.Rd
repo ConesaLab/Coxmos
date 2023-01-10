@@ -9,7 +9,8 @@ plot_events(
   max.breaks = 20,
   roundTo = 0.1,
   categories = c("Censored", "Death"),
-  y.text = "Number of patients"
+  y.text = "Number of patients",
+  verbose = F
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ plot_events(
 \item{categories}{Categories to print.}
 
 \item{y.text}{Label for Y axis}
+
+\item{verbose}{Return messages}
 }
 \description{
 plot_events

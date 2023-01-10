@@ -2546,10 +2546,11 @@ plot_divergent.biplot <- function(X, Y, NAMEVAR1, NAMEVAR2, breaks, x.text = "N.
 #' @param roundTo Round time to which value.
 #' @param categories Categories to print.
 #' @param y.text Label for Y axis
+#' @param verbose Return messages
 #'
 #' @export
 
-plot_events <- function(Y, max.breaks = 20, roundTo = 0.1, categories = c("Censored","Death"), y.text = "Number of patients"){
+plot_events <- function(Y, max.breaks = 20, roundTo = 0.1, categories = c("Censored","Death"), y.text = "Number of patients", verbose = F){
 
   #REQUIREMENTS
   if(length(categories)>2 | length(categories)<2 | class(categories)!="character"){
@@ -2582,7 +2583,9 @@ plot_events <- function(Y, max.breaks = 20, roundTo = 0.1, categories = c("Censo
   Category <- Time <- Values <- x.names <- breaks<- NULL
 
   if(class(Y[,"event"])!="logical"){
-    message("Warning: Y matrix must has event column as TRUE, FALSE. as.logical() function has been used.")
+    if(verbose){
+      message("Y matrix must has event column as TRUE, FALSE. as.logical() function has been used.")
+    }
     Y$event <- as.logical(Y$event)
   }
 

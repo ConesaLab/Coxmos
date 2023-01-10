@@ -249,37 +249,12 @@ coxEN <- function(X, Y,
                             time = time)))
   }
 
-  #RETURN a MODEL with ALL significant Variables from complete, deleting one by one
-  removed_variables <- NULL
-
+  #RETURN a MODEL with ALL significant Variables from complete, deleting one by one in backward method
   if(remove_non_significant){
-    p_val <- summary(best_cox)[[7]][,"Pr(>|z|)"]
-    while(any(p_val>alpha)){
-      to_remove <- names(which.max(p_val))
-      to_remove <- deleteIllegalChars(to_remove)
-      d <- d[,!colnames(d) %in% c(to_remove)]
-      best_cox <- tryCatch(
-        # Specifying expression
-        expr = {
-          survival::coxph(formula = survival::Surv(time,event) ~ .,
-                          data = d,
-                          ties = "efron",
-                          singular.ok = T,
-                          robust = T,
-                          nocenter = rep(1, ncol(d)-ncol(Yh)),
-                          model=T)
-        },
-        # Specifying error message
-        error = function(e){
-          message(paste0("coxEN: ", e))
-          invisible(gc())
-          return(NA)
-        }
-      )
+    lst_rnsc <- removeNonSignificativeCox(cox = best_cox, alpha = alpha, cox_input = d)
 
-      removed_variables <- c(removed_variables, to_remove)
-      p_val <- summary(best_cox)[[7]][,"Pr(>|z|)"]
-    }
+    best_cox <- lst_rnsc$cox
+    removed_variables <- lst_rnsc$removed_variables
   }
 
   if(class(best_cox)[[1]]=="coxph.null"){
@@ -308,7 +283,7 @@ coxEN <- function(X, Y,
                           Y_input = if(returnData) Y_original else NA,
                           convergence_issue = problem,
                           alpha = alpha,
-                          removed_variables = removed_variables,
+                          removed_variables_cox = removed_variables,
                           nzv = variablesDeleted,
                           class = pkg.env$coxEN,
                           time = time)))

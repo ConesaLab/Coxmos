@@ -18,8 +18,8 @@ fast.cv.sb.plsicox(
   remove_zero_variance = T,
   toKeep.zv = NULL,
   remove_non_significant_models = F,
-  alpha = 0.05,
   remove_non_significant = F,
+  alpha = 0.05,
   w_AIC = 0,
   w_c.index = 0,
   w_AUC = 1,
@@ -65,9 +65,9 @@ fast.cv.sb.plsicox(
 
 \item{remove_non_significant_models}{Logical. If remove_non_significant_models = TRUE, non-significant models are removed before computing the evaluation.}
 
-\item{alpha}{Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).}
-
 \item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
+
+\item{alpha}{Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).}
 
 \item{w_AIC}{Numeric. Weight for AIC evaluator. All three weights must sum 1 (default: 0).}
 

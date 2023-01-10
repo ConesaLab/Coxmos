@@ -19,6 +19,7 @@ cv.splsdacox_mixOmics(
   remove_zero_variance = T,
   toKeep.zv = NULL,
   remove_non_significant_models = F,
+  remove_non_significant = F,
   alpha = 0.05,
   MIN_NVAR = 10,
   MAX_NVAR = 1000,
@@ -70,6 +71,8 @@ cv.splsdacox_mixOmics(
 \item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.}
 
 \item{remove_non_significant_models}{Logical. If remove_non_significant_models = TRUE, non-significant models are removed before computing the evaluation.}
+
+\item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
 
 \item{alpha}{Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).}
 

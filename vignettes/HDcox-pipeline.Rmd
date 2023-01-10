@@ -177,9 +177,9 @@ The first thing we are going to do is split our data into a training set and a t
 First, we will divide our data into a training and testing set using the `createDataPartition` function from the R package caret. We will use a 70%/30% split for training and testing, respectively, and set a seed for reproducible results.
 
 ```{r}
-set.seed(123)
+set.seed(321)
 index_train <- caret::createDataPartition(Y$event,
-                                          p = .7, #80% train
+                                          p = .9, #80% train
                                           list = FALSE,
                                           times = 1)
 
@@ -203,7 +203,7 @@ cox_model <- cox(X = X_train, Y = Y_train,
                  MIN_EPV = 5, FORCE = F, returnData = T, verbose = T)
 ```
 
-Despite specifying an EPV of 5, we should have a maximum of 6 variables in our final survival model in relation to the number of events found in our training set. To compute our EPV, we can used the function `getEPV()` that requires the matrix X and Y as input.
+Despite specifying an EPV of 5, we should have a maximum of 10 variables in our final survival model in relation to the number of events found in our training set. To compute our EPV, we can used the function `getEPV()` that requires the matrix X and Y as input.
 
 ```{r}
 EPV <- getEPV(X_train, Y_train)
@@ -239,14 +239,14 @@ cv.coxen_res <- cv.coxEN(X = X_train, Y = Y_train,
                          MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                          pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                          MIN_EPV = 5, return_models = F,
-                         PARALLEL = F, verbose = F, seed = 123)
+                         PARALLEL = T, verbose = F, seed = 123)
 cv.coxen_res #1.5min.
 ```
 
 ```{r}
 coxen_model <- coxEN(X = X_train, Y = Y_train, 
                      EN.alpha = 0, #cv.coxen_res$opt.EN.alpha
-                     max.variables = 6, #cv.coxen_res$opt.nvar
+                     max.variables = 9, #cv.coxen_res$opt.nvar
                      x.center = T, x.scale = F, 
                      y.center = F, y.scale = F, 
                      remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL, 
@@ -288,7 +288,7 @@ cv.plsicox_res <- cv.plsicox(X = X_train, Y = Y_train,
                              pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                              MIN_EPV = 5, return_models = F,
                              PARALLEL = T, verbose = F, seed = 123)
-cv.plsicox_res #3.7min.
+cv.plsicox_res #3.03min.
 ```
 
 ```{r, eval=FALSE, fig.small=T}
@@ -327,16 +327,21 @@ cv.splsdrcox_res <- cv.splsdrcox(X = X_train, Y = Y_train,
                                  MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                                  pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                                  MIN_EPV = 5, return_models = F,
-                                 PARALLEL = F, verbose = F, seed = 123)
+                                 PARALLEL = T, verbose = F, seed = 123)
 
-cv.splsdrcox_res #2min 40s.
+cv.splsdrcox_res #16.78min
 ```
 
-"Based on the results obtained through cross validation, we will create a PLS-DRCOX model with a single component and no eta penalty as seen in the cross validation.
+```{r, eval=FALSE, fig.small=T}
+# plot cv.plsicox
+cv.splsdrcox_res$plot_AUC
+```
+
+Based on the results obtained through cross validation, we will create a PLS-DRCOX model with a single component and no eta penalty as seen in the cross validation.
 
 ```{r}
 splsdrcox_model <- splsdrcox(X = X_train, Y = Y_train, 
-                             n.comp = 1, eta = 0, #n.comp = cv.splsdrcox_res$opt.comp, eta = cv.splsdrcox_res$opt.eta
+                             n.comp = 6, eta = 0.8, #n.comp = cv.splsdrcox_res$opt.comp, eta = cv.splsdrcox_res$opt.eta
                              x.center = T, x.scale = F,
                              y.center = F, y.scale = F,
                              remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
@@ -566,6 +571,8 @@ Variables or components with a significant P-Value indicate that the assumption 
 ```{r, fig.small=T}
 lst_ph_ggplot$`sPLS-DACOX-MixOmics`
 ```
+
+
 ## Studying PLS model
 
 ```{r}

@@ -16,6 +16,8 @@
 #' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, remove_near_zero_variance variables will be removed.
 #' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, remove_zero_variance variables will be removed.
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.
+#' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
+#' @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
 #' @param MIN_EPV Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.
 #' @param returnData Logical. Return original and normalized X and Y matrices.
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
@@ -83,6 +85,7 @@ splsdrcox <- function (X, Y,
                       x.center = TRUE, x.scale = FALSE,
                       y.center = FALSE, y.scale = FALSE,
                       remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+                      remove_non_significant = F, alpha = 0.05,
                       MIN_EPV = 5, returnData = T, verbose = F){
 
   t1 <- Sys.time()
@@ -370,6 +373,14 @@ splsdrcox <- function (X, Y,
     )
   }
 
+  #RETURN a MODEL with ALL significant Variables from complete, deleting one by one in backward method
+  if(remove_non_significant){
+    lst_rnsc <- removeNonSignificativeCox(cox = aux, alpha = alpha, cox_input = d)
+
+    aux <- lst_rnsc$cox
+    removed_variables <- lst_rnsc$removed_variables
+  }
+
   cox_model <- NULL
   cox_model$fit <- aux
   names(var_by_component_nzv) <- paste0("comp_", 1:n.comp_used)
@@ -435,6 +446,8 @@ splsdrcox <- function (X, Y,
                              R2 = R2,
                              SCR = SCR,
                              SCT = SCT,
+                             alpha = alpha,
+                             removed_variables_cox = removed_variables,
                              nzv = variablesDeleted,
                              class = pkg.env$splsdrcox,
                              time = time)))
@@ -753,7 +766,8 @@ splsdrcox.modelPerComponent <- function (X, Y,
 #' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, remove_near_zero_variance variables will be removed.
 #' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, remove_zero_variance variables will be removed.
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.
-#' @param remove_non_significant_models Logical. If remove_non_significant_models = TRUE, non-significant models are removed before computing the evaluation.#' @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
+#' @param remove_non_significant_models Logical. If remove_non_significant_models = TRUE, non-significant models are removed before computing the evaluation. A non-significant model is a model with at least one component/variable with a P-Value higher than the alpha cutoff. @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
+#' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
 #' @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
 #' @param w_AIC Numeric. Weight for AIC evaluator. All three weights must sum 1 (default: 0).
 #' @param w_c.index Numeric. Weight for C-Index evaluator. All three weights must sum 1 (default: 0).
@@ -780,7 +794,7 @@ cv.splsdrcox <- function (X, Y,
                          x.center = TRUE, x.scale = FALSE,
                          y.center = FALSE, y.scale = FALSE,
                          remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
-                         remove_non_significant_models = F, alpha = 0.05,
+                         remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,
                          w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
                          MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                          pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
@@ -842,6 +856,7 @@ cv.splsdrcox <- function (X, Y,
                                 n_run = n_run, k_folds = k_folds,
                                 x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
                                 remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
+                                remove_non_significant = remove_non_significant,
                                 total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
 
   # lst_model <- get_HDCOX_models(method = pkg.env$splsdrcox,

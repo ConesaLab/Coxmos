@@ -9,6 +9,10 @@ splsdacox_mixOmics(
   Y,
   n.comp = 4,
   vector = NULL,
+  MIN_NVAR = 10,
+  MAX_NVAR = 1000,
+  n.cut_points = 5,
+  MIN_AUC_INCREASE = 0.01,
   x.center = TRUE,
   x.scale = FALSE,
   y.center = FALSE,
@@ -16,10 +20,8 @@ splsdacox_mixOmics(
   remove_near_zero_variance = T,
   remove_zero_variance = T,
   toKeep.zv = NULL,
-  MIN_NVAR = 10,
-  MAX_NVAR = 1000,
-  n.cut_points = 5,
-  MIN_AUC_INCREASE = 0.01,
+  remove_non_significant = F,
+  alpha = 0.05,
   EVAL_METHOD = "AUC",
   pred.method = "cenROC",
   max.iter = 200,
@@ -37,6 +39,14 @@ splsdacox_mixOmics(
 
 \item{vector}{Numeric vector. Used for computing best number of variables. If NULL, an automatic detection is perform.}
 
+\item{MIN_NVAR}{Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
+
+\item{MAX_NVAR}{Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
+
+\item{n.cut_points}{Numeric. Number of start cut points for look the optimal number of variable. 2 cut points mean start with the minimum and maximum. 3 start with minimum, maximum and middle point...(default: 3)}
+
+\item{MIN_AUC_INCREASE}{Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
+
 \item{x.center}{Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).}
 
 \item{x.scale}{Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).}
@@ -51,13 +61,9 @@ splsdacox_mixOmics(
 
 \item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.}
 
-\item{MIN_NVAR}{Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
+\item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
 
-\item{MAX_NVAR}{Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
-
-\item{n.cut_points}{Numeric. Number of start cut points for look the optimal number of variable. 2 cut points mean start with the minimum and maximum. 3 start with minimum, maximum and middle point...(default: 3)}
-
-\item{MIN_AUC_INCREASE}{Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
+\item{alpha}{Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).}
 
 \item{EVAL_METHOD}{Numeric. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
 
