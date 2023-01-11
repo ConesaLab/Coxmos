@@ -47,3 +47,28 @@
 #' @source curatedOvarianData R package
 
 "Y_small_mo.data_Glioblastoma"
+
+#' X_miRNA_glioblastoma Data
+#'
+#' miRNA dataset from Glioblastome multiomic dataset
+#'
+#' @format A data frame with 552 observations and 534 features:
+#'  \describe{miRNA data set from multiomic glioblastome data.}
+#'
+#' @source Glioblastome data
+
+"X_miRNA_glioblastoma"
+
+#' Y_small_mo.data_Glioblastoma Data
+#'
+#' miRNA dataset from Glioblastome multiomic dataset
+#'
+#' @format A data frame with 552 observations and 2 features:
+#'  \describe{
+#'     \item{time}{Global survival time in years. Time to the event of to the last patient information.}
+#'     \item{event}{Numeric. FALSE for censored and TRUE for event observations.}
+#'  }
+#'
+#' @source curatedOvarianData R package
+
+"Y_small_mo.data_Glioblastoma"

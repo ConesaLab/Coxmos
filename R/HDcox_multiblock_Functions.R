@@ -45,7 +45,7 @@ deleteZeroOrNearZeroVariance.mb <- function(X, remove_near_zero_variance = F, re
 
 checkXY.mb.class <- function(X, Y, verbose = T){
   # Check if X and Y are matrices
-  if (!is.list(X)) {
+  if (!isa(X, "list")){
     if(verbose){
       stop("X data is not a list\n")
     }
@@ -55,7 +55,7 @@ checkXY.mb.class <- function(X, Y, verbose = T){
       X <- lapply(X, data.matrix)
     }else if(all(unlist(lapply(X, function(x){class(x)[[1]]})) %in% c("data.frame", "matrix"))){
       for(block in names(X)){
-        if(class(X[[block]])[[1]]=="data.frame"){
+        if(is.data.frame(X[[block]])[[1]]){
           X[[block]] <- data.matrix(X[[block]])
         }
       }
@@ -345,7 +345,7 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
     names(vector) <- names(Xh)
   }else{
     #check vector is a list, and each value is less than the max.variables of that block
-    if(class(vector)[1]!="list"){
+    if(!class(vector[1]) %in% "list"){
       aux <- list()
       for(b in names(Xh)){
         aux[[b]] <- vector

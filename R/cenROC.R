@@ -508,7 +508,7 @@ ker_dis_i <- function(X, y, wt, ktype, bw)
 integ <- function(x, fx, method, n.pts = 256) {
   n = length(x)
   if (method == "simps") {
-    if (class(fx) == "function")
+    if (is.function(fx))
       fx = fx(x)
     if (n != length(fx))
       stop("Unequal input vector lengths")

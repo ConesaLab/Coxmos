@@ -72,7 +72,6 @@ cox <- function (X, Y,
                  remove_non_significant = F, alpha = 0.05,
                  MIN_EPV = 5, FORCE = F, returnData = T, verbose = F){
 
-
   t1 <- Sys.time()
 
   #### Original data
@@ -83,13 +82,9 @@ cox <- function (X, Y,
   event <- Y[,"event"]
 
   #### REQUIREMENTS
-  ## should be a data.frame
-  if(class(X)[1]!="data.frame" & class(X)[1]=="matrix"){
-    X <- as.data.frame(X)
-  }
-  if(class(Y)[1]!="data.frame" & class(Y)[1]=="matrix"){
-    Y <- as.data.frame(Y)
-  }
+  lst_check <- checkXY.class(X, Y, verbose = verbose)
+  X <- lst_check$X
+  Y <- lst_check$Y
 
   #### ZERO VARIANCE - ALWAYS
   lst_dnz <- deleteZeroOrNearZeroVariance(X = X,
@@ -249,7 +244,7 @@ cox <- function (X, Y,
     removed_variables <- c(removed_variables, to_remove)
   }
 
-  if(class(best_cox)=="coxph"){
+  if(isa(best_cox,"coxph")){
     survival_model <- getInfoCoxModel(best_cox)
   }else{
     survival_model <- NULL

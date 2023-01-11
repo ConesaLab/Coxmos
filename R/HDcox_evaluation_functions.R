@@ -129,7 +129,7 @@ getAUC_from_LP_2.0 <- function(linear.predictors, Y, times, bestModel = NULL, me
 
   if(is.null(linear.predictors)){
     return(NA)
-  }else if(!is.list(linear.predictors)){
+  }else if(!isa(linear.predictors, "list")){
     aux = linear.predictors
     linear.predictors = NULL
     linear.predictors$fit = aux
@@ -623,7 +623,7 @@ getAUC_from_LP <- function(linear.predictors, Y, times, bestModel = NULL, method
 
   if(is.null(linear.predictors)){
     return(NA)
-  }else if(!is.list(linear.predictors)){
+  }else if(!isa(linear.predictors, "list")){
     aux = linear.predictors
     linear.predictors = NULL
     linear.predictors$fit = aux

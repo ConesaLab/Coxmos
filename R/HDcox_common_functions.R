@@ -76,8 +76,12 @@ print.HDcox <- function(x, ...){
 
     cat("The method used is ", attr(x, "model"), ".\n\n", sep = "")
 
-    if(!is.null(x$removed_variables)){
+    if("removed_variables" %in% names(x) && !is.null(x$removed_variables)){
       cat("A total of ", length(x$nzv), " variables have been removed due to Zero or Near-Zero Variance filter", ".\n\n", sep = "")
+    }
+
+    if("removed_variables_cox" %in% names(x) && !is.null(x$removed_variables_cox)){
+      cat("A total of ", length(x$removed_variables_cox), " variables have been removed due to non-significance filter inside cox model", ".\n\n", sep = "")
     }
 
     if(!all(is.null(x$survival_model))){
@@ -136,7 +140,7 @@ print.HDcox <- function(x, ...){
 
 getEPV <- function(X,Y){
   if("event" %in% colnames(Y)){
-    EPV <- sum(Y$event) / ncol(X)
+    EPV <- sum(Y[,"event"]) / ncol(X)
   }else{
     stop("Column event has not been detected in Y matrix.")
   }
@@ -238,7 +242,7 @@ stop_quietly <- function(s = NULL) {
   stop()
 }
 
-checkXY.class <- function(X, Y, verbose = T){
+checkXY.class <- function(X, Y, verbose = F){
   # Check if X and Y are matrices
   if (!is.matrix(X)) {
     if(is.data.frame(X)){
@@ -562,7 +566,7 @@ predict.HDcox <- function(object, ..., newdata = NULL){
 
   model <- object
 
-  if(class(model) != pkg.env$model_class){
+  if(!isa(model,pkg.env$model_class)){
     stop_quietly("Model must be an object of class HDcox.")
   }
 
@@ -590,7 +594,7 @@ predict.HDcox <- function(object, ..., newdata = NULL){
         for(b in names(model$list_spls_models)){
           if(b %in% names(newdata)){
 
-            if(!class(x.mean)=="list"){
+            if(!isa(x.mean, "list")){
               if(is.null(x.mean)){
                 center_value = FALSE
               }else{
@@ -604,7 +608,7 @@ predict.HDcox <- function(object, ..., newdata = NULL){
               }
             }
 
-            if(!class(x.sd)=="list"){
+            if(!isa(x.sd, "list")){
               if(is.null(x.sd)){
                 scale_value = FALSE
               }else{
@@ -668,7 +672,7 @@ predict.HDcox <- function(object, ..., newdata = NULL){
         for(b in names(model$list_pls_models)){
           if(b %in% names(newdata)){
 
-            if(!class(x.mean)=="list"){
+            if(!isa(x.mean, "list")){
               if(is.null(x.mean)){
                 center_value = FALSE
               }else{
@@ -682,7 +686,7 @@ predict.HDcox <- function(object, ..., newdata = NULL){
               }
             }
 
-            if(!class(x.sd)=="list"){
+            if(!isa(x.sd, "list")){
               if(is.null(x.sd)){
                 scale_value = FALSE
               }else{
@@ -747,7 +751,7 @@ predict.HDcox <- function(object, ..., newdata = NULL){
         for(b in names(model$X$loadings)){
           if(b %in% names(newdata)){
 
-            if(!class(x.mean)=="list"){
+            if(!isa(x.mean, "list")){
               if(is.null(x.mean)){
                 center_value = FALSE
               }else{
@@ -761,7 +765,7 @@ predict.HDcox <- function(object, ..., newdata = NULL){
               }
             }
 
-            if(!class(x.sd)=="list"){
+            if(!isa(x.sd, "list")){
               if(is.null(x.sd)){
                 scale_value = FALSE
               }else{
@@ -2631,10 +2635,10 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
 #### ### ### #
 
 getBetasFromCOXNET <- function(fit, bestFitModelIndex){
-  if(class(fit)=="cv.glmnet"){
+  if(isa(fit,"cv.glmnet")){
     aux = fit$glmnet.fit
   }
-  if(all(class(fit)==c("coxnet", "glmnet"))){
+  if(all(isa(fit,c("coxnet", "glmnet")))){
     aux = fit
   }
   betas <- aux$beta[,bestFitModelIndex]
@@ -2814,7 +2818,7 @@ eval_models4.0 <- function(lst_models, X_test, Y_test, pred.method, pred.attr = 
   }
 
   #MULTIBLOCK
-  if(class(X_test)=="list"){
+  if(isa(X_test, "list")){
     X_test_ori  <- purrr::map(X_test, ~data.matrix(.))
     Y_test  <- Y_test
   }else{
@@ -2859,14 +2863,6 @@ eval_models4.0 <- function(lst_models, X_test, Y_test, pred.method, pred.attr = 
 
     lst_eval <- furrr::future_map(lst_models, ~evaluation_list_HDcox(model = ., X_test, Y_test, pred.method, pred.attr, times, PARALLEL = F, verbose = verbose, progress_bar))
     future::plan("sequential")
-
-    # }else if(PARALLEL & method %in% c()){
-    #   tt <- Sys.time()
-    #   #for others, parallel per time point
-    #   lst_eval <- purrr::map(lst_models, ~evaluation_list_HDcox(., X_test, Y_test, pred.method, pred.attr, times, PARALLEL = PARALLEL, verbose, progress_bar))
-    #   te <- Sys.time()
-    #
-    #   te-tt
   }else{
     lst_eval <- purrr::map(lst_models, ~evaluation_list_HDcox(model = ., X_test, Y_test, pred.method, pred.attr, times, PARALLEL = F, verbose, progress_bar))
   }
@@ -2944,7 +2940,7 @@ evaluation_list_HDcox <- function(model, X_test, Y_test, pred.method, pred.attr 
   c_index.cox <- survival::concordance(cox)$concordance
 
   #linear predictors
-  if(class(X_test) == "list" & !attr(model, "model") %in% pkg.env$multiblock_methods){ #mix between multiblock and all PLS - Special case
+  if(isa(X_test, "list") & !attr(model, "model") %in% pkg.env$multiblock_methods){ #mix between multiblock and all PLS - Special case
     which_block = purrr::map(names(X_test), ~length(grep(., m, fixed = F))>0)
     names(which_block) <- names(X_test)
     X_test_mod <- predict.HDcox(object = model, newdata = X_test[[names(which_block)[which_block==T]]])
@@ -3042,7 +3038,7 @@ getBestVector <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN
     vector <- getVectorCuts(vector = c(min(MIN_NVAR, max_ncol):min(max_ncol, MAX_NVAR)), cut_points = cut_points, verbose = verbose)
   }else{
     #check if each value is less than the ncol
-    if(class(vector)=="numeric"){
+    if(is.numeric(vector)){
       vector <- vector[vector<=ncol(Xh)]
       message(paste0("The initial vector is: ", paste0(vector, collapse = ", ")))
     }else{

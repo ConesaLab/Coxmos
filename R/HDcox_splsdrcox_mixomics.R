@@ -196,7 +196,7 @@ splsdrcox_mixOmics <- function (X, Y,
     keepX <- getBestVector(Xh, DR_coxph, Yh, n.comp, max.iter, vector, MIN_AUC_INCREASE, MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, cut_points = n.cut_points,
                            EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = F, mode = "spls", verbose = verbose)
   }else{
-    if(class(vector)=="numeric"){
+    if(is.numeric(vector)){
       keepX <- vector
       if(length(keepX)>1){
         message("keepX must be a number, not a vector. Maximum value will be selected for compute the sPLS model.")

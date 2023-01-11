@@ -10,14 +10,26 @@ A data frame with 225 observations and 2 features:
 \item{time}{Global survival time in years. Time to the event of to the last patient information.}
 \item{event}{Numeric. 0 for censored and 1 for event observations.}
 }
+
+A data frame with 552 observations and 2 features:
+\describe{
+\item{time}{Global survival time in years. Time to the event of to the last patient information.}
+\item{event}{Numeric. FALSE for censored and TRUE for event observations.}
+}
 }
 \source{
+curatedOvarianData R package
+
 curatedOvarianData R package
 }
 \usage{
 Y_small_mo.data_Glioblastoma
+
+Y_small_mo.data_Glioblastoma
 }
 \description{
 Toy dataset from Glioblastoma multiomic data (!!!)
+
+miRNA dataset from Glioblastome multiomic dataset
 }
 \keyword{datasets}

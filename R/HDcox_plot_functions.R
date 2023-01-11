@@ -75,7 +75,7 @@ save_ggplot <- function(plot, folder = NULL, name = NULL, wide = T, quality = "4
     name <- paste0(name, ".tiff")
   }
 
-  if(class(plot[1]) == "ggsurvplot"){
+  if(class(plot[1]) %in% "ggsurvplot"){
     plot_surv = plot$plot
     if("table" %in% names(plot)){
       p2 = plot$table
@@ -164,7 +164,7 @@ save_ggplot.svg <- function(plot, folder = NULL, name = NULL, wide = T, quality 
     name <- paste0(name, ".svg")
   }
 
-  if(class(plot[1]) == "ggsurvplot"){
+  if(class(plot[1]) %in% "ggsurvplot"){
     plot_surv = plot$plot
     if("table" %in% names(plot)){
       p2 = plot$table
@@ -260,7 +260,7 @@ save_ggplot_lst <- function(lst_plots, folder = NULL, prefix = NULL, suffix = NU
       }
 
       if(is.null(object_name)){
-        if(class(lst_plots[[cn]])[1] == "ggsurvplot"){
+        if(class(lst_plots[[cn]])[1] %in% "ggsurvplot"){
           plot_surv = lst_plots[[cn]]$plot
           if("table" %in% names(lst_plots[[cn]])){
             p2 = lst_plots[[cn]]$table
@@ -271,7 +271,7 @@ save_ggplot_lst <- function(lst_plots, folder = NULL, prefix = NULL, suffix = NU
           ggsave(plot = lst_plots[[cn]], filename = name, width = width, height = height, device='tiff', dpi=dpi)
         }
       }else{
-        if(class(lst_plots[[cn]][[object_name]])[1] == "ggsurvplot"){
+        if(class(lst_plots[[cn]][[object_name]])[1] %in% "ggsurvplot"){
           plot_surv = lst_plots[[cn]][[object_name]]$plot
           if("table" %in% names(lst_plots[[cn]][[object_name]])){
             p2 = lst_plots[[cn]][[object_name]]$table
@@ -385,7 +385,7 @@ save_ggplot_lst.svg <- function(lst_plots, folder = NULL, prefix = NULL, suffix 
 
       if(is.null(object_name)){
 
-        if(class(lst_plots[[cn]])[1] == "ggsurvplot"){
+        if(class(lst_plots[[cn]])[1] %in% "ggsurvplot"){
           plot_surv = lst_plots[[cn]]$plot
           if("table" %in% names(lst_plots[[cn]])){
             p2 = lst_plots[[cn]]$table
@@ -397,7 +397,7 @@ save_ggplot_lst.svg <- function(lst_plots, folder = NULL, prefix = NULL, suffix 
         }
 
       }else{
-        if(class(lst_plots[[cn]][[object_name]])[1] == "ggsurvplot"){
+        if(class(lst_plots[[cn]][[object_name]])[1] %in% "ggsurvplot"){
           plot_surv = lst_plots[[cn]][[object_name]]$plot
           if("table" %in% names(lst_plots[[cn]][[object_name]])){
             p2 = lst_plots[[cn]][[object_name]]$table
@@ -457,9 +457,9 @@ plot_time.list <- function(lst_models, x.text = "Method", y.text = NULL){
 
   lst_times <- list()
   for(m in names(lst_models)){
-    if(class(lst_models[[m]])==pkg.env$model_class){
+    if(isa(lst_models[[m]],pkg.env$model_class)){
       lst_times[[m]] <- lst_models[[m]]$time
-    }else if(class(lst_models[[m]][[1]])==pkg.env$model_class){
+    }else if(isa(lst_models[[m]][[1]],pkg.env$model_class)){
       eval_sum <- lst_models[[m]][[1]]$time
       if(length(lst_models[[m]])>1){
         for(i in 2:length(lst_models[[m]])){
@@ -894,6 +894,7 @@ plot_evaluation <- function(eval_results, pred.attr = "mean", y.min = NULL, type
                                 y.var = "AUC",
                                 x.fill = "method",
                                 x.alpha = NULL,
+                                alpha.lab = NULL,
                                 x.lab = "Method",
                                 y.lab = "AUC",
                                 fill.lab = NULL,
@@ -2553,19 +2554,19 @@ plot_divergent.biplot <- function(X, Y, NAMEVAR1, NAMEVAR2, breaks, x.text = "N.
 plot_events <- function(Y, max.breaks = 20, roundTo = 0.1, categories = c("Censored","Death"), y.text = "Number of patients", verbose = F){
 
   #REQUIREMENTS
-  if(length(categories)>2 | length(categories)<2 | class(categories)!="character"){
+  if(length(categories)>2 | length(categories)<2 | !is.character(categories)){
     stop("categories parameter must be a character vector of length two.")
   }
 
-  if(class(y.text)!="character" | length(y.text)>1){
+  if(!is.character(y.text) | length(y.text)>1){
     stop("y.text parameter must be a character vector of length one.")
   }
 
-  if(class(roundTo)!="numeric"){
+  if(!is.numeric(roundTo)){
     stop("roundTo parameter must be a numeric vector of length one.")
   }
 
-  if(class(max.breaks)!="numeric"){
+  if(!is.numeric(max.breaks)){
     stop("max.breaks parameter must be a numeric vector of length one.")
   }
 
@@ -2582,7 +2583,7 @@ plot_events <- function(Y, max.breaks = 20, roundTo = 0.1, categories = c("Censo
   #DFCALLS
   Category <- Time <- Values <- x.names <- breaks<- NULL
 
-  if(class(Y[,"event"])!="logical"){
+  if(!is.logical(Y[,"event"])){
     if(verbose){
       message("Y matrix must has event column as TRUE, FALSE. as.logical() function has been used.")
     }
@@ -2716,14 +2717,14 @@ plot_HDcox.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor =
   }
 
   if(!is.null(factor)){
-    if(class(factor)!="factor" & mode %in% c("scores", "biplot")){
+    if(!is.factor(factor) & mode %in% c("scores", "biplot")){
       stop_quietly("Factor must be a factor object.")
     }
   }else{
     factor <- factor(model$Y$data[,"event"])
   }
 
-  if(!class(aux.model)==pkg.env$model_class){
+  if(!isa(aux.model,pkg.env$model_class)){
     stop_quietly("'model' must be a HDcox object.")
   }else if(attr(aux.model, "model") %in% c(pkg.env$multiblock_methods)){
     stop_quietly("For single block models, use the function 'plot_HDcox.MB.PLS.model'")
@@ -2986,14 +2987,14 @@ plot_HDcox.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", facto
   }
 
   if(!is.null(factor)){
-    if(class(factor)!="factor" & mode %in% c("scores", "biplot")){
+    if(!is.factor(factor) & mode %in% c("scores", "biplot")){
       stop_quietly("Factor must be a factor object.")
     }
   }else{
     factor <- factor(model$Y$data[,"event"])
   }
 
-  if(!class(aux.model)==pkg.env$model_class){
+  if(!isa(aux.model,pkg.env$model_class)){
     stop_quietly("'model' must be a HDcox object.")
   }else if(attr(aux.model, "model") %in% pkg.env$pls_methods){
     stop_quietly("For PLS models, use the function 'plot_HDcox.PLS.model'")
@@ -3089,7 +3090,7 @@ plot_HDcox.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", facto
           }
         }
 
-        if(class(df)[[1]]=="matrix"){
+        if(class(df)[[1]] %in% "matrix"){
           df <- as.data.frame.matrix(df)
         }
 

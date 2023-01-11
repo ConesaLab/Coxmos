@@ -20,9 +20,9 @@ rm(dpi)
 #  install.packages("devtools")
 #  devtools::install_github("ConesaLab/HDcox", build_vignettes = TRUE)
 
-## ----setup, results = "hide"--------------------------------------------------
-# load HDcox
-library(HDcox)
+## ----setup, eval=FALSE, results = "hide"--------------------------------------
+#  # load HDcox
+#  library(HDcox)
 
 ## ---- eval=FALSE--------------------------------------------------------------
 #  # install.packages("devtools")
@@ -34,13 +34,13 @@ library(RColorConesa)
 
 ## -----------------------------------------------------------------------------
 # load Tasic dataset
-data("X_small_data_E.MTAB.386")
-data("Y_small_data_E.MTAB.386")
+data("X_miRNA_glioblastoma")
+data("Y_miRNA_glioblastoma")
 
-X <- X_small_data_E.MTAB.386
-Y <- Y_small_data_E.MTAB.386
+X <- X_miRNA_glioblastoma
+Y <- Y_miRNA_glioblastoma
 
-rm(X_small_data_E.MTAB.386, Y_small_data_E.MTAB.386)
+rm(X_miRNA_glioblastoma, Y_miRNA_glioblastoma)
 
 ## ---- echo = FALSE------------------------------------------------------------
 knitr::kable(X[1:5,1:5])
@@ -56,7 +56,7 @@ ggp_density.event <- plot_events(Y = Y,
                                  categories = c("Censored","Death"), #name for FALSE/0 (Censored) and TRUE/1 (Event)
                                  y.text = "Number of observations", 
                                  roundTo = 0.5, 
-                                 max.breaks = 10) 
+                                 max.breaks = 15) 
 
 ## ----fig.small = T------------------------------------------------------------
 ggp_density.event$plot
@@ -64,13 +64,14 @@ ggp_density.event$plot
 ## -----------------------------------------------------------------------------
 set.seed(321)
 index_train <- caret::createDataPartition(Y$event,
-                                          p = .9, #80% train
+                                          p = .8, # 80% train
                                           list = FALSE,
                                           times = 1)
 
-X_train <- X[index_train,] #101x500
+## -----------------------------------------------------------------------------
+X_train <- X[index_train,] #443x534
 Y_train <- Y[index_train,]
-X_test <- X[-index_train,] #25x500
+X_test <- X[-index_train,] #109x534
 Y_test <- Y[-index_train,]
 
 ## ---- eval=FALSE, message=T, error=F------------------------------------------
@@ -80,10 +81,12 @@ Y_test <- Y[-index_train,]
 #                   y.center = F, y.scale = F,
 #                   remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
 #                   remove_non_significant = F, alpha = 0.05,
-#                   MIN_EPV = 5, FORCE = F, returnData = T, verbose = T)
+#                   MIN_EPV = 5, FORCE = F, returnData = T, verbose = F)
 
 ## -----------------------------------------------------------------------------
 EPV <- getEPV(X_train, Y_train)
+
+## -----------------------------------------------------------------------------
 EPV
 
 ## ---- eval=FALSE, warning=F---------------------------------------------------
@@ -96,35 +99,39 @@ EPV
 #                           y.center = F, y.scale = F,
 #                           remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
 #                           remove_non_significant = F, alpha = 0.05,
-#                           w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
+#                           w_AIC = 0, w_c.index = 0, w_AUC = 1, times = NULL,
 #                           MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
 #                           pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
 #                           MIN_EPV = 5, return_models = F,
 #                           PARALLEL = T, verbose = F, seed = 123)
-#  cv.coxen_res #1.5min.
+
+## ---- eval=FALSE--------------------------------------------------------------
+#  cv.coxen_res #2.7min.
 
 ## -----------------------------------------------------------------------------
 coxen_model <- coxEN(X = X_train, Y = Y_train, 
                      EN.alpha = 0, #cv.coxen_res$opt.EN.alpha
-                     max.variables = 9, #cv.coxen_res$opt.nvar
+                     max.variables = 47, #cv.coxen_res$opt.nvar
                      x.center = T, x.scale = F, 
                      y.center = F, y.scale = F, 
                      remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL, 
                      remove_non_significant = F, alpha = 0.05, 
                      MIN_EPV = 5, returnData = T, verbose = F)
 
+## -----------------------------------------------------------------------------
 coxen_model
 
 ## -----------------------------------------------------------------------------
 coxen_model <- coxEN(X = X_train, Y = Y_train, 
                      EN.alpha = 0, #cv.coxen_res$opt.EN.alpha
-                     max.variables = 8, #cv.coxen_res$opt.nvar
+                     max.variables = 47, #cv.coxen_res$opt.nvar
                      x.center = T, x.scale = F, 
                      y.center = F, y.scale = F, 
                      remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL, 
                      remove_non_significant = T, alpha = 0.05, 
                      MIN_EPV = 5, returnData = T, verbose = F)
 
+## -----------------------------------------------------------------------------
 coxen_model
 
 ## ---- eval=FALSE, message=F---------------------------------------------------
@@ -141,7 +148,9 @@ coxen_model
 #                               pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
 #                               MIN_EPV = 5, return_models = F,
 #                               PARALLEL = T, verbose = F, seed = 123)
-#  cv.plsicox_res #3.03min.
+
+## ---- eval=FALSE--------------------------------------------------------------
+#  cv.plsicox_res #5.45min.
 
 ## ---- eval=FALSE, fig.small=T-------------------------------------------------
 #  # plot cv.plsicox
@@ -149,19 +158,20 @@ coxen_model
 
 ## -----------------------------------------------------------------------------
 plsicox_model <- plsicox(X = X_train, Y = Y_train, 
-                         n.comp = 1, #n.comp = cv.plsicox_res$opt.comp
+                         n.comp = 3, #n.comp = cv.plsicox_res$opt.comp
                          x.center = T, x.scale = F,
                          y.center = F, y.scale = F,
                          remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
                          tol = 500, 
                          MIN_EPV = 5, returnData = T, verbose = F)
 
+## -----------------------------------------------------------------------------
 plsicox_model
 
 ## ---- eval=FALSE, message=F---------------------------------------------------
 #  # run cv.splsdrcox
 #  cv.splsdrcox_res <- cv.splsdrcox(X = X_train, Y = Y_train,
-#                                   max.ncomp = 10, eta.list = seq(0,0.9,0.1), #penalty
+#                                   max.ncomp = 10, eta.list = seq(0,0.9,0.25), #penalty
 #                                   n_run = 2, k_folds = 10,
 #                                   x.center = T, x.scale = F,
 #                                   y.center = F, y.scale = F,
@@ -172,8 +182,9 @@ plsicox_model
 #                                   pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
 #                                   MIN_EPV = 5, return_models = F,
 #                                   PARALLEL = T, verbose = F, seed = 123)
-#  
-#  cv.splsdrcox_res #16.78min
+
+## ---- eval=FALSE--------------------------------------------------------------
+#  cv.splsdrcox_res #10.4min
 
 ## ---- eval=FALSE, fig.small=T-------------------------------------------------
 #  # plot cv.plsicox
@@ -181,12 +192,13 @@ plsicox_model
 
 ## -----------------------------------------------------------------------------
 splsdrcox_model <- splsdrcox(X = X_train, Y = Y_train, 
-                             n.comp = 6, eta = 0.8, #n.comp = cv.splsdrcox_res$opt.comp, eta = cv.splsdrcox_res$opt.eta
+                             n.comp = 1, eta = 0.75, #n.comp = cv.splsdrcox_res$opt.comp, eta = cv.splsdrcox_res$opt.eta
                              x.center = T, x.scale = F,
                              y.center = F, y.scale = F,
                              remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
                              MIN_EPV = 5, returnData = T, verbose = F)
 
+## -----------------------------------------------------------------------------
 splsdrcox_model
 
 ## ---- eval=FALSE--------------------------------------------------------------
@@ -203,13 +215,14 @@ splsdrcox_model
 #                                               MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
 #                                               pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
 #                                               MIN_EPV = 5, return_models = F,
-#                                               PARALLEL = F, verbose = T, seed = 123)
-#  
-#  cv.splsdrcox_mo_res #2min 40s.
+#                                               PARALLEL = T, verbose = F, seed = 123)
+
+## ---- eval=FALSE--------------------------------------------------------------
+#  cv.splsdrcox_mo_res #3.45mins
 
 ## -----------------------------------------------------------------------------
 splsdrcox_mo_model <- splsdrcox_mixOmics(X = X_train, Y = Y_train, 
-                                         n.comp = 1, vector = 500,
+                                         n.comp = 2, vector = 534,
                                          x.center = T, x.scale = F,
                                          y.center = F, y.scale = F,
                                          remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
@@ -224,6 +237,7 @@ splsdrcox_mo_model
 #  # run cv.splsdrcox
 #  cv.splsdacox_res <- cv.splsdacox_mixOmics(X = X_train, Y = Y_train,
 #                                            max.ncomp = 10,  vector = NULL,
+#                                            MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 10, EVAL_METHOD = "cenROC",
 #                                            n_run = 2, k_folds = 10,
 #                                            x.center = T, x.scale = F,
 #                                            y.center = F, y.scale = F,
@@ -233,13 +247,14 @@ splsdrcox_mo_model
 #                                            MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
 #                                            pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
 #                                            MIN_EPV = 5, return_models = F,
-#                                            PARALLEL = F, verbose = F, seed = 123)
-#  
-#  cv.splsdacox_res #2min
+#                                            PARALLEL = T, verbose = F, seed = 123)
+
+## ---- eval=FALSE--------------------------------------------------------------
+#  cv.splsdacox_res #4min
 
 ## -----------------------------------------------------------------------------
 splsdacox_mo_model <- splsdacox_mixOmics(X = X_train, Y = Y_train, 
-                                         n.comp = 2, vector = 500,
+                                         n.comp = 6, vector = 184,
                                          x.center = T, x.scale = F,
                                          y.center = F, y.scale = F,
                                          remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
@@ -261,8 +276,8 @@ eval_results <- eval_models4.0(lst_models = lst_models,
                                X_test = X_test, Y_test = Y_test, 
                                pred.method = "cenROC",
                                pred.attr = "mean",
-                               times = seq(1,4,0.5), max_time_points = 15, 
-                               PARALLEL = F)
+                               times = NULL, max_time_points = 15, 
+                               PARALLEL = T)
 
 # lst_evaluators <- c(cenROC = "cenROC", 
 #                     risksetROC = "risksetROC")
@@ -272,7 +287,7 @@ eval_results <- eval_models4.0(lst_models = lst_models,
 #                                                            pred.method = .,
 #                                                            pred.attr = "mean",
 #                                                            times = seq(1,4,0.5), max_time_points = 15, 
-#                                                            PARALLEL = F))
+#                                                            PARALLEL = T))
 
 ## -----------------------------------------------------------------------------
 eval_results
@@ -283,7 +298,7 @@ lst_eval_results <- plot_evaluation(eval_results)
 #lst_eval_results <- plot_evaluation.list(eval_results)
 
 ## ---- fig.small=T-------------------------------------------------------------
-lst_eval_results$lst_plots$lineplot
+lst_eval_results$lst_plots$lineplot.mean
 lst_eval_results$lst_plot_comparisons$anova
 
 # lst_eval_results$cenROC$lst_plots$lineplot.mean

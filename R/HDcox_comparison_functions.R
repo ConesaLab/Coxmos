@@ -971,6 +971,9 @@ boxplot.performance <- function(df, x.var, y.var, x.fill = NULL, x.alpha = NULL,
         if(test=="anova" | test=="kruskal.test"){
           ggp <- ggp + ggpubr::stat_compare_means(method = test, label.x.npc = "center", label.y = 1.025*max)
           ggp
+        }else if(length(unique(unlist(comparisons)))==2){
+          ggp <- ggp + ggpubr::stat_compare_means(method = test, label.x.npc = "center", label.y = 1.025*max)
+          ggp
         }else{
           ggp <- ggp + ggpubr::stat_compare_means(method = test, comparisons = comparisons)
           ggp

@@ -14,6 +14,7 @@ coxSW(
   remove_near_zero_variance = T,
   remove_zero_variance = F,
   toKeep.zv = NULL,
+  remove_non_significant = F,
   initialModel = "NULL",
   toKeep.sw = NULL,
   max.variables = 20,
@@ -47,6 +48,8 @@ coxSW(
 \item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, remove_zero_variance variables will be removed.}
 
 \item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.}
+
+\item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
 
 \item{initialModel}{Character vector. Name of variables in X to include in the initial model (default: "NULL").}
 

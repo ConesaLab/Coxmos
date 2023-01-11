@@ -17,6 +17,7 @@
 #' @param initialModel Character vector. Name of variables in X to include in the initial model (default: "NULL").
 #' @param toKeep.sw Character vector. Name of variables in X to not be deleted by Step-wise selection.
 #' @param max.variables Numeric. Maximum number of variables you want to keep in the cox model. If MIN_EPV is not meet, the value will be change automatically.
+#' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
 #' @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
 #' @param alpha_ENT Numeric. Maximum P-Value for a variable to enter the model (default: 0.10).
 #' @param alpha_OUT Numeric. Minimum P-Value for a variable to leave the model (default: 0.15).
@@ -87,18 +88,10 @@ coxSW <- function(X, Y,
   time <- Y[,"time"]
   event <- Y[,"event"]
 
-  #### REQUIREMENTS - X to MATRIX
-  #### in this case we want to keep it as data.frame
-  # lst_check <- checkXY.class(X, Y, verbose = verbose)
-  # X <- lst_check$X
-  # Y <- lst_check$Y
-
-  if(class(X)[1]!="data.frame" & class(X)[1]=="matrix"){
-    X <- as.data.frame(X)
-  }
-  if(class(Y)[1]!="data.frame" & class(Y)[1]=="matrix"){
-    Y <- as.data.frame(Y)
-  }
+  #### REQUIREMENTS
+  lst_check <- checkXY.class(X, Y, verbose = verbose)
+  X <- lst_check$X
+  Y <- lst_check$Y
 
   #### ZERO VARIANCE - ALWAYS
   lst_dnz <- deleteZeroOrNearZeroVariance(X = X,
@@ -422,11 +415,11 @@ coxSW <- function(X, Y,
   }
 
   removed_variables <- NULL
-  if(class(coxph.sw)=="coxph"){
+  if(isa(coxph.sw,"coxph")){
 
     #RETURN a MODEL with ALL significant Variables from complete, deleting one by one in backward method
     if(remove_non_significant){
-      lst_rnsc <- removeNonSignificativeCox(cox = coxph.sw, alpha = alpha, cox_input = d)
+      lst_rnsc <- removeNonSignificativeCox(cox = coxph.sw, alpha = alpha, cox_input = data)
 
       coxph.sw <- lst_rnsc$cox
       removed_variables <- lst_rnsc$removed_variables
@@ -644,7 +637,7 @@ stepwise.coxph <- function (Time = NULL, T1 = NULL, T2 = NULL, Status = NULL, va
             return(NA)
           })
 
-        if(class(model)!="coxph"){# an error happend, next variable
+        if(!isa(model,"coxph")){# an error happend, next variable
           next
         }
 
@@ -657,7 +650,7 @@ stepwise.coxph <- function (Time = NULL, T1 = NULL, T2 = NULL, Status = NULL, va
             return(NA)
           })
 
-        if(class(propHazard)!="cox.zph"){# an error happend, next variable
+        if(!isa(propHazard,"cox.zph")){# an error happend, next variable
           next
         }
         if(any(is.na(propHazard$table))){
@@ -732,7 +725,7 @@ stepwise.coxph <- function (Time = NULL, T1 = NULL, T2 = NULL, Status = NULL, va
               return(NA)
             })
 
-          if(class(model)!="coxph"){# an error happend, next variable
+          if(!isa(model,"coxph")){# an error happend, next variable
             next
           }
 
@@ -745,7 +738,7 @@ stepwise.coxph <- function (Time = NULL, T1 = NULL, T2 = NULL, Status = NULL, va
               return(NA)
             })
 
-          if(class(propHazard)!="cox.zph"){# an error happend, next variable
+          if(!isa(propHazard,"cox.zph")){# an error happend, next variable
             message("ph is empty")
             next
           }
@@ -936,11 +929,11 @@ deleteVariablesCox <- function(x_sw_train, x_sw_test=NULL, td, interactions=F, s
       index <- unique(c(index, match(inter, colnames(x_sw_train))))
     }
     if(length(index)>0){
-      if(class(x_sw_train)[1]=="data.frame"){
+      if(class(x_sw_train)[1] %in% "data.frame"){
         x_sw_train[,index] <- NULL
         if(!is.null(x_sw_test))
           x_sw_test[,index] <- NULL
-      }else if(class(x_sw_train)[1]=="matrix"){
+      }else if(class(x_sw_train)[1] %in% "matrix"){
         x_sw_train <- x_sw_train[,-index]
         if(!is.null(x_sw_test))
           x_sw_test <- x_sw_test[,-index]

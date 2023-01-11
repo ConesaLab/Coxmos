@@ -193,7 +193,7 @@ mb.splsdrcox <- function (X, Y,
     keepX <- getBestVectorMB(Xh, DR_coxph, Yh, n.comp, max.iter, vector, MIN_AUC_INCREASE, MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, cut_points = n.cut_points,
                              EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = F, mode = "spls", verbose = verbose)
   }else{
-    if(class(vector)=="list"){
+    if(isa(vector, "list")){
       keepX <- vector
       #if list, but not n.comp length... and just one value in each block
       if(!all(unlist(purrr::map(keepX, ~length(.)==n.comp))) & all(unlist(purrr::map(keepX, ~length(.)==1)))){

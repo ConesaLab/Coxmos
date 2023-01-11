@@ -173,7 +173,7 @@ coxEN <- function(X, Y,
     EN_cox = EN_cox$res
   }
 
-  if(all(class(EN_cox) == c("coxnet", "glmnet"))){
+  if(all(class(EN_cox) %in% c("coxnet", "glmnet"))){
     best_lambda <- EN_cox$lambda[which.max(EN_cox$dev.ratio)]
 
     coef.matrix <- as.matrix(coef(EN_cox, s = best_lambda))
@@ -217,7 +217,7 @@ coxEN <- function(X, Y,
     # )
   }
 
-  if(is.na(best_cox) || (problem & all(best_cox$linear.predictors==0))){
+  if(all(is.na(best_cox)) || (problem & all(best_cox$linear.predictors==0))){
     best_cox = NA
     best_lambda = NA
     selected_variables = NA
@@ -258,9 +258,9 @@ coxEN <- function(X, Y,
     removed_variables <- lst_rnsc$removed_variables
   }
 
-  if(class(best_cox)[[1]]=="coxph.null"){
+  if(class(best_cox)[[1]] %in% "coxph.null"){
     survival_model <- NULL
-  }else if(class(best_cox)=="coxph"){
+  }else if(isa(best_cox,"coxph")){
     survival_model <- getInfoCoxModel(best_cox)
   }else{
     survival_model <- NULL
