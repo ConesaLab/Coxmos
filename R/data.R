@@ -59,7 +59,7 @@
 
 "X_miRNA_glioblastoma"
 
-#' Y_small_mo.data_Glioblastoma Data
+#' Y_miRNA_glioblastoma Data
 #'
 #' miRNA dataset from Glioblastome multiomic dataset
 #'
@@ -69,6 +69,6 @@
 #'     \item{event}{Numeric. FALSE for censored and TRUE for event observations.}
 #'  }
 #'
-#' @source curatedOvarianData R package
+#' @source Glioblastome data
 
-"Y_small_mo.data_Glioblastoma"
+"Y_miRNA_glioblastoma"
