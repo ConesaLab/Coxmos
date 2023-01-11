@@ -374,6 +374,7 @@ splsdrcox <- function (X, Y,
   }
 
   #RETURN a MODEL with ALL significant Variables from complete, deleting one by one in backward method
+  removed_variables <- NULL
   if(remove_non_significant){
     lst_rnsc <- removeNonSignificativeCox(cox = aux, alpha = alpha, cox_input = d)
 

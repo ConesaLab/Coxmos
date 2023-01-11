@@ -68,6 +68,7 @@ coxSW <- function(X, Y,
                   x.center = TRUE, x.scale = FALSE,
                   y.center = FALSE, y.scale = FALSE,
                   remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+                  remove_non_significant = F,
                   initialModel = "NULL", toKeep.sw = NULL, max.variables = 20,
                   alpha = 0.05, alpha_ENT = 0.1, alpha_OUT = 0.15, alpha_PH = 0.05, check_PH = F, boostDeletion = F, BACKWARDS = F,
                   MIN_EPV = 5, returnData = T, verbose = F){
@@ -420,7 +421,17 @@ coxSW <- function(X, Y,
     data.all <- NA #no model was created, so we do not have which variables enter
   }
 
+  removed_variables <- NULL
   if(class(coxph.sw)=="coxph"){
+
+    #RETURN a MODEL with ALL significant Variables from complete, deleting one by one in backward method
+    if(remove_non_significant){
+      lst_rnsc <- removeNonSignificativeCox(cox = coxph.sw, alpha = alpha, cox_input = d)
+
+      coxph.sw <- lst_rnsc$cox
+      removed_variables <- lst_rnsc$removed_variables
+    }
+
     survival_model <- getInfoCoxModel(coxph.sw)
   }else{
     survival_model <- NULL
@@ -438,6 +449,8 @@ coxSW <- function(X, Y,
                         call = func_call,
                         X_input = if(returnData) X_original else NA,
                         Y_input = if(returnData) Y_original else NA,
+                        alpha = alpha,
+                        removed_variables_cox = removed_variables,
                         nzv = variablesDeleted,
                         class = pkg.env$coxSW,
                         time = time)))

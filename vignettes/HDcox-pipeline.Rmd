@@ -370,7 +370,7 @@ cv.splsdrcox_mo_res <- cv.splsdrcox_mixOmics(X = X_train, Y = Y_train,
                                              MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                                              pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                                              MIN_EPV = 5, return_models = F,
-                                             PARALLEL = F, verbose = T, seed = 123)
+                                             PARALLEL = T, verbose = T, seed = 123)
 
 cv.splsdrcox_mo_res #2min 40s.
 ```
@@ -408,7 +408,7 @@ cv.splsdacox_res <- cv.splsdacox_mixOmics(X = X_train, Y = Y_train,
                                           MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                                           pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                                           MIN_EPV = 5, return_models = F,
-                                          PARALLEL = F, verbose = F, seed = 123)
+                                          PARALLEL = T, verbose = F, seed = 123)
 
 cv.splsdacox_res #2min
 ```
@@ -451,7 +451,7 @@ eval_results <- eval_models4.0(lst_models = lst_models,
                                pred.method = "cenROC",
                                pred.attr = "mean",
                                times = seq(1,4,0.5), max_time_points = 15, 
-                               PARALLEL = F)
+                               PARALLEL = T)
 
 # lst_evaluators <- c(cenROC = "cenROC", 
 #                     risksetROC = "risksetROC")
@@ -461,7 +461,7 @@ eval_results <- eval_models4.0(lst_models = lst_models,
 #                                                            pred.method = .,
 #                                                            pred.attr = "mean",
 #                                                            times = seq(1,4,0.5), max_time_points = 15, 
-#                                                            PARALLEL = F))
+#                                                            PARALLEL = T))
 ```
 
 We can print the results obtained in the console where we can see, for each of the selected methods, the training time and the time it took to be evaluated, as well as their AIC, C-Index and AUC metrics and at which time points it was evaluated.

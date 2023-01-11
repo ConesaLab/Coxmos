@@ -245,6 +245,7 @@ mb.splsdacox <- function (X, Y,
   cox_model <- cox(X = data, Y = Yh, x.center = F, x.scale = F, y.center = F, y.scale = F, remove_non_significant = remove_non_significant, FORCE = T)
 
   #RETURN a MODEL with ALL significant Variables from complete, deleting one by one in backward method
+  removed_variables <- NULL
   if(remove_non_significant){
     lst_rnsc <- removeNonSignificativeCox(cox = cox_model$fit, alpha = alpha, cox_input = cbind(data, Yh))
 

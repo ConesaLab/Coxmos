@@ -216,40 +216,13 @@ cox <- function (X, Y,
     p_val <- summary(best_cox)[[7]][,"Pr(>|z|)"]
   }
 
+  #RETURN a MODEL with ALL significant Variables from complete, deleting one by one in backward method
+  removed_variables <- NULL
   if(remove_non_significant){
-    p_val <- summary(best_cox)[[7]][,"Pr(>|z|)"]
-    # p_val could be NA for some variables (if NA change to P-VAL=1)
-    # should not happen, but just in case new models generate NAs
-    if(length(is.na(p_val))>0){
-      p_val[is.na(p_val)] = 1
-    }
+    lst_rnsc <- removeNonSignificativeCox(cox = best_cox, alpha = alpha, cox_input = d)
 
-    while(any(p_val>alpha) & length(p_val)>1){ # keep at least one variable even if the variable is not significant
-      to_remove <- names(which.max(p_val))
-      to_remove <- deleteIllegalChars(to_remove)
-      d <- d[,!colnames(d) %in% c(to_remove)]
-      best_cox <- tryCatch(
-        # Specifying expression
-        expr = {
-          survival::coxph(formula = survival::Surv(time,event) ~ .,
-                          data = d,
-                          ties = "efron",
-                          singular.ok = T,
-                          robust = T,
-                          nocenter = rep(1, ncol(d)-ncol(Yh)),
-                          model=T)
-        },
-        # Specifying error message
-        error = function(e){
-          message(paste0("COX: ", e))
-          invisible(gc())
-          return(NA)
-        }
-      )
-
-      removed_variables <- c(removed_variables, to_remove)
-      p_val <- summary(best_cox)[[7]][,"Pr(>|z|)"]
-    }
+    best_cox <- lst_rnsc$cox
+    removed_variables <- lst_rnsc$removed_variables
   }
 
   while(any(is.na(best_cox$coefficients))){ #if any NA

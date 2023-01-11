@@ -41,7 +41,7 @@ Suggests:
 Enhances:
 Depends: 
     R (>= 4.1.0),
-    mixOmics (>= 6.18.1)
+    mixOmics (>= 6.10.0)
 LazyData: true
 NeedsCompilation: yes
 VignetteBuilder: knitr
