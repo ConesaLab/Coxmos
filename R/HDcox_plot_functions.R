@@ -2098,7 +2098,7 @@ plot_LP.multiplePatients <- function(model, df.pat, error.bar = F, onlySig = T, 
                                 onlySig = onlySig, alpha = alpha,
                                 zero.rm = zero.rm, top = top,
                                 auto.limits = auto.limits)
-  }else{
+  }else{ #classical methods
     plot_classicalcox.comparePatients(model = model,
                                       df.pat = df.pat,
                                       error.bar = error.bar,
@@ -2177,8 +2177,8 @@ plot_classicalcox.comparePatients <- function(model, df.pat, error.bar = F, only
   auto.limits <- NULL
   if(auto.limits.flag){
     if(!is.null(sd.min) & !is.null(sd.max)){
-      auto.limits_min <- round2any(x = max(c(abs(coefficients$value-sd.min),abs(lp.new_pat_variable[lp.new_pat_variable$lp.flag==T,]$value))), accuracy = accuracy, f = ceiling)
-      auto.limits_max <- round2any(x = max(c(abs(coefficients$value+sd.max),abs(lp.new_pat_variable[lp.new_pat_variable$lp.flag==T,]$value))), accuracy = accuracy, f = ceiling)
+      auto.limits_min <- round2any(x = max(c(abs(coefficients$value-sd.min$value),abs(lp.new_pat_variable[lp.new_pat_variable$lp.flag==T,]$value))), accuracy = accuracy, f = ceiling)
+      auto.limits_max <- round2any(x = max(c(abs(coefficients$value+sd.max$value),abs(lp.new_pat_variable[lp.new_pat_variable$lp.flag==T,]$value))), accuracy = accuracy, f = ceiling)
       auto.limits <- max(auto.limits_min, auto.limits_max)
     }else{
       auto.limits <- round2any(max(abs(lp.new_pat_variable$value)), accuracy = accuracy, f = ceiling)
