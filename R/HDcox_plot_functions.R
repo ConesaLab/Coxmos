@@ -518,7 +518,7 @@ plot_time.list <- function(lst_models, x.text = "Method", y.text = NULL){
   x.color = "method"
   x.text = x.text
   if(is.null(y.text)){
-    y.text = paste0("Time (",attr(lst_times[["total"]], "units"),")")
+    y.text = paste0("Time (",attr(lst_times[["Total"]], "units"),")")
   }
 
   df.times$method <- factor(df.times$method, levels = df.times$method)
@@ -1424,12 +1424,23 @@ coxweightplot.fromVector.HDcox <- function(model, vector, sd.min = NULL, sd.max 
 #' @param auto.limits Compute Y limit automatically
 #' @param show_percentage Show contribution percentage for each variable
 #' @param size_percentage Size of percentage text
+#' @param verbose Show messages
 #'
 #' @export
 
-plot_pseudobeta.list <- function(lst_models, error.bar = T, onlySig = F, alpha = 0.05, zero.rm = F, top = NULL, auto.limits = T, show_percentage = T, size_percentage = 3){
+plot_pseudobeta.list <- function(lst_models, error.bar = T, onlySig = F, alpha = 0.05, zero.rm = F, top = NULL, auto.limits = T, show_percentage = T, size_percentage = 3, verbose = F){
 
-  lst_plots <- purrr::map(lst_models, ~plot_pseudobeta(model = .,
+
+  if(all(unlist(purrr::map(lst_models, function(x){x$class})) %in% pkg.env$pls_methods)){
+    sub_lst_models <- lst_models
+  }else{
+    sub_lst_models <- lst_models[unlist(purrr::map(lst_models, function(x){x$class})) %in% pkg.env$pls_methods]
+    if(verbose){
+      message(paste0("Model ", paste0(names(lst_models[!unlist(purrr::map(lst_models, function(x){x$class})) %in% pkg.env$pls_methods]), collapse = ", "), " are not based in PLS methodology. Other models computed."))
+    }
+  }
+
+  lst_plots <- purrr::map(sub_lst_models, ~plot_pseudobeta(model = .,
                                                        error.bar = error.bar,
                                                        onlySig = onlySig, alpha = alpha,
                                                        zero.rm = zero.rm, auto.limits = auto.limits, top = top,
@@ -1623,18 +1634,28 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
 #' @param top Plot the top X variables with the higher pseudobetas in absolute value.
 #' @param auto.limits Compute Y limit automatically
 #' @param show.betas Show original betas
+#' @param verbose Shows extra messages
 #'
 #' @export
 
 plot_pseudobeta_newPatient.list <- function(lst_models, new_pat, error.bar = T, onlySig = T, alpha = 0.05, zero.rm = T,
-                                            top = NULL, auto.limits = T, show.betas = F){
+                                            top = NULL, auto.limits = T, show.betas = F, verbose = F){
 
-  lst_plots <- purrr::map(lst_models, ~plot_pseudobeta_newPatient(model = .,
-                                                                  new_pat = new_pat,
-                                                                  error.bar = error.bar,
-                                                                  onlySig = onlySig, alpha = alpha,
-                                                                  zero.rm = zero.rm, top = top,
-                                                                  auto.limits = auto.limits, show.betas = show.betas))
+  if(all(unlist(purrr::map(lst_models, function(x){x$class})) %in% pkg.env$pls_methods)){
+    sub_lst_models <- lst_models
+  }else{
+    sub_lst_models <- lst_models[unlist(purrr::map(lst_models, function(x){x$class})) %in% pkg.env$pls_methods]
+    if(verbose){
+      message(paste0("Model ", paste0(names(lst_models[!unlist(purrr::map(lst_models, function(x){x$class})) %in% pkg.env$pls_methods]), collapse = ", "), " are not based in PLS methodology. Other models computed."))
+    }
+  }
+
+  lst_plots <- purrr::map(sub_lst_models, ~plot_pseudobeta_newPatient(model = .,
+                                                                      new_pat = new_pat,
+                                                                      error.bar = error.bar,
+                                                                      onlySig = onlySig, alpha = alpha,
+                                                                      zero.rm = zero.rm, top = top,
+                                                                      auto.limits = auto.limits, show.betas = show.betas))
 
   return(lst_plots)
 
@@ -2078,9 +2099,131 @@ plot_LP.multiplePatients <- function(model, df.pat, error.bar = F, onlySig = T, 
                                 zero.rm = zero.rm, top = top,
                                 auto.limits = auto.limits)
   }else{
-    stop("Model not belong to any PLS or MB HDcox methods.")
+    plot_classicalcox.comparePatients(model = model,
+                                      df.pat = df.pat,
+                                      error.bar = error.bar,
+                                      onlySig = onlySig, alpha = alpha,
+                                      zero.rm = zero.rm, top = top,
+                                      auto.limits = auto.limits)
   }
 }
+
+plot_classicalcox.comparePatients <- function(model, df.pat, error.bar = F, onlySig = T, alpha = 0.05, zero.rm = T,
+                                              auto.limits = T, top = NULL){
+
+  #DFCALLS
+  value <- patients <- NULL
+
+  coefficients <- model$survival_model$coef
+  coefficients <- as.data.frame(coefficients)
+  colnames(coefficients) <- "value"
+  coefficients <- coefficients[order(coefficients$value, decreasing = T),,drop=F]
+
+  if(!is.null(top)){
+    if(top < nrow(coefficients)){
+      aux_df <- coefficients
+      aux_df[,"value"] <- abs(aux_df[,"value",drop=F])
+      aux_df <- aux_df[order(aux_df[,"value",drop=T], decreasing = T),,drop=F]
+      aux_df <- aux_df[1:top,,drop=F]
+      coefficients <- coefficients[rownames(coefficients) %in% rownames(aux_df),,drop=F]
+    }
+  }
+
+  #norm patient
+  if(!is.null(model$X$x.mean) & !is.null(model$X$x.sd)){
+    norm_patient <- scale(df.pat, center = model$X$x.mean, scale = model$X$x.sd)
+  }else if(!is.null(model$X$x.mean)){
+    norm_patient <- scale(df.pat, center = model$X$x.mean, scale = F)
+  }else if(!is.null(model$X$x.sd)){
+    norm_patient <- scale(df.pat, center = F, scale = model$X$x.sd)
+  }else{
+    norm_patient <- df.pat
+  }
+
+  #lp.new_pat_manual <- norm_patient[,rownames(coefficients)] %*% coefficients #predict lp
+  lp.new_pat_variable <- apply(norm_patient[,deleteIllegalChars(rownames(coefficients)),drop=F], 1, function(x){
+    x * coefficients$value #predict terms
+  })
+
+  #Compute LP without top variables
+  #can be change for getLPforNewPatient(model = model, new_pat = patient, time = time, type = type, method = "cox")
+  #for each patient on the data frame
+
+  lp.pats <- norm_patient[,deleteIllegalChars(names(model$survival_model$coef))] %*% model$survival_model$coef
+  colnames(lp.pats) <- "linear predictor"
+
+  rownames(lp.new_pat_variable) <- rownames(coefficients)
+  lp.new_pat_variable <- rbind(lp.new_pat_variable, lp.pats[,1])
+  rownames(lp.new_pat_variable)[nrow(lp.new_pat_variable)] <- "linear predictor"
+  lp.new_pat_variable <- as.data.frame(lp.new_pat_variable)
+  lp.new_pat_variable$var <- rownames(lp.new_pat_variable)
+
+  lp.new_pat_variable <- tidyr::pivot_longer(lp.new_pat_variable, !var, names_to = "patients", values_to = "value")
+
+  lp.new_pat_variable$var <- factor(lp.new_pat_variable$var, levels = unique(lp.new_pat_variable$var))
+
+  lp.new_pat_variable$lp.flag <- ifelse(lp.new_pat_variable$var == "linear predictor", T, F)
+  lp.new_pat_variable$lp.flag <- factor(lp.new_pat_variable$lp.flag)
+
+  lp.new_pat_variable$patients <- factor(lp.new_pat_variable$patients, levels = rownames(df.pat))
+
+  accuracy <- 0.1
+  auto.limits.flag = T
+
+  df_cox_sd <- summary(model$survival_model$fit)[[7]][,"se(coef)"]
+
+  sd.min <- coefficients - as.data.frame(df_cox_sd[rownames(coefficients)])
+  sd.max <- coefficients + as.data.frame(df_cox_sd[rownames(coefficients)])
+  auto.limits <- NULL
+  if(auto.limits.flag){
+    if(!is.null(sd.min) & !is.null(sd.max)){
+      auto.limits_min <- round2any(x = max(c(abs(coefficients$value-sd.min),abs(lp.new_pat_variable[lp.new_pat_variable$lp.flag==T,]$value))), accuracy = accuracy, f = ceiling)
+      auto.limits_max <- round2any(x = max(c(abs(coefficients$value+sd.max),abs(lp.new_pat_variable[lp.new_pat_variable$lp.flag==T,]$value))), accuracy = accuracy, f = ceiling)
+      auto.limits <- max(auto.limits_min, auto.limits_max)
+    }else{
+      auto.limits <- round2any(max(abs(lp.new_pat_variable$value)), accuracy = accuracy, f = ceiling)
+    }
+  }else{
+    auto.limits <- round2any(max(c(abs(sd.max), abs(sd.min), abs(lp.new_pat_variable$value))), accuracy = accuracy, f = ceiling)
+  }
+
+  ggp <- ggplot(lp.new_pat_variable[lp.new_pat_variable$lp.flag==F,], aes(x = var, y = value, fill = patients)) +
+    geom_bar(stat = "identity", position = "dodge") + xlab(label = "Variables")
+  ggp2 <- ggplot(lp.new_pat_variable[lp.new_pat_variable$lp.flag==T,], aes(x = var, y = value, fill = patients)) +
+    geom_bar(stat = "identity", position = "dodge")
+  #guides(color = "none")
+
+  if(requireNamespace("RColorConesa", quietly = TRUE)){
+    ggp <- ggp + RColorConesa::scale_fill_conesa(palette = "complete", continuous = F)
+    ggp2 <- ggp2 + RColorConesa::scale_fill_conesa(palette = "complete", continuous = F)
+  }
+
+  if(!auto.limits.flag){
+    #ggp <- ggp + scale_y_continuous(breaks=seq(-1*auto.limits, auto.limits, 0.1))
+    ggp <- ggp + scale_y_continuous(n.breaks = 10)
+    ggp2 <- ggp2 + scale_y_continuous(n.breaks = 10)
+  }else{
+    #ggp <- ggp + scale_y_continuous(breaks=seq(-1*auto.limits, auto.limits, 0.1), limits = c(-1*auto.limits, auto.limits))
+    ggp <- ggp + scale_y_continuous(n.breaks = 10, limits = c(-1*auto.limits, auto.limits))
+    ggp2 <- ggp2 + scale_y_continuous(n.breaks = 10, limits = c(-1*auto.limits, auto.limits))
+  }
+
+  if(length(unique(lp.new_pat_variable$var))>15){
+    ggp <- ggp + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+    ggp2 <- ggp2 + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  }
+
+  res_all.plot <- ggp
+  res_lp.plot <- ggp2 + xlab(label = "")
+
+  ggp <- ggp + guides(fill = "none")
+  ggp2 <- ggp2 + ylab(label = "") + xlab(label = "")
+
+  pp <- ggpubr::ggarrange(ggp, ggp2, ncol = 2, widths = c(0.8, 0.2), align = "h")
+
+  return(list(plot = pp, var.plot = res_all.plot, lp.plot = res_lp.plot, lp = lp.pats, lp.var = lp.new_pat_variable, norm_patients = norm_patient, patients = df.pat))
+}
+
 
 plot_cox.comparePatients <- function(model, df.pat, error.bar = F, onlySig = T, alpha = 0.05, zero.rm = T,
                                 auto.limits = T, top = NULL){
@@ -2117,7 +2260,7 @@ plot_cox.comparePatients <- function(model, df.pat, error.bar = F, onlySig = T, 
   }
 
   #lp.new_pat_manual <- norm_patient[,rownames(coefficients)] %*% coefficients #predict lp
-  lp.new_pat_variable <- apply(norm_patient[,rownames(coefficients),drop=F], 1, function(x){
+  lp.new_pat_variable <- apply(norm_patient[,deleteIllegalChars(rownames(coefficients)),drop=F], 1, function(x){
     x * coefficients$value #predict terms
   })
 
@@ -2243,7 +2386,7 @@ plot_MB.cox.comparePatients <- function(model, df.pat, error.bar = F, onlySig = 
     }
 
     #lp.new_pat_manual <- norm_patient[,rownames(coefficients)] %*% coefficients #predict lp
-    lp.new_pat_variable <- apply(norm_patient[,rownames(coefficients),drop=F], 1, function(x){
+    lp.new_pat_variable <- apply(norm_patient[,deleteIllegalChars(rownames(coefficients)),drop=F], 1, function(x){
       x * coefficients$value #predict terms
     })
 
@@ -3525,7 +3668,8 @@ my_primeFactors <- function(num) {
 #' @param comp vector of two components
 #' @param top select top X variables
 #' @param ori_data Compute the KM with the original data cutpoints or the normalize
-#' @param BREAKTIME Break for time points
+#' @param BREAKTIME Break for time point
+#' @param n.breaks If BREAKTIME is NULL, number of time-breaks
 #' @param only_sig Return only significant log-rank test variables
 #' @param alpha Significant cutoff
 #' @param title Title of the plot
@@ -3533,17 +3677,27 @@ my_primeFactors <- function(num) {
 #'
 #' @export
 
-getAutoKM.list <- function(type = "LP", lst_models, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
+getAutoKM.list <- function(type = "LP", lst_models, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, n.breaks = 20, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
   if(!type %in% c("LP", "COMP", "VAR")){
     stop("Type parameters must be one of the following: LP, COMP or VAR")
   }
 
   if(type == "LP"){
-    lst <- purrr::map(lst_models, ~getLPKM(model = ., comp = comp, top = top, ori_data = ori_data, BREAKTIME = BREAKTIME, only_sig = only_sig, alpha = alpha, title = title, verbose = verbose))
+    lst <- purrr::map(lst_models, ~getLPKM(model = ., comp = comp, top = top, ori_data = ori_data, BREAKTIME = BREAKTIME, n.breaks = n.breaks, only_sig = only_sig, alpha = alpha, title = title, verbose = verbose))
   }else if(type == "COMP"){
-    lst <- purrr::map(lst_models, ~getCompKM(model = ., comp = comp, top = top, ori_data = ori_data, BREAKTIME = BREAKTIME, only_sig = only_sig, alpha = alpha, title = title, verbose = verbose))
+
+    if(all(unlist(purrr::map(lst_models, function(x){x$class})) %in% pkg.env$pls_methods)){
+      sub_lst_models <- lst_models
+    }else{
+      sub_lst_models <- lst_models[unlist(purrr::map(lst_models, function(x){x$class})) %in% pkg.env$pls_methods]
+      if(verbose){
+        message(paste0("Model ", paste0(names(lst_models[!unlist(purrr::map(lst_models, function(x){x$class})) %in% pkg.env$pls_methods]), collapse = ", "), " are not based in PLS methodology. Other models computed."))
+      }
+    }
+
+    lst <- purrr::map(sub_lst_models, ~getCompKM(model = ., comp = comp, top = top, ori_data = ori_data, BREAKTIME = BREAKTIME, n.breaks = n.breaks, only_sig = only_sig, alpha = alpha, title = title, verbose = verbose))
   }else{
-    lst <- purrr::map(lst_models, ~getVarKM(model = ., comp = comp, top = top, ori_data = ori_data, BREAKTIME = BREAKTIME, only_sig = only_sig, alpha = alpha, title = title, verbose = verbose))
+    lst <- purrr::map(lst_models, ~getVarKM(model = ., comp = comp, top = top, ori_data = ori_data, BREAKTIME = BREAKTIME, n.breaks = n.breaks, only_sig = only_sig, alpha = alpha, title = title, verbose = verbose))
   }
   return(lst)
 }
@@ -3556,6 +3710,7 @@ getAutoKM.list <- function(type = "LP", lst_models, comp = 1:2, top = 10, ori_da
 #' @param top select top X variables
 #' @param ori_data Compute the KM with the original data cutpoints or the normalize
 #' @param BREAKTIME Break for time points
+#' @param n.breaks If BREAKTIME is NULL, number of time-breaks
 #' @param only_sig Return only significant log-rank test variables
 #' @param alpha Significant cutoff
 #' @param title Title of the plot
@@ -3563,21 +3718,21 @@ getAutoKM.list <- function(type = "LP", lst_models, comp = 1:2, top = 10, ori_da
 #'
 #' @export
 
-getAutoKM <- function(type = "LP", model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
+getAutoKM <- function(type = "LP", model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, n.breaks = 20, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
   if(!type %in% c("LP", "COMP", "VAR")){
     stop("Type parameters must be one of the following: LP, COMP or VAR")
   }
 
   if(type == "LP"){
-    return(getLPKM(model, comp = comp, top = top, ori_data = ori_data, BREAKTIME = BREAKTIME, only_sig = only_sig, alpha = alpha, title = title, verbose = verbose))
+    return(getLPKM(model, comp = comp, top = top, ori_data = ori_data, BREAKTIME = BREAKTIME, n.breaks = n.breaks, only_sig = only_sig, alpha = alpha, title = title, verbose = verbose))
   }else if(type == "COMP"){
-    return(getCompKM(model, comp = comp, top = top, ori_data = ori_data, BREAKTIME = BREAKTIME, only_sig = only_sig, alpha = alpha, title = title, verbose = verbose))
+    return(getCompKM(model, comp = comp, top = top, ori_data = ori_data, BREAKTIME = BREAKTIME, n.breaks = n.breaks, only_sig = only_sig, alpha = alpha, title = title, verbose = verbose))
   }else{
-    return(getVarKM(model, comp = comp, top = top, ori_data = ori_data, BREAKTIME = BREAKTIME, only_sig = only_sig, alpha = alpha, title = title, verbose = verbose))
+    return(getVarKM(model, comp = comp, top = top, ori_data = ori_data, BREAKTIME = BREAKTIME, n.breaks = n.breaks, only_sig = only_sig, alpha = alpha, title = title, verbose = verbose))
   }
 }
 
-getLPKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
+getLPKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, n.breaks = 20, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
 
   if(attr(model, "model") %in% c(pkg.env$classical_methods, pkg.env$pls_methods, pkg.env$multiblock_methods)){
 
@@ -3608,7 +3763,7 @@ getLPKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL,
   }
 
   if(is.null(BREAKTIME)){
-    BREAKTIME <- (max(model$Y$data[,"time"]) - min(model$Y$data[,"time"])) / 20
+    BREAKTIME <- (max(model$Y$data[,"time"]) - min(model$Y$data[,"time"])) / n.breaks
   }
 
   d <- info_logrank_num$df_numASqual
@@ -3624,7 +3779,7 @@ getLPKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL,
 
 }
 
-getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
+getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, n.breaks = 20, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
 
   # DFCALLS
   vars <- lst_vars <- info_logrank_qual <- NULL
@@ -3704,7 +3859,7 @@ getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NUL
   }
 
   if(is.null(BREAKTIME)){
-    BREAKTIME <- (max(model$Y$data[,"time"]) - min(model$Y$data[,"time"])) / 20
+    BREAKTIME <- (max(model$Y$data[,"time"]) - min(model$Y$data[,"time"])) / n.breaks
   }
 
   ##join data
@@ -3765,7 +3920,7 @@ getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NUL
 
 }
 
-getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
+getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, n.breaks = 20, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
 
   if(attr(model, "model") %in% pkg.env$pls_methods){
 
@@ -3776,6 +3931,7 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
       return(NA)
     }
 
+    #selecting the variables with a W.star greater different than 0
     vars_data <- list()
     vars <- list()
     for(c in comp){
@@ -3796,6 +3952,7 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
       return(NA)
     }
 
+    #in classical methods, select selected variables
     df <- as.data.frame(summary(model$survival_model$fit)[7]$coefficients)
     vars <- rownames(df[order(df$`Pr(>|z|)`, decreasing = F),])[1:min(top, nrow(df))]
 
@@ -3912,7 +4069,7 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
   }
 
   if(is.null(BREAKTIME)){
-    BREAKTIME <- (max(model$Y$data[,"time"]) - min(model$Y$data[,"time"])) / 20
+    BREAKTIME <- (max(model$Y$data[,"time"]) - min(model$Y$data[,"time"])) / n.breaks
   }
 
   ##join data

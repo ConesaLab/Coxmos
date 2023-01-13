@@ -852,9 +852,11 @@ predict.HDcox <- function(object, ..., newdata = NULL){
   if(attr(model, "model") %in% pkg.env$splsdrcox_mixomics){
 
     predicted_scores <- X_test %*% model$X$W.star
-    predicted_scores <- matrix(data = sapply(1:ncol(predicted_scores),
-                                             function(x) {predicted_scores[, x] * apply(model$X$scores, 2,
-                                                                                        function(y){(norm(y, type = "2"))^2})[x]}), nrow = nrow(X_test), ncol = ncol(predicted_scores))
+
+    #MixOmics normalization... (still needed?)
+    # predicted_scores <- matrix(data = sapply(1:ncol(predicted_scores),
+    #                                          function(x) {predicted_scores[, x] * apply(model$X$scores, 2,
+    #                                                                                     function(y){(norm(y, type = "2"))^2})[x]}), nrow = nrow(X_test), ncol = ncol(predicted_scores))
     colnames(predicted_scores) <- colnames(model$X$scores)
     rownames(predicted_scores) <- rownames(X_test)
 
@@ -2776,6 +2778,17 @@ checkLibraryEvaluator <- function(pred.method){
 ## Eval all models by the pred.methods the user defined #
 #### ### ### ### ### ### ### ### ### ### ### ### ### ## #
 
+checkAtLeastTwoEvents <- function(X_test, Y_test){
+
+  rn_X <- rownames(X_test)
+  sub_Y <- Y_test[rn_X,,drop=F]
+
+  if(sum(sub_Y[,"event"])<2){
+    stop("To evaluate a model, at least two events are mandatory in TEST data set.")
+  }
+
+}
+
 #' eval_models4.0
 #' @description Evaluate multiple HDcox models simultaneously.
 #'
@@ -2794,6 +2807,9 @@ checkLibraryEvaluator <- function(pred.method){
 
 ## Eval all models by the pred.methods the user defined
 eval_models4.0 <- function(lst_models, X_test, Y_test, pred.method, pred.attr = "mean", times = NULL, PARALLEL = F, max_time_points = 15, verbose = F, progress_bar = T){
+
+  #Check at least two events in total
+  checkAtLeastTwoEvents(X_test, Y_test)
 
   #Check evaluator installed:
   checkLibraryEvaluator(pred.method)

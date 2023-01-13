@@ -509,7 +509,7 @@ lst_eval_results <- plot_evaluation(eval_results)
 After performing the cross-validation, we obtain a list in R that contains two new lists. The first of these refers to the evaluation over time for each of the methods used, as well as a variant where the average value of each of them is shown. On the other hand, we can compare the mean results of each method using: T-test, Wilcoxon-test, anova or Kruskal-Wallis.
 
 ```{r, fig.small=T}
-lst_eval_results$lst_plots$lineplot.mean
+lst_eval_results$lst_plots$lineplot
 lst_eval_results$lst_plot_comparisons$anova
 
 # lst_eval_results$cenROC$lst_plots$lineplot.mean
@@ -525,8 +525,7 @@ lst_models_time <- list(coxen_model,
                         plsicox_model,
                         splsdrcox_model,
                         splsdrcox_mo_model,
-                        splsdacox_mo_model,
-                        eval_results)
+                        splsdacox_mo_model)
 ```
 
 ```{r}
@@ -550,7 +549,7 @@ lst_forest_plot <- plot_forest.list(lst_models)
 ```
 
 ```{r, fig.small=T}
-lst_forest_plot$`sPLS-DACOX-MixOmics`
+lst_forest_plot$`sPLS-DRCOX-MixOmics`
 ```
 
 ## Density plots
@@ -576,8 +575,8 @@ density.plots.lp <- plot_cox.event.list(lst_models, type = "lp")
 ```
 
 ```{r, fig.small=T}
-density.plots.lp$`sPLS-DACOX-MixOmics`$plot.density
-density.plots.lp$`sPLS-DACOX-MixOmics`$plot.histogram
+density.plots.lp$`sPLS-DRCOX-MixOmics`$plot.density
+density.plots.lp$`sPLS-DRCOX-MixOmics`$plot.histogram
 ```
 
 ## PH Assumption
@@ -595,14 +594,15 @@ lst_ph_ggplot <- plot_proportionalHazard.list(lst_models)
 Variables or components with a significant P-Value indicate that the assumption is being violated.
 
 ```{r, fig.small=T}
-lst_ph_ggplot$`sPLS-DACOX-MixOmics`
+lst_ph_ggplot$`sPLS-DRCOX-MixOmics`
 ```
-
 
 ## Studying PLS model
 
+For those models based on PLS components, the PLS could be studied in terms of loadings/scores. In order to get the plots, the function plot_PLS_HDcox() has been developed where the user could specify to see "scores", "loadings" or a "biplot" for a couple of latent variables.
+
 ```{r}
-ggp_scores <- plot_PLS_HDcox(model = lst_models$`sPLS-DACOX-MixOmics`, 
+ggp_scores <- plot_PLS_HDcox(model = lst_models$`sPLS-DRCOX-MixOmics`, 
                              comp = c(1,2), mode = "scores")
 ```
 
@@ -611,7 +611,7 @@ ggp_scores$plot
 ```
 
 ```{r}
-ggp_loadings <- plot_PLS_HDcox(model = lst_models$`sPLS-DACOX-MixOmics`, 
+ggp_loadings <- plot_PLS_HDcox(model = lst_models$`sPLS-DRCOX-MixOmics`, 
                                comp = c(1,2), mode = "loadings",
                                top = 10) #length from 0,0
 ```
@@ -619,35 +619,51 @@ ggp_loadings <- plot_PLS_HDcox(model = lst_models$`sPLS-DACOX-MixOmics`,
 ```{r, fig.small=T}
 ggp_loadings$plot
 ```
+
 ```{r}
-ggp_biplot <- plot_PLS_HDcox(model = lst_models$`sPLS-DACOX-MixOmics`, 
+ggp_biplot <- plot_PLS_HDcox(model = lst_models$`sPLS-DRCOX-MixOmics`, 
                              comp = c(1,2), mode = "biplot",
                              top = 15,
-                             only_top = T)
+                             only_top = T,
+                             overlaps = 20)
 ```
 
 ```{r, fig.small=T}
 ggp_biplot$plot
 ```
 
-# Understanding the results in terms of the original variables
+# Understanding the results in terms of the original variables (PLS models)
+
+When a PLS-COX model is computed, the final survival model is based on the PLS latent variables. Although those new variables can explain the survival, in order to understand the disease, new coefficients could be computed in terms of the original variables. 
+
+The idea is to transfer the beta coefficient in the final cox model to an original variable by using its weight in that latent variable. More information could be found in ...!!!!
 
 ## Psudobeta
+
+In order to improve the interpretability of a PLS model, a subset of the most influential variables can be selected. In this example, the top 20 variables are chosen. Additionally, non-significant PLS components are excluded by setting the "onlySig" parameter to "TRUE".
 
 ```{r}
 ggp.simulated_beta <- plot_pseudobeta.list(lst_models = lst_models, 
                                            error.bar = T, onlySig = T, alpha = 0.05, 
                                            zero.rm = T, auto.limits = T, top = 20,
-                                           show_percentage = T, size_percentage = 3)
+                                           show_percentage = T, size_percentage = 3, verbose = F)
 ```
 
+The sPSL-DRCOX-MixOmics model was computed using a total of `r lst_models[["sPLS-DRCOX-MixOmics"]]$n.comp` components. Although these components were classified as dangerous for the observations (based on coefficients greater than one), certain variables within the components may still have a protective effect, depending on their individual weights.
+
+The following plot illustrates the pseudo-beta coefficient for the original variables in the sPSL-DRCOX-MixOmics model. As only the top 20 variables are shown, the plot represents only 25.07% of the total linear predictor total value. To view the complete model, all variables would need to be included in the plot by assigning the value NULL to the "top" parameter.
+
 ```{r, fig.small=T}
-ggp.simulated_beta$`sPLS-DACOX-MixOmics`$plot
+ggp.simulated_beta$`sPLS-DRCOX-MixOmics`$plot
 ```
 
 ## Kaplan-Meier
 
+For a more intuitive understanding of the model, the user can also employ the "getAutoKM.list()" or "getAutoKM()" functions to generate Kaplan-Meier curves. These functions allow the user to view the KM curve for the entire model, a specific component of a PLS model, or for individual variables.
+
 ### Full model
+
+To run the full Kaplan-Meier model, the "type" parameter must be set to "LP" (linear predictors). This means that the linear predictor value for each patient will be used to divide the groups (in this case, the score value multiplied by the Cox coefficient). The "surv_cutpoint" function from the R package "survminer" is used to determine the optimal cut-point. Other parameters are not used in this specific method.
 
 ```{r}
 LST_KM_RES_LP <- getAutoKM.list(type = "LP",
@@ -659,11 +675,15 @@ LST_KM_RES_LP <- getAutoKM.list(type = "LP",
                                 only_sig = T, alpha = 0.05)
 ```
 
+As a result, the Kaplan-Meier curve could be plotted.  
+
 ```{r, fig.small=T}
-LST_KM_RES_LP$`sPLS-DACOX-MixOmics`$LST_PLOTS$LP
+LST_KM_RES_LP$`sPLS-DRCOX-MixOmics`$LST_PLOTS$LP
 ```
 
-### Per components
+### Components
+
+To generate a Kaplan-Meier curve for a specific component, the "type" parameter must be set to "COMP" (component). This means that the linear predictor is computed using only one component at a time to split the groups. In this case, the "comp" parameter can be used to specify which component should be computed (if multiple components, each one will be computed separately).
 
 ```{r}
 LST_KM_RES_COMP <- getAutoKM.list(type = "COMP",
@@ -672,22 +692,25 @@ LST_KM_RES_COMP <- getAutoKM.list(type = "COMP",
                                   top = 10,
                                   ori_data = T,
                                   BREAKTIME = NULL,
+                                  n.breaks = 20,
                                   only_sig = T, alpha = 0.05)
 ```
 
 ```{r, fig.small=T}
-LST_KM_RES_COMP$`sPLS-DACOX-MixOmics`$LST_PLOTS$comp_1
-LST_KM_RES_COMP$`sPLS-DACOX-MixOmics`$LST_PLOTS$comp_2
+LST_KM_RES_COMP$`sPLS-DRCOX-MixOmics`$LST_PLOTS$comp_1
+LST_KM_RES_COMP$`sPLS-DRCOX-MixOmics`$LST_PLOTS$comp_2
 ```
 
-### Per original variables
+### Original variables
 
-Matches psudobetas
+To generate a Kaplan-Meier curve for original variables, the "type" parameter must be set to "VAR" (variable). In this case, the "ori_data" parameter can be used to determine whether the original or normalized values of the variables should be used.
+
+Additionally, the "top" parameter can be used to plot a specific number of variables, sorted by P-Value (Log-Rank test). The best cutpoint is determined by the "surv_cutpoint" function. Both qualitative and quantitative variables are supported.
 
 ```{r}
 LST_KM_RES_VAR <- getAutoKM.list(type = "VAR",
                                  lst_models = lst_models,
-                                 comp = 1:4,
+                                 comp = 1:10, #select how many components you want to compute for the pseudo beta
                                  top = 10,
                                  ori_data = T,
                                  BREAKTIME = NULL,
@@ -695,19 +718,27 @@ LST_KM_RES_VAR <- getAutoKM.list(type = "VAR",
 ```
 
 ```{r, fig.small=T}
-LST_KM_RES_VAR$`sPLS-DACOX-MixOmics`$LST_PLOTS$POSTN
-LST_KM_RES_VAR$`sPLS-DACOX-MixOmics`$LST_PLOTS$SIRT5
+LST_KM_RES_VAR$`sPLS-DRCOX-MixOmics`$LST_PLOTS$hsa_miR_222
+LST_KM_RES_VAR$`sPLS-DRCOX-MixOmics`$LST_PLOTS$hsa_miR_182
 ```
 
 # New patients
+
+If new patients are to be studied using a trained model, several functions have been implemented.
+
+To demonstrate, an observation from a test dataset will be used.
 
 ```{r}
 new_pat <- X_test[1,,drop=F]
 ```
 
+As shown, this is a patient who did not reach the event, and the last time the patient was checked before being censored was at time 226.
+
 ```{r}
 knitr::kable(Y_test[rownames(new_pat),])
 ```
+
+The function "plot_pseudobeta_newPatient.list()" or "plot_pseudobeta_newPatient()" allows the user to compare the characteristics of a new patient with the pseudo-beta values obtained from a specific model. The goal is to understand in a general way which variables are associated with an increased risk of an event or a decreased risk, in comparison to the variables predicted by the model.
 
 ```{r}
 ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient.list(lst_models = lst_models, 
@@ -715,24 +746,25 @@ ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient.list(lst_models = lst_mo
                                                              error.bar = T, onlySig = T, alpha = 0.05,
                                                              zero.rm = T, auto.limits = T, show.betas = T, top = 20)
 
-# ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient(model = lst_models$`sPLS-DACOX-MixOmics`, 
+# ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient(model = lst_models$`sPLS-DRCOX-MixOmics`, 
 #                                                         new_pat = new_pat,
 #                                                         error.bar = T, onlySig = T, alpha = 0.05,
 #                                                         zero.rm = T, auto.limits = T, show.betas = T, top = 20)
 ```
-
-Opposite direction means its value is under the mean for risk one or over the mean for protective ones.
+On the left, a linear predictor value is shown for the observation and each variable. On the right, the pseudo-beta coefficients for the model's original variables are illustrated. This allows the user to compare the direction of the linear predictors per variable. A change in direction means that the variable's value is below the mean for hazard variables or above the mean for protective ones. Having an opposite direction for hazard variables and maintaining the direction for protective variables makes the observation safer over time.
 
 ```{r, fig.small=T}
-ggp.simulated_beta_newPat$`sPLS-DACOX-MixOmics`$plot
+ggp.simulated_beta_newPat$`sPLS-DRCOX-MixOmics`$plot
 ```
 
 ## Add patient to density plot
 
+Additionally, the new observation can be added to the density and histogram plots that the model has computed. While this function can be useful in visualizing the results, it is important to note that no definitive conclusions can be drawn from these types of plots alone. They serve as an additional means of viewing the predictive values for the new patient ("lp", "risk", "expected", "terms", "survival") in relation to the training dataset and its histogram or density plot, along with the events or censored patients.
+
 ```{r}
 pat_density <- plot_patient.eventDensity(patient = new_pat, 
                                          time = NULL, 
-                                         model = lst_models$`sPLS-DACOX-MixOmics`, 
+                                         model = lst_models$`sPLS-DRCOX-MixOmics`, 
                                          type = "lp")
 ```
 
@@ -743,7 +775,7 @@ pat_density
 ```{r}
 pat_histogram <- plot_patient.eventHistogram(patient = new_pat, 
                                              time = NULL, 
-                                             model = lst_models$`sPLS-DACOX-MixOmics`, 
+                                             model = lst_models$`sPLS-DRCOX-MixOmics`, 
                                              type = "lp")
 ```
 
@@ -757,15 +789,20 @@ pat_histogram
 
 ## COX compare multiple patients
 
+Furthermore, similar plots can be generated for multiple patients at the same time. For example, by selecting 5 patients, individual linear predictors for each variable and the final linear predictor using all the variables used in the survival model can be plotted.
+
 ```{r}
 knitr::kable(Y_test[1:5,])
 ```
+
+To generate the figure, the function "plot_LP.multiplePatients.list()" or "plot_LP.multiplePatients()" can be used.
+
 ```{r}
 lst_cox.comparison <- plot_LP.multiplePatients.list(lst_models = lst_models, 
-                                     df.pat = X_test[1:5,], 
-                                     error.bar = T, zero.rm = T, onlySig = T, alpha = 0.05, top = 5)
+                                                   df.pat = X_test[1:5,], 
+                                                   error.bar = T, zero.rm = T, onlySig = T, alpha = 0.05, top = 5)
 ```
 
 ```{r, fig.small=T}
-lst_cox.comparison$`sPLS-DACOX-MixOmics`$plot
+lst_cox.comparison$`sPLS-DRCOX-MixOmics`$plot
 ```

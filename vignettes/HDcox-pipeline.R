@@ -298,7 +298,7 @@ lst_eval_results <- plot_evaluation(eval_results)
 #lst_eval_results <- plot_evaluation.list(eval_results)
 
 ## ---- fig.small=T-------------------------------------------------------------
-lst_eval_results$lst_plots$lineplot.mean
+lst_eval_results$lst_plots$lineplot
 lst_eval_results$lst_plot_comparisons$anova
 
 # lst_eval_results$cenROC$lst_plots$lineplot.mean
@@ -309,8 +309,7 @@ lst_models_time <- list(coxen_model,
                         plsicox_model,
                         splsdrcox_model,
                         splsdrcox_mo_model,
-                        splsdacox_mo_model,
-                        eval_results)
+                        splsdacox_mo_model)
 
 ## -----------------------------------------------------------------------------
 ggp_time <- plot_time.list(lst_models_time)
@@ -322,30 +321,30 @@ ggp_time
 lst_forest_plot <- plot_forest.list(lst_models)
 
 ## ---- fig.small=T-------------------------------------------------------------
-lst_forest_plot$`sPLS-DACOX-MixOmics`
+lst_forest_plot$`sPLS-DRCOX-MixOmics`
 
 ## -----------------------------------------------------------------------------
 density.plots.lp <- plot_cox.event.list(lst_models, type = "lp")
 
 ## ---- fig.small=T-------------------------------------------------------------
-density.plots.lp$`sPLS-DACOX-MixOmics`$plot.density
-density.plots.lp$`sPLS-DACOX-MixOmics`$plot.histogram
+density.plots.lp$`sPLS-DRCOX-MixOmics`$plot.density
+density.plots.lp$`sPLS-DRCOX-MixOmics`$plot.histogram
 
 ## -----------------------------------------------------------------------------
 lst_ph_ggplot <- plot_proportionalHazard.list(lst_models)
 
 ## ---- fig.small=T-------------------------------------------------------------
-lst_ph_ggplot$`sPLS-DACOX-MixOmics`
+lst_ph_ggplot$`sPLS-DRCOX-MixOmics`
 
 ## -----------------------------------------------------------------------------
-ggp_scores <- plot_PLS_HDcox(model = lst_models$`sPLS-DACOX-MixOmics`, 
+ggp_scores <- plot_PLS_HDcox(model = lst_models$`sPLS-DRCOX-MixOmics`, 
                              comp = c(1,2), mode = "scores")
 
 ## ---- fig.small=T-------------------------------------------------------------
 ggp_scores$plot
 
 ## -----------------------------------------------------------------------------
-ggp_loadings <- plot_PLS_HDcox(model = lst_models$`sPLS-DACOX-MixOmics`, 
+ggp_loadings <- plot_PLS_HDcox(model = lst_models$`sPLS-DRCOX-MixOmics`, 
                                comp = c(1,2), mode = "loadings",
                                top = 10) #length from 0,0
 
@@ -353,10 +352,11 @@ ggp_loadings <- plot_PLS_HDcox(model = lst_models$`sPLS-DACOX-MixOmics`,
 ggp_loadings$plot
 
 ## -----------------------------------------------------------------------------
-ggp_biplot <- plot_PLS_HDcox(model = lst_models$`sPLS-DACOX-MixOmics`, 
+ggp_biplot <- plot_PLS_HDcox(model = lst_models$`sPLS-DRCOX-MixOmics`, 
                              comp = c(1,2), mode = "biplot",
                              top = 15,
-                             only_top = T)
+                             only_top = T,
+                             overlaps = 20)
 
 ## ---- fig.small=T-------------------------------------------------------------
 ggp_biplot$plot
@@ -365,10 +365,10 @@ ggp_biplot$plot
 ggp.simulated_beta <- plot_pseudobeta.list(lst_models = lst_models, 
                                            error.bar = T, onlySig = T, alpha = 0.05, 
                                            zero.rm = T, auto.limits = T, top = 20,
-                                           show_percentage = T, size_percentage = 3)
+                                           show_percentage = T, size_percentage = 3, verbose = F)
 
 ## ---- fig.small=T-------------------------------------------------------------
-ggp.simulated_beta$`sPLS-DACOX-MixOmics`$plot
+ggp.simulated_beta$`sPLS-DRCOX-MixOmics`$plot
 
 ## -----------------------------------------------------------------------------
 LST_KM_RES_LP <- getAutoKM.list(type = "LP",
@@ -380,7 +380,7 @@ LST_KM_RES_LP <- getAutoKM.list(type = "LP",
                                 only_sig = T, alpha = 0.05)
 
 ## ---- fig.small=T-------------------------------------------------------------
-LST_KM_RES_LP$`sPLS-DACOX-MixOmics`$LST_PLOTS$LP
+LST_KM_RES_LP$`sPLS-DRCOX-MixOmics`$LST_PLOTS$LP
 
 ## -----------------------------------------------------------------------------
 LST_KM_RES_COMP <- getAutoKM.list(type = "COMP",
@@ -389,24 +389,25 @@ LST_KM_RES_COMP <- getAutoKM.list(type = "COMP",
                                   top = 10,
                                   ori_data = T,
                                   BREAKTIME = NULL,
+                                  n.breaks = 20,
                                   only_sig = T, alpha = 0.05)
 
 ## ---- fig.small=T-------------------------------------------------------------
-LST_KM_RES_COMP$`sPLS-DACOX-MixOmics`$LST_PLOTS$comp_1
-LST_KM_RES_COMP$`sPLS-DACOX-MixOmics`$LST_PLOTS$comp_2
+LST_KM_RES_COMP$`sPLS-DRCOX-MixOmics`$LST_PLOTS$comp_1
+LST_KM_RES_COMP$`sPLS-DRCOX-MixOmics`$LST_PLOTS$comp_2
 
 ## -----------------------------------------------------------------------------
 LST_KM_RES_VAR <- getAutoKM.list(type = "VAR",
                                  lst_models = lst_models,
-                                 comp = 1:4,
+                                 comp = 1:10, #select how many components you want to compute for the pseudo beta
                                  top = 10,
                                  ori_data = T,
                                  BREAKTIME = NULL,
                                  only_sig = T, alpha = 0.05)
 
 ## ---- fig.small=T-------------------------------------------------------------
-LST_KM_RES_VAR$`sPLS-DACOX-MixOmics`$LST_PLOTS$POSTN
-LST_KM_RES_VAR$`sPLS-DACOX-MixOmics`$LST_PLOTS$SIRT5
+LST_KM_RES_VAR$`sPLS-DRCOX-MixOmics`$LST_PLOTS$hsa_miR_222
+LST_KM_RES_VAR$`sPLS-DRCOX-MixOmics`$LST_PLOTS$hsa_miR_182
 
 ## -----------------------------------------------------------------------------
 new_pat <- X_test[1,,drop=F]
@@ -420,18 +421,18 @@ ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient.list(lst_models = lst_mo
                                                              error.bar = T, onlySig = T, alpha = 0.05,
                                                              zero.rm = T, auto.limits = T, show.betas = T, top = 20)
 
-# ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient(model = lst_models$`sPLS-DACOX-MixOmics`, 
+# ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient(model = lst_models$`sPLS-DRCOX-MixOmics`, 
 #                                                         new_pat = new_pat,
 #                                                         error.bar = T, onlySig = T, alpha = 0.05,
 #                                                         zero.rm = T, auto.limits = T, show.betas = T, top = 20)
 
 ## ---- fig.small=T-------------------------------------------------------------
-ggp.simulated_beta_newPat$`sPLS-DACOX-MixOmics`$plot
+ggp.simulated_beta_newPat$`sPLS-DRCOX-MixOmics`$plot
 
 ## -----------------------------------------------------------------------------
 pat_density <- plot_patient.eventDensity(patient = new_pat, 
                                          time = NULL, 
-                                         model = lst_models$`sPLS-DACOX-MixOmics`, 
+                                         model = lst_models$`sPLS-DRCOX-MixOmics`, 
                                          type = "lp")
 
 ## ---- fig.small=T-------------------------------------------------------------
@@ -440,7 +441,7 @@ pat_density
 ## -----------------------------------------------------------------------------
 pat_histogram <- plot_patient.eventHistogram(patient = new_pat, 
                                              time = NULL, 
-                                             model = lst_models$`sPLS-DACOX-MixOmics`, 
+                                             model = lst_models$`sPLS-DRCOX-MixOmics`, 
                                              type = "lp")
 
 ## ---- fig.small=T-------------------------------------------------------------
@@ -454,9 +455,9 @@ knitr::kable(Y_test[1:5,])
 
 ## -----------------------------------------------------------------------------
 lst_cox.comparison <- plot_LP.multiplePatients.list(lst_models = lst_models, 
-                                     df.pat = X_test[1:5,], 
-                                     error.bar = T, zero.rm = T, onlySig = T, alpha = 0.05, top = 5)
+                                                   df.pat = X_test[1:5,], 
+                                                   error.bar = T, zero.rm = T, onlySig = T, alpha = 0.05, top = 5)
 
 ## ---- fig.small=T-------------------------------------------------------------
-lst_cox.comparison$`sPLS-DACOX-MixOmics`$plot
+lst_cox.comparison$`sPLS-DRCOX-MixOmics`$plot
 

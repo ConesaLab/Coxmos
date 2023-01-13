@@ -11,6 +11,7 @@ getAutoKM(
   top = 10,
   ori_data = T,
   BREAKTIME = NULL,
+  n.breaks = 20,
   only_sig = F,
   alpha = 0.05,
   title = NULL,
@@ -29,6 +30,8 @@ getAutoKM(
 \item{ori_data}{Compute the KM with the original data cutpoints or the normalize}
 
 \item{BREAKTIME}{Break for time points}
+
+\item{n.breaks}{If BREAKTIME is NULL, number of time-breaks}
 
 \item{only_sig}{Return only significant log-rank test variables}
 

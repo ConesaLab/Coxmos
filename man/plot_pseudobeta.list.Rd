@@ -13,7 +13,8 @@ plot_pseudobeta.list(
   top = NULL,
   auto.limits = T,
   show_percentage = T,
-  size_percentage = 3
+  size_percentage = 3,
+  verbose = F
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ plot_pseudobeta.list(
 \item{show_percentage}{Show contribution percentage for each variable}
 
 \item{size_percentage}{Size of percentage text}
+
+\item{verbose}{Show messages}
 }
 \description{
 plot_pseudobeta.list

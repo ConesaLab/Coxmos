@@ -6,6 +6,8 @@ round2any <- function(x, accuracy, f = round) {
   #UseMethod("round2any")
   if(class(x)[[1]] %in% "numeric"){
     round2any.numeric(x, accuracy, f)
+  }else if(class(x)[[1]] %in% "integer"){
+    round2any.integer(x, accuracy, f)
   }else if(class(x)[[1]] %in% "double"){
     round2any.double(x, accuracy, f)
   }else if(class(x)[[1]] %in% "POSIXct"){
@@ -16,6 +18,10 @@ round2any <- function(x, accuracy, f = round) {
 }
 
 round2any.numeric <- function(x, accuracy, f = round) {
+  f(x / accuracy) * accuracy
+}
+
+round2any.integer <- function(x, accuracy, f = round) {
   f(x / accuracy) * accuracy
 }
 

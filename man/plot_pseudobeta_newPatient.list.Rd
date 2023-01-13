@@ -13,7 +13,8 @@ plot_pseudobeta_newPatient.list(
   zero.rm = T,
   top = NULL,
   auto.limits = T,
-  show.betas = F
+  show.betas = F,
+  verbose = F
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ plot_pseudobeta_newPatient.list(
 \item{auto.limits}{Compute Y limit automatically}
 
 \item{show.betas}{Show original betas}
+
+\item{verbose}{Shows extra messages}
 }
 \description{
 plot_pseudobeta_newPatient.list
