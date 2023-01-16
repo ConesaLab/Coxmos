@@ -409,6 +409,8 @@ mb.splsdacox <- function (X, Y,
 #' @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
 #' @param MIN_NVAR Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
 #' @param MAX_NVAR Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
+#' @param n.cut_points Numeric. Number of start cut points for look the optimal number of variable. 2 cut points mean start with the minimum and maximum. 3 start with minimum, maximum and middle point...(default: 3)
+#' @param EVAL_METHOD Numeric. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
 #' @param w_AIC Numeric. Weight for AIC evaluator. All three weights must sum 1 (default: 0).
 #' @param w_c.index Numeric. Weight for C-Index evaluator. All three weights must sum 1 (default: 0).
 #' @param w_AUC Numeric. Weight for AUC evaluator. All three weights must sum 1 (default: 1).
@@ -435,7 +437,7 @@ cv.mb.splsdacox <- function(X, Y,
                             y.center = FALSE, y.scale = FALSE,
                             remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
                             remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,
-                            MIN_NVAR = 10, MAX_NVAR = 10000,
+                            MIN_NVAR = 10, MAX_NVAR = 10000, n.cut_points = 5, EVAL_METHOD = "cenROC",
                             w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
                             MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                             pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
@@ -494,6 +496,7 @@ cv.mb.splsdacox <- function(X, Y,
                                 n_run = n_run, k_folds = k_folds, MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, MIN_AUC_INCREASE = MIN_AUC_INCREASE,
                                 x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
                                 remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
+                                alpha = alpha, MIN_EPV = MIN_EPV,
                                 remove_non_significant = remove_non_significant,
                                 total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
 

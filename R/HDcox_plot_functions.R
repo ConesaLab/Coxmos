@@ -914,7 +914,32 @@ plot_evaluation <- function(eval_results, pred.attr = "mean", y.min = NULL, type
 
   }
 
-  return(list("lst_plots" = lst_ggp, "lst_plot_comparisons" = lst_plot_comparisons))
+  table <- NULL
+  for(m in unique(eval_results$df$method)){
+    for(c in colnames(df)){
+      if(c=="method" | c=="time"){
+        next
+      }else{
+        vector <- c(m, c,
+                    mean(eval_results$df[eval_results$df$method==m,c,drop=T]),
+                    median(eval_results$df[eval_results$df$method==m,c,drop=T]),
+                    sd(eval_results$df[eval_results$df$method==m,c,drop=T]))
+        table <- rbind(table, vector)
+      }
+    }
+  }
+
+  table <- as.data.frame(table)
+  rownames(table) <- NULL
+  colnames(table) <- c("method","metric","mean","median","sd")
+
+  table$method <- factor(table$method)
+  table$metric <- factor(table$metric)
+  table$mean <- as.numeric(table$mean)
+  table$median <- as.numeric(table$median)
+  table$sd <- as.numeric(table$sd)
+
+  return(list("lst_plots" = lst_ggp, "lst_plot_comparisons" = lst_plot_comparisons, df = table))
 }
 
 #' loadingplot.HDcox

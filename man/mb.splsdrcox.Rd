@@ -19,7 +19,7 @@ mb.splsdrcox(
   remove_non_significant = T,
   MIN_NVAR = 10,
   MAX_NVAR = 10000,
-  n.cut_points = 3,
+  n.cut_points = 5,
   MIN_AUC_INCREASE = 0.01,
   EVAL_METHOD = "AUC",
   pred.method = "cenROC",

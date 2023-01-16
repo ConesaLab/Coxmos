@@ -494,10 +494,12 @@ stepwise.coxph <- function (Time = NULL, T1 = NULL, T2 = NULL, Status = NULL, va
         vars_aux <- rownames(vars_aux)[1:min(max.variables, length(rownames(vars_aux)))]
         in.variable <- vars_aux #random selection of n_predictors because backwards selection
       }
-      initial.model <- survival::coxph(as.formula(paste("Surv(", Time, ", ", Status, ") ~ .")), data = data[,colnames(data) %in% c(in.variable, "time", "event", "status")],
+      aux_data <- as.data.frame(data[,colnames(data) %in% c(in.variable, "time", "event", "status"),drop=F])
+      initial.model <- survival::coxph(as.formula(paste("Surv(", Time, ", ", Status, ") ~ .")), data = aux_data,
                                        method = "efron", model = T, singular.ok = T)
     }else{
-      initial.model <- survival::coxph(as.formula(paste("Surv(", Time, ", ", Status, ") ~ .")), data = data[,colnames(data) %in% c(in.variable, "time", "event", "status")],
+      aux_data <- as.data.frame(data[,colnames(data) %in% c(in.variable, "time", "event", "status"),drop=F])
+      initial.model <- survival::coxph(as.formula(paste("Surv(", Time, ", ", Status, ") ~ .")), data = aux_data,
                                        method = "efron", model = T, singular.ok = T)
     }
 
@@ -510,12 +512,14 @@ stepwise.coxph <- function (Time = NULL, T1 = NULL, T2 = NULL, Status = NULL, va
         set.seed(123)
         in.variable <- sample(1:length(in.variable), max.variables) #random selection of n_predictors because backwards selection
       }
+      aux_data <- as.data.frame(data[,colnames(data) %in% c(in.variable, "time", "event", "status"),drop=F])
       initial.model <- survival::coxph(as.formula(paste("Surv(", T1, ", ", T2, ", ", Status, ") ~ .")),
-                                       data = data[,colnames(data) %in% c(in.variable, "time", "event", "status")],
+                                       data = aux_data,
                                        method = "efron", model = T, singular.ok = T)
     }else{
+      aux_data <- as.data.frame(data[,colnames(data) %in% c(in.variable, "time", "event", "status"),drop=F])
       initial.model <- survival::coxph(as.formula(paste("Surv(", T1, ", ", T2, ", ", Status, ") ~ .")),
-                                       data = data[,colnames(data) %in% c(in.variable, "time", "event", "status")],
+                                       data = aux_data,
                                        method = "efron", model = T, singular.ok = T)
     }
 
@@ -524,10 +528,10 @@ stepwise.coxph <- function (Time = NULL, T1 = NULL, T2 = NULL, Status = NULL, va
     for (i in 1:length(variable.list)) { #por cada variable de estudio...
       utils::flush.console()
       if(is.null(T2)) {
-
+        aux_data <- as.data.frame(data[,colnames(data) %in% c(variable.list[i], "time", "event", "status"),drop=F])
         uni.model <- tryCatch({ #si NA saltará aviso
           survival::coxph(as.formula(paste("Surv(", Time, ", ", Status, ") ~ .")),
-                          data = data[,colnames(data) %in% c(variable.list[i], "time", "event", "status")],
+                          data = aux_data,
                           method = "efron", model = T, singular.ok = T)},
           #save the error
           error=function(cond) {
@@ -541,10 +545,10 @@ stepwise.coxph <- function (Time = NULL, T1 = NULL, T2 = NULL, Status = NULL, va
         }
       }
       if (is.null(Time)) {
-
+        aux_data <- as.data.frame(data[,colnames(data) %in% c(variable.list[i], "time", "event", "status"),drop=F])
         uni.model <- tryCatch({ #si NA saltará aviso
           survival::coxph(as.formula(paste("Surv(", T1, ", ", T2, ", ", Status, ") ~ .")),
-                          data = data[,colnames(data) %in% c(variable.list[i], "time", "event", "status")],
+                          data = aux_data,
                           method = "efron", model = T, singular.ok = T)},
           #save the error
           error=function(cond) {
@@ -564,12 +568,14 @@ stepwise.coxph <- function (Time = NULL, T1 = NULL, T2 = NULL, Status = NULL, va
     uni.x <- variable.list1[which.min(univar.pvalue1)] #coger la de minimo pvalor
     if (length(uni.x) > 0) {
       if (is.null(T2)) {
+        aux_data <- as.data.frame(data[,colnames(data) %in% c(uni.x, "time", "event", "status"),drop=F])
         formula <- as.formula(paste("Surv(", Time, ", ", Status, ") ~ ", uni.x, sep = ""))
-        temp.model <- survival::coxph(formula, data = data[,colnames(data) %in% c(uni.x, "time", "event", "status")], method = "efron", model = T, singular.ok = T)
+        temp.model <- survival::coxph(formula, data = aux_data, method = "efron", model = T, singular.ok = T)
       }
       if (is.null(Time)) {
+        aux_data <- as.data.frame(data[,colnames(data) %in% c(uni.x, "time", "event", "status"),drop=F])
         formula <- as.formula(paste("Surv(", T1, ", ", T2, ", ", Status, ") ~ ."))
-        temp.model <- survival::coxph(formula, data = data[,colnames(data) %in% c(uni.x, "time", "event", "status")], method = "efron", model = T, singular.ok = T)
+        temp.model <- survival::coxph(formula, data = aux_data, method = "efron", model = T, singular.ok = T)
       }
     }
   }

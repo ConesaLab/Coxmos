@@ -16,6 +16,7 @@
 #' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, remove_zero_variance variables will be removed.
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.
 #' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
+#' @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
 #' @param MIN_EPV Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.
 #' @param returnData Logical. Return original and normalized X and Y matrices.
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
@@ -72,7 +73,7 @@ sb.plsicox <- function (X, Y,
                         x.center = TRUE, x.scale = FALSE,
                         y.center = FALSE, y.scale = FALSE,
                         remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
-                        remove_non_significant = F,
+                        remove_non_significant = F, alpha = 0.05,
                         MIN_EPV = 5, returnData = T, verbose = F){
 
   t1 <- Sys.time()
@@ -118,9 +119,10 @@ sb.plsicox <- function (X, Y,
   lst_sb.pls <- list()
   for(b in names(Xh)){
     lst_sb.pls[[b]] <- plsicox(X = Xh[[b]], Y = Yh, n.comp = n.comp,
-                                x.scale = F, x.center = F, y.scale = F, y.center = F,
-                                remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL, #zero_var already checked
-                                returnData = F, verbose = verbose)
+                               x.scale = F, x.center = F, y.scale = F, y.center = F,
+                               remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL, #zero_var already checked
+                               remove_non_significant = remove_non_significant, alpha = alpha,
+                               returnData = F, verbose = verbose)
   }
 
   # CHECK ALL MODELS SAME COMPONENTS
@@ -271,7 +273,7 @@ cv.sb.plsicox <- function(X, Y,
                                    max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL,
                                    n_run = n_run, k_folds = k_folds,
                                    remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
-                                   remove_non_significant = remove_non_significant,
+                                   remove_non_significant = remove_non_significant, alpha = alpha, MIN_EPV = MIN_EPV,
                                    x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
                                    total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
 
@@ -504,17 +506,19 @@ fast.cv.sb.plsicox <- function(X, Y,
                                    x.scale = x.scale[[b]], x.center = x.center[[b]], y.scale = y.scale, y.center = y.center,
                                    remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
                                    remove_non_significant = remove_non_significant,
-                                   fast_mode = fast_mode, return_models = return_models, MIN_EPV = MIN_EPV,
+                                   fast_mode = fast_mode, return_models = return_models,
+                                   MIN_EPV = MIN_EPV, verbose = verbose,
                                    pred.attr = pred.attr, pred.method = pred.method, seed = seed, PARALLEL = PARALLEL)
 
     lst_sb.pls[[b]] <- plsicox(X = Xh[[b]],
                                Y = Yh,
                                n.comp = cv.splsdrcox_res$opt.comp,
                                remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
-                               remove_non_significant = remove_non_significant,
+                               remove_non_significant = remove_non_significant, alpha = alpha,
                                returnData = F,
                                x.center = x.center[[b]], x.scale = x.scale[[b]],
-                               y.scale = y.scale, y.center = y.center)
+                               y.scale = y.scale, y.center = y.center,
+                               MIN_EPV = MIN_EPV, verbose = verbose)
   }
 
   # CHECK ALL MODELS SAME COMPONENTS

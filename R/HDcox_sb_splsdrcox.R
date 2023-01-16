@@ -17,6 +17,7 @@
 #' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, remove_zero_variance variables will be removed.
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.
 #' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
+#' @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
 #' @param MIN_EPV Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.
 #' @param returnData Logical. Return original and normalized X and Y matrices.
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
@@ -73,7 +74,7 @@ sb.splsdrcox <- function (X, Y,
                          x.center = TRUE, x.scale = FALSE,
                          y.center = FALSE, y.scale = FALSE,
                          remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
-                         remove_non_significant = F,
+                         remove_non_significant = F, alpha = 0.05,
                          MIN_EPV = 5, returnData = T, verbose = F){
 
   t1 <- Sys.time()
@@ -121,6 +122,7 @@ sb.splsdrcox <- function (X, Y,
     lst_sb.spls[[b]] <- splsdrcox(X = Xh[[b]], Y = Yh, n.comp = n.comp, eta = eta,
                                  x.scale = F, x.center = F, y.scale = F, y.center = F,
                                  remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL, #zero_var already checked
+                                 remove_non_significant = remove_non_significant, alpha = alpha,
                                  returnData = F, verbose = verbose)
   }
 
@@ -282,13 +284,13 @@ cv.sb.splsdrcox <- function(X, Y,
   total_models <- max.ncomp * k_folds * n_run * length(eta.list)
 
   lst_model <- get_HDCOX_models2.0(method = pkg.env$sb.splsdrcox,
-                                lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
-                                max.ncomp = max.ncomp, eta.list = eta.list, EN.alpha.list = NULL,
-                                n_run = n_run, k_folds = k_folds,
-                                remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
-                                remove_non_significant = remove_non_significant,
-                                x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
-                                total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
+                                  lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
+                                  max.ncomp = max.ncomp, eta.list = eta.list, EN.alpha.list = NULL,
+                                  n_run = n_run, k_folds = k_folds,
+                                  remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
+                                  remove_non_significant = remove_non_significant, alpha = alpha,
+                                  x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
+                                  total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
 
   # lst_model <- get_HDCOX_models(method = "pkg.env$sb.splsdrcox,
   #                               lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
@@ -518,25 +520,27 @@ fast.cv.sb.splsdrcox <- function(X, Y,
     message(paste0("Running cross validation sPLS-DRCOX for block: ", b, "\n"))
 
     cv.splsdrcox_res <- cv.splsdrcox(X = Xh[[b]], Y = Yh,
-                                   max.ncomp = max.ncomp, eta.list = eta.list,
-                                   n_run = n_run, k_folds = k_folds, alpha = alpha, remove_non_significant_models = remove_non_significant_models,
-                                   remove_non_significant = remove_non_significant,
-                                   w_AIC = w_AIC, w_c.index = w_c.index, w_AUC = w_AUC, times = times,
-                                   MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                   x.scale = x.scale[[b]], x.center = x.center[[b]], y.scale = y.scale, y.center = y.center,
-                                   remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
-                                   fast_mode = fast_mode, return_models = return_models, MIN_EPV = MIN_EPV,
-                                   pred.attr = pred.attr, pred.method = pred.method, seed = seed, PARALLEL = PARALLEL)
+                                     max.ncomp = max.ncomp, eta.list = eta.list,
+                                     n_run = n_run, k_folds = k_folds, alpha = alpha, remove_non_significant_models = remove_non_significant_models,
+                                     remove_non_significant = remove_non_significant,
+                                     w_AIC = w_AIC, w_c.index = w_c.index, w_AUC = w_AUC, times = times,
+                                     MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
+                                     x.scale = x.scale[[b]], x.center = x.center[[b]], y.scale = y.scale, y.center = y.center,
+                                     remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
+                                     fast_mode = fast_mode, return_models = return_models,
+                                     MIN_EPV = MIN_EPV, verbose = verbose,
+                                     pred.attr = pred.attr, pred.method = pred.method, seed = seed, PARALLEL = PARALLEL)
 
     lst_sb.spls[[b]] <- splsdrcox(X = Xh[[b]],
                                  Y = Yh,
                                  n.comp = cv.splsdrcox_res$opt.comp,
                                  eta = cv.splsdrcox_res$opt.eta,
                                  remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
-                                 remove_non_significant = remove_non_significant,
+                                 remove_non_significant = remove_non_significant, alpha = alpha,
                                  returnData = F,
                                  x.center = x.center[[b]], x.scale = x.scale[[b]],
-                                 y.scale = y.scale, y.center = y.center)
+                                 y.scale = y.scale, y.center = y.center,
+                                 verbose = verbose)
   }
 
   # CHECK ALL MODELS SAME COMPONENTS
