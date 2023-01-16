@@ -975,7 +975,8 @@ boxplot.performance <- function(df, x.var, y.var, x.fill = NULL, x.alpha = NULL,
           ggp <- ggp + ggpubr::stat_compare_means(method = test, label.x.npc = "center", label.y = 1.025*max)
           ggp
         }else{
-          ggp <- ggp + ggpubr::stat_compare_means(method = test, comparisons = comparisons)
+          #some input is generated but I do not want it to be printed.
+          output_txt <- capture.output(ggp <- ggp + ggpubr::stat_compare_means(method = test, comparisons = comparisons))
           ggp
         }
       },
