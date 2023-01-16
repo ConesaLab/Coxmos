@@ -128,22 +128,22 @@ coxSW <- function(X, Y,
   problem_flag = F
 
   while(!is.null(oneToDelete)){
-    ########
+    #### ###
     # CONT #
-    ########
+    #### ###
     if(verbose){
       message(paste0("Iteration: ", cont))
     }
     cont <- cont+1
 
-    ###################
+    #### ### ### ### ##
     # INTERESTING VAR #
-    ###################
+    #### ### ### ### ##
     in.variable = "NULL"
 
-    #######
-    #MODEL#
-    #######
+    #### ###
+    # MODEL #
+    #### ###
     model <- tryCatch(
       # Specifying expression
       expr = {
@@ -171,14 +171,14 @@ coxSW <- function(X, Y,
       break
     }
 
-    ####################
+    #### ### ### ### ###
     # CHECK PH AND SIG #
-    ####################
+    #### ### ### ### ###
     anyProblem = FALSE
 
-    #############
+    #### ### ###
     # ANY NO PH #
-    #############
+    #### ### ###
     if(check_PH){
       fit_zph <- survival::cox.zph(coxph.sw, transform = "km", terms = T, global = F) #do not check global value
       fit_zph.aux <- fit_zph
@@ -262,9 +262,9 @@ coxSW <- function(X, Y,
       } #PH SIG
     }
 
-    ##############
+    #### ### ### #
     # PVAL > SIG #
-    ##############
+    #### ### ### #
 
     #if pval == NA, near zero variance problem, assing p.val = 1
     if(length(variables.df[is.na(variables.df$`Pr(>|z|)`),"Pr(>|z|)"])>0){
@@ -323,9 +323,9 @@ coxSW <- function(X, Y,
       }
     }
 
-    ##########################
+    #### ### ### ### ### ### #
     # NUMBER OF VARIABLES >> #
-    ##########################
+    #### ### ### ### ### ### #
 
     if(max.variables < length(coxph.sw$coefficients) & !anyProblem){
       lstHighPVAL <- rownames(variables.df)
@@ -350,9 +350,9 @@ coxSW <- function(X, Y,
           index <- which.max(variables.df[lstHighPVAL,]$`Pr(>|z|)`) #get max p-val
         }
 
-        ##################################################################
+        #### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### #
         # IF index == all dataset, keep the maximum of variables allowed #
-        ##################################################################
+        #### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### #
         #in other case, just delete higher p-value variables
         if(length(index) == length(lstHighPVAL)){
           index <- index[(max.variables+1):length(index)] #delete latest X variables
@@ -387,9 +387,9 @@ coxSW <- function(X, Y,
       }
     }
 
-    ##################
+    #### ### ### ### #
     # IF NO PROBLEMS #
-    ##################
+    #### ### ### ### #
 
     if(!anyProblem){
       oneToDelete = NULL

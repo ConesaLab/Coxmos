@@ -113,7 +113,7 @@ sb.splsdrcox <- function (X, Y,
 
   X_norm <- Xh
 
-  ####MAX PREDICTORS
+  #### MAX PREDICTORS
   n.comp <- check.mb.maxPredictors(X, Y, MIN_EPV, n.comp, verbose = verbose)
 
   # CREATE INDIVIDUAL MODELS
@@ -154,9 +154,9 @@ sb.splsdrcox <- function (X, Y,
     removed_variables <- lst_rnsc$removed_variables
   }
 
-  ##########
+  #### ### #
   # RETURN #
-  ##########
+  #### ### #
   func_call <- match.call()
 
   t2 <- Sys.time()
@@ -236,9 +236,9 @@ cv.sb.splsdrcox <- function(X, Y,
 
   t1 <- Sys.time()
 
-  ############
+  #### ### ###
   # WARNINGS #
-  ############
+  #### ### ###
 
   #Check evaluator installed:
   checkLibraryEvaluator(pred.method)
@@ -264,12 +264,12 @@ cv.sb.splsdrcox <- function(X, Y,
 
   max.ncomp <- check.mb.ncomp(X, max.ncomp)
 
-  ####MAX PREDICTORS
+  #### MAX PREDICTORS
   max.ncomp <- check.mb.maxPredictors(X, Y, MIN_EPV, max.ncomp, verbose = verbose)
 
-  ######
+  #### #
   # CV #
-  ######
+  #### #
   set.seed(seed)
   lst_data <- splitData_Iterations_Folds.mb(X, Y, n_run = n_run, k_folds = k_folds) #FOR TEST
   lst_X_train <- lst_data$lst_X_train
@@ -277,9 +277,9 @@ cv.sb.splsdrcox <- function(X, Y,
   lst_X_test <- lst_data$lst_X_test
   lst_Y_test <- lst_data$lst_Y_test
 
-  ################
+  #### ### ### ###
   # TRAIN MODELS #
-  ################
+  #### ### ### ###
   #total_models <- 1 * k_folds * n_run * length(eta.list)
   total_models <- max.ncomp * k_folds * n_run * length(eta.list)
 
@@ -299,9 +299,9 @@ cv.sb.splsdrcox <- function(X, Y,
   #                               x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
   #                               total_models = total_models)
 
-  ##########################
+  #### ### ### ### ### ### #
   # BEST MODEL FOR CV DATA #
-  ##########################
+  #### ### ### ### ### ### #
   total_models <- max.ncomp * k_folds * n_run * length(eta.list)
   df_results_evals <- get_COX_evaluation_AIC_CINDEX(comp_model_lst = lst_model$comp_model_lst,
                                                     max.ncomp = max.ncomp, eta.list = eta.list, n_run = n_run, k_folds = k_folds,
@@ -313,15 +313,15 @@ cv.sb.splsdrcox <- function(X, Y,
     t2 <- Sys.time()
     time <- difftime(t2,t1,units = "mins")
     if(return_models){
-      return(cv.sb.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = lst_model, pred.method = pred.method, opt.comp = NULL, opt.eta = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, time = time)))
+      return(cv.sb.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = lst_model, pred.method = pred.method, opt.comp = NULL, opt.eta = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class = pkg.env$cv.sb.splsdrcox, time = time)))
     }else{
-      return(cv.sb.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.eta = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, time = time)))
+      return(cv.sb.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.eta = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class = pkg.env$cv.sb.splsdrcox, time = time)))
     }
   }
 
-  ##################
+  #### ### ### ### #
   # EVALUATING AUC #
-  ##################
+  #### ### ### ### #
   df_results_evals_comp <- NULL
   df_results_evals_run <- NULL
   df_results_evals_fold <- NULL
@@ -352,9 +352,9 @@ cv.sb.splsdrcox <- function(X, Y,
     df_results_evals_fold <- df_results_evals
   }
 
-  ##############
+  #### ### ### #
   # BEST MODEL #
-  ##############
+  #### ### ### #
 
   df_results_evals_comp <- cv.getScoreFromWeight(df_results_evals_comp, w_AIC, w_c.index, w_AUC,
                                                  colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC")
@@ -367,9 +367,9 @@ cv.sb.splsdrcox <- function(X, Y,
     best_model_info <- as.data.frame(best_model_info)
   }
 
-  ########
+  #### ###
   # PLOT #
-  ########
+  #### ###
   lst_EVAL_PLOTS <- get_EVAL_PLOTS(fast_mode = fast_mode, best_model_info = best_model_info, w_AUC = w_AUC, max.ncomp = max.ncomp, eta.list = eta.list,
                                    df_results_evals_fold = df_results_evals_fold, df_results_evals_run = df_results_evals_run, df_results_evals_comp = df_results_evals_comp,
                                    colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC", x.text = "Component")
@@ -380,9 +380,9 @@ cv.sb.splsdrcox <- function(X, Y,
 
   df_results_evals_comp <- lst_EVAL_PLOTS$df_results_evals_comp
 
-  ##########
+  #### ### #
   # RETURN #
-  ##########
+  #### ### #
 
   df_results_evals$eta <- as.numeric(as.character(df_results_evals$eta))
   df_results_evals_run$eta <- as.numeric(as.character(df_results_evals_run$eta))
@@ -395,9 +395,9 @@ cv.sb.splsdrcox <- function(X, Y,
 
   invisible(gc())
   if(return_models){
-    return(cv.sb.splsdrcox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = lst_model, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.eta = best_model_info$eta, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, time = time)))
+    return(cv.sb.splsdrcox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = lst_model, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.eta = best_model_info$eta, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, class = pkg.env$cv.sb.splsdrcox, time = time)))
   }else{
-    return(cv.sb.splsdrcox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = NULL, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.eta = best_model_info$eta, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, time = time)))
+    return(cv.sb.splsdrcox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = NULL, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.eta = best_model_info$eta, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, class = pkg.env$cv.sb.splsdrcox, time = time)))
   }
 }
 
@@ -510,7 +510,7 @@ fast.cv.sb.splsdrcox <- function(X, Y,
 
   X_norm <- Xh
 
-  ####MAX PREDICTORS
+  #### MAX PREDICTORS
   max.ncomp <- check.mb.maxPredictors(X, Y, MIN_EPV, max.ncomp, verbose = verbose)
 
   # CREATE INDIVIDUAL MODELS
@@ -559,9 +559,9 @@ fast.cv.sb.splsdrcox <- function(X, Y,
   colnames(data) <- cn.merge
   cox_model <- cox(X = data, Y = Yh, x.center = F, x.scale = F, y.center = F, y.scale = F, remove_non_significant = remove_non_significant, FORCE = T)
 
-  ##########
+  #### ### #
   # RETURN #
-  ##########
+  #### ### #
   func_call <- match.call()
 
   t2 <- Sys.time()

@@ -127,12 +127,12 @@ splsdrcox <- function (X, Y,
   XXNA <- is.na(Xh) #T is NA
   YNA <- is.na(Y) #T is NA
 
-  ####MAX PREDICTORS
+  #### MAX PREDICTORS
   n.comp <- check.maxPredictors(X, Y, MIN_EPV, n.comp)
 
-  ##############################################
-  ######             sPLS-COX             ######
-  ##############################################
+  #### ### ### ### ### ### ### ### ### ### ### ###
+  ### ###             sPLS-COX             ### ###
+  #### ### ### ### ### ### ### ### ### ### ### ###
 
   #2. Surv function - NULL model
   coxDR <- survival::coxph(survival::Surv(time = time, event = event, type = "right") ~ 1, as.data.frame(Xh))
@@ -140,13 +140,13 @@ splsdrcox <- function (X, Y,
   #3. Residuals - Default is deviance because eval type="deviance"
   DR_coxph <- residuals(coxDR, type = "deviance") #"martingale", "deviance", "score", "schoenfeld", "dfbeta"', "dfbetas", "scaledsch" and "partial"
 
-  ################################################
-  ################################################
+  #### ### ### ### ### ### #### ### ### ### ### #
+  #### ### ### ### ### ### #### ### ### ### ### #
   ##                                            ##
   ##  Beginning of the loop for the components  ##
   ##                                            ##
-  ################################################
-  ################################################
+  #### ### ### ### ### ### #### ### ### ### ### #
+  #### ### ### ### ### ### #### ### ### ### ### #
 
   #4. sPLS Algorithm
   n_var <- ncol(Xh)
@@ -247,9 +247,9 @@ splsdrcox <- function (X, Y,
     }
     A_nzv <- colnames(Xa)
 
-    ##############
+    #### ### ### #
     # PREDICTION #
-    ##############
+    #### ### ### #
 
     #But always using the complete residuals
     # plsfit3 <- ropls::opls(x = Xa, y = DR_coxph_ori, predI = min(h, ncol(Xa)), scaleC = "none")
@@ -279,9 +279,9 @@ splsdrcox <- function (X, Y,
     predplsfit <- Xa[,rownames(plsfit$X$loadings),drop=F] %*% plsfit$B[,,drop=F]
     Xa[XaNA] <- NA
 
-    ####################
+    #### ### ### ### ###
     # UPDATING RESULTS #
-    ####################
+    #### ### ### ### ###
     predplsfit_list[[h]] <- predplsfit
 
     beta_pls <- matrix(0, n_var, n_dr)
@@ -293,9 +293,9 @@ splsdrcox <- function (X, Y,
     var_by_component[[h]] <- A
     var_by_component_nzv[[h]] <- A_nzv
 
-    ###################
+    #### ### ### ### ##
     # UPDATING VALUES #
-    ###################
+    #### ### ### ### ##
     #DR_coxph <- DR_coxph_ori - predplsfit[,min(h, ncol(Xa)),drop=F] #for manual prediction
     DR_coxph <- DR_coxph_ori - predplsfit[,,drop=F] #for manual prediction
 
@@ -310,16 +310,17 @@ splsdrcox <- function (X, Y,
     last.pls <- plsfit
   }
 
-  ##############################################
+  #### ### ### ### ### ### ### ### ### ### ### #
   #                                            #
   #      Computation of the coefficients       #
   #      of the model with kk components       #
   #                                            #
-  ##############################################
+  #### ### ### ### ### ### ### ### ### ### ### #
 
-  ##############################################
-  ######              PLS-COX            ######
-  ##############################################
+  #### ### ### ### ### ### ### ### ### ### ### ##
+  ### ###              PLS-COX            ### ###
+  #### ### ### ### ### ### ### ### ### ### ### ##
+
   #n.comp_used <- ncol(tt_splsDR) #can be lesser than expected because we have lesser variables to select because penalization
   n.comp_used <- ncol(last.pls$X$scores)
 
@@ -498,9 +499,9 @@ splsdrcox.modelPerComponent <- function (X, Y,
   XXNA <- is.na(Xh) #T is NA
   YNA <- is.na(Y) #T is NA
 
-  ##############################################
-  ######             sPLS-COX             ######
-  ##############################################
+  #### ### ### ### ### ### ### ### ### ### ### #
+  ### ##             sPLS-COX             ### ##
+  #### ### ### ### ### ### ### ### ### ### ### #
 
   #2. Surv function - NULL model
   coxDR <- survival::coxph(survival::Surv(time = time, event = event, type = "right") ~ 1, as.data.frame(Xh))
@@ -508,13 +509,13 @@ splsdrcox.modelPerComponent <- function (X, Y,
   #3. Residuals - Default is deviance because eval type="deviance"
   DR_coxph <- residuals(coxDR, type = "deviance") #"martingale", "deviance", "score", "schoenfeld", "dfbeta"', "dfbetas", "scaledsch" and "partial"
 
-  ################################################
-  ################################################
+  #### ### ### ### ### ### ### ### ### ### ### ###
+  #### ### ### ### ### ### ### ### ### ### ### ###
   ##                                            ##
   ##  Beginning of the loop for the components  ##
   ##                                            ##
-  ################################################
-  ################################################
+  #### ### ### ### ### ### ### ### ### ### ### ###
+  #### ### ### ### ### ### ### ### ### ### ### ###
 
   #4. sPLS Algorithm
   n_var <- ncol(Xh)
@@ -618,9 +619,9 @@ splsdrcox.modelPerComponent <- function (X, Y,
     }
     A_nzv <- colnames(Xa)
 
-    ##############
+    #### ### ### #
     # PREDICTION #
-    ##############
+    #### ### ### #
 
     #But always using the complete residuals
     #plsfit2 <- mixOmics::pls(Xa, DR_coxph_ori, ncomp = min(h, ncol(Xa)), scale = F)
@@ -634,9 +635,9 @@ splsdrcox.modelPerComponent <- function (X, Y,
     predplsfit <- Xa[,rownames(plsfit$X$loadings),drop=F] %*% plsfit$B[,,drop=F]
     Xa[XaNA] <- NA
 
-    ####################
+    #### ### ### ### ###
     # UPDATING RESULTS #
-    ####################
+    #### ### ### ### ###
     predplsfit_list[[h]] <- predplsfit
 
     beta_pls <- matrix(0, n_var, n_dr)
@@ -648,9 +649,9 @@ splsdrcox.modelPerComponent <- function (X, Y,
     var_by_component[[h]] <- A
     var_by_component_nzv[[h]] <- A_nzv
 
-    ###################
+    #### ### ### ### ###
     # UPDATING VALUES #
-    ###################
+    #### ### ### ### ###
     #DR_coxph <- DR_coxph_ori - predplsfit[,min(h, ncol(Xa)),drop=F] #for manual prediction
     DR_coxph <- DR_coxph_ori - predplsfit[,,drop=F] #just return the best prediction (all components, so you do not need to select the last one)
 
@@ -664,16 +665,16 @@ splsdrcox.modelPerComponent <- function (X, Y,
 
     last.pls <- plsfit
 
-    ##############################################
+    #### ### ### ### ### ### ### ### ### ### ### #
     #                                            #
     #      Computation of the coefficients       #
     #      of the model with kk components       #
     #                                            #
-    ##############################################
+    #### ### ### ### ### ### ### ### ### ### ### #
 
-    ##############################################
-    ######              PLS-COX            ######
-    ##############################################
+    #### ### ### ### ### ### ### ### ### ### ###
+    ### ##              PLS-COX            ### ##
+    #### ### ### ### ### ### ### ### ### ### ###
 
     n.comp_used <- ncol(last.pls$X$scores)
 
@@ -804,9 +805,9 @@ cv.splsdrcox <- function (X, Y,
 
   t1 <- Sys.time()
 
-  ############
+  #### ### ###
   # WARNINGS #
-  ############
+  #### ### ###
 
   #Check evaluator installed:
   checkLibraryEvaluator(pred.method)
@@ -823,7 +824,7 @@ cv.splsdrcox <- function (X, Y,
     stop_quietly(paste0("pred.method must be one of the following: ", paste0(pkg.env$AUC_evaluators, collapse = ", ")))
   }
 
-  ####MAX PREDICTORS
+  #### MAX PREDICTORS
   max.ncomp <- check.maxPredictors(X, Y, MIN_EPV, max.ncomp, verbose = verbose)
 
   #### REQUIREMENTS
@@ -835,9 +836,9 @@ cv.splsdrcox <- function (X, Y,
   X <- lst_dnz$X
   variablesDeleted <- lst_dnz$variablesDeleted
 
-  ######
+  #### #
   # CV #
-  ######
+  #### #
   set.seed(seed)
   lst_data <- splitData_Iterations_Folds(X, Y, n_run = n_run, k_folds = k_folds) #FOR TEST
   lst_X_train <- lst_data$lst_X_train
@@ -845,9 +846,9 @@ cv.splsdrcox <- function (X, Y,
   lst_X_test <- lst_data$lst_X_test
   lst_Y_test <- lst_data$lst_Y_test
 
-  ################
+  #### ### ### ###
   # TRAIN MODELS #
-  ################
+  #### ### ### ###
   #total_models <- 1 * k_folds * n_run * length(eta.list)
   total_models <- max.ncomp * k_folds * n_run * length(eta.list)
 
@@ -870,9 +871,9 @@ cv.splsdrcox <- function (X, Y,
   comp_model_lst = lst_model$comp_model_lst
   info = lst_model$info
 
-  ##########################
+  #### ### ### ### ### ### #
   # BEST MODEL FOR CV DATA #
-  ##########################
+  #### ### ### ### ### ### #
   total_models <- max.ncomp * k_folds * n_run * length(eta.list)
   df_results_evals <- get_COX_evaluation_AIC_CINDEX(comp_model_lst = comp_model_lst,
                                                     max.ncomp = max.ncomp, eta.list = eta.list, n_run = n_run, k_folds = k_folds,
@@ -884,15 +885,15 @@ cv.splsdrcox <- function (X, Y,
     t2 <- Sys.time()
     time <- difftime(t2,t1,units = "mins")
     if(return_models){
-      return(cv.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = comp_model_lst, pred.method = NULL, opt.comp = NULL, opt.eta = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, time = time)))
+      return(cv.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = comp_model_lst, pred.method = NULL, opt.comp = NULL, opt.eta = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class = pkg.env$cv.splsdrcox, time = time)))
     }else{
-      return(cv.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = NULL, opt.comp = NULL, opt.eta = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, time = time)))
+      return(cv.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = NULL, opt.comp = NULL, opt.eta = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class = pkg.env$cv.splsdrcox, time = time)))
     }
   }
 
-  ##################
+  #### ### ### ### #
   # EVALUATING AUC #
-  ##################
+  #### ### ### ### #
   df_results_evals_comp <- NULL
   df_results_evals_run <- NULL
   df_results_evals_fold <- NULL
@@ -923,9 +924,9 @@ cv.splsdrcox <- function (X, Y,
     df_results_evals_fold <- df_results_evals
   }
 
-  ##############
+  #### ### ### #
   # BEST MODEL #
-  ##############
+  #### ### ### #
 
   df_results_evals_comp <- cv.getScoreFromWeight(df_results_evals_comp, w_AIC, w_c.index, w_AUC,
                                                  colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC")
@@ -938,9 +939,9 @@ cv.splsdrcox <- function (X, Y,
     best_model_info <- as.data.frame(best_model_info)
   }
 
-  ########
+  #### ###
   # PLOT #
-  ########
+  #### ###
   lst_EVAL_PLOTS <- get_EVAL_PLOTS(fast_mode = fast_mode, best_model_info = best_model_info, w_AUC = w_AUC, max.ncomp = max.ncomp, eta.list = eta.list,
                                    df_results_evals_fold = df_results_evals_fold, df_results_evals_run = df_results_evals_run, df_results_evals_comp = df_results_evals_comp,
                                    colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC", x.text = "Component")
@@ -951,9 +952,9 @@ cv.splsdrcox <- function (X, Y,
 
   df_results_evals_comp <- lst_EVAL_PLOTS$df_results_evals_comp
 
-  ##########
+  #### ### #
   # RETURN #
-  ##########
+  #### ### #
 
   df_results_evals$eta <- as.numeric(as.character(df_results_evals$eta))
   df_results_evals_run$eta <- as.numeric(as.character(df_results_evals_run$eta))
@@ -966,9 +967,9 @@ cv.splsdrcox <- function (X, Y,
 
   invisible(gc())
   if(return_models){
-    return(cv.splsdrcox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.eta = best_model_info$eta, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, time = time)))
+    return(cv.splsdrcox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.eta = best_model_info$eta, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, class= pkg.env$cv.splsdrcox, time = time)))
   }else{
-    return(cv.splsdrcox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = NULL, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.eta = best_model_info$eta, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, time = time)))
+    return(cv.splsdrcox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = NULL, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.eta = best_model_info$eta, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, class = pkg.env$cv.splsdrcox, time = time)))
   }
 }
 

@@ -109,7 +109,7 @@ plsicox <- function (X, Y,
 
   X_norm <- Xh
 
-  ####MAX PREDICTORS
+  #### MAX PREDICTORS
   n.comp <- check.maxPredictors(X, Y, MIN_EPV, n.comp)
 
   #### INITIALISING VARIABLES
@@ -444,9 +444,9 @@ cv.plsicox <- function (X, Y,
 
   t1 <- Sys.time()
 
-  ############
+  #### ### ###
   # WARNINGS #
-  ############
+  #### ### ###
 
   #Check evaluator installed:
   checkLibraryEvaluator(pred.method)
@@ -462,7 +462,7 @@ cv.plsicox <- function (X, Y,
     stop_quietly(paste0("pred.method must be one of the following: ", paste0(pkg.env$AUC_evaluators, collapse = ", ")))
   }
 
-  ####MAX PREDICTORS
+  #### MAX PREDICTORS
   max.ncomp <- check.maxPredictors(X, Y, MIN_EPV, max.ncomp)
 
   #### REQUIREMENTS
@@ -474,9 +474,9 @@ cv.plsicox <- function (X, Y,
   X <- lst_dnz$X
   variablesDeleted <- lst_dnz$variablesDeleted
 
-  ######
+  #### #
   # CV #
-  ######
+  #### #
 
   set.seed(seed)
   lst_data <- splitData_Iterations_Folds(X, Y, n_run = n_run, k_folds = k_folds) #FOR TEST
@@ -485,9 +485,9 @@ cv.plsicox <- function (X, Y,
   lst_X_test <- lst_data$lst_X_test
   lst_Y_test <- lst_data$lst_Y_test
 
-  ################
+  #### ### ### ###
   # TRAIN MODELS #
-  ################
+  #### ### ### ###
 
   total_models <- 1 * k_folds * n_run #with greatest component we have all of them
 
@@ -506,9 +506,9 @@ cv.plsicox <- function (X, Y,
   #                                    remove_near_zero_variance = remove_near_zero_variance,
   #                                    total_models = total_models)
 
-  ##########################
+  #### ### ### ### ### ### #
   # BEST MODEL FOR CV DATA #
-  ##########################
+  #### ### ### ### ### ### #
   total_models <- max.ncomp * k_folds * n_run
   df_results_evals <- get_COX_evaluation_AIC_CINDEX(comp_model_lst = comp_model_lst,
                                                     max.ncomp = max.ncomp, eta.list = NULL, n_run = n_run, k_folds = k_folds,
@@ -520,15 +520,15 @@ cv.plsicox <- function (X, Y,
     t2 <- Sys.time()
     time <- difftime(t2,t1,units = "mins")
     if(return_models){
-      return(cv.plsicox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, time = time)))
+      return(cv.plsicox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class = pkg.env$cv.plsicox, time = time)))
     }else{
-      return(cv.plsicox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, time = time)))
+      return(cv.plsicox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class = pkg.env$cv.plsicox, time = time)))
     }
   }
 
-  ##################
+  #### ### ### ### #
   # EVALUATING AUC #
-  ##################
+  #### ### ### ### #
   df_results_evals_comp <- NULL
   df_results_evals_run <- NULL
   df_results_evals_fold <- NULL
@@ -555,9 +555,9 @@ cv.plsicox <- function (X, Y,
     df_results_evals_fold <- df_results_evals
   }
 
-  ##############
+  #### ### ### #
   # BEST MODEL #
-  ##############
+  #### ### ### #
   df_results_evals_comp <- cv.getScoreFromWeight(df_results_evals_comp, w_AIC, w_c.index, w_AUC, colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC")
 
   if(optimal_comp_flag){
@@ -568,9 +568,9 @@ cv.plsicox <- function (X, Y,
     best_model_info <- as.data.frame(best_model_info)
   }
 
-  #########
+  #### ###
   # PLOTS #
-  #########
+  #### ###
   lst_EVAL_PLOTS <- get_EVAL_PLOTS(fast_mode = fast_mode, best_model_info = best_model_info, w_AUC = w_AUC, max.ncomp = max.ncomp,
                                    df_results_evals_fold = df_results_evals_fold, df_results_evals_run = df_results_evals_run, df_results_evals_comp = df_results_evals_comp,
                                    colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC", x.text = "Component")
@@ -579,9 +579,9 @@ cv.plsicox <- function (X, Y,
   ggp_c_index <- lst_EVAL_PLOTS$ggp_c_index
   ggp_AIC <- lst_EVAL_PLOTS$ggp_AIC
 
-  ##########
+  #### ### #
   # RETURN #
-  ##########
+  #### ### #
 
   message(paste0("Best model obtained."))
 
@@ -590,9 +590,9 @@ cv.plsicox <- function (X, Y,
 
   invisible(gc())
   if(return_models){
-    return(cv.plsicox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = best_model_info$n.comps, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, time = time)))
+    return(cv.plsicox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = best_model_info$n.comps, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, class = pkg.env$cv.plsicox, time = time)))
   }else{
-    return(cv.plsicox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = NULL, pred.method = pred.method, opt.comp = best_model_info$n.comps, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, time = time)))
+    return(cv.plsicox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = NULL, pred.method = pred.method, opt.comp = best_model_info$n.comps, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, class = pkg.env$cv.plsicox, time = time)))
   }
 
 }

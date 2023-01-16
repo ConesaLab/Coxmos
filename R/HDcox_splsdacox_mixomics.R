@@ -121,12 +121,12 @@ splsdacox_mixOmics <- function (X, Y,
 
   X_norm <- Xh
 
-  ####MAX PREDICTORS
+  #### MAX PREDICTORS
   n.comp <- check.maxPredictors(X, Y, MIN_EPV, n.comp)
 
-  ########################################
+  #### ### ### ### ### ### ### ### ### ###
   # DIVIDE Y VENCERAS - BEST VECTOR SIZE #
-  ########################################
+  #### ### ### ### ### ### ### ### ### ###
 
   DR_coxph <- NULL
 
@@ -152,9 +152,9 @@ splsdacox_mixOmics <- function (X, Y,
     }
   }
 
-  ###############################################
-  ######             PLSDA-COX             ######
-  ###############################################
+  #### ### ### ### ### ### ### ### ### ### ### ###
+  ### ##             PLSDA-COX             ###  ##
+  #### ### ### ### ### ### ### ### ### ### ### ###
 
   splsda <- mixOmics::splsda(Xh, Yh[,"event"], scale=F, ncomp = n.comp, keepX = rep(keepX, n.comp), max.iter = max.iter, near.zero.var = T)
 
@@ -165,16 +165,16 @@ splsdacox_mixOmics <- function (X, Y,
 
   colnames(tt_splsDR) <- paste0("comp_", 1:n.comp)
 
-  ##############################################
+  #### ### ### ### ### ### ### ### ### ### ### #
   #                                            #
   #      Computation of the coefficients       #
   #      of the model with kk components       #
   #                                            #
-  ##############################################
+  #### ### ### ### ### ### ### ### ### ### ### #
 
-  ##############################################
-  ######              PLS-COX            ######
-  ##############################################
+  #### ### ### ### ### ### ### ### ### ### ### #
+  ##  ##              PLS-COX            ##  ##
+  #### ### ### ### ### ### ### ### ### ### ### #
   d <- as.data.frame(cbind(tt_splsDR, Yh))
   cox_model <- NULL
   cox_model$fit <- tryCatch(
@@ -309,9 +309,9 @@ cv.splsdacox_mixOmics <- function(X, Y,
 
   t1 <- Sys.time()
 
-  ############
+  #### ### ###
   # WARNINGS #
-  ############
+  #### ### ###
 
   #Check evaluator installed:
   checkLibraryEvaluator(pred.method)
@@ -327,7 +327,7 @@ cv.splsdacox_mixOmics <- function(X, Y,
     stop_quietly(paste0("pred.method must be one of the following: ", paste0(pkg.env$AUC_evaluators, collapse = ", ")))
   }
 
-  ####MAX PREDICTORS
+  #### MAX PREDICTORS
   max.ncomp <- check.maxPredictors(X, Y, MIN_EPV, max.ncomp, verbose = verbose)
 
   #### REQUIREMENTS
@@ -339,9 +339,9 @@ cv.splsdacox_mixOmics <- function(X, Y,
   X <- lst_dnz$X
   variablesDeleted <- lst_dnz$variablesDeleted
 
-  ######
+  #### #
   # CV #
-  ######
+  #### #
 
   set.seed(seed)
   lst_data <- splitData_Iterations_Folds(X, Y, n_run = n_run, k_folds = k_folds) #FOR TEST
@@ -350,9 +350,9 @@ cv.splsdacox_mixOmics <- function(X, Y,
   lst_X_test <- lst_data$lst_X_test
   lst_Y_test <- lst_data$lst_Y_test
 
-  ################
+  #### ### ### ###
   # TRAIN MODELS #
-  ################
+  #### ### ### ###
 
   total_models <- 1 * k_folds * n_run
 
@@ -374,9 +374,9 @@ cv.splsdacox_mixOmics <- function(X, Y,
   #                                    x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
   #                                    total_models = total_models, max.iter = max.iter)
 
-  ##########################
+  #### ### ### ### ### ### #
   # BEST MODEL FOR CV DATA #
-  ##########################
+  #### ### ### ### ### ### #
   total_models <- max.ncomp * k_folds * n_run
   df_results_evals <- get_COX_evaluation_AIC_CINDEX(comp_model_lst = comp_model_lst,
                                                     max.ncomp = max.ncomp, eta.list = NULL, n_run = n_run, k_folds = k_folds,
@@ -388,15 +388,15 @@ cv.splsdacox_mixOmics <- function(X, Y,
     t2 <- Sys.time()
     time <- difftime(t2,t1,units = "mins")
     if(return_models){
-      return(cv.splsdacox_mixOmics_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, time = time)))
+      return(cv.splsdacox_mixOmics_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class = pkg.env$cv.splsdacox_mixomics, time = time)))
     }else{
-      return(cv.splsdacox_mixOmics_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, time = time)))
+      return(cv.splsdacox_mixOmics_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class = pkg.env$cv.splsdacox_mixomics, time = time)))
     }
   }
 
-  ##################
+  #### ### ### ### #
   # EVALUATING AUC #
-  ##################
+  #### ### ### ### #
   df_results_evals_comp <- NULL
   df_results_evals_run <- NULL
   df_results_evals_fold <- NULL
@@ -423,9 +423,9 @@ cv.splsdacox_mixOmics <- function(X, Y,
     df_results_evals_fold <- df_results_evals
   }
 
-  ##############
+  #### ### ### #
   # BEST MODEL #
-  ##############
+  #### ### ### #
 
   df_results_evals_comp <- cv.getScoreFromWeight(df_results_evals_comp, w_AIC, w_c.index, w_AUC, colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC")
 
@@ -437,9 +437,9 @@ cv.splsdacox_mixOmics <- function(X, Y,
     best_model_info <- as.data.frame(best_model_info)
   }
 
-  #########
+  ### ### #
   # PLOTS #
-  #########
+  ### ### #
   lst_EVAL_PLOTS <- get_EVAL_PLOTS(fast_mode = fast_mode, best_model_info = best_model_info, w_AUC = w_AUC, max.ncomp = max.ncomp,
                                    df_results_evals_fold = df_results_evals_fold, df_results_evals_run = df_results_evals_run, df_results_evals_comp = df_results_evals_comp,
                                    colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC", x.text = "Component")
@@ -448,9 +448,9 @@ cv.splsdacox_mixOmics <- function(X, Y,
   ggp_c_index <- lst_EVAL_PLOTS$ggp_c_index
   ggp_AIC <- lst_EVAL_PLOTS$ggp_AIC
 
-  ##########
+  #### ### #
   # RETURN #
-  ##########
+  #### ### #
   best_model_info$n.var <- as.numeric(as.character(best_model_info$n.var)) #just in case be a factor
 
   message(paste0("Best model obtained."))
@@ -460,9 +460,9 @@ cv.splsdacox_mixOmics <- function(X, Y,
 
   invisible(gc())
   if(return_models){
-    return(cv.splsdacox_mixOmics_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.nvar = best_model_info$n.var, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, time = time)))
+    return(cv.splsdacox_mixOmics_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.nvar = best_model_info$n.var, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, class= pkg.env$cv.splsdacox_mixomics, time = time)))
   }else{
-    return(cv.splsdacox_mixOmics_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = NULL, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.nvar = best_model_info$n.var, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, time = time)))
+    return(cv.splsdacox_mixOmics_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = NULL, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.nvar = best_model_info$n.var, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, class = pkg.env$cv.splsdacox_mixomics, time = time)))
   }
 
 }

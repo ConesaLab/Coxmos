@@ -640,9 +640,9 @@ getAUC_from_LP <- function(linear.predictors, Y, times, bestModel = NULL, method
 
   AUC.cox = NULL #area under the curve for each timepoint
 
-  #####################
-  #### NO PARALLEL ####
-  #####################
+  #### ### ### ### ###
+  #### NO PARALLEL ###
+  #### ### ### ### ###
   t1 <- Sys.time()
 
   if(method %in% c(pkg.env$AUC_risksetROC, pkg.env$AUC_survivalROC, pkg.env$AUC_cenROC, pkg.env$AUC_nsROC)){

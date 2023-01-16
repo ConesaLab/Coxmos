@@ -311,7 +311,7 @@ NR <- function (X, wt, ktype="normal") {
 
 PI <- function(X, wt, ktype="normal")
 {
-  ### bandwidth estimation ###################
+  ### bandwidth estimation
   band <- function (X, wt, psi, ktype) {
     n <- length(X)
     mul <- (n * sum(wt * wt)) / ((sum(wt)) ^ 2)
@@ -322,7 +322,7 @@ PI <- function(X, wt, ktype="normal")
     return(wbww)
   }
 
-  ####### Estimation of psi  ################
+  ### Estimation of psi
   psi <- function(r, g) {
     n <- length(X)
     w <- (n * wt) / (sum(wt)) #### Estimate for wt/E(wt)
@@ -340,10 +340,10 @@ PI <- function(X, wt, ktype="normal")
 }
 
 
-#############################################################################
-## This function is modified from kerdiest R package CVbw function ##########
-##  of Quintela-del-Rio and Estevez-Perez (2015)                   ##########
-#############################################################################
+#### ### ### ### ### ### ### ## ### ### ### ### ### ### ### ### ### ###
+## This function is modified from kerdiest R package CVbw function ###
+##  of Quintela-del-Rio and Estevez-Perez (2015)                   ###
+#### ### ### ### ### ### ### ## ### ### ### ### ### ### ### ### ### ###
 
 #' The cross-validation bandwidth selection for weighted data
 #'

@@ -346,9 +346,9 @@ cv.coxEN <- function(X, Y,
 
   t1 <- Sys.time()
 
-  ############
+  #### ### ###
   # WARNINGS #
-  ############
+  #### ### ###
 
   #Check evaluator installed:
   checkLibraryEvaluator(pred.method)
@@ -376,9 +376,9 @@ cv.coxEN <- function(X, Y,
   X <- lst_dnz$X
   variablesDeleted <- lst_dnz$variablesDeleted
 
-  ######
+  #### #
   # CV #
-  ######
+  #### #
   set.seed(seed)
   lst_data <- splitData_Iterations_Folds(X, Y, n_run = n_run, k_folds = k_folds) #FOR TEST
   lst_X_train <- lst_data$lst_X_train
@@ -386,9 +386,9 @@ cv.coxEN <- function(X, Y,
   lst_X_test <- lst_data$lst_X_test
   lst_Y_test <- lst_data$lst_Y_test
 
-  ################
+  #### ### ### ###
   # TRAIN MODELS #
-  ################
+  #### ### ### ###
   total_models <- k_folds * n_run * length(EN.alpha.list)
   comp_model_lst <- get_HDCOX_models2.0(method = pkg.env$coxEN,
                                         lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
@@ -433,9 +433,9 @@ cv.coxEN <- function(X, Y,
     message(paste0("There are a total of ", count_problems, " out of ", total_models, " models that could present convergence issues.\n"))
   }
 
-  ##########################
+  #### ### ### ### ### ### #
   # BEST MODEL FOR CV DATA #
-  ##########################
+  #### ### ### ### ### ### #
   df_results_evals <- get_COX_evaluation_AIC_CINDEX(comp_model_lst = comp_model_lst,
                                                     max.ncomp = EN.alpha.list, eta.list = NULL, n_run = n_run, k_folds = k_folds,
                                                     total_models = total_models, remove_non_significant_models = F) #deletion at variable level for EN
@@ -452,9 +452,9 @@ cv.coxEN <- function(X, Y,
     }
   }
 
-  ##################
+  #### ### ### ### #
   # EVALUATING AUC #
-  ##################
+  #### ### ### ### #
   df_results_evals_comp <- NULL
   df_results_evals_run <- NULL
   df_results_evals_fold <- NULL
@@ -483,9 +483,9 @@ cv.coxEN <- function(X, Y,
     df_results_evals_fold <- df_results_evals
   }
 
-  ##############
+  #### ### ### #
   # BEST MODEL #
-  ##############
+  #### ### ### #
 
   df_results_evals_comp <- cv.getScoreFromWeight(lst_cox_mean = df_results_evals_comp, w_AIC, w_c.index, w_AUC, colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC")
 
@@ -506,9 +506,9 @@ cv.coxEN <- function(X, Y,
     }
   }
 
-  ########
+  #### ###
   # PLOT #
-  ########
+  #### ###
   lst_EVAL_PLOTS <- get_EVAL_PLOTS(fast_mode = fast_mode, best_model_info = best_model_info, w_AUC = w_AUC, max.ncomp = EN.alpha.list,
                                    df_results_evals_fold = df_results_evals_fold, df_results_evals_run = df_results_evals_run, df_results_evals_comp = df_results_evals_comp,
                                    colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC", x.text = "EN.alpha Penalization")
@@ -517,9 +517,9 @@ cv.coxEN <- function(X, Y,
   ggp_c_index <- lst_EVAL_PLOTS$ggp_c_index
   ggp_AIC <- lst_EVAL_PLOTS$ggp_AIC
 
-  #########################
-  # CHANGE 1s COLUMN_NAME #
-  #########################
+  #### ### ### ### ### ### #
+  # CHANGE 1s COLUMN_NAME  #
+  #### ### ### ### ### ### #
   colnames(best_model_info)[1] <- "eta"
   colnames(df_results_evals_fold)[1] <- "eta"
   colnames(df_results_evals_run)[1] <- "eta"
@@ -527,9 +527,9 @@ cv.coxEN <- function(X, Y,
   colnames(best_model_info)[1] <- "eta"
   colnames(best_model_info)[1] <- "eta"
 
-  ##########
+  ### ## ###
   # RETURN #
-  ##########
+  ### ## ###
 
   if(!flag_no_models){
     message(paste0("Best model obtained."))
@@ -540,9 +540,9 @@ cv.coxEN <- function(X, Y,
 
   invisible(gc())
   if(return_models){
-    return(cv.coxEN_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = comp_model_lst, pred.method = pred.method, opt.EN.alpha = best_model_info$eta, opt.nvar = best_model_info$n.var, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, time = time)))
+    return(cv.coxEN_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = comp_model_lst, pred.method = pred.method, opt.EN.alpha = best_model_info$eta, opt.nvar = best_model_info$n.var, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, class = pkg.env$cv.coxEN, time = time)))
   }else{
-    return(cv.coxEN_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = NULL, pred.method = pred.method, opt.EN.alpha = best_model_info$eta, opt.nvar = best_model_info$n.var, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, time = time)))
+    return(cv.coxEN_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = NULL, pred.method = pred.method, opt.EN.alpha = best_model_info$eta, opt.nvar = best_model_info$n.var, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, class = pkg.env$cv.coxEN, time = time)))
   }
 }
 

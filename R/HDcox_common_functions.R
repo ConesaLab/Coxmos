@@ -373,13 +373,13 @@ getInfoCoxModel <- function(cox){
   survival_model$lp <- survival_model$fit$linear.predictors
   survival_model$coef <- coef(survival_model$fit)
 
-  ##############################################
+  #### ### ### ### ### ### ### ### ### ### ### #
   #                                            #
   #       Prediction of the components         #
   #     as if missing values (model free)      #
   #       For cross-validating the GLM         #
   #                                            #
-  ##############################################
+  #### ### ### ### ### ### ### ### ### ### ### #
 
   survival_model$YChapeau <- predict(survival_model$fit, type='expected')
   survival_model$Yresidus <- residuals(survival_model$fit, type="martingale")
@@ -1571,9 +1571,9 @@ get_COX_evaluation_AUC <- function(comp_model_lst,
   } #complete mode
 
 
-  ###############
+  #### ### ### ###
   # GET RESULTS #
-  ###############
+  #### ### ### ###
   txt <- NULL
   if(method.train==pkg.env$coxEN){
     txt <- "lambda_"
@@ -1595,9 +1595,9 @@ get_COX_evaluation_AUC <- function(comp_model_lst,
     }
   }
 
-  #################################
+  #### ### ### ### ### ### ### ###
   # TABLES FOR RUN AND FOLD LEVEL #
-  #################################
+  #### ### ### ### ### ### ### ###
 
   #AUC per RUN AND COMP
   lst_AUC_RUN_COMP <- getAUC_RUN_AND_COMP(fast_mode, max.ncomp, n_run, df_results_evals,
@@ -1778,9 +1778,9 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
     } #comp
   } #complete mode
 
-  ###############
+  #### ### ### ###
   # GET RESULTS #
-  ###############
+  #### ### ### ###
   txt <- NULL
   if(method.train==pkg.env$coxEN){
     txt <- "lambda_"
@@ -1802,9 +1802,9 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
     }
   }
 
-  #################################
+  #### ### ### ### ### ### ### ###
   # TABLES FOR RUN AND FOLD LEVEL #
-  #################################
+  #### ### ### ### ### ### ### ###
 
   #AUC per RUN AND COMP
   st_AUC_RUN_COMP <- getAUC_RUN_AND_COMP_sPLS(fast_mode = fast_mode, max.ncomp = max.ncomp, n_run = n_run, eta.list = eta.list, df_results_evals = df_results_evals,
@@ -2149,9 +2149,9 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
   message(paste0("Training all possible models for ", method, "..."))
   pb$tick(0)
 
-  ##################
+  #### ### ### ### #
   # COMP-REP-FOLDS #
-  ##################
+  #### ### ### ### #
   if(method %in% c(pkg.env$plsicox, pkg.env$splsdacox_mixomics, pkg.env$splsdrcox_mixomics, pkg.env$sb.plsicox, pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
 
     #function to compute all models at the same time - just last component
@@ -2373,9 +2373,9 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
     return(comp_model_lst)
   }
 
-  ###################
+  #### ### ### ### ##
   # ALPHA-REP-FOLDS #
-  ###################
+  #### ### ### ### ##
   if(method %in% c(pkg.env$coxEN)){
 
     #function to compute all models at the same time
@@ -2476,9 +2476,9 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
     return(comp_model_lst)
   }
 
-  #########################
+  #### ### ### ### ### ### #
   # COMP-VECTOR-REP-FOLDS #
-  #########################
+  #### ### ### ### ### ### #
   if(method %in% c(pkg.env$splsdrcox, pkg.env$sb.splsdrcox)){
 
     #function to compute all models at the same time
@@ -2842,9 +2842,9 @@ eval_models4.0 <- function(lst_models, X_test, Y_test, pred.method, pred.attr = 
     Y_test  <- Y_test
   }
 
-  ############
-  #Evaluation#
-  ############
+  #### ### ### #
+  # Evaluation #
+  #### ### ### #
 
   #models not NAs
   names_lst_models <- unlist(lapply(lst_models, function(x){!all(is.na(x))}))

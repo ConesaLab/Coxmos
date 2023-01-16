@@ -92,9 +92,9 @@ getSurvivalSubset <- function(X, Y, event.val = TRUE, EPV, p.censored, n.patient
               message("Y attribute is not logical, factor or numeric in 'event' column.")
             }
 
-            ################
+            #### ### ### ###
             #### ADD TEST ##
-            ################
+            #### ### ### ###
 
             #Y without train
             Y_event_aux <- Y_event[!rownames(Y_event) %in% rownames(Y_subset),]
@@ -155,9 +155,9 @@ getSurvivalSubset <- function(X, Y, event.val = TRUE, EPV, p.censored, n.patient
               message("Y attribute is not logical, factor or numeric in 'event' column.")
             }
 
-            ################
+            #### ### ### ###
             #### ADD TEST ##
-            ################
+            #### ### ### ###
 
             #Y without train
             Y_event_aux <- Y_event[!rownames(Y_event) %in% rownames(Y_subset),]
@@ -230,9 +230,9 @@ getSurvivalSubset <- function(X, Y, event.val = TRUE, EPV, p.censored, n.patient
             message("Y attribute is not logical, factor or numeric in 'event' column.")
           }
 
-          ################
+          #### ### ### ###
           #### ADD TEST ##
-          ################
+          #### ### ### ###
 
           #Y without train
           Y_event_aux <- Y_event[!rownames(Y_event) %in% rownames(Y_subset),]
@@ -569,9 +569,9 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
     auto=T
   }
 
-  ##############
+  #### ### ### #
   ### MODELS ###
-  ##############
+  #### ### ### #
 
   lst_res <- list()
   for(m in methods){
@@ -799,7 +799,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
     res_splsdacox_mixOmics <- NA
   }
 
-  ##### Save cox_models
+  #### Save cox_models
   if(!length(res_cox) == 1){
     lst_res[[pkg.env$cox]] <- res_cox
   }else{

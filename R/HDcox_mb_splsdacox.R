@@ -138,7 +138,7 @@ mb.splsdacox <- function (X, Y,
 
   X_norm <- Xh
 
-  ####MAX PREDICTORS
+  #### MAX PREDICTORS
   n.comp <- check.mb.maxPredictors(X, Y, MIN_EPV, n.comp, verbose = verbose)
 
   E <- list()
@@ -149,18 +149,18 @@ mb.splsdacox <- function (X, Y,
   XXNA <- purrr::map(Xh, ~is.na(.)) #T is NA
   YNA <- is.na(Y) #T is NA
 
-  ###############################################
-  ######         MB.sPLSDA-COX             ######
-  ###############################################
+  #### ### ### ### ### ### ### ### ### ### ### ##
+  ### ##         MB.sPLSDA-COX             ### ##
+  #### ### ### ### ### ### ### ### ### ### ### ##
 
   # set up a full design where every block is connected
   design = matrix(1, ncol = length(Xh), nrow = length(Xh),
                   dimnames = list(c(names(Xh)), c(names(Xh))))
   diag(design) =  0
 
-  ########################################
+  #### ### ### ### ### ### ### ### ### ###
   # DIVIDE Y VENCERAS - BEST VECTOR SIZE #
-  ########################################
+  #### ### ### ### ### ### ### ### ### ###
 
   DR_coxph = NULL #not used in plsda
 
@@ -213,16 +213,16 @@ mb.splsdacox <- function (X, Y,
     R2[[block]] = mb.splsda$prop_expl_var[[block]]
   }
 
-  ##############################################
+  #### ### ### ### ### ### ### ### ### ### ### #
   #                                            #
   #      Computation of the coefficients       #
   #      of the model with kk components       #
   #                                            #
-  ##############################################
+  #### ### ### ### ### ### ### ### ### ### ### #
 
-  ##############################################
-  ######         MB:sPLSDA-COX            ######
-  ##############################################
+  #### ### ### ### ### ### ### ### ### ### ### ###
+  ### ###         MB:sPLSDA-COX            ### ###
+  #### ### ### ### ### ### ### ### ### ### ### ###
   n.comp_used <- ncol(mb.splsda$variates$Y) #can be lesser than expected because we have lesser variables to select because penalization
 
   n.varX_used <- list()
@@ -446,9 +446,9 @@ cv.mb.splsdacox <- function(X, Y,
 
   t1 <- Sys.time()
 
-  ############
+  #### ### ###
   # WARNINGS #
-  ############
+  #### ### ###
 
   #### REQUIREMENTS
   checkY.colnames(Y)
@@ -471,12 +471,12 @@ cv.mb.splsdacox <- function(X, Y,
 
   max.ncomp <- check.mb.ncomp(X, max.ncomp)
 
-  ####MAX PREDICTORS
+  #### MAX PREDICTORS
   max.ncomp <- check.mb.maxPredictors(X, Y, MIN_EPV, max.ncomp, verbose = verbose)
 
-  ######
+  #### #
   # CV #
-  ######
+  #### #
   set.seed(seed)
   lst_data <- splitData_Iterations_Folds.mb(X, Y, n_run = n_run, k_folds = k_folds) #FOR TEST
   lst_X_train <- lst_data$lst_X_train
@@ -484,9 +484,9 @@ cv.mb.splsdacox <- function(X, Y,
   lst_X_test <- lst_data$lst_X_test
   lst_Y_test <- lst_data$lst_Y_test
 
-  ################
+  #### ### ### ###
   # TRAIN MODELS #
-  ################
+  #### ### ### ###
   total_models <- 1 * k_folds * n_run
   #total_models <- max.ncomp * k_folds * n_run
 
@@ -507,9 +507,9 @@ cv.mb.splsdacox <- function(X, Y,
   #                               x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
   #                               total_models = total_models)
 
-  ##########################
+  #### ### ### ### ### ### #
   # BEST MODEL FOR CV DATA #
-  ##########################
+  #### ### ### ### ### ### #
   total_models <- max.ncomp * k_folds * n_run
   df_results_evals <- get_COX_evaluation_AIC_CINDEX(comp_model_lst = lst_model,
                                                     max.ncomp = max.ncomp, eta.list = NULL, n_run = n_run, k_folds = k_folds,
@@ -521,15 +521,15 @@ cv.mb.splsdacox <- function(X, Y,
     t2 <- Sys.time()
     time <- difftime(t2,t1,units = "mins")
     if(return_models){
-      return(cv.mb.splsdacox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = lst_model, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, time = time)))
+      return(cv.mb.splsdacox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = lst_model, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class = pkg.env$cv.mb.splsdacox, time = time)))
     }else{
-      return(cv.mb.splsdacox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, time = time)))
+      return(cv.mb.splsdacox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class = pkg.env$cv.mb.splsdacox, time = time)))
     }
   }
 
-  ##################
+  #### ### ### ### #
   # EVALUATING AUC #
-  ##################
+  #### ### ### ### #
   df_results_evals_comp <- NULL
   df_results_evals_run <- NULL
   df_results_evals_fold <- NULL
@@ -560,9 +560,9 @@ cv.mb.splsdacox <- function(X, Y,
     df_results_evals_fold <- df_results_evals
   }
 
-  ##############
+  #### ### ### #
   # BEST MODEL #
-  ##############
+  #### ### ### #
 
   df_results_evals_comp <- cv.getScoreFromWeight(df_results_evals_comp, w_AIC, w_c.index, w_AUC,
                                                  colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC")
@@ -582,9 +582,9 @@ cv.mb.splsdacox <- function(X, Y,
   }
   names(best_n_var) <- names(X)
 
-  ########
+  #### ###
   # PLOT #
-  ########
+  #### ###
   lst_EVAL_PLOTS <- get_EVAL_PLOTS(fast_mode = fast_mode, best_model_info = best_model_info, w_AUC = w_AUC, max.ncomp = max.ncomp, eta.list = NULL,
                                    df_results_evals_fold = df_results_evals_fold, df_results_evals_run = df_results_evals_run, df_results_evals_comp = df_results_evals_comp,
                                    colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC", x.text = "Component")
@@ -595,9 +595,9 @@ cv.mb.splsdacox <- function(X, Y,
 
   df_results_evals_comp <- lst_EVAL_PLOTS$df_results_evals_comp
 
-  ##########
+  #### ### #
   # RETURN #
-  ##########
+  #### ### #
 
   message(paste0("Best model obtained."))
 
@@ -606,9 +606,9 @@ cv.mb.splsdacox <- function(X, Y,
 
   invisible(gc())
   if(return_models){
-    return(cv.mb.splsdacox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = lst_model, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.nvar = best_n_var, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, time = time)))
+    return(cv.mb.splsdacox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = lst_model, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.nvar = best_n_var, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, class = pkg.env$cv.mb.splsdacox, time = time)))
   }else{
-    return(cv.mb.splsdacox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = NULL, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.nvar = best_n_var, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, time = time)))
+    return(cv.mb.splsdacox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = NULL, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.nvar = best_n_var, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, class = pkg.env$cv.mb.splsdacox, time = time)))
   }
 }
 
