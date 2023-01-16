@@ -835,8 +835,8 @@ comboplot.performance2.0 <- function(df, x.var = "time", y.var = "AUC", x.color 
 plot_evaluation.list <- function(lst_eval_results, pred.attr = "mean", y.min = NULL, type = "both"){
 
   lst_res <- purrr::map(lst_eval_results, ~plot_evaluation(eval_results = .,
-                                                      pred.attr = pred.attr,
-                                                      y.min = y.min, type = type))
+                                                           pred.attr = pred.attr,
+                                                           y.min = y.min, type = type))
 
   return(lst_res)
 
@@ -916,7 +916,7 @@ plot_evaluation <- function(eval_results, pred.attr = "mean", y.min = NULL, type
 
   table <- NULL
   for(m in unique(eval_results$df$method)){
-    for(c in colnames(df)){
+    for(c in colnames(eval_results$df)){
       if(c=="method" | c=="time"){
         next
       }else{
