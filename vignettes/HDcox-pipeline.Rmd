@@ -552,6 +552,24 @@ lst_forest_plot <- plot_forest.list(lst_models)
 lst_forest_plot$`sPLS-DRCOX-MixOmics`
 ```
 
+## PH Assumption
+
+The following graph is related to one of the assumptions of the Cox models, called proportional hazard. 
+
+In a Cox proportional hazards model, the proportional hazards assumption states that the hazard ratio (the risk of experiencing the event of interest) is constant over time for a given set of predictor variables. This means that the effect of the predictors on the hazard ratio does not change over time. This assumption is important because it allows for the interpretation of the model's coefficients as measures of the effect of the predictors on the hazard ratio. Violations of the proportional hazards assumption can occur if the effect of the predictors on the hazard ratio changes over time or if there is an interaction between the predictors and time. In these cases, the coefficients of the model may not accurately reflect the effect of the predictors on the hazard ratio and the results of the model may not be reliable.
+
+In this way, to visualize and check if the assumption is violated, the function plot_proportionalHazard.list() or plot_proportionalHazard() can be called, depending on whether a list of models or a specific model is to be evaluated.
+
+```{r}
+lst_ph_ggplot <- plot_proportionalHazard.list(lst_models)
+```
+
+Variables or components with a significant P-Value indicate that the assumption is being violated.
+
+```{r, fig.small=T}
+lst_ph_ggplot$`sPLS-DRCOX-MixOmics`
+```
+
 ## Density plots
 
 Another type of graph implemented for all models, whether they belong to the classical branch or to PLS-based models, is the visualization of observations by event according to the values predicted by the Cox models. 
@@ -577,24 +595,6 @@ density.plots.lp <- plot_cox.event.list(lst_models, type = "lp")
 ```{r, fig.small=T}
 density.plots.lp$`sPLS-DRCOX-MixOmics`$plot.density
 density.plots.lp$`sPLS-DRCOX-MixOmics`$plot.histogram
-```
-
-## PH Assumption
-
-The following graph is related to one of the assumptions of the Cox models, called proportional hazard. 
-
-In a Cox proportional hazards model, the proportional hazards assumption states that the hazard ratio (the risk of experiencing the event of interest) is constant over time for a given set of predictor variables. This means that the effect of the predictors on the hazard ratio does not change over time. This assumption is important because it allows for the interpretation of the model's coefficients as measures of the effect of the predictors on the hazard ratio. Violations of the proportional hazards assumption can occur if the effect of the predictors on the hazard ratio changes over time or if there is an interaction between the predictors and time. In these cases, the coefficients of the model may not accurately reflect the effect of the predictors on the hazard ratio and the results of the model may not be reliable.
-
-In this way, to visualize and check if the assumption is violated, the function plot_proportionalHazard.list() or plot_proportionalHazard() can be called, depending on whether a list of models or a specific model is to be evaluated.
-
-```{r}
-lst_ph_ggplot <- plot_proportionalHazard.list(lst_models)
-```
-
-Variables or components with a significant P-Value indicate that the assumption is being violated.
-
-```{r, fig.small=T}
-lst_ph_ggplot$`sPLS-DRCOX-MixOmics`
 ```
 
 ## Studying PLS model

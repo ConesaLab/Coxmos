@@ -324,17 +324,17 @@ lst_forest_plot <- plot_forest.list(lst_models)
 lst_forest_plot$`sPLS-DRCOX-MixOmics`
 
 ## -----------------------------------------------------------------------------
+lst_ph_ggplot <- plot_proportionalHazard.list(lst_models)
+
+## ---- fig.small=T-------------------------------------------------------------
+lst_ph_ggplot$`sPLS-DRCOX-MixOmics`
+
+## -----------------------------------------------------------------------------
 density.plots.lp <- plot_cox.event.list(lst_models, type = "lp")
 
 ## ---- fig.small=T-------------------------------------------------------------
 density.plots.lp$`sPLS-DRCOX-MixOmics`$plot.density
 density.plots.lp$`sPLS-DRCOX-MixOmics`$plot.histogram
-
-## -----------------------------------------------------------------------------
-lst_ph_ggplot <- plot_proportionalHazard.list(lst_models)
-
-## ---- fig.small=T-------------------------------------------------------------
-lst_ph_ggplot$`sPLS-DRCOX-MixOmics`
 
 ## -----------------------------------------------------------------------------
 ggp_scores <- plot_PLS_HDcox(model = lst_models$`sPLS-DRCOX-MixOmics`, 

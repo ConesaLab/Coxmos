@@ -247,9 +247,13 @@ mb.splsdacox <- function (X, Y,
   #RETURN a MODEL with ALL significant Variables from complete, deleting one by one in backward method
   removed_variables <- NULL
   if(remove_non_significant){
-    lst_rnsc <- removeNonSignificativeCox(cox = cox_model$fit, alpha = alpha, cox_input = cbind(data, Yh))
+    if(all(c("time", "event") %in% colnames(d))){
+      lst_rnsc <- removeNonSignificativeCox(cox = cox_model$survival_model$fit, alpha = alpha, cox_input = data, time.value = NULL, event.value = NULL)
+    }else{
+      lst_rnsc <- removeNonSignificativeCox(cox = cox_model$survival_model$fit, alpha = alpha, cox_input = cbind(data, Yh), time.value = NULL, event.value = NULL)
+    }
 
-    cox_model$fit <- lst_rnsc$cox
+    cox_model$survival_model$fit <- lst_rnsc$cox
     removed_variables <- lst_rnsc$removed_variables
   }
 
@@ -511,9 +515,9 @@ cv.mb.splsdacox <- function(X, Y,
   # BEST MODEL FOR CV DATA #
   #### ### ### ### ### ### #
   total_models <- max.ncomp * k_folds * n_run
-  df_results_evals <- get_COX_evaluation_AIC_CINDEX(comp_model_lst = lst_model,
+  df_results_evals <- get_COX_evaluation_AIC_CINDEX(comp_model_lst = lst_model, alpha = alpha,
                                                     max.ncomp = max.ncomp, eta.list = NULL, n_run = n_run, k_folds = k_folds,
-                                                    total_models = total_models, remove_non_significant_models = remove_non_significant_models)
+                                                    total_models = total_models, remove_non_significant_models = remove_non_significant_models, verbose = verbose)
 
   if(all(is.null(df_results_evals))){
     message(paste0("Best model could NOT be obtained. All models computed present problems."))
@@ -539,7 +543,7 @@ cv.mb.splsdacox <- function(X, Y,
   optimal_comp_flag <- NULL
 
   if(w_AUC!=0){
-    total_models <- ifelse(!fast_mode, n_run * max.ncomp, k_folds * n_run * max.ncomp)
+    #total_models <- ifelse(!fast_mode, n_run * max.ncomp, k_folds * n_run * max.ncomp)#inside get_COX_evaluation_AUC
 
     lst_df <- get_COX_evaluation_AUC(comp_model_lst = lst_model,
                                      lst_X_test = lst_X_test, lst_Y_test = lst_Y_test,
@@ -547,7 +551,8 @@ cv.mb.splsdacox <- function(X, Y,
                                      fast_mode = fast_mode, pred.method = pred.method, pred.attr = pred.attr,
                                      max.ncomp = max.ncomp, n_run = n_run, k_folds = k_folds,
                                      MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                     w_AUC = w_AUC, total_models = total_models, method.train = pkg.env$mb.splsdacox, PARALLEL = F)
+                                     w_AUC = w_AUC, #total_models = total_models,
+                                     method.train = pkg.env$mb.splsdacox, PARALLEL = F)
 
     df_results_evals_comp <- lst_df$df_results_evals_comp
     df_results_evals_run <- lst_df$df_results_evals_run

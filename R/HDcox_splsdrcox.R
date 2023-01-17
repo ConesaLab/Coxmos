@@ -377,7 +377,11 @@ splsdrcox <- function (X, Y,
   #RETURN a MODEL with ALL significant Variables from complete, deleting one by one in backward method
   removed_variables <- NULL
   if(remove_non_significant){
-    lst_rnsc <- removeNonSignificativeCox(cox = aux, alpha = alpha, cox_input = d)
+    if(all(c("time", "event") %in% colnames(d))){
+      lst_rnsc <- removeNonSignificativeCox(cox = aux, alpha = alpha, cox_input = d, time.value = NULL, event.value = NULL)
+    }else{
+      lst_rnsc <- removeNonSignificativeCox(cox = aux, alpha = alpha, cox_input = cbind(d, Yh), time.value = NULL, event.value = NULL)
+    }
 
     aux <- lst_rnsc$cox
     removed_variables <- lst_rnsc$removed_variables
@@ -875,9 +879,9 @@ cv.splsdrcox <- function (X, Y,
   # BEST MODEL FOR CV DATA #
   #### ### ### ### ### ### #
   total_models <- max.ncomp * k_folds * n_run * length(eta.list)
-  df_results_evals <- get_COX_evaluation_AIC_CINDEX(comp_model_lst = comp_model_lst,
+  df_results_evals <- get_COX_evaluation_AIC_CINDEX(comp_model_lst = comp_model_lst, alpha = alpha,
                                                     max.ncomp = max.ncomp, eta.list = eta.list, n_run = n_run, k_folds = k_folds,
-                                                    total_models = total_models, remove_non_significant_models = remove_non_significant_models)
+                                                    total_models = total_models, remove_non_significant_models = remove_non_significant_models, verbose = verbose)
 
   if(all(is.null(df_results_evals))){
     message(paste0("Best model could NOT be obtained. All models computed present problems."))

@@ -419,7 +419,11 @@ coxSW <- function(X, Y,
 
     #RETURN a MODEL with ALL significant Variables from complete, deleting one by one in backward method
     if(remove_non_significant){
-      lst_rnsc <- removeNonSignificativeCox(cox = coxph.sw, alpha = alpha, cox_input = data)
+      if(all(c("time", "event") %in% colnames(data))){
+        lst_rnsc <- removeNonSignificativeCox(cox = coxph.sw, alpha = alpha, cox_input = data, time.value = NULL, event.value = NULL)
+      }else{
+        lst_rnsc <- removeNonSignificativeCox(cox = coxph.sw, alpha = alpha, cox_input = cbind(data, Yh), time.value = NULL, event.value = NULL)
+      }
 
       coxph.sw <- lst_rnsc$cox
       removed_variables <- lst_rnsc$removed_variables

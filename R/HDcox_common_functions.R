@@ -414,16 +414,24 @@ getPvalFromCox <- function(cox){
   return(p_val)
 }
 
-removeNonSignificativeCox <- function(cox, alpha, cox_input){
+removeNonSignificativeCox <- function(cox, alpha, cox_input, time.value = NULL, event.value = NULL){
 
   d <- cox_input
+
+  if(!is.null(time.value) & !is.null(event.value)){
+    time <- time.value
+    event <- event.value
+    d <- cbind(d, time)
+    d <- cbind(d, event)
+  }
+
   p_val <- getPvalFromCox(cox)
   removed_variables <- NULL
 
-  while(any(p_val>alpha)){
+  while(any(p_val>alpha) && length(p_val)>1){
     to_remove <- names(which.max(p_val))
     to_remove <- deleteIllegalChars(to_remove)
-    d <- d[,!colnames(d) %in% c(to_remove)]
+    d <- d[,!colnames(d) %in% c(to_remove),drop=F]
     cox <- tryCatch(
       # Specifying expression
       expr = {
@@ -1038,11 +1046,12 @@ getAUC_RUN_AND_COMP <- function(fast_mode, max.ncomp, n_run, df_results_evals, o
   df_results_evals_comp <- NULL
 
   if(!fast_mode){
-    for(l in 1:length(max.ncomp)){
+    for(l in unique(df_results_evals$n.comps)){
+      l.index <- which(l == unique(df_results_evals$n.comps))
       # EVAL PER RUN
       eval_aux.run <- NULL
-      for(r in 1:n_run){
-        aux.run <- df_results_evals[which(df_results_evals$n.comps==max.ncomp[[l]] & df_results_evals$runs==r),!colnames(df_results_evals) %in% c("fold")]
+      for(r in unique(df_results_evals[df_results_evals$n.comps==l,]$runs)){
+        aux.run <- df_results_evals[which(df_results_evals$n.comps==l & df_results_evals$runs==r),!colnames(df_results_evals) %in% c("fold")]
 
         if(method.train %in% c(pkg.env$splsdacox_mixomics,pkg.env$sb.plsicox,pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
           eval_aux.r <- apply(aux.run[,!colnames(aux.run) %in% c("n.var")], 2, function(x){mean(x, na.rm = T)})
@@ -1081,10 +1090,10 @@ getAUC_RUN_AND_COMP <- function(fast_mode, max.ncomp, n_run, df_results_evals, o
           eval_aux.r[["n.var"]] <- min(m.freq_var) #in case of same quantity, get lower variables
         }
 
-        if(optimal_comp_flag & l > (optimal_comp_index+MIN_COMP_TO_CHECK)){
+        if(optimal_comp_flag & l.index > (optimal_comp_index+MIN_COMP_TO_CHECK)){
           eval_aux.r[["AUC"]] <- NA
         }else{
-          eval_aux.r[["AUC"]] <- lst_AUC_component[[l]][[r]]$AUC
+          eval_aux.r[["AUC"]] <- lst_AUC_component[[l.index]][[r]]$AUC
         }
         eval_aux.run <- rbind(eval_aux.run, eval_aux.r)
       }
@@ -1092,7 +1101,7 @@ getAUC_RUN_AND_COMP <- function(fast_mode, max.ncomp, n_run, df_results_evals, o
       df_results_evals_run <- rbind(df_results_evals_run, eval_aux.run)
 
       # EVAL PER COMPONENT
-      aux.l <- df_results_evals[which(df_results_evals$n.comps==max.ncomp[[l]]),!colnames(df_results_evals) %in% c("fold", "runs")]
+      aux.l <- df_results_evals[which(df_results_evals$n.comps==l),!colnames(df_results_evals) %in% c("fold", "runs")]
 
       if(method.train %in% c(pkg.env$splsdacox_mixomics,pkg.env$sb.plsicox,pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
         eval_aux <- apply(aux.l[,!colnames(aux.l) %in% c("n.var")], 2, function(x){mean(x, na.rm = T)})
@@ -1131,12 +1140,12 @@ getAUC_RUN_AND_COMP <- function(fast_mode, max.ncomp, n_run, df_results_evals, o
 
       AUC_mean <- NULL
 
-      if(optimal_comp_flag & l > (optimal_comp_index+MIN_COMP_TO_CHECK)){
+      if(optimal_comp_flag & l.index > (optimal_comp_index+MIN_COMP_TO_CHECK)){
         AUC_mean <- NA #IF GREATER THAN OPTIMAL, NA
       }else{
         AUC_v <- NULL
         for(r in 1:n_run){
-          AUC_v <- c(AUC_v, c(lst_AUC_component[[l]][[r]]$AUC)) #MEAN FOR ALL COMPONENTS
+          AUC_v <- c(AUC_v, c(lst_AUC_component[[l.index]][[r]]$AUC)) #MEAN FOR ALL COMPONENTS
         }
         AUC_mean <- mean(AUC_v, na.rm = T)
       }
@@ -1145,18 +1154,18 @@ getAUC_RUN_AND_COMP <- function(fast_mode, max.ncomp, n_run, df_results_evals, o
       df_results_evals_comp <- rbind(df_results_evals_comp, eval_aux)
     }
   }else{
-    for(l in 1:length(max.ncomp)){
+    for(l in unique(df_results_evals$n.comps)){
       ### IF EVAL FAST - WE HAVE TO UPDATE THE VARIABLE N.VAR TO SELECT THE BETTER ONE !!!
 
       # EVAL PER COMPONENT
-      aux <- df_results_evals[which(df_results_evals$n.comps==max.ncomp[[l]]),!colnames(df_results_evals) %in% c("fold", "runs")]
+      aux <- df_results_evals[which(df_results_evals$n.comps==l),!colnames(df_results_evals) %in% c("fold", "runs")]
       eval_aux <- apply(aux, 2, function(x){mean(x, na.rm = T)})
       df_results_evals_comp <- rbind(df_results_evals_comp, eval_aux)
 
       # EVAL PER RUN
       eval_aux.r <- NULL
-      for(r in 1:n_run){
-        aux.run <- df_results_evals[which(df_results_evals$n.comps==max.ncomp[[l]] & df_results_evals$runs==r),!colnames(df_results_evals) %in% c("fold")]
+      for(r in unique(df_results_evals[df_results_evals$n.comps==l,]$runs)){
+        aux.run <- df_results_evals[which(df_results_evals$n.comps==l & df_results_evals$runs==r),!colnames(df_results_evals) %in% c("fold")]
         eval_aux.r <- apply(aux.run, 2, function(x){mean(x, na.rm = T)})
         df_results_evals_run <- rbind(df_results_evals_run, eval_aux.r)
       }
@@ -1442,7 +1451,7 @@ get_COX_evaluation_AUC <- function(comp_model_lst,
                                    df_results_evals, times = NULL,
                                    fast_mode, pred.method, pred.attr,
                                    max.ncomp, n_run, k_folds,
-                                   w_AUC, total_models,
+                                   w_AUC, #total_models,
                                    MIN_AUC_INCREASE, MIN_AUC, MIN_COMP_TO_CHECK, method.train, PARALLEL = F){
 
   if(length(max.ncomp)==1 & !method.train==pkg.env$coxEN){
@@ -1461,6 +1470,8 @@ get_COX_evaluation_AUC <- function(comp_model_lst,
   optimal_eta_index <- NULL
   optimal_comp_flag <- FALSE
 
+  total_models <- ifelse(!fast_mode, nrow(unique(df_results_evals[,c("n.comps", "runs")])), nrow(df_results_evals))
+
   pb_text <- "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated remaining time: :eta]"
   pb <- progress::progress_bar$new(format = pb_text,
                                    total = total_models,
@@ -1475,17 +1486,24 @@ get_COX_evaluation_AUC <- function(comp_model_lst,
 
   if(fast_mode){ # EVAL AUC FOR EACH FOLD
 
-    for(l in 1:length(max.ncomp)){
+    for(l in unique(df_results_evals$n.comps)){
 
+      l.index <- which(l == unique(df_results_evals$n.comps))
       lst_AUC_component_run <- NULL
 
-      for(r in 1:n_run){
+      for(r in unique(df_results_evals[df_results_evals$n.comps==l,]$runs)){
 
         lst_AUC_component_folds <- NULL
 
-        for(f in 1:k_folds){
+        for(f in unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$runs==r,]$fold)){
 
-          lst_FAST_LP_AUC <- getFAST_LP_AUC(fast_mode = fast_mode, comp_index = l, run = r, fold = f,
+          # non-significant models could be filtered, check if the model exist in df_results_evals
+          if(nrow(df_results_evals[df_results_evals$n.comps==l & df_results_evals$runs==r & df_results_evals$fold==f,])==0){
+            pb$tick()
+            next
+          }
+
+          lst_FAST_LP_AUC <- getFAST_LP_AUC(fast_mode = fast_mode, comp_index = l.index, run = r, fold = f,
                                             lst_X_test = lst_X_test, lst_Y_test = lst_Y_test,
                                             comp_model_lst = comp_model_lst, lst_linear.predictors = lst_linear.predictors,
                                             df_results_evals_AUC = df_results_evals_AUC,
@@ -1498,15 +1516,19 @@ get_COX_evaluation_AUC <- function(comp_model_lst,
           pb$tick()
 
         } #fold
-        names(lst_AUC_component_folds) <- paste0("fold_",1:k_folds)
+        if(!is.null(lst_AUC_component_folds)){
+          names(lst_AUC_component_folds) <- paste0("fold_",unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$runs==r,]$fold))
+        }
         lst_AUC_component_run[[r]] <- lst_AUC_component_folds
       } #run
-      names(lst_AUC_component_run) <- paste0("run_",1:n_run)
-      lst_AUC_component[[l]] <- lst_AUC_component_run
+      if(!is.null(lst_AUC_component_run)){
+        names(lst_AUC_component_run) <- paste0("run_",unique(df_results_evals[df_results_evals$n.comps==l,]$runs))
+      }
+      lst_AUC_component[[l.index]] <- lst_AUC_component_run
 
       #CHECK AUC EVOLUTION PER COMPONENT
       lst_checkImprovement <- check_AUC_improvement(fast_mode = fast_mode, pred.attr = pred.attr, df_results_evals_AUC = df_results_evals_AUC,
-                                                    comp_index = l, n_run = n_run, k_folds = k_folds, lst_comp_AUC = lst_comp_AUC,
+                                                    comp_index = l.index, n_run = n_run, k_folds = k_folds, lst_comp_AUC = lst_comp_AUC,
                                                     MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK, MIN_AUC = MIN_AUC, MIN_AUC_INCREASE = MIN_AUC_INCREASE, max.ncomp = max.ncomp, method.train = method.train)
       optimal_comp_index <- lst_checkImprovement$optimal_comp_index
       optimal_comp_flag <- lst_checkImprovement$optimal_comp_flag
@@ -1520,18 +1542,24 @@ get_COX_evaluation_AUC <- function(comp_model_lst,
 
   }else{ # COMPLETE MODE
 
-    for(l in 1:length(max.ncomp)){
-
+    for(l in unique(df_results_evals$n.comps)){
+      l.index <- which(l == unique(df_results_evals$n.comps))
       lst_AUC_component_run <- NULL
 
-      for(r in 1:n_run){
+      for(r in unique(df_results_evals[df_results_evals$n.comps==l,]$runs)){
 
         Y_test_full <- NULL
         lst_linear.predictors <- NULL
 
-        for(f in 1:k_folds){
+        for(f in unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$runs==r,]$fold)){
 
-          lst_COMPLETE_LP <- getCOMPLETE_LP(comp_index = l, run = r, fold = f,
+          # non-significant models could be filtered, check if the model exist in df_results_evals
+          if(nrow(df_results_evals[df_results_evals$n.comps==l & df_results_evals$runs==r & df_results_evals$fold==f,])==0){
+            next
+          }
+
+          #comp_index is the index of l for coxEN
+          lst_COMPLETE_LP <- getCOMPLETE_LP(comp_index = l.index, run = r, fold = f,
                                             lst_X_test = lst_X_test, lst_Y_test = lst_Y_test, Y_test_full = Y_test_full,
                                             comp_model_lst = comp_model_lst, lst_linear.predictors = lst_linear.predictors)
 
@@ -1539,6 +1567,11 @@ get_COX_evaluation_AUC <- function(comp_model_lst,
           lst_linear.predictors <- lst_COMPLETE_LP$lst_linear.predictors
 
         } #fold
+
+        if(is.null(lst_linear.predictors)){
+          pb$tick()
+          next #no models computed
+        }
 
         lst_resCOMPLETE_LP_AUC <- getCOMPLETE_LP_AUC(Y_test_full = Y_test_full, lst_linear.predictors = lst_linear.predictors,
                                                      times = times, df_results_evals_AUC = df_results_evals_AUC,
@@ -1551,8 +1584,8 @@ get_COX_evaluation_AUC <- function(comp_model_lst,
 
       } #run
 
-      names(lst_AUC_component_run) <- paste0("run_",1:n_run)
-      lst_AUC_component[[l]] <- lst_AUC_component_run
+      names(lst_AUC_component_run) <- paste0("run_",unique(df_results_evals[df_results_evals$n.comps==l,]$runs))
+      lst_AUC_component[[l.index]] <- lst_AUC_component_run
 
       #CHECK AUC EVOLUTION
       #CHECK AUC EVOLUTION PER COMPONENT
@@ -1582,7 +1615,8 @@ get_COX_evaluation_AUC <- function(comp_model_lst,
   }
 
   if(optimal_comp_flag){
-    names(lst_AUC_component) <- paste0(txt,max.ncomp[1:min(max(max.ncomp),(optimal_comp_index+MIN_COMP_TO_CHECK))])
+    #names(lst_AUC_component) <- paste0(txt,max.ncomp[1:min(max(max.ncomp),(optimal_comp_index+MIN_COMP_TO_CHECK))])
+    names(lst_AUC_component) <- paste0(txt,unique(df_results_evals$n.comps))
   }else{
     names(lst_AUC_component) <- paste0(txt,max.ncomp)
   }
@@ -1820,7 +1854,7 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
 }
 
 
-get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = NULL, n_run, k_folds, total_models, remove_non_significant_models){
+get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = NULL, n_run, k_folds, total_models, remove_non_significant_models, alpha = 0.05, verbose = F){
 
   if(length(max.ncomp)==1){
     max.ncomp <- 1:max.ncomp
@@ -1864,24 +1898,27 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
           }else if(attr(model, "model") == pkg.env$sb.plsicox){
             n_var <- purrr::map(model$list_pls_models, ~nrow(.$X$loadings))
             n_var <- paste0(n_var, collapse = "_") #VAR FOR SB.spls IS THE MAX NUMBER OF VARIABLES (PER BLOCK)
+          }else if(attr(model, "model") == pkg.env$sb.splsdrcox){
+            n_var <- purrr::map(model$list_spls_models, ~sum(rowSums(.$X$weightings!=0)>0)) #this have to be checked !!!
+            n_var <- paste0(n_var, collapse = "_")
           }else if(attr(model, "model") %in% c(pkg.env$splsdrcox_mixomics, pkg.env$splsdacox_mixomics)){
             n_var <- unique(apply(model$X$weightings, 2, function(x){sum(x!=0)}))
             #n_var <- paste0(n_var, collapse = "_")
-          }else{
+          }else if(attr(model, "model") %in% pkg.env$plsicox){
             n_var <- nrow(model$X$loadings)
-          }
-
-          #COX and COXEN
-          if(is.null(n_var)){
-            n_var <- length(model$survival_model$coef) #if null, then the method is not a PLS
+          }else if(attr(model, "model") %in% pkg.env$classical_methods){
+            n_var <- length(model$survival_model$coef) #COX, COXSW and COXEN
           }
 
           df <- as.data.frame(summary(cox)[[7]])
 
-          #delete models with non-significative components
+          #delete models with non-significant components
           if(remove_non_significant_models == T){
             if(any(df$`Pr(>|z|)`>alpha)){
               pb$tick()
+              if(verbose){
+                message(paste0("\nModel - Comp: ", comp ,", Run: ",r,", Fold: ",f," - Is a non-significant model"))
+              }
               next
             }
           }
@@ -1933,7 +1970,7 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
 
             df <- as.data.frame(summary(cox)[[7]])
 
-            #delete models with non-significative components
+            #delete models with non-significant components
             if(remove_non_significant_models == T){
               if(any(df$`Pr(>|z|)`>alpha)){
                 pb$tick()
