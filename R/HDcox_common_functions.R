@@ -1616,7 +1616,7 @@ get_COX_evaluation_AUC <- function(comp_model_lst,
 
   if(optimal_comp_flag){
     #names(lst_AUC_component) <- paste0(txt,max.ncomp[1:min(max(max.ncomp),(optimal_comp_index+MIN_COMP_TO_CHECK))])
-    names(lst_AUC_component) <- paste0(txt,unique(df_results_evals$n.comps))
+    names(lst_AUC_component) <- paste0(txt,unique(df_results_evals$n.comps)[optimal_comp_index:(optimal_comp_index+MIN_COMP_TO_CHECK)])
   }else{
     names(lst_AUC_component) <- paste0(txt,max.ncomp)
   }
