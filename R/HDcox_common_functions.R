@@ -1504,7 +1504,7 @@ get_COX_evaluation_AUC <- function(comp_model_lst,
           }
 
           lst_FAST_LP_AUC <- getFAST_LP_AUC(fast_mode = fast_mode, comp_index = l.index, run = r, fold = f,
-                                            lst_X_test = lst_X_test, lst_Y_test = lst_Y_test,
+                                            lst_X_test = lst_X_test, lst_Y_test = lst_Y_test, times = times,
                                             comp_model_lst = comp_model_lst, lst_linear.predictors = lst_linear.predictors,
                                             df_results_evals_AUC = df_results_evals_AUC,
                                             pred.method = pred.method, pred.attr = pred.attr, PARALLEL = F)
@@ -1590,7 +1590,7 @@ get_COX_evaluation_AUC <- function(comp_model_lst,
       #CHECK AUC EVOLUTION
       #CHECK AUC EVOLUTION PER COMPONENT
       lst_checkImprovement <- check_AUC_improvement(fast_mode = fast_mode, pred.attr = pred.attr, df_results_evals_AUC = df_results_evals_AUC,
-                                                    comp_index = l, n_run = n_run, k_folds = k_folds, lst_comp_AUC = lst_comp_AUC,
+                                                    comp_index = l.index, n_run = n_run, k_folds = k_folds, lst_comp_AUC = lst_comp_AUC,
                                                     MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK, MIN_AUC = MIN_AUC, MIN_AUC_INCREASE = MIN_AUC_INCREASE, max.ncomp = max.ncomp, method.train = method.train)
       optimal_comp_index <- lst_checkImprovement$optimal_comp_index
       optimal_comp_flag <- lst_checkImprovement$optimal_comp_flag
@@ -2818,6 +2818,11 @@ checkLibraryEvaluator <- function(pred.method){
 checkAtLeastTwoEvents <- function(X_test, Y_test){
 
   rn_X <- rownames(X_test)
+
+  if(!all(rn_X %in% rownames(Y_test))){
+    stop("Rownames in X_test must be in Y_test")
+  }
+
   sub_Y <- Y_test[rn_X,,drop=F]
 
   if(sum(sub_Y[,"event"])<2){

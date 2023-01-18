@@ -490,7 +490,7 @@ plot_time.list <- function(lst_models, x.text = "Method", y.text = NULL){
   if(roundTo == 0){
     #select the decimals of Y
     if(length(grep("\\.", df.times$times))>0){
-      ch <- gsub("\\.", "", as.character(min(df.times$times)/max.breaks))
+      ch <- gsub("\\.", "", as.character(format(min(df.times$times)/max.breaks, scientific = F, trim = T)))
       cont = 0
       for(c in 1:nchar(ch)){
         if(substr(ch,c,c) == "0"){
@@ -503,10 +503,31 @@ plot_time.list <- function(lst_models, x.text = "Method", y.text = NULL){
     }else{
       roundTo = 0.1
     }
-
   }
 
   breaks_size = round2any(max(df.times$times), roundTo, f = ceiling) / max.breaks
+
+  roundTo = 0
+  max.breaks = 10
+  if(roundTo == 0){
+    #select the decimals of Y
+    if(length(grep("\\.", df.times$times))>0){
+      ch <- gsub("\\.", "", as.character(format(max(df.times$times)/max.breaks, scientific = F, trim = T)))
+      cont = 1
+      for(c in 1:nchar(ch)){
+        if(substr(ch,c,c) == "0"){
+          cont = cont + 1
+        }else{
+          break
+        }
+      }
+      roundTo = 1*10^-cont
+    }else{
+      roundTo = 0.1
+    }
+  }
+
+  breaks_size = round2any(breaks_size, roundTo, f = ceiling)
   breaks = seq(0, max(df.times$times)+breaks_size, by=breaks_size)
 
   accuracy <- roundTo
@@ -3474,7 +3495,7 @@ plot_forest.list <- function(lst_models,
                              refLabel = "reference",
                              noDigits = 2){
 
-  lst_forest_plot <- purrr::map(lst_models, ~plot_forest(model = .,
+  lst_forest_plot <- purrr::map(lst_models[1], ~plot_forest(model = .,
                                                          title = paste0(title, " - ", .$class), cpositions = cpositions,
                                                          fontsize = fontsize, refLabel = refLabel, noDigits = noDigits))
 
