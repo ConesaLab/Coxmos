@@ -12,6 +12,8 @@ round2any <- function(x, accuracy, f = round) {
     round2any.double(x, accuracy, f)
   }else if(class(x)[[1]] %in% "POSIXct"){
     round2any.POSIXct(x, accuracy, f)
+  }else if(class(x)[[1]] %in% "difftime"){
+    round2any.difftime(x, accuracy, f)
   }else{
     stop(paste0("Class ", class(x) ," not defined."))
   }
@@ -26,6 +28,10 @@ round2any.integer <- function(x, accuracy, f = round) {
 }
 
 round2any.double <- function(x, accuracy, f = round) {
+  f(x / accuracy) * accuracy
+}
+
+round2any.difftime <- function(x, accuracy, f = round) {
   f(x / accuracy) * accuracy
 }
 
