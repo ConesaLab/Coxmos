@@ -3815,6 +3815,10 @@ getLPKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL,
   d <- info_logrank_num$df_numASqual
   v_names <- info_logrank_num$df_nvar_lrtest[,1:2]
 
+  if(all(is.null(d) & is.null(v_names))){
+    message("Instead of LP Kaplan-Meier curve, Survival function, Hazard Curve and Cumulative Hazard will be returned.")
+  }
+
   LST_SPLOT <- plot_survivalplot.qual(data = d,
                                        sdata = data.frame(model$Y$data),
                                        BREAKTIME = BREAKTIME,
@@ -4291,7 +4295,7 @@ getLogRank_NumVariables <- function(data, sdata, VAR_EVENT, name_data = NULL, mi
     colnames(auxData)[3] <- cn
 
     # Determine the optimal cutpoint for continuous variables, using the maximally selected rank statistics from the 'maxstat' R package.
-    minProp = minProp #we have to establish a minimum number of patients per group in %
+    minProp = minProp #we have to establish a minimum number of patients per group in 0-1
 
     res.cut <- tryCatch(
       expr = {
@@ -4299,7 +4303,7 @@ getLogRank_NumVariables <- function(data, sdata, VAR_EVENT, name_data = NULL, mi
       },
       # Specifying error message
       error = function(e){
-        message(paste0(cn, ": ", e))
+        message(paste0("Problems with variable '",cn,"'", ": ", e))
         NA
       }
     )
@@ -4356,17 +4360,22 @@ getLogRank_NumVariables <- function(data, sdata, VAR_EVENT, name_data = NULL, mi
 
   }
 
-  LST_NVAR_SIG <- as.data.frame(LST_NVAR_SIG)
-  LST_NVAR_SIG[,2] <- as.numeric(LST_NVAR_SIG[,2])
-  LST_NVAR_SIG[,3] <- as.numeric(LST_NVAR_SIG[,3])
+  if(!is.null(LST_NVAR_SIG)){
+    LST_NVAR_SIG <- as.data.frame(LST_NVAR_SIG)
+    LST_NVAR_SIG[,2] <- as.numeric(LST_NVAR_SIG[,2])
+    LST_NVAR_SIG[,3] <- as.numeric(LST_NVAR_SIG[,3])
 
-  if(exists("VAR_DESCRIPTION")){
-    colnames(LST_NVAR_SIG) <- c("Variable", "P-Val (Log Rank)", "Cutoff", "Description")
+    if(exists("VAR_DESCRIPTION")){
+      colnames(LST_NVAR_SIG) <- c("Variable", "P-Val (Log Rank)", "Cutoff", "Description")
+    }else{
+      colnames(LST_NVAR_SIG) <- c("Variable", "P-Val (Log Rank)", "Cutoff")
+    }
+
+    LST_NVAR_SIG <- LST_NVAR_SIG[order(LST_NVAR_SIG$`P-Val (Log Rank)`),]
   }else{
-    colnames(LST_NVAR_SIG) <- c("Variable", "P-Val (Log Rank)", "Cutoff")
+    #any variable have been computed
+    message("None of the variables have been selected for computing the Kaplan-Meier plot. The problem could be related to the 'minProp' value. Try to decrease it.")
   }
-
-  LST_NVAR_SIG <- LST_NVAR_SIG[order(LST_NVAR_SIG$`P-Val (Log Rank)`),]
 
   return(list(df_numASqual = df_qualnumvars, df_nvar_lrtest = LST_NVAR_SIG))
 
@@ -4474,8 +4483,7 @@ plot_survivalplot.qual <- function(data, sdata, cn_variables, name_data = NULL, 
                                     font.x = 10,
                                     font.y = 10,
                                     font.tickslab = 8,
-                                    font.legend = 8,
-                                    title = title)
+                                    font.legend = 8)
 
     kmplot$table <- kmplot$table + labs(title = "Patients at risk") +
       theme(axis.text = element_text(size = 8)) + theme(axis.title = element_text(size = 10))
@@ -4496,8 +4504,7 @@ plot_survivalplot.qual <- function(data, sdata, cn_variables, name_data = NULL, 
                                     font.x = 10,
                                     font.y = 10,
                                     font.tickslab = 8,
-                                    font.legend = 8,
-                                    title = title)
+                                    font.legend = 8)
 
     kmplot$table <- kmplot$table + labs(title = "Patients at risk") +
       theme(axis.text = element_text(size = 8)) + theme(axis.title = element_text(size = 10))
@@ -4520,8 +4527,7 @@ plot_survivalplot.qual <- function(data, sdata, cn_variables, name_data = NULL, 
                                     font.x = 10,
                                     font.y = 10,
                                     font.tickslab = 8,
-                                    font.legend = 8,
-                                    title = title)
+                                    font.legend = 8)
 
     kmplot$table <- kmplot$table + labs(title = "Patients at risk") +
       theme(axis.text = element_text(size = 8)) + theme(axis.title = element_text(size = 10))
