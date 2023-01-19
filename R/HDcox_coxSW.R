@@ -432,6 +432,7 @@ coxSW <- function(X, Y,
     survival_model <- getInfoCoxModel(coxph.sw)
   }else{
     survival_model <- NULL
+    message("No variables have been selected for coxSW model. Returning a NULL Survival Model.")
   }
 
   func_call <- match.call()
