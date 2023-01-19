@@ -3495,7 +3495,7 @@ plot_forest.list <- function(lst_models,
                              refLabel = "reference",
                              noDigits = 2){
 
-  lst_forest_plot <- purrr::map(lst_models[1], ~plot_forest(model = .,
+  lst_forest_plot <- purrr::map(lst_models, ~plot_forest(model = .,
                                                          title = paste0(title, " - ", .$class), cpositions = cpositions,
                                                          fontsize = fontsize, refLabel = refLabel, noDigits = noDigits))
 
