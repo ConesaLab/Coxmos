@@ -3646,6 +3646,11 @@ plot_proportionalHazard.list <- function(lst_models){
 #' @export
 
 plot_proportionalHazard <- function(model){
+
+  if(is.null(model$survival_model$fit)){
+    return(NULL)
+  }
+
   ph_preplot <- survival::cox.zph(model$survival_model$fit)
   ph_plot <- survminer::ggcoxzph(ph_preplot)
   ph_ggplot <- ggcoxzph2ggplot(ph_preplot, ph_plot)
