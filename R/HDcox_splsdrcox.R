@@ -857,13 +857,13 @@ cv.splsdrcox <- function (X, Y,
   total_models <- max.ncomp * k_folds * n_run * length(eta.list)
 
   lst_model <- get_HDCOX_models2.0(method = pkg.env$splsdrcox,
-                                lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
-                                max.ncomp = max.ncomp, eta.list = eta.list, EN.alpha.list = NULL,
-                                n_run = n_run, k_folds = k_folds,
-                                x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
-                                remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
-                                remove_non_significant = remove_non_significant,
-                                total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
+                                  lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
+                                  max.ncomp = max.ncomp, eta.list = eta.list, EN.alpha.list = NULL,
+                                  n_run = n_run, k_folds = k_folds,
+                                  x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
+                                  remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
+                                  remove_non_significant = remove_non_significant,
+                                  total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
 
   # lst_model <- get_HDCOX_models(method = pkg.env$splsdrcox,
   #                               lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
