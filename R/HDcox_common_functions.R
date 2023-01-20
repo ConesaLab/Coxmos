@@ -2296,7 +2296,7 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
     }else{
 
       if(method==pkg.env$plsicox){
-        lst_all_models <- purrr::map(lst_inputs[12], ~plsicox(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
+        lst_all_models <- purrr::map(lst_inputs, ~plsicox(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
                                                           Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
                                                           n.comp = .$comp,
                                                           x.center = x.center, x.scale = x.scale,
