@@ -22,6 +22,7 @@
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.
 #' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
 #' @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
+#' @param tol Numeric. Tolerance for solving: solve(t(P) %*% W)
 #' @param EVAL_METHOD Numeric. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
 #' @param pred.method Character. AUC method for evaluation. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC")
 #' @param max.iter Maximum number of iterations for PLS convergence.
@@ -81,7 +82,7 @@ splsdacox_mixOmics <- function (X, Y,
                                x.center = TRUE, x.scale = FALSE,
                                y.center = FALSE, y.scale = FALSE,
                                remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
-                               remove_non_significant = F, alpha = 0.05,
+                               remove_non_significant = F, alpha = 0.05, tol = 1e-15,
                                EVAL_METHOD = "AUC", pred.method = "cenROC", max.iter = 200,
                                MIN_EPV = 5, returnData = T, verbose = F){
 
@@ -217,7 +218,33 @@ splsdacox_mixOmics <- function (X, Y,
   #get W.star
   W <- ww_splsDR
   P <- pp_splsDR
-  W.star <- W %*% solve(t(P) %*% W, tol = 1e-20)
+
+  if(is.null(P) | is.null(W)){
+    message("sPLS-DACOX model cannot be computed because P or W vectors are NULL. Returning NA.")
+    invisible(gc())
+    return(NA)
+  }
+
+  #W.star
+  #sometimes solve(t(P) %*% W)
+  #system is computationally singular: reciprocal condition number = 6.24697e-18
+  PW <- tryCatch(expr = {solve(t(P) %*% W, tol = tol)},
+                 error = function(e){
+                   if(verbose){
+                     message(e$message)
+                   }
+                   NA
+                 })
+
+  if(all(is.na(PW))){
+    message("sPLS-DACOX model cannot be computed due to solve(t(P) %*% W. Reduce 'tol' parameter to fix it. Returning NA.")
+    invisible(gc())
+    return(NA)
+  }
+
+  # What happen when you cannot compute W.star but you have P and W?
+  W.star <- W %*% PW
+
   Ts <- tt_splsDR
 
   func_call <- match.call()
@@ -287,6 +314,7 @@ splsdacox_mixOmics <- function (X, Y,
 #' @param max.iter Maximum number of iterations for PLS convergence.
 #' @param MIN_EPV Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.
 #' @param return_models Logical. Return all models computed in cross validation.
+#' @param tol Numeric. Tolerance for solving: solve(t(P) %*% W)
 #' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption.
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #' @param seed Number. Seed value for perform the runs/folds divisions.
@@ -308,7 +336,7 @@ cv.splsdacox_mixOmics <- function(X, Y,
                         MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                         pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                         max.iter = 500,
-                        MIN_EPV = 5, return_models = F,
+                        MIN_EPV = 5, return_models = F, tol = 1e-15,
                         PARALLEL = F, verbose = F, seed = 123){
 
   t1 <- Sys.time()
@@ -370,7 +398,7 @@ cv.splsdacox_mixOmics <- function(X, Y,
                                        x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
                                        remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
                                        remove_non_significant = remove_non_significant,
-                                       total_models = total_models, max.iter = max.iter, PARALLEL = PARALLEL, verbose = verbose)
+                                       total_models = total_models, max.iter = max.iter, tol = tol, PARALLEL = PARALLEL, verbose = verbose)
 
   # comp_model_lst <- get_HDCOX_models(method = pkg.env$splsdacox_mixomics,
   #                                    lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,

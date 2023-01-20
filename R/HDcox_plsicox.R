@@ -70,7 +70,7 @@ plsicox <- function (X, Y,
                      x.center = TRUE, x.scale = FALSE,
                      y.center = FALSE, y.scale = FALSE,
                      remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
-                     remove_non_significant = F, alpha = 0.05, tol = 1e-20,
+                     remove_non_significant = F, alpha = 0.05, tol = 1e-15,
                      MIN_EPV = 5, returnData = T, verbose = F){
 
   t1 <- Sys.time()
@@ -371,8 +371,8 @@ plsicox <- function (X, Y,
                    NA
                 })
 
-  if(is.na(PW)){
-    message("PLS-ICOX model cannot be computed due to solve(t(P) %*% W. Returning NA.")
+  if(all(is.na(PW))){
+    message("PLS-ICOX model cannot be computed due to solve(t(P) %*% W. Reduce 'tol' parameter to fix it. Returning NA.")
     invisible(gc())
     return(NA)
   }
@@ -461,7 +461,7 @@ cv.plsicox <- function (X, Y,
                         w_AIC = 0, w_c.index = 0, w_AUC = 1, times = NULL,
                         MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                         pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
-                        MIN_EPV = 5, return_models = F, tol = 1e-20,
+                        MIN_EPV = 5, return_models = F, tol = 1e-15,
                         PARALLEL = F, verbose = F, seed = 123){
 
   t1 <- Sys.time()

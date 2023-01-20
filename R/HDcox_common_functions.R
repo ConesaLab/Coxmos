@@ -2145,7 +2145,7 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
                                 remove_near_zero_variance = F, remove_zero_variance = F,  toKeep.zv = NULL,
                                 remove_non_significant = F,
                                 alpha = 0.05, max.iter = 500,
-                                total_models, MIN_EPV = 0, tol = 1e-20, PARALLEL = T, verbose = F){
+                                total_models, MIN_EPV = 0, tol = 1e-15, PARALLEL = T, verbose = F){
 
   comp_model_lst <- list()
   fold_list <- list()
@@ -2243,7 +2243,7 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
                                                                            vector = vector,
                                                                            MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
                                                                            MIN_AUC_INCREASE = MIN_AUC_INCREASE,
-                                                                           EVAL_METHOD = EVAL_METHOD,
+                                                                           EVAL_METHOD = EVAL_METHOD, tol = tol,
                                                                            MIN_EPV = MIN_EPV, returnData = F, verbose = verbose), .options = furrr_options(seed = 123))
 
       }else if(method==pkg.env$splsdrcox_mixomics){
@@ -2257,7 +2257,7 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
                                                                            vector = vector,
                                                                            MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
                                                                            MIN_AUC_INCREASE = MIN_AUC_INCREASE,
-                                                                           EVAL_METHOD = EVAL_METHOD,
+                                                                           EVAL_METHOD = EVAL_METHOD, tol = tol,
                                                                            MIN_EPV = MIN_EPV, returnData = F, verbose = verbose), .options = furrr_options(seed = 123))
 
       }else if(method==pkg.env$sb.plsicox){
@@ -2296,7 +2296,7 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
     }else{
 
       if(method==pkg.env$plsicox){
-        lst_all_models <- purrr::map(lst_inputs, ~plsicox(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
+        lst_all_models <- purrr::map(lst_inputs[12], ~plsicox(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
                                                           Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
                                                           n.comp = .$comp,
                                                           x.center = x.center, x.scale = x.scale,
@@ -2315,7 +2315,7 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
                                                                      vector = vector,
                                                                      MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
                                                                      MIN_AUC_INCREASE = MIN_AUC_INCREASE,
-                                                                     EVAL_METHOD = EVAL_METHOD,
+                                                                     EVAL_METHOD = EVAL_METHOD, tol = tol,
                                                                      returnData = F))
 
       }else if(method==pkg.env$splsdrcox_mixomics){
@@ -2329,7 +2329,7 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
                                                                     vector = vector,
                                                                     MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
                                                                     MIN_AUC_INCREASE = MIN_AUC_INCREASE,
-                                                                    EVAL_METHOD = EVAL_METHOD,
+                                                                    EVAL_METHOD = EVAL_METHOD, tol = tol,
                                                                     MIN_EPV = MIN_EPV, returnData = F))
 
       }else if(method==pkg.env$sb.plsicox){
