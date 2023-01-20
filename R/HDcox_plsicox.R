@@ -17,7 +17,7 @@
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.
 #' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
 #' @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
-#' @param tol Numeric. Tolerance for computing PLS components.
+#' @param tol Numeric. Tolerance for solving: solve(t(P) %*% W)
 #' @param MIN_EPV Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.
 #' @param returnData Logical. Return original and normalized X and Y matrices.
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
@@ -70,7 +70,7 @@ plsicox <- function (X, Y,
                      x.center = TRUE, x.scale = FALSE,
                      y.center = FALSE, y.scale = FALSE,
                      remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
-                     remove_non_significant = F, alpha = 0.05, tol = 1e-08,
+                     remove_non_significant = F, alpha = 0.05, tol = 1e-20,
                      MIN_EPV = 5, returnData = T, verbose = F){
 
   t1 <- Sys.time()
@@ -355,13 +355,30 @@ plsicox <- function (X, Y,
   }
 
   if(is.null(P) | is.null(W)){
-    message("PLSCOX model cannot be computed. Returning NA.")
+    message("PLS-ICOX model cannot be computed because P or W vectors are NULL. Returning NA.")
     invisible(gc())
     return(NA)
   }
 
   #W.star
-  W.star <- W %*% solve(t(P) %*% W) #solve by W or W_norm??
+  #sometimes solve(t(P) %*% W)
+  #system is computationally singular: reciprocal condition number = 6.24697e-18
+  PW <- tryCatch(expr = {solve(t(P) %*% W, tol = tol)},
+                 error = function(e){
+                   if(verbose){
+                     message(e$message)
+                   }
+                   NA
+                })
+
+  if(is.na(PW)){
+    message("PLS-ICOX model cannot be computed due to solve(t(P) %*% W. Returning NA.")
+    invisible(gc())
+    return(NA)
+  }
+
+  # What happen when you cannot compute W.star but you have P and W?
+  W.star <- W %*% PW
 
   rownames(Ts) <- rownames(X)
   rownames(P) <- rownames(W_norm) <- rownames(W) <-  rownames(W.star) <- colnames(Xh)
@@ -426,6 +443,7 @@ plsicox <- function (X, Y,
 #' @param fast_mode Logical. If fast_mode = TRUE, for each run, only one fold is evaluated simultaneously. If fast_mode = FALSE, for each run, all linear predictors are computed for test observations. Once all have their linear predictors, the evaluation is perform across all the observations together (default: FALSE).
 #' @param MIN_EPV Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.
 #' @param return_models Logical. Return all models computed in cross validation.
+#' @param tol Numeric. Tolerance for solving: solve(t(P) %*% W)
 #' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption.
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #' @param seed Number. Seed value for perform the runs/folds divisions.
@@ -443,7 +461,7 @@ cv.plsicox <- function (X, Y,
                         w_AIC = 0, w_c.index = 0, w_AUC = 1, times = NULL,
                         MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                         pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
-                        MIN_EPV = 5, return_models = F,
+                        MIN_EPV = 5, return_models = F, tol = 1e-20,
                         PARALLEL = F, verbose = F, seed = 123){
 
   t1 <- Sys.time()
@@ -496,12 +514,12 @@ cv.plsicox <- function (X, Y,
   total_models <- 1 * k_folds * n_run #with greatest component we have all of them
 
   comp_model_lst <- get_HDCOX_models2.0(method = pkg.env$plsicox,
-                                     lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
-                                     max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL, n_run = n_run, k_folds = k_folds,
-                                     x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
-                                     remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
-                                     remove_non_significant = remove_non_significant,
-                                     total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
+                                       lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
+                                       max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL, n_run = n_run, k_folds = k_folds,
+                                       x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
+                                       remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
+                                       remove_non_significant = remove_non_significant,
+                                       total_models = total_models, tol = tol, PARALLEL = PARALLEL, verbose = verbose)
 
   # comp_model_lst <- get_HDCOX_models(method = pkg.env$plsicox,
   #                                    lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,

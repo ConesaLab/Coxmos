@@ -2145,7 +2145,7 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
                                 remove_near_zero_variance = F, remove_zero_variance = F,  toKeep.zv = NULL,
                                 remove_non_significant = F,
                                 alpha = 0.05, max.iter = 500,
-                                total_models, MIN_EPV = 0, PARALLEL = T, verbose = F){
+                                total_models, MIN_EPV = 0, tol = 1e-20, PARALLEL = T, verbose = F){
 
   comp_model_lst <- list()
   fold_list <- list()
@@ -2230,7 +2230,7 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
                                                                  x.center = x.center, x.scale = x.scale,
                                                                  y.center = y.center, y.scale = y.scale,
                                                                  remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
-                                                                 remove_non_significant = remove_non_significant,
+                                                                 remove_non_significant = remove_non_significant, tol = tol,
                                                                  MIN_EPV = MIN_EPV, returnData = F, verbose = verbose), .options = furrr_options(seed = 123))
       }else if(method==pkg.env$splsdacox_mixomics){
         lst_all_models <- furrr::future_map(lst_inputs, ~splsdacox_mixOmics(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
@@ -2302,7 +2302,7 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
                                                           x.center = x.center, x.scale = x.scale,
                                                           y.center = y.center, y.scale = y.scale,
                                                           MIN_EPV = MIN_EPV, remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
-                                                          remove_non_significant = remove_non_significant,
+                                                          remove_non_significant = remove_non_significant, tol = tol,
                                                           returnData = F))
       }else if(method==pkg.env$splsdacox_mixomics){
         lst_all_models <- purrr::map(lst_inputs, ~splsdacox_mixOmics(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
