@@ -37,6 +37,7 @@ cv.splsdrcox_mixOmics(
   fast_mode = F,
   MIN_EPV = 5,
   return_models = F,
+  tol = 1e-15,
   PARALLEL = F,
   verbose = F,
   seed = 123
@@ -106,6 +107,8 @@ cv.splsdrcox_mixOmics(
 \item{MIN_EPV}{Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.}
 
 \item{return_models}{Logical. Return all models computed in cross validation.}
+
+\item{tol}{Numeric. Tolerance for solving: solve(t(P) \%*\% W)}
 
 \item{PARALLEL}{Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption.}
 

@@ -22,6 +22,7 @@ splsdrcox_mixOmics(
   toKeep.zv = NULL,
   remove_non_significant = F,
   alpha = 0.05,
+  tol = 1e-15,
   EVAL_METHOD = "AUC",
   pred.method = "cenROC",
   max.iter = 200,
@@ -65,6 +66,8 @@ splsdrcox_mixOmics(
 \item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
 
 \item{alpha}{Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).}
+
+\item{tol}{Numeric. Tolerance for solving: solve(t(P) \%*\% W)}
 
 \item{EVAL_METHOD}{Numeric. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
 
