@@ -295,7 +295,8 @@ plsicox <- function (X, Y,
     }
   )
 
-  while(all(is.na(aux)) & h>0){
+  # keep at least one component
+  while(all(is.na(aux)) & h>1){
     h <- h-1
     aux <- tryCatch(
       # Specifying expression
@@ -520,6 +521,18 @@ cv.plsicox <- function (X, Y,
                                        remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
                                        remove_non_significant = remove_non_significant,
                                        total_models = total_models, tol = tol, PARALLEL = PARALLEL, verbose = verbose)
+
+  if(all(is.na(unlist(comp_model_lst)))){
+    message(paste0("Best model could NOT be obtained. All models computed present problems."))
+
+    t2 <- Sys.time()
+    time <- difftime(t2,t1,units = "mins")
+    if(return_models){
+      return(cv.plsicox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class = pkg.env$cv.plsicox, time = time)))
+    }else{
+      return(cv.plsicox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class = pkg.env$cv.plsicox, time = time)))
+    }
+  }
 
   # comp_model_lst <- get_HDCOX_models(method = pkg.env$plsicox,
   #                                    lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,

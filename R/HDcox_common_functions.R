@@ -2013,6 +2013,11 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
 
 getSubModel <- function(model, comp, remove_non_significant){
   res <- model
+
+  if(all(is.na(res))){
+    return(NA)
+  }
+
   #X
   if("loadings" %in% names(res$X) && !all(is.na(res$X$loadings))){
     res$X$loadings <- res$X$loadings[,1:min(ncol(res$X$loadings),comp), drop=F]
@@ -2052,8 +2057,12 @@ getSubModel <- function(model, comp, remove_non_significant){
 
 getSubModel.mb <- function(model, comp, remove_non_significant){
   res <- model
-  #X
 
+  if(all(is.na(res))){
+    return(NA)
+  }
+
+  #X
   if(attr(model, "model") %in% pkg.env$sb.splsdrcox){
     t1 <- Sys.time()
     data <- NULL
@@ -2387,6 +2396,18 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
     names(comp_model_lst) <- paste0("comp_",1:max.ncomp)
 
     ## We need to fill models from 1:max.ncomp (it uses max.ncomp to fill the others, if it is NULL, method fail!!!)
+    pb_text <- "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated remaining time: :eta]"
+    pb <- progress::progress_bar$new(format = pb_text,
+                                     total = (max.ncomp-1) * n_run * k_folds,
+                                     complete = "=",   # Caracteres de las iteraciones finalizadas
+                                     incomplete = "-", # Caracteres de las iteraciones no finalizadas
+                                     current = ">",    # Caracter actual
+                                     clear = FALSE,    # Si TRUE, borra la barra cuando termine
+                                     width = 100)      # Ancho de la barra de progreso
+
+    message(paste0("Creating sub-models for ", method, "..."))
+    pb$tick(0)
+
     for(comp in 1:(max.ncomp-1)){
       run_model_lst <- list()
       for(r in 1:n_run){
@@ -2398,6 +2419,7 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
             fold_model <- getSubModel(model = comp_model_lst[[max.ncomp]][[r]][[f]], comp = comp, remove_non_significant = remove_non_significant)
           }
           fold_model_lst[[f]] <- fold_model
+          pb$tick()
         }
         names(fold_model_lst) <- paste0("fold_",1:k_folds)
         run_model_lst[[r]] <- fold_model_lst
@@ -2560,6 +2582,9 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
       }
 
       if(method==pkg.env$splsdrcox){
+        # 4 warnings
+        # 8 warnings
+        # 9 warnings
         lst_all_models <- furrr::future_map(lst_inputs, ~splsdrcox(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
                                                                   Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
                                                                   n.comp = .$comp, eta = eta.list[[.$eta_index]],

@@ -350,7 +350,8 @@ splsdrcox <- function (X, Y,
     }
   )
 
-  while(all(is.na(aux)) & h>0){
+  # keep at least one component
+  while(all(is.na(aux)) & h>1){
     h <- h-1
     aux <- tryCatch(
       # Specifying expression
