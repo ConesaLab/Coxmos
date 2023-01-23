@@ -320,7 +320,6 @@ plsicox_model <- plsicox(X = X_train, Y = Y_train,
                          x.center = T, x.scale = F,
                          y.center = F, y.scale = F,
                          remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
-                         tol = 500, 
                          MIN_EPV = 5, returnData = T, verbose = F)
 ```
 
@@ -679,6 +678,28 @@ As a result, the Kaplan-Meier curve could be plotted.
 
 ```{r, fig.small=T}
 LST_KM_RES_LP$`sPLS-DRCOX-MixOmics`$LST_PLOTS$LP
+```
+
+```{r}
+
+
+
+lst_ggp <- getTestKM.list(lst_models = lst_models, 
+                          X_test = X_test, Y_test = Y_test, 
+                          BREAKTIME = NULL, n.breaks = 20,
+                          lst_cutoff = 0)
+
+lst_cutoff <- getCutoffAutoKM.list(LST_KM_RES_LP)
+
+lst_ggp <- getTestKM.list(lst_models = lst_models, 
+                          X_test = X_test, Y_test = Y_test, 
+                          BREAKTIME = NULL, n.breaks = 20,
+                          lst_cutoff = lst_cutoff)
+
+ggp <- getTestKM(model = lst_models$`sPLS-DRCOX-MixOmics`, 
+                 X_test = X_test, Y_test = Y_test, 
+                 BREAKTIME = NULL, n.breaks = 20,
+                 cutoff = LST_KM_RES_LP$`sPLS-DRCOX-MixOmics`$info_logrank_num$df_nvar_lrtest$Cutoff)
 ```
 
 ### Components

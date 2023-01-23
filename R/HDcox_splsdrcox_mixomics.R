@@ -312,7 +312,7 @@ splsdrcox_mixOmics <- function (X, Y,
                  })
 
   if(all(is.na(PW))){
-    message("sPLS-DRCOX-MixOmics model cannot be computed due to solve(t(P) %*% W. Reduce 'tol' parameter to fix it. Returning NA.")
+    message("sPLS-DRCOX-MixOmics model cannot be computed due to solve(t(P) %*% W). Reduce 'tol' parameter to fix it. Returning NA.")
     invisible(gc())
     return(NA)
   }
