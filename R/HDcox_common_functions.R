@@ -2944,10 +2944,10 @@ eval_models4.0 <- function(lst_models, X_test, Y_test, pred.method, pred.attr = 
       future::plan("multisession", workers = min(length(lst_models), n_cores))
     }
 
-    lst_eval <- furrr::future_map(lst_models, ~evaluation_list_HDcox(model = ., X_test, Y_test, pred.method, pred.attr, times, PARALLEL = F, verbose = verbose, progress_bar))
+    lst_eval <- furrr::future_map(lst_models, ~evaluation_list_HDcox(model = ., X_test = X_test, Y_test = Y_test, pred.method = pred.method, pred.attr = pred.attr, times = times, PARALLEL = F, verbose = verbose, progress_bar = progress_bar))
     future::plan("sequential")
   }else{
-    lst_eval <- purrr::map(lst_models, ~evaluation_list_HDcox(model = ., X_test, Y_test, pred.method, pred.attr, times, PARALLEL = F, verbose, progress_bar))
+    lst_eval <- purrr::map(lst_models, ~evaluation_list_HDcox(model = ., X_test = X_test, Y_test = Y_test, pred.method = pred.method, pred.attr = pred.attr, times = times, PARALLEL = F, verbose = verbose, progress_bar = progress_bar))
   }
 
   names(lst_eval) <- names(lst_models)

@@ -75,7 +75,7 @@ save_ggplot <- function(plot, folder = NULL, name = NULL, wide = T, quality = "4
     name <- paste0(name, ".tiff")
   }
 
-  if(class(plot[1]) %in% "ggsurvplot"){
+  if(class(plot)[1] %in% "ggsurvplot"){
     plot_surv = plot$plot
     if("table" %in% names(plot)){
       p2 = plot$table
@@ -164,7 +164,7 @@ save_ggplot.svg <- function(plot, folder = NULL, name = NULL, wide = T, quality 
     name <- paste0(name, ".svg")
   }
 
-  if(class(plot[1]) %in% "ggsurvplot"){
+  if(class(plot)[1] %in% "ggsurvplot"){
     plot_surv = plot$plot
     if("table" %in% names(plot)){
       p2 = plot$table
@@ -4628,6 +4628,8 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
 
   if(is.null(title)){
     title = attr(model, "model")
+  }else{
+    title = paste0(attr(model, "model"), " - ", title)
   }
 
   #create new variable
