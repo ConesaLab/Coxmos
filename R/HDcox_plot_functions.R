@@ -3718,7 +3718,7 @@ my_primeFactors <- function(num) {
 #' @param lst_models List of HDcox models
 #' @param comp vector of two components
 #' @param top select top X variables
-#' @param ori_data Compute the KM with the original data cutpoints or the normalize
+#' @param ori_data Compute the KM with the original data cutpoints or the normalize (only for 'VAR' type)
 #' @param BREAKTIME Break for time point
 #' @param n.breaks If BREAKTIME is NULL, number of time-breaks
 #' @param only_sig Return only significant log-rank test variables
@@ -3759,7 +3759,7 @@ getAutoKM.list <- function(type = "LP", lst_models, comp = 1:2, top = 10, ori_da
 #' @param model HDcox model
 #' @param comp vector of two components
 #' @param top select top X variables
-#' @param ori_data Compute the KM with the original data cutpoints or the normalize
+#' @param ori_data Compute the KM with the original data cutpoints or the normalize (only for 'VAR' type)
 #' @param BREAKTIME Break for time points
 #' @param n.breaks If BREAKTIME is NULL, number of time-breaks
 #' @param only_sig Return only significant log-rank test variables
@@ -4544,37 +4544,55 @@ plot_survivalplot.qual <- function(data, sdata, cn_variables, name_data = NULL, 
 
 ### TEST KM
 
-#' getAutoKM
+#' getTestKM.list
 #'
+#' @param lst_models List of HDcox model
+#' @param X_test X_test matrix (not normalized)
+#' @param Y_test Y_test matrix
+#' @param lst_cutoff Numeric vector of Cutoff to divide the observations. Recommended to compute optimal cutoff value with getAutoKM() and obtain the vector with getCutoffAutoKM.list().
 #' @param type Kaplan Meier for linear predictors ("LP"), for PLS components ("COMP") or for original variables ("VAR").
-#' @param model HDcox model
-#' @param comp vector of two components
-#' @param top select top X variables
-#' @param ori_data Compute the KM with the original data cutpoints or the normalize
+#' @param ori_data Compute the KM with the original data cutpoints or the normalize (only for 'VAR' type)
 #' @param BREAKTIME Break for time points
 #' @param n.breaks If BREAKTIME is NULL, number of time-breaks
-#' @param only_sig Return only significant log-rank test variables
-#' @param alpha Significant cutoff
-#' @param title Title of the plot
-#' @param verbose Return messages
+#' @param title Kaplan-Meier plot title
+#' @param verbose Show extra messages
 #'
 #' @export
-getTestKM.list <- function(lst_models, X_test, Y_test, lst_cutoff, var_name = "LP", BREAKTIME = NULL, n.breaks = 20){
-  if(!length(lst_models) == length(lst_cutoff) & !length(lst_cutoff) == 1){
+getTestKM.list <- function(lst_models, X_test, Y_test, lst_cutoff, type = "LP", ori_data = T, BREAKTIME = NULL, n.breaks = 20, title = NULL, verbose = F){
+
+  if(!type %in% c("LP", "COMP", "VAR")){
+    stop("Type parameters must be one of the following: LP, COMP or VAR")
+  }
+
+  if(type == "COMP"){
+    if(all(unlist(purrr::map(lst_models, function(x){x$class})) %in% pkg.env$pls_methods)){
+      sub_lst_models <- lst_models
+    }else{
+      sub_lst_models <- lst_models[unlist(purrr::map(lst_models, function(x){x$class})) %in% pkg.env$pls_methods]
+      if(verbose){
+        message(paste0("Model ", paste0(names(lst_models[!unlist(purrr::map(lst_models, function(x){x$class})) %in% pkg.env$pls_methods]), collapse = ", "), " are not based in PLS methodology. Other models computed."))
+      }
+    }
+  }else{
+    sub_lst_models <- lst_models
+  }
+
+  if(!length(sub_lst_models) == length(lst_cutoff) & !length(lst_cutoff) == 1){
     stop("List of models and list of cutoff must have the same length or list of cutoff must be just one value.")
   }
 
+
   LST_GGP <- NULL
   if(length(lst_cutoff)==1){
-    LST_GGP <- purrr::map(lst_models, ~getTestKM(model = .,
+    LST_GGP <- purrr::map(sub_lst_models, ~getTestKM(model = .,
                                                  X_test = X_test, Y_test = Y_test,
-                                                 cutoff = lst_cutoff, var_name = var_name,
-                                                 BREAKTIME = BREAKTIME, n.breaks = n.breaks))
+                                                 cutoff = lst_cutoff, type = type, ori_data = ori_data,
+                                                 BREAKTIME = BREAKTIME, n.breaks = n.breaks, title = title))
   }else{
-    LST_GGP <- purrr::map2(.x = lst_models, .y = lst_cutoff, ~getTestKM(model = .x,
+    LST_GGP <- purrr::map2(.x = sub_lst_models, .y = lst_cutoff, ~getTestKM(model = .x,
                                                                         X_test = X_test, Y_test = Y_test,
-                                                                        cutoff = .y, var_name = var_name,
-                                                                        BREAKTIME = BREAKTIME, n.breaks = n.breaks))
+                                                                        cutoff = .y, type = type, ori_data = ori_data,
+                                                                        BREAKTIME = BREAKTIME, n.breaks = n.breaks, title = title))
   }
 
   return(LST_GGP)
@@ -4584,15 +4602,21 @@ getTestKM.list <- function(lst_models, X_test, Y_test, lst_cutoff, var_name = "L
 #' getTestKM
 #'
 #' @param model HDcox model
-#' @param X_test X_test (not normalized)
-#' @param Y_test select top X variables
-#' @param cutoff Compute the KM with the original data cutpoints or the normalize
-#' @param var_name Break for time points
-#' @param BREAKTIME If BREAKTIME is NULL, number of time-breaks
-#' @param n.breaks Return only significant log-rank test variables
+#' @param X_test X_test matrix (not normalized)
+#' @param Y_test Y_test matrix
+#' @param cutoff Cutoff to divide the observations. Recommended to compute optimal cutoff value with getAutoKM().
+#' @param type Kaplan Meier for linear predictors ("LP"), for PLS components ("COMP") or for original variables ("VAR").
+#' @param ori_data Compute the KM with the original data cutpoints or the normalize (only for 'VAR' type)
+#' @param BREAKTIME Break for time points
+#' @param n.breaks If BREAKTIME is NULL, number of time-breaks
+#' @param title Kaplan-Meier plot title
 #'
 #' @export
-getTestKM <- function(model, X_test, Y_test, cutoff, var_name = "LP", BREAKTIME = NULL, n.breaks = 20){
+getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, BREAKTIME = NULL, n.breaks = 20, title = NULL){
+
+  if(!type %in% c("LP", "COMP", "VAR")){
+    stop("Type parameters must be one of the following: LP, COMP or VAR")
+  }
 
   if(!is.numeric(cutoff)){
     stop("cutoff parameter must be numeric.")
@@ -4602,34 +4626,113 @@ getTestKM <- function(model, X_test, Y_test, cutoff, var_name = "LP", BREAKTIME 
     BREAKTIME <- (max(Y_test[,"time"]) - min(Y_test[,"time"])) / n.breaks
   }
 
-  #predict scores X_test
-  test_score <- predict(model, newdata = X_test)
-  #predict LP using scores
-  test_lp <- predict(model$survival_model$fit, newdata = as.data.frame(test_score))
+  if(is.null(title)){
+    title = attr(model, "model")
+  }
 
   #create new variable
-  txt_greater <- paste0("greater than ", cutoff)
-  txt_lower <- paste0("lesser/equal than ", cutoff)
+  if(type=="LP"){
+    #predict scores X_test
+    test_score <- predict(model, newdata = X_test)
+    #predict LP using scores
+    test_lp <- predict(model$survival_model$fit, newdata = as.data.frame(test_score))
 
-  LP <- ifelse(test_lp>cutoff, txt_greater, txt_lower)
-  LP <- factor(LP)
+    txt_greater <- paste0("greater than ", cutoff)
+    txt_lower <- paste0("lesser/equal than ", cutoff)
 
-  d <- as.data.frame(LP)
-  colnames(d) <- var_name
+    LP <- ifelse(test_lp>cutoff, txt_greater, txt_lower)
+    LP <- factor(LP)
 
-  ggp <- plot_survivalplot.qual(d,
-                                sdata = data.frame(Y_test),
-                                BREAKTIME = BREAKTIME,
-                                cn_variables = var_name,
-                                name_data = NULL, title = NULL)$LP
+    d <- as.data.frame(LP)
+    colnames(d) <- type
 
-  return(ggp)
+    ggp <- plot_survivalplot.qual(d,
+                                  sdata = data.frame(Y_test),
+                                  BREAKTIME = BREAKTIME,
+                                  cn_variables = type,
+                                  name_data = NULL, title = title)[[type]]
+
+    return(ggp)
+
+  }else if(type=="COMP"){
+    lst_test_lp <- NULL
+    lst_ggp <- NULL
+
+    #predict scores X_test
+    test_score <- predict(model, newdata = X_test)
+
+    for(cn in colnames(test_score)){
+      index = which(cn==colnames(test_score))
+      #get LP for individual components
+      lst_test_lp[[cn]] <- test_score[,cn,drop=F] %*% model$survival_model$fit$coefficients[cn]
+      colnames(lst_test_lp[[cn]]) <- cn
+
+      txt_greater <- paste0("greater than ", cutoff[[index]])
+      txt_lower <- paste0("lesser/equal than ", cutoff[[index]])
+
+      LP <- ifelse(lst_test_lp[[cn]]>cutoff[[index]], txt_greater, txt_lower)
+      LP <- factor(LP)
+
+      d <- as.data.frame(LP)
+      colnames(d) <- cn
+
+      lst_ggp[[cn]] <- plot_survivalplot.qual(d,
+                                              sdata = data.frame(Y_test),
+                                              BREAKTIME = BREAKTIME,
+                                              cn_variables = cn,
+                                              name_data = NULL, title = title)[[cn]]
+    }
+
+    return(lst_ggp)
+
+  }else if(type=="VAR"){
+
+    X_test <- X_test[,names(cutoff),drop=F]
+    lst_ggp <- NULL
+    if(!ori_data){
+      X_test <- scale(X_test, center = model$X$x.mean[colnames(X_test)], scale = model$X$x.sd[colnames(X_test)])
+    }
+
+    for(cn in colnames(X_test)){
+
+        txt_greater <- paste0("greater than ", cutoff[[cn]])
+        txt_lower <- paste0("lesser/equal than ", cutoff[[cn]])
+
+        LP <- ifelse(X_test[[cn]]>cutoff[[cn]], txt_greater, txt_lower)
+        LP <- factor(LP)
+
+        d <- as.data.frame(LP)
+        colnames(d) <- cn
+
+        lst_ggp[[cn]] <- plot_survivalplot.qual(d,
+                                                sdata = data.frame(Y_test),
+                                                BREAKTIME = BREAKTIME,
+                                                cn_variables = cn,
+                                                name_data = NULL, title = title)[[cn]]
+    }
+
+    return(lst_ggp)
+
+  }
+
 }
 
+#' getCutoffAutoKM.list
+#'
+#' @param lst_results result of getAutoKM,list().
+#'
+#' @export
 getCutoffAutoKM.list <- function(lst_results){
-  LST_RES <- unlist(purrr::map(lst_results, ~getCutoffAutoKM(.)))
+  LST_RES <- purrr::map(lst_results, ~getCutoffAutoKM(.))
 }
 
+#' getCutoffAutoKM
+#'
+#' @param result result of getAutoKM().
+#'
+#' @export
 getCutoffAutoKM <- function(result){
-  return(result$info_logrank_num$df_nvar_lrtest$Cutoff)
+  value <- result$info_logrank_num$df_nvar_lrtest$Cutoff
+  names(value) <- result$info_logrank_num$df_nvar_lrtest$Variable
+  return(value)
 }

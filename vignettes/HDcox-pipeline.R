@@ -162,7 +162,6 @@ plsicox_model <- plsicox(X = X_train, Y = Y_train,
                          x.center = T, x.scale = F,
                          y.center = F, y.scale = F,
                          remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
-                         tol = 500, 
                          MIN_EPV = 5, returnData = T, verbose = F)
 
 ## -----------------------------------------------------------------------------
@@ -383,6 +382,18 @@ LST_KM_RES_LP <- getAutoKM.list(type = "LP",
 LST_KM_RES_LP$`sPLS-DRCOX-MixOmics`$LST_PLOTS$LP
 
 ## -----------------------------------------------------------------------------
+lst_cutoff <- getCutoffAutoKM.list(LST_KM_RES_LP)
+
+LST_KM_TEST_LP <- getTestKM.list(lst_models = lst_models, 
+                                 X_test = X_test, Y_test = Y_test, 
+                                 type = "LP",
+                                 BREAKTIME = NULL, n.breaks = 20,
+                                 lst_cutoff = lst_cutoff)
+
+## ---- fig.small=T-------------------------------------------------------------
+LST_KM_TEST_LP$`sPLS-DRCOX-MixOmics`
+
+## -----------------------------------------------------------------------------
 LST_KM_RES_COMP <- getAutoKM.list(type = "COMP",
                                   lst_models = lst_models,
                                   comp = 1:4,
@@ -397,17 +408,41 @@ LST_KM_RES_COMP$`sPLS-DRCOX-MixOmics`$LST_PLOTS$comp_1
 LST_KM_RES_COMP$`sPLS-DRCOX-MixOmics`$LST_PLOTS$comp_2
 
 ## -----------------------------------------------------------------------------
+lst_cutoff <- getCutoffAutoKM.list(LST_KM_RES_COMP)
+
+LST_KM_TEST_COMP <- getTestKM.list(lst_models = lst_models, 
+                                   X_test = X_test, Y_test = Y_test, 
+                                   type = "COMP",
+                                   BREAKTIME = NULL, n.breaks = 20,
+                                   lst_cutoff = lst_cutoff)
+
+## ---- fig.small=T-------------------------------------------------------------
+LST_KM_TEST_COMP$`sPLS-DRCOX-MixOmics`$comp_1
+
+## -----------------------------------------------------------------------------
 LST_KM_RES_VAR <- getAutoKM.list(type = "VAR",
                                  lst_models = lst_models,
                                  comp = 1:10, #select how many components you want to compute for the pseudo beta
                                  top = 10,
-                                 ori_data = T,
+                                 ori_data = T, #original data selected
                                  BREAKTIME = NULL,
                                  only_sig = T, alpha = 0.05)
 
 ## ---- fig.small=T-------------------------------------------------------------
 LST_KM_RES_VAR$`sPLS-DRCOX-MixOmics`$LST_PLOTS$hsa_miR_222
 LST_KM_RES_VAR$`sPLS-DRCOX-MixOmics`$LST_PLOTS$hsa_miR_182
+
+## -----------------------------------------------------------------------------
+lst_cutoff <- getCutoffAutoKM.list(LST_KM_RES_VAR)
+
+LST_KM_TEST_VAR <- getTestKM.list(lst_models = lst_models, 
+                                  X_test = X_test, Y_test = Y_test, 
+                                  type = "VAR", ori_data = T,
+                                  BREAKTIME = NULL, n.breaks = 20,
+                                  lst_cutoff = lst_cutoff)
+
+## ---- fig.small=T-------------------------------------------------------------
+LST_KM_TEST_VAR$`sPLS-DRCOX-MixOmics`$hsa_miR_222
 
 ## -----------------------------------------------------------------------------
 new_pat <- X_test[1,,drop=F]

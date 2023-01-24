@@ -27,7 +27,7 @@ getAutoKM.list(
 
 \item{top}{select top X variables}
 
-\item{ori_data}{Compute the KM with the original data cutpoints or the normalize}
+\item{ori_data}{Compute the KM with the original data cutpoints or the normalize (only for 'VAR' type)}
 
 \item{BREAKTIME}{Break for time point}
 

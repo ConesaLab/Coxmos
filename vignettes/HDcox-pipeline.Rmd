@@ -679,27 +679,24 @@ As a result, the Kaplan-Meier curve could be plotted.
 ```{r, fig.small=T}
 LST_KM_RES_LP$`sPLS-DRCOX-MixOmics`$LST_PLOTS$LP
 ```
+After generating a Kaplan-Meier curve for the model, the cutoff value, which is used to divide the observations into two groups, can be used to evaluate how the test data is classified. The vector of cutoffs for multiple models, when "getAutoKM.list()" is applied, can be retrieved by using the function "getCutoffAutoKM.list()" and passing the output of "getAutoKM.list()" as a parameter.
+
+Once the vector is obtained, the function "getTestKM.list()" or "getTestKM()" can be run with the list of models, the X test data, Y test data, the list of cutoffs or a single value, and the desired number of breaks for the new Kaplan-Meier plot.
+
+A log-rank test will be displayed to determine if the chosen cutoff is an effective way to split the data into groups with higher and lower risk.
 
 ```{r}
-
-
-
-lst_ggp <- getTestKM.list(lst_models = lst_models, 
-                          X_test = X_test, Y_test = Y_test, 
-                          BREAKTIME = NULL, n.breaks = 20,
-                          lst_cutoff = 0)
-
 lst_cutoff <- getCutoffAutoKM.list(LST_KM_RES_LP)
 
-lst_ggp <- getTestKM.list(lst_models = lst_models, 
-                          X_test = X_test, Y_test = Y_test, 
-                          BREAKTIME = NULL, n.breaks = 20,
-                          lst_cutoff = lst_cutoff)
+LST_KM_TEST_LP <- getTestKM.list(lst_models = lst_models, 
+                                 X_test = X_test, Y_test = Y_test, 
+                                 type = "LP",
+                                 BREAKTIME = NULL, n.breaks = 20,
+                                 lst_cutoff = lst_cutoff)
+```
 
-ggp <- getTestKM(model = lst_models$`sPLS-DRCOX-MixOmics`, 
-                 X_test = X_test, Y_test = Y_test, 
-                 BREAKTIME = NULL, n.breaks = 20,
-                 cutoff = LST_KM_RES_LP$`sPLS-DRCOX-MixOmics`$info_logrank_num$df_nvar_lrtest$Cutoff)
+```{r, fig.small=T}
+LST_KM_TEST_LP$`sPLS-DRCOX-MixOmics`
 ```
 
 ### Components
@@ -721,6 +718,19 @@ LST_KM_RES_COMP <- getAutoKM.list(type = "COMP",
 LST_KM_RES_COMP$`sPLS-DRCOX-MixOmics`$LST_PLOTS$comp_1
 LST_KM_RES_COMP$`sPLS-DRCOX-MixOmics`$LST_PLOTS$comp_2
 ```
+```{r}
+lst_cutoff <- getCutoffAutoKM.list(LST_KM_RES_COMP)
+
+LST_KM_TEST_COMP <- getTestKM.list(lst_models = lst_models, 
+                                   X_test = X_test, Y_test = Y_test, 
+                                   type = "COMP",
+                                   BREAKTIME = NULL, n.breaks = 20,
+                                   lst_cutoff = lst_cutoff)
+```
+
+```{r, fig.small=T}
+LST_KM_TEST_COMP$`sPLS-DRCOX-MixOmics`$comp_1
+```
 
 ### Original variables
 
@@ -733,7 +743,7 @@ LST_KM_RES_VAR <- getAutoKM.list(type = "VAR",
                                  lst_models = lst_models,
                                  comp = 1:10, #select how many components you want to compute for the pseudo beta
                                  top = 10,
-                                 ori_data = T,
+                                 ori_data = T, #original data selected
                                  BREAKTIME = NULL,
                                  only_sig = T, alpha = 0.05)
 ```
@@ -741,6 +751,20 @@ LST_KM_RES_VAR <- getAutoKM.list(type = "VAR",
 ```{r, fig.small=T}
 LST_KM_RES_VAR$`sPLS-DRCOX-MixOmics`$LST_PLOTS$hsa_miR_222
 LST_KM_RES_VAR$`sPLS-DRCOX-MixOmics`$LST_PLOTS$hsa_miR_182
+```
+
+```{r}
+lst_cutoff <- getCutoffAutoKM.list(LST_KM_RES_VAR)
+
+LST_KM_TEST_VAR <- getTestKM.list(lst_models = lst_models, 
+                                  X_test = X_test, Y_test = Y_test, 
+                                  type = "VAR", ori_data = T,
+                                  BREAKTIME = NULL, n.breaks = 20,
+                                  lst_cutoff = lst_cutoff)
+```
+
+```{r, fig.small=T}
+LST_KM_TEST_VAR$`sPLS-DRCOX-MixOmics`$hsa_miR_222
 ```
 
 # New patients
