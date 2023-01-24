@@ -265,6 +265,11 @@ checkXY.class <- function(X, Y, verbose = F){
       stop("Y data is not a matrix or a data.frame")
     }
   }
+
+  if(any(is.na(Y))){
+    stop("Y data has one or more NA values. Remove those patients in Y and X matrices.")
+  }
+
   return(list(X = X, Y = Y))
 }
 
@@ -2195,6 +2200,13 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
   message(paste0("Training all possible models for ", method, "..."))
   pb$tick(0)
 
+  #### ### ### ### ### ### #
+  # UPDATING GLOBALS SIZE #
+  #### ### ### ### ### ### #
+  MB = 4000
+  bytes = MB*1024^2
+  options(future.globals.maxSize = bytes)
+
   #### ### ### ### #
   # COMP-REP-FOLDS #
   #### ### ### ### #
@@ -2429,6 +2441,13 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
       comp_model_lst[[comp]] <- run_model_lst
     }
 
+    #### ### ### ### ### ### #
+    # UPDATING GLOBALS SIZE #
+    #### ### ### ### ### ### #
+    MB = 500
+    bytes = MB*1024^2
+    options(future.globals.maxSize = bytes)
+
     return(comp_model_lst)
   }
 
@@ -2531,6 +2550,13 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
       comp_model_lst[[c]] <- run_model_lst
     }
     names(comp_model_lst) <- paste0("alpha_",EN.alpha.list)
+
+    #### ### ### ### ### ### #
+    # UPDATING GLOBALS SIZE #
+    #### ### ### ### ### ### #
+    MB = 500
+    bytes = MB*1024^2
+    options(future.globals.maxSize = bytes)
 
     return(comp_model_lst)
   }
@@ -2688,10 +2714,16 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
       comp_model_lst[[comp]] <- eta_model_lst
     }
 
+    #### ### ### ### ### ### #
+    # UPDATING GLOBALS SIZE #
+    #### ### ### ### ### ### #
+    MB = 500
+    bytes = MB*1024^2
+    options(future.globals.maxSize = bytes)
+
     return(list(comp_model_lst = comp_model_lst, info = info))
 
   }
-
 }
 
 #### ### ### #
