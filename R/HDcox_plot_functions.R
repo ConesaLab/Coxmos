@@ -81,7 +81,7 @@ save_ggplot <- function(plot, folder = NULL, name = NULL, wide = T, quality = "4
       p2 = plot$table
       plot_surv = cowplot::plot_grid(plot_surv,p2,align = "v",ncol =1,rel_heights = c(4,1))
     }
-    ggsave(plot = plot_surv, filename = name, width = width, height = height, device='tiff', dpi=dpi)
+    ggsave(plot = plot_surv, filename = paste0(folder,name), width = width, height = height, device='tiff', dpi=dpi)
   }else{
     ggsave(plot = plot, filename = paste0(folder,name), width = width, height = height, device='tiff', dpi=dpi)
   }
@@ -170,7 +170,7 @@ save_ggplot.svg <- function(plot, folder = NULL, name = NULL, wide = T, quality 
       p2 = plot$table
       plot_surv = cowplot::plot_grid(plot_surv,p2,align = "v",ncol =1,rel_heights = c(4,1))
     }
-    ggsave(plot = plot_surv, filename = name, width = width, height = height, device='svg', dpi=dpi)
+    ggsave(plot = plot_surv, filename = paste0(folder,name), width = width, height = height, device='svg', dpi=dpi)
   }else{
     ggsave(plot = plot, filename = paste0(folder,name), width = width, height = height, device='svg', dpi=dpi)
   }
@@ -4624,7 +4624,8 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
   }
 
   if(!is.numeric(cutoff)){
-    stop("cutoff parameter must be numeric.")
+    message("cutoff parameter must be numeric. Returning NA")
+    return(NA)
   }
 
   if(is.null(BREAKTIME)){
@@ -4739,7 +4740,13 @@ getCutoffAutoKM.list <- function(lst_results){
 #'
 #' @export
 getCutoffAutoKM <- function(result){
+
+  if(is.null(result$info_logrank_num$df_nvar_lrtest)){
+    return(NULL)
+  }
+
   value <- result$info_logrank_num$df_nvar_lrtest$Cutoff
+
   names(value) <- result$info_logrank_num$df_nvar_lrtest$Variable
   return(value)
 }
