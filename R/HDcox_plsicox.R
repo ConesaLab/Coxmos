@@ -356,7 +356,7 @@ plsicox <- function (X, Y,
   }
 
   if(is.null(P) | is.null(W)){
-    message("PLS-ICOX model cannot be computed because P or W vectors are NULL. Returning NA.")
+    message(paste0(pkg.env$plsicox, " model cannot be computed because P or W vectors are NULL. Returning NA."))
     invisible(gc())
     return(NA)
   }
@@ -373,7 +373,7 @@ plsicox <- function (X, Y,
                 })
 
   if(all(is.na(PW))){
-    message("PLS-ICOX model cannot be computed due to solve(t(P) %*% W). Reduce 'tol' parameter to fix it. Returning NA.")
+    message(paste0(pkg.env$plsicox, " model cannot be computed due to solve(t(P) %*% W). Reduce 'tol' parameter to fix it. Returning NA."))
     invisible(gc())
     return(NA)
   }

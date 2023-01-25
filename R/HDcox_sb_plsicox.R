@@ -17,6 +17,7 @@
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.
 #' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
 #' @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
+#' @param tol Numeric. Tolerance for solving: solve(t(P) %*% W)
 #' @param MIN_EPV Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.
 #' @param returnData Logical. Return original and normalized X and Y matrices.
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
@@ -73,7 +74,7 @@ sb.plsicox <- function (X, Y,
                         x.center = TRUE, x.scale = FALSE,
                         y.center = FALSE, y.scale = FALSE,
                         remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
-                        remove_non_significant = F, alpha = 0.05,
+                        remove_non_significant = F, alpha = 0.05, tol = 1e-15,
                         MIN_EPV = 5, returnData = T, verbose = F){
 
   t1 <- Sys.time()
@@ -121,7 +122,7 @@ sb.plsicox <- function (X, Y,
     lst_sb.pls[[b]] <- plsicox(X = Xh[[b]], Y = Yh, n.comp = n.comp,
                                x.scale = F, x.center = F, y.scale = F, y.center = F,
                                remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL, #zero_var already checked
-                               remove_non_significant = remove_non_significant, alpha = alpha,
+                               remove_non_significant = remove_non_significant, alpha = alpha, tol = tol,
                                returnData = F, verbose = verbose)
   }
 
@@ -200,6 +201,7 @@ sb.plsicox <- function (X, Y,
 #' @param fast_mode Logical. If fast_mode = TRUE, for each run, only one fold is evaluated simultaneously. If fast_mode = FALSE, for each run, all linear predictors are computed for test observations. Once all have their linear predictors, the evaluation is perform across all the observations together (default: FALSE).
 #' @param MIN_EPV Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.
 #' @param return_models Logical. Return all models computed in cross validation.
+#' @param tol Numeric. Tolerance for solving: solve(t(P) %*% W)
 #' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption.
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #' @param seed Number. Seed value for perform the runs/folds divisions.
@@ -216,7 +218,7 @@ cv.sb.plsicox <- function(X, Y,
                           w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
                           MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                           pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
-                          MIN_EPV = 5, return_models = F,
+                          MIN_EPV = 5, return_models = F, tol = 1e-15,
                           PARALLEL = F, verbose = F, seed = 123){
 
   t1 <- Sys.time()
@@ -272,7 +274,7 @@ cv.sb.plsicox <- function(X, Y,
                                    lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
                                    max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL,
                                    n_run = n_run, k_folds = k_folds,
-                                   remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
+                                   remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL, tol = tol,
                                    remove_non_significant = remove_non_significant, alpha = alpha, MIN_EPV = MIN_EPV,
                                    x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
                                    total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
@@ -414,6 +416,7 @@ cv.sb.plsicox <- function(X, Y,
 #' @param MIN_EPV Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.
 #' @param returnData Logical. Return original and normalized X and Y matrices.
 #' @param return_models Logical. Return all models computed in cross validation.
+#' @param tol Numeric. Tolerance for solving: solve(t(P) %*% W)
 #' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption.
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #' @param seed Number. Seed value for perform the runs/folds divisions.
@@ -430,7 +433,7 @@ fast.cv.sb.plsicox <- function(X, Y,
                                w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
                                MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                                pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
-                               MIN_EPV = 5, returnData = T, return_models = F,
+                               MIN_EPV = 5, returnData = T, return_models = F, tol = 1e-15,
                                PARALLEL = F, verbose = F, seed = 123){
 
   t1 <- Sys.time()
@@ -497,7 +500,7 @@ fast.cv.sb.plsicox <- function(X, Y,
   lst_sb.pls <- list()
   for(b in names(Xh)){
 
-    message(paste0("Running cross validation PLS-ICOX for block: ", b, "\n"))
+    message(paste0("Running cross validation ", pkg.env$sb.plsicox, " for block: ", b, "\n"))
 
     cv.splsdrcox_res <- cv.plsicox(X = Xh[[b]], Y = Yh,
                                    max.ncomp = max.ncomp,
@@ -507,7 +510,7 @@ fast.cv.sb.plsicox <- function(X, Y,
                                    x.scale = x.scale[[b]], x.center = x.center[[b]], y.scale = y.scale, y.center = y.center,
                                    remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
                                    remove_non_significant = remove_non_significant,
-                                   fast_mode = fast_mode, return_models = return_models,
+                                   fast_mode = fast_mode, return_models = return_models, tol = tol,
                                    MIN_EPV = MIN_EPV, verbose = verbose,
                                    pred.attr = pred.attr, pred.method = pred.method, seed = seed, PARALLEL = PARALLEL)
 
@@ -515,7 +518,7 @@ fast.cv.sb.plsicox <- function(X, Y,
                                Y = Yh,
                                n.comp = cv.splsdrcox_res$opt.comp,
                                remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
-                               remove_non_significant = remove_non_significant, alpha = alpha,
+                               remove_non_significant = remove_non_significant, alpha = alpha, tol = tol,
                                returnData = F,
                                x.center = x.center[[b]], x.scale = x.scale[[b]],
                                y.scale = y.scale, y.center = y.center,

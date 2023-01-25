@@ -17,6 +17,8 @@
 #' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, remove_zero_variance variables will be removed.
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.
 #' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
+#' @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
+#' @param tol Numeric. Tolerance for solving: solve(t(P) %*% W)
 #' @param MIN_NVAR Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
 #' @param MAX_NVAR Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
 #' @param n.cut_points Numeric. Number of start cut points for look the optimal number of variable. 2 cut points mean start with the minimum and maximum. 3 start with minimum, maximum and middle point...(default: 3)
@@ -96,7 +98,7 @@ mb.splsdacox <- function (X, Y,
                           x.center = TRUE, x.scale = FALSE,
                           y.center = FALSE, y.scale = FALSE,
                           remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
-                          remove_non_significant = T,
+                          remove_non_significant = T, alpha = 0.05, tol = 1e-15,
                           MIN_NVAR = 10, MAX_NVAR = 10000, n.cut_points = 5,
                           MIN_AUC_INCREASE = 0.01,
                           EVAL_METHOD = "AUC", pred.method = "cenROC", max.iter = 200,
@@ -242,7 +244,7 @@ mb.splsdacox <- function (X, Y,
 
   update_colnames <- paste0("comp_", 1:ncol(mb.splsda$variates[[1]]))
   colnames(data) <- apply(expand.grid(update_colnames, names(Xh)), 1, paste, collapse="_")
-  cox_model <- cox(X = data, Y = Yh, x.center = F, x.scale = F, y.center = F, y.scale = F, remove_non_significant = remove_non_significant, FORCE = T)
+  cox_model <- cox(X = data, Y = Yh, x.center = F, x.scale = F, y.center = F, y.scale = F, alpha = alpha, remove_non_significant = remove_non_significant, FORCE = T)
 
   #RETURN a MODEL with ALL significant Variables from complete, deleting one by one in backward method
   removed_variables <- NULL
@@ -294,7 +296,33 @@ mb.splsdacox <- function (X, Y,
 
     for(c in 1:n.comp_used){
       names <- rownames(mb.splsda$loadings[[i]])[which(mb.splsda$loadings[[i]][,c,drop=F]!=0)]
-      aux <- Wmat[[i]][names,c,drop=F] %*% solve(t(Pmat[[i]][names,c,drop=F]) %*% Wmat[[i]][names,c,drop=F])
+
+      if(is.null(Pmat[[i]][names,c,drop=F]) | is.null(Wmat[[i]][names,c,drop=F])){
+        message(paste0(pkg.env$mb.splsdacox, " model cannot be computed because P or W vectors are NULL. Returning NA."))
+        invisible(gc())
+        return(NA)
+      }
+
+      #aux <- Wmat[[i]][names,c,drop=F] %*% solve(t(Pmat[[i]][names,c,drop=F]) %*% Wmat[[i]][names,c,drop=F])
+      #W.star
+      #sometimes solve(t(P) %*% W)
+      #system is computationally singular: reciprocal condition number = 6.24697e-18
+      PW <- tryCatch(expr = {solve(t(Pmat[[i]][names,c,drop=F]) %*% Wmat[[i]][names,c,drop=F], tol = tol)},
+                     error = function(e){
+                       if(verbose){
+                         message(e$message)
+                       }
+                       NA
+                     })
+
+      if(all(is.na(PW))){
+        message(paste0(pkg.env$mb.splsdacox," model cannot be computed due to solve(t(P) %*% W). Reduce 'tol' parameter to fix it. Returning NA."))
+        invisible(gc())
+        return(NA)
+      }
+
+      # What happen when you cannot compute W.star but you have P and W?
+      aux <- Wmat[[i]][names,c,drop=F] %*% PW
       aux_W.star[names,c] = aux
     }
 
@@ -427,6 +455,7 @@ mb.splsdacox <- function (X, Y,
 #' @param fast_mode Logical. If fast_mode = TRUE, for each run, only one fold is evaluated simultaneously. If fast_mode = FALSE, for each run, all linear predictors are computed for test observations. Once all have their linear predictors, the evaluation is perform across all the observations together (default: FALSE).
 #' @param MIN_EPV Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.
 #' @param return_models Logical. Return all models computed in cross validation.
+#' @param tol Numeric. Tolerance for solving: solve(t(P) %*% W)
 #' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption.
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #' @param seed Number. Seed value for perform the runs/folds divisions.
@@ -445,7 +474,7 @@ cv.mb.splsdacox <- function(X, Y,
                             w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
                             MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                             pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
-                            MIN_EPV = 5, return_models = F,
+                            MIN_EPV = 5, return_models = F, tol = 1e-15,
                             PARALLEL = F, verbose = F, seed = 123){
 
   t1 <- Sys.time()

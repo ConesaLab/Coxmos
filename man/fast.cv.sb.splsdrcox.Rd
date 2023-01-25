@@ -34,6 +34,7 @@ fast.cv.sb.splsdrcox(
   MIN_EPV = 5,
   returnData = T,
   return_models = F,
+  tol = 1e-15,
   PARALLEL = F,
   verbose = F,
   seed = 123
@@ -97,6 +98,8 @@ fast.cv.sb.splsdrcox(
 \item{returnData}{Logical. Return original and normalized X and Y matrices.}
 
 \item{return_models}{Logical. Return all models computed in cross validation.}
+
+\item{tol}{Numeric. Tolerance for solving: solve(t(P) \%*\% W)}
 
 \item{PARALLEL}{Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption.}
 

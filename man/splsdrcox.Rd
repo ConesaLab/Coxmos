@@ -18,6 +18,7 @@ splsdrcox(
   toKeep.zv = NULL,
   remove_non_significant = F,
   alpha = 0.05,
+  tol = 1e-15,
   MIN_EPV = 5,
   returnData = T,
   verbose = F
@@ -49,6 +50,8 @@ splsdrcox(
 \item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
 
 \item{alpha}{Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).}
+
+\item{tol}{Numeric. Tolerance for solving: solve(t(P) \%*\% W)}
 
 \item{MIN_EPV}{Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.}
 

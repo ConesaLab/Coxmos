@@ -220,7 +220,7 @@ splsdacox_mixOmics <- function (X, Y,
   P <- pp_splsDR
 
   if(is.null(P) | is.null(W)){
-    message("sPLS-DACOX model cannot be computed because P or W vectors are NULL. Returning NA.")
+    message(paste0(pkg.env$splsdacox_mixomics, " model cannot be computed because P or W vectors are NULL. Returning NA."))
     invisible(gc())
     return(NA)
   }
@@ -237,7 +237,7 @@ splsdacox_mixOmics <- function (X, Y,
                  })
 
   if(all(is.na(PW))){
-    message("sPLS-DACOX model cannot be computed due to solve(t(P) %*% W). Reduce 'tol' parameter to fix it. Returning NA.")
+    message(paste0(pkg.env$splsdacox_mixomics, " model cannot be computed due to solve(t(P) %*% W). Reduce 'tol' parameter to fix it. Returning NA."))
     invisible(gc())
     return(NA)
   }

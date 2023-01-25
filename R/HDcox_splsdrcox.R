@@ -18,6 +18,7 @@
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.
 #' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
 #' @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
+#' @param tol Numeric. Tolerance for solving: solve(t(P) %*% W)
 #' @param MIN_EPV Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.
 #' @param returnData Logical. Return original and normalized X and Y matrices.
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
@@ -85,7 +86,7 @@ splsdrcox <- function (X, Y,
                       x.center = TRUE, x.scale = FALSE,
                       y.center = FALSE, y.scale = FALSE,
                       remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
-                      remove_non_significant = F, alpha = 0.05,
+                      remove_non_significant = F, alpha = 0.05, tol = 1e-15,
                       MIN_EPV = 5, returnData = T, verbose = F){
 
   t1 <- Sys.time()
@@ -259,7 +260,7 @@ splsdrcox <- function (X, Y,
       expr = {
         pls2(X = Xa, Y = DR_coxph_ori, n.comp = min(h, ncol(Xa)),
              x.center = F, x.scale = F, y.center = F, y.scale = F,
-             it = 10, tol = 1e-10)
+             it = 10, tol.W.star = tol, verbose = verbose)
       },
       # Specifying error message
       error = function(e){
@@ -464,7 +465,7 @@ splsdrcox.modelPerComponent <- function (X, Y,
                                         n.comp = 4, eta = 0.5,
                                         x.center = TRUE, x.scale = FALSE,
                                         y.center = FALSE, y.scale = FALSE,
-                                        remove_near_zero_variance = T, toKeep.zv = NULL,
+                                        remove_near_zero_variance = T, toKeep.zv = NULL, tol = 1e-15,
                                         returnData = T, remove_zero_variance = F, verbose = F){
 
   #### REQUIREMENTS
@@ -632,7 +633,7 @@ splsdrcox.modelPerComponent <- function (X, Y,
     #plsfit2 <- mixOmics::pls(Xa, DR_coxph_ori, ncomp = min(h, ncol(Xa)), scale = F)
     plsfit <- pls2(X = Xa, Y = DR_coxph_ori, n.comp = min(h, ncol(Xa)),
                    x.center = F, x.scale = F, y.center = F, y.scale = F,
-                   it = 1, tol = 1e-10)
+                   it = 1, tol.W.star = tol, verbose = verbose)
     plsfit_list[[h]] <- plsfit
 
     XaNA <- is.na(Xa) #T is NA
@@ -788,6 +789,7 @@ splsdrcox.modelPerComponent <- function (X, Y,
 #' @param fast_mode Logical. If fast_mode = TRUE, for each run, only one fold is evaluated simultaneously. If fast_mode = FALSE, for each run, all linear predictors are computed for test observations. Once all have their linear predictors, the evaluation is perform across all the observations together (default: FALSE).
 #' @param MIN_EPV Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.
 #' @param return_models Logical. Return all models computed in cross validation.
+#' @param tol Numeric. Tolerance for solving: solve(t(P) %*% W)
 #' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption.
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #' @param seed Number. Seed value for perform the runs/folds divisions.
@@ -805,7 +807,7 @@ cv.splsdrcox <- function (X, Y,
                          w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
                          MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                          pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
-                         MIN_EPV = 5, return_models = F,
+                         MIN_EPV = 5, return_models = F, tol = 1e-15,
                          PARALLEL = F, verbose = F, seed = 123){
 
   t1 <- Sys.time()
@@ -863,7 +865,7 @@ cv.splsdrcox <- function (X, Y,
                                   n_run = n_run, k_folds = k_folds,
                                   x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
                                   remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
-                                  remove_non_significant = remove_non_significant,
+                                  remove_non_significant = remove_non_significant, tol = tol,
                                   total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
 
   # lst_model <- get_HDCOX_models(method = pkg.env$splsdrcox,
@@ -1078,7 +1080,7 @@ cv.splsdrcox_class = function(pls_model, ...) {
 ### ###
 
 # NA VALUES AS 0, then NA again
-pls2 <- function(X, Y, n.comp, x.center = T, x.scale = F, y.center = T, y.scale = F, it = 500, tol = 1e-20){
+pls2 <- function(X, Y, n.comp, x.center = T, x.scale = F, y.center = T, y.scale = F, it = 500, tol = 1e-20, tol.W.star = 1e-20, verbose = F){
 
   if(n.comp >= nrow(X)) {
     n.comp <- qr(X)$rank-1
@@ -1201,7 +1203,29 @@ pls2 <- function(X, Y, n.comp, x.center = T, x.scale = F, y.center = T, y.scale 
     Wnorm <- cbind(Wnorm, whn)
     Cnorm <- cbind(Cnorm, chn)
 
-    W.star <- W %*% solve(t(P) %*% W, tol = 1e-20)
+    if(is.null(P) | is.null(W)){
+      message(paste0(pkg.env$splsdrcox, " model cannot be computed because P or W vectors are NULL. Returning NA."))
+      invisible(gc())
+      return(NA)
+    }
+
+    #system is computationally singular: reciprocal condition number = 6.24697e-18
+    PW <- tryCatch(expr = {solve(t(P) %*% W, tol = tol.W.star)},
+                   error = function(e){
+                     if(verbose){
+                       message(e$message)
+                     }
+                     NA
+                   })
+
+    if(all(is.na(PW))){
+      message(paste0(pkg.env$splsdrcox, " model cannot be computed due to solve(t(P) %*% W). Reduce 'tol' parameter to fix it. Returning NA."))
+      invisible(gc())
+      return(NA)
+    }
+
+    # What happen when you cannot compute W.star but you have P and W?
+    W.star <- W %*% PW
   }
 
   Xh[XXNA] <- NA

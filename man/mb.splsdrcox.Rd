@@ -17,6 +17,8 @@ mb.splsdrcox(
   remove_zero_variance = T,
   toKeep.zv = NULL,
   remove_non_significant = T,
+  alpha = 0.05,
+  tol = 1e-15,
   MIN_NVAR = 10,
   MAX_NVAR = 10000,
   n.cut_points = 5,
@@ -54,6 +56,10 @@ mb.splsdrcox(
 \item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.}
 
 \item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
+
+\item{alpha}{Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).}
+
+\item{tol}{Numeric. Tolerance for solving: solve(t(P) \%*\% W)}
 
 \item{MIN_NVAR}{Numeric If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
 
