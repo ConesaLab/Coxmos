@@ -406,6 +406,18 @@ cv.splsdacox_mixOmics <- function(X, Y,
   #                                    x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
   #                                    total_models = total_models, max.iter = max.iter)
 
+  if(all(is.na(unlist(comp_model_lst)))){
+    message(paste0("Best model could NOT be obtained. All models computed present problems."))
+
+    t2 <- Sys.time()
+    time <- difftime(t2,t1,units = "mins")
+    if(return_models){
+      return(cv.splsdacox_mixOmics_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class = pkg.env$cv.splsdacox_mixomics, time = time)))
+    }else{
+      return(cv.splsdacox_mixOmics_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class = pkg.env$cv.splsdacox_mixomics, time = time)))
+    }
+  }
+
   #### ### ### ### ### ### #
   # BEST MODEL FOR CV DATA #
   #### ### ### ### ### ### #

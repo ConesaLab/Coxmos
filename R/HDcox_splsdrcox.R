@@ -878,6 +878,18 @@ cv.splsdrcox <- function (X, Y,
   comp_model_lst = lst_model$comp_model_lst
   info = lst_model$info
 
+  if(all(is.na(unlist(comp_model_lst)))){
+    message(paste0("Best model could NOT be obtained. All models computed present problems."))
+
+    t2 <- Sys.time()
+    time <- difftime(t2,t1,units = "mins")
+    if(return_models){
+      return(cv.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = comp_model_lst, pred.method = NULL, opt.comp = NULL, opt.eta = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class = pkg.env$cv.splsdrcox, time = time)))
+    }else{
+      return(cv.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = NULL, opt.comp = NULL, opt.eta = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class = pkg.env$cv.splsdrcox, time = time)))
+    }
+  }
+
   #### ### ### ### ### ### #
   # BEST MODEL FOR CV DATA #
   #### ### ### ### ### ### #

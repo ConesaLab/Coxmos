@@ -215,18 +215,41 @@ splsdrcox_mixOmics <- function (X, Y,
     }
   }
 
+  #### ### ### ### ### ### ### ### ### ### ###
+  ### ##             sPLS              ###  ##
+  #### ### ### ### ### ### ### ### ### ### ###
+
   spls <- mixOmics::spls(X = Xh, Y = DR_coxph_ori, ncomp = n.comp, keepX = rep(keepX, n.comp), scale = F)
 
-  #R2 calculation
-  #ambas funcionan correctmente
-  #predplsfit <- predict.mixOmixs.pls(spls, newdata=Xh[,rownames(spls$loadings$X),drop=F])
-  predplsfit <- predict(spls, newdata=Xh[,rownames(spls$loadings$X),drop=F])
+  # PREDICTION
 
-  for(h in 1:n.comp){
-    E[[h]] <- DR_coxph_ori - predplsfit$predict[,,h]
-    SCR[[h]] = sum(apply(E[[h]],2,function(x) sum(x**2)))
-    SCT[[h]] = sum(apply(as.matrix(DR_coxph_ori),2,function(x) sum(x**2))) #equivalent sum((DR_coxph_ori - mean(DR_coxph_ori))**2)
-    R2[[h]] = 1 - (SCR[[h]]/SCT[[h]]) #deviance residuals explanation
+  # both functions work fine (predict and predict.mixOmixs.pls)
+  # predplsfit <- predict.mixOmixs.pls(spls, newdata=Xh[,rownames(spls$loadings$X),drop=F])
+  # predplsfit <- predict(spls, newdata=Xh[,rownames(spls$loadings$X),drop=F])
+
+  # sometimes solve(t(P) %*% W) in predict can cause an error
+  # system is computationally singular: reciprocal condition number = 6.24697e-18
+  predplsfit <- tryCatch(expr = {predict(spls, newdata=Xh[,rownames(spls$loadings$X),drop=F])},
+                 error = function(e){
+                   if(verbose){
+                     message(e$message)
+                   }
+                   NA
+                 })
+
+  if(!all(is.na(predplsfit))){
+    # R2 calculation
+    for(h in 1:n.comp){
+      E[[h]] <- DR_coxph_ori - predplsfit$predict[,,h]
+      SCR[[h]] = sum(apply(E[[h]],2,function(x) sum(x**2)))
+      SCT[[h]] = sum(apply(as.matrix(DR_coxph_ori),2,function(x) sum(x**2))) #equivalent sum((DR_coxph_ori - mean(DR_coxph_ori))**2)
+      R2[[h]] = 1 - (SCR[[h]]/SCT[[h]]) #deviance residuals explanation
+    }
+  }else{
+    E <- NULL
+    SCR <- NULL
+    SCT <- NULL
+    R2 <- NULL
   }
 
   #last model includes all of them
@@ -295,7 +318,7 @@ splsdrcox_mixOmics <- function (X, Y,
   P <- pp_splsDR
 
   if(is.null(P) | is.null(W)){
-    message("sPLS-DRCOX-MixOmics model cannot be computed because P or W vectors are NULL. Returning NA.")
+    message(paste0(pkg.env$splsdrcox_mixomics," model cannot be computed because P or W vectors are NULL. Returning NA."))
     invisible(gc())
     return(NA)
   }
@@ -312,7 +335,7 @@ splsdrcox_mixOmics <- function (X, Y,
                  })
 
   if(all(is.na(PW))){
-    message("sPLS-DRCOX-MixOmics model cannot be computed due to solve(t(P) %*% W). Reduce 'tol' parameter to fix it. Returning NA.")
+    message(paste0(pkg.env$splsdrcox_mixomics," model cannot be computed due to solve(t(P) %*% W). Reduce 'tol' parameter to fix it. Returning NA."))
     invisible(gc())
     return(NA)
   }
@@ -472,8 +495,20 @@ cv.splsdrcox_mixOmics <- function (X, Y,
                                          EVAL_METHOD = EVAL_METHOD,
                                          x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
                                          remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
-                                         remove_non_significant = remove_non_significant,
+                                         remove_non_significant = remove_non_significant, tol = tol,
                                          total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
+
+  if(all(is.na(unlist(comp_model_lst)))){
+    message(paste0("Best model could NOT be obtained. All models computed present problems."))
+
+    t2 <- Sys.time()
+    time <- difftime(t2,t1,units = "mins")
+    if(return_models){
+      return(cv.splsdrcox_mixOmics_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class = pkg.env$cv.splsdrcox_mixomics, time = time)))
+    }else{
+      return(cv.splsdrcox_mixOmics_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class = pkg.env$cv.splsdrcox_mixomics, time = time)))
+    }
+  }
 
   #### ### ### ### ### ### #
   # BEST MODEL FOR CV DATA #

@@ -887,6 +887,11 @@ plot_evaluation <- function(eval_results, pred.attr = "mean", y.min = NULL, type
     y.min <- floor(min(eval_results$df$AUC, na.rm = T)*10)/10
   }
 
+  if(is.infinite(y.min)){
+    message("All AUC is NA. Returning NA.")
+    return(NA)
+  }
+
   lst_ggp <- list()
 
   lst_plots <- comboplot.performance2.0(df = eval_results$df,

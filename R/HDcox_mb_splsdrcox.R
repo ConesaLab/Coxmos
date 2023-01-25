@@ -556,7 +556,7 @@ cv.mb.splsdrcox <- function(X, Y,
                                 n.cut_points = n.cut_points, EVAL_METHOD = EVAL_METHOD,
                                 remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
                                 alpha = alpha, MIN_EPV = MIN_EPV,
-                                remove_non_significant = remove_non_significant,
+                                remove_non_significant = remove_non_significant, tol = tol,
                                 x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
                                 total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
 
@@ -566,6 +566,18 @@ cv.mb.splsdrcox <- function(X, Y,
   #                               n_run = n_run, k_folds = k_folds,
   #                               x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
   #                               total_models = total_models)
+
+  if(all(is.na(unlist(lst_model)))){
+    message(paste0("Best model could NOT be obtained. All models computed present problems."))
+
+    t2 <- Sys.time()
+    time <- difftime(t2,t1,units = "mins")
+    if(return_models){
+      return(cv.mb.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = lst_model, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class = pkg.env$cv.mb.splsdrcox, time = time)))
+    }else{
+      return(cv.mb.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class = pkg.env$cv.mb.splsdrcox, time = time)))
+    }
+  }
 
   #### ### ### ### ### ### #
   # BEST MODEL FOR CV DATA #

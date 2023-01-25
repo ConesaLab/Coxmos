@@ -1883,7 +1883,7 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
         for(f in 1:k_folds){
           model <- comp_model_lst[[comp]][[r]][[f]]
 
-          if(all(is.null(model$survival_model))){
+          if(is.na(model) || all(is.null(model$survival_model))){
             pb$tick()
             next
           }
@@ -1952,7 +1952,7 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
 
             model <- comp_model_lst[[comp]][[e]][[r]][[f]]
 
-            if(all(is.null(model$survival_model))){
+            if(is.na(model) || all(is.null(model$survival_model))){
               pb$tick()
               next
             }

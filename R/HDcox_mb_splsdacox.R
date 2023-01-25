@@ -530,7 +530,7 @@ cv.mb.splsdacox <- function(X, Y,
                                 x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
                                 remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
                                 alpha = alpha, MIN_EPV = MIN_EPV,
-                                remove_non_significant = remove_non_significant,
+                                remove_non_significant = remove_non_significant, tol = tol,
                                 total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
 
   # lst_model <- get_HDCOX_models(method = pkg.env$mb.splsdacox, vector = vector,
@@ -539,6 +539,18 @@ cv.mb.splsdacox <- function(X, Y,
   #                               n_run = n_run, k_folds = k_folds,
   #                               x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
   #                               total_models = total_models)
+
+  if(all(is.na(unlist(lst_model)))){
+    message(paste0("Best model could NOT be obtained. All models computed present problems."))
+
+    t2 <- Sys.time()
+    time <- difftime(t2,t1,units = "mins")
+    if(return_models){
+      return(cv.mb.splsdacox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = lst_model, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class = pkg.env$cv.mb.splsdacox, time = time)))
+    }else{
+      return(cv.mb.splsdacox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class = pkg.env$cv.mb.splsdacox, time = time)))
+    }
+  }
 
   #### ### ### ### ### ### #
   # BEST MODEL FOR CV DATA #
