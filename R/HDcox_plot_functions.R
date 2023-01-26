@@ -3529,6 +3529,12 @@ plot_forest <- function(model,
   if(!attr(model, "model") %in% pkg.env$all_methods){
     stop(paste0("Model must be one of the following HDcox models: ", paste0(pkg.env$all_methods, collapse = ", ")))
   }
+
+  if(all(is.null(model$survival_model$fit)) || all(is.na(model$survival_model$fit))){
+    message(paste0("Survival model not found for ", attr(model, "model")))
+    return(NULL)
+  }
+
   ggp <- survminer::ggforest(model = model$survival_model$fit,
                              data = model$survival_model$fit$model,
                              main = title, cpositions = cpositions, fontsize = fontsize, refLabel = refLabel, noDigits = noDigits)
@@ -3566,7 +3572,7 @@ plot_cox.event <- function(model, type = "lp", h.breaks = 30){
   #exits
   if(all(is.null(model$survival_model$fit)) || all(is.na(model$survival_model$fit))){
     message(paste0("Survival model not found for ", attr(model, "model"), "."))
-    return(NA)
+    return(NULL)
   }
 
   if(type=="survival"){
@@ -3652,7 +3658,8 @@ plot_proportionalHazard.list <- function(lst_models){
 
 plot_proportionalHazard <- function(model){
 
-  if(is.null(model$survival_model$fit)){
+  if(all(is.null(model$survival_model$fit)) || all(is.na(model$survival_model$fit))){
+    message(paste0("Survival model not found for ", attr(model, "model")))
     return(NULL)
   }
 
@@ -4740,6 +4747,10 @@ getCutoffAutoKM.list <- function(lst_results){
 #'
 #' @export
 getCutoffAutoKM <- function(result){
+
+  if(all(is.null(result)) || all(is.na(result))){
+    return(NULL)
+  }
 
   if(is.null(result$info_logrank_num$df_nvar_lrtest)){
     return(NULL)

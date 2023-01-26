@@ -201,6 +201,7 @@ sb.plsicox <- function (X, Y,
 #' @param fast_mode Logical. If fast_mode = TRUE, for each run, only one fold is evaluated simultaneously. If fast_mode = FALSE, for each run, all linear predictors are computed for test observations. Once all have their linear predictors, the evaluation is perform across all the observations together (default: FALSE).
 #' @param MIN_EPV Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.
 #' @param return_models Logical. Return all models computed in cross validation.
+#' @param returnData Logical. Return original and normalized X and Y matrices.
 #' @param tol Numeric. Tolerance for solving: solve(t(P) %*% W)
 #' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption.
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
@@ -218,7 +219,7 @@ cv.sb.plsicox <- function(X, Y,
                           w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
                           MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                           pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
-                          MIN_EPV = 5, return_models = F, tol = 1e-15,
+                          MIN_EPV = 5, return_models = F, returnData = F, tol = 1e-15,
                           PARALLEL = F, verbose = F, seed = 123){
 
   t1 <- Sys.time()
@@ -287,7 +288,7 @@ cv.sb.plsicox <- function(X, Y,
   #                               total_models = total_models)
 
   if(all(is.na(unlist(lst_model)))){
-    message(paste0("Best model could NOT be obtained. All models computed present problems."))
+    message(paste0("Best model could NOT be obtained. All models computed present problems. Try to remove variance at fold level. If problem persists, try to delete manually some problematic variables."))
 
     t2 <- Sys.time()
     time <- difftime(t2,t1,units = "mins")

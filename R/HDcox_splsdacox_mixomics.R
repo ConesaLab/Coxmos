@@ -314,6 +314,7 @@ splsdacox_mixOmics <- function (X, Y,
 #' @param max.iter Maximum number of iterations for PLS convergence.
 #' @param MIN_EPV Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.
 #' @param return_models Logical. Return all models computed in cross validation.
+#' @param returnData Logical. Return original and normalized X and Y matrices.
 #' @param tol Numeric. Tolerance for solving: solve(t(P) %*% W)
 #' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption.
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
@@ -336,7 +337,7 @@ cv.splsdacox_mixOmics <- function(X, Y,
                         MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                         pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                         max.iter = 500,
-                        MIN_EPV = 5, return_models = F, tol = 1e-15,
+                        MIN_EPV = 5, return_models = F, returnData = F, tol = 1e-15,
                         PARALLEL = F, verbose = F, seed = 123){
 
   t1 <- Sys.time()
@@ -407,7 +408,7 @@ cv.splsdacox_mixOmics <- function(X, Y,
   #                                    total_models = total_models, max.iter = max.iter)
 
   if(all(is.na(unlist(comp_model_lst)))){
-    message(paste0("Best model could NOT be obtained. All models computed present problems."))
+    message(paste0("Best model could NOT be obtained. All models computed present problems. Try to remove variance at fold level. If problem persists, try to delete manually some problematic variables."))
 
     t2 <- Sys.time()
     time <- difftime(t2,t1,units = "mins")
