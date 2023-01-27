@@ -17,6 +17,7 @@ cv.plsicox(
   remove_near_zero_variance = T,
   remove_zero_variance = T,
   toKeep.zv = NULL,
+  remove_variance_at_fold_level = F,
   remove_non_significant_models = F,
   remove_non_significant = F,
   alpha = 0.05,
@@ -32,6 +33,7 @@ cv.plsicox(
   fast_mode = F,
   MIN_EPV = 5,
   return_models = F,
+  returnData = F,
   tol = 1e-15,
   PARALLEL = F,
   verbose = F,
@@ -92,6 +94,8 @@ cv.plsicox(
 \item{MIN_EPV}{Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.}
 
 \item{return_models}{Logical. Return all models computed in cross validation.}
+
+\item{returnData}{Logical. Return original and normalized X and Y matrices.}
 
 \item{tol}{Numeric. Tolerance for solving: solve(t(P) \%*\% W)}
 

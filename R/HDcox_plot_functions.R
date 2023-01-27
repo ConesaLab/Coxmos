@@ -3530,7 +3530,7 @@ plot_forest <- function(model,
     stop(paste0("Model must be one of the following HDcox models: ", paste0(pkg.env$all_methods, collapse = ", ")))
   }
 
-  if(all(is.null(model$survival_model$fit)) || all(is.na(model$survival_model$fit))){
+  if(all(is.null(model$survival_model$fit)) || all(is.na(model$survival_model$fit)) || all(is.null(model)) || all(is.na(model))){
     message(paste0("Survival model not found for ", attr(model, "model")))
     return(NULL)
   }
