@@ -4922,7 +4922,7 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
     #predict scores X_test
     test_score <- predict(model, newdata = X_test)
 
-    for(cn in colnames(test_score)){
+    for(cn in names(model$survival_model$coef)){
       index = which(cn==colnames(test_score))
       #get LP for individual components
       lst_test_lp[[cn]] <- test_score[,cn,drop=F] %*% model$survival_model$fit$coefficients[cn]
