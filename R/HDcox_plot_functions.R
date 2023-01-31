@@ -3741,11 +3741,11 @@ my_primeFactors <- function(num) {
 #' @export
 
 getAutoKM.list <- function(type = "LP", lst_models, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, n.breaks = 20, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
-  if(!type %in% c("LP", "COMP", "VAR")){
-    stop("Type parameters must be one of the following: LP, COMP or VAR")
+  if(!type %in% c("LP", "COMP", "VAR", "LPVAR")){
+    stop("Type parameters must be one of the following: LP, COMP, VAR or LPVAR")
   }
 
-  if(type == "LP"){
+  if(type %in% c("LP")){
     lst <- purrr::map(lst_models, ~getLPKM(model = ., comp = comp, top = top, ori_data = ori_data, BREAKTIME = BREAKTIME, n.breaks = n.breaks, only_sig = only_sig, alpha = alpha, title = title, verbose = verbose))
   }else if(type == "COMP"){
 
@@ -3759,8 +3759,10 @@ getAutoKM.list <- function(type = "LP", lst_models, comp = 1:2, top = 10, ori_da
     }
 
     lst <- purrr::map(sub_lst_models, ~getCompKM(model = ., comp = comp, top = top, ori_data = ori_data, BREAKTIME = BREAKTIME, n.breaks = n.breaks, only_sig = only_sig, alpha = alpha, title = title, verbose = verbose))
-  }else{
+  }else if(type == "VAR"){
     lst <- purrr::map(lst_models, ~getVarKM(model = ., comp = comp, top = top, ori_data = ori_data, BREAKTIME = BREAKTIME, n.breaks = n.breaks, only_sig = only_sig, alpha = alpha, title = title, verbose = verbose))
+  }else if(type == "LPVAR"){
+    lst <- purrr::map(lst_models, ~getLPVarKM(model = ., comp = comp, top = top, ori_data = ori_data, BREAKTIME = BREAKTIME, n.breaks = n.breaks, only_sig = only_sig, alpha = alpha, title = title, verbose = verbose))
   }
   return(lst)
 }
@@ -3790,8 +3792,10 @@ getAutoKM <- function(type = "LP", model, comp = 1:2, top = 10, ori_data = T, BR
     return(getLPKM(model, comp = comp, top = top, ori_data = ori_data, BREAKTIME = BREAKTIME, n.breaks = n.breaks, only_sig = only_sig, alpha = alpha, title = title, verbose = verbose))
   }else if(type == "COMP"){
     return(getCompKM(model, comp = comp, top = top, ori_data = ori_data, BREAKTIME = BREAKTIME, n.breaks = n.breaks, only_sig = only_sig, alpha = alpha, title = title, verbose = verbose))
-  }else{
+  }else if(type == "VAR"){
     return(getVarKM(model, comp = comp, top = top, ori_data = ori_data, BREAKTIME = BREAKTIME, n.breaks = n.breaks, only_sig = only_sig, alpha = alpha, title = title, verbose = verbose))
+  }else if(type == "LPVAR"){
+    return(getLPVarKM(model, comp = comp, top = top, ori_data = ori_data, BREAKTIME = BREAKTIME, n.breaks = n.breaks, only_sig = only_sig, alpha = alpha, title = title, verbose = verbose))
   }
 }
 
@@ -3987,6 +3991,248 @@ getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NUL
 
 }
 
+getLPVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, n.breaks = 20, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
+
+  message("LPVAR only implemented for PLS methods. Results are pretty similar to work with ORIGINAL variables.")
+
+  if(attr(model, "model") %in% pkg.env$pls_methods){
+
+    if(all(is.null(model$survival_model))){
+      if(verbose){
+        message("Survival cox model not found")
+      }
+      return(NA)
+    }
+
+    #selecting pseudo betas
+    pseudo_betas <- plot_pseudobeta(model = model,
+                                    error.bar = T, onlySig = only_sig, alpha = alpha,
+                                    zero.rm = F, auto.limits = F, top = top,
+                                    show_percentage = F, size_percentage = 3)
+    names_top <- pseudo_betas$plot$data$variables
+    pseudo_betas$beta <- pseudo_betas$beta[names_top,]
+
+    pseudo_betas$plot <- NULL
+    vars <- rownames(pseudo_betas$beta)
+
+  }else if(attr(model, "model") %in% pkg.env$classical_methods){
+
+    if(all(is.na(model$survival_model))){
+      if(verbose){
+        message("Survival cox model not found")
+      }
+      return(NA)
+    }
+
+    #in classical methods, select selected variables
+    df <- as.data.frame(summary(model$survival_model$fit)[7]$coefficients)
+    vars <- rownames(df[order(df$`Pr(>|z|)`, decreasing = F),])[1:min(top, nrow(df))]
+
+  }else if(attr(model, "model") %in% pkg.env$multiblock_methods){
+
+    if(all(is.na(model$survival_model))){
+      if(verbose){
+        message("Survival cox model not found")
+      }
+      return(NA)
+    }
+
+    lst_vars <- list()
+    for(b in names(model$X$data)){
+      vars <- list()
+
+      if(attr(model, "model") %in% pkg.env$sb.plsicox){
+        aux <- model$list_pls_models[[b]]
+      }else if(attr(model, "model") %in% pkg.env$sb.splsdrcox){
+        aux <- model$list_spls_models[[b]]
+      }
+
+      if(attr(model, "model") %in% c(pkg.env$sb.plsicox, pkg.env$sb.splsdrcox)){
+
+        message("ARREGLAR PARA SB")
+
+      }else if(attr(model, "model") %in% c(pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
+
+        message("ARREGLAR PARA MB")
+
+      }
+
+      # names(vars) <- as.character(1:length(vars))
+      # lst_vars[[b]] <- vars
+
+    }
+
+  }
+
+  #select original or scale data - top X of each component, takes all of them
+  if(!attr(model, "model") %in% pkg.env$multiblock_methods){
+    unique_vars <- deleteIllegalChars(unique(unlist(vars)))
+    if(ori_data){
+      vars_data <- as.data.frame(model$X_input[rownames(model$X$data),unique_vars,drop=F])
+    }else{
+      vars_data <- as.data.frame(model$X$data[,unique_vars,drop=F])
+    }
+
+    vars_data <- as.data.frame(scale(vars_data, center = model$X$x.mean[unique_vars], scale = model$X$x.sd[unique_vars]))
+
+    #GET LP_VAR per each patient
+    if(attr(model, "model") %in% pkg.env$pls_methods){
+
+      # lp <- model$survival_model$lp
+      # lp_calculated <- vars_data[,rownames(pseudo_betas$beta)] %*% pseudo_betas$beta$value ## COMPROBATION LP ## !!!!
+
+      aux <- NULL
+      for(cn in rownames(pseudo_betas$beta)){
+        aux <- cbind(aux, vars_data[,cn,drop=T] * pseudo_betas$beta[cn,]$value)
+      }
+      aux <- as.data.frame(aux)
+      colnames(aux) <- rownames(pseudo_betas$beta)
+      vars_data <- aux
+    }
+
+  }else{
+    vars_data <- list()
+    for(b in names(model$X$data)){
+      unique_vars <- deleteIllegalChars(unique(unlist(lst_vars[[b]])))
+      if(ori_data){
+        vars_data[[b]] <- as.data.frame(model$X_input[[b]][rownames(model$X$data[[b]]),unique_vars,drop=F])
+      }else{
+        vars_data[[b]] <- as.data.frame(model$X$data[[b]][,unique_vars,drop=F])
+      }
+    }
+  }
+
+  if(!attr(model, "model") %in% pkg.env$multiblock_methods){
+    if(attr(model, "model") %in% pkg.env$pls_methods){
+      colnames(vars_data) <- paste0("LP_", colnames(vars_data))
+    }
+
+    names_qual <- apply(vars_data, 2, function(x){all(x %in% c(0,1))})
+    vars_qual <- vars_data[,names_qual,drop=F]
+    vars_num <- vars_data[,!names_qual,drop=F]
+
+    if(all(dim(vars_qual)>0)){
+      for(cn in colnames(vars_qual)){vars_qual[,cn] <- factor(vars_qual[,cn], levels = c(0, 1))}
+      info_logrank_qual <- getLogRank_QualVariables(data = vars_qual, sdata = data.frame(model$Y$data), VAR_EVENT = "event", name_data = NULL)
+    }else{
+      info_logrank_qual = NULL
+    }
+
+    if(all(dim(vars_num)>0)){
+      info_logrank_num <- getLogRank_NumVariables(data = vars_num, sdata = data.frame(model$Y$data), VAR_EVENT = "event", name_data = NULL, minProp = 0.1, ROUND_CP = 4)
+    }else{
+      info_logrank_num <- NULL
+    }
+  }else{
+    info_logrank_qual <- list()
+    info_logrank_num <- list()
+    vars_qual <- list()
+    vars_num <- list()
+    for(b in names(model$X$data)){
+      names_qual <- apply(vars_data[[b]], 2, function(x){all(x %in% c(0,1))})
+      vars_qual[[b]] <- vars_data[[b]][,names_qual,drop=F]
+      vars_num[[b]] <- vars_data[[b]][,!names_qual,drop=F]
+
+      if(all(dim(vars_qual[[b]]))>0){
+        for(cn in colnames(vars_qual[[b]])){vars_qual[[b]][,cn] <- factor(vars_qual[[b]][,cn], levels = c(0, 1))}
+        info_logrank_qual[[b]] <- getLogRank_QualVariables(data = vars_qual[[b]], sdata = data.frame(model$Y$data), VAR_EVENT = "event", name_data = NULL)
+      }else{
+        info_logrank_qual[[b]] = NULL
+      }
+
+      if(all(dim(vars_num[[b]]))>0){
+        info_logrank_num[[b]] <- getLogRank_NumVariables(data = vars_num[[b]], sdata = data.frame(model$Y$data), VAR_EVENT = "event", name_data = NULL, minProp = 0.1, ROUND_CP = 4)
+      }else{
+        info_logrank_num[[b]] <- NULL
+      }
+    }
+  }
+
+  if(is.null(BREAKTIME)){
+    BREAKTIME <- (max(model$Y$data[,"time"]) - min(model$Y$data[,"time"])) / n.breaks
+  }
+
+  ##join data
+  if(!attr(model, "model") %in% pkg.env$multiblock_methods){
+    if(all(dim(vars_qual))>0 & all(dim(vars_num)>0)){
+      d <- cbind(vars_qual, info_logrank_num$df_numASqual)
+      v_names <- info_logrank_num$df_nvar_lrtest[,1:2]
+      v_names <- rbind(v_names, info_logrank_qual)
+
+    }else if(all(dim(vars_qual)>0)){
+      d <- vars_qual
+      v_names <- info_logrank_qual
+
+    }else{
+      d <- info_logrank_num$df_numASqual
+      v_names <- info_logrank_num$df_nvar_lrtest[,1:2]
+    }
+  }else{
+    v_names <- list()
+    d <- list()
+    for(b in names(model$X$data)){
+      if(all(dim(vars_qual[[b]]))>0 & all(dim(vars_num[[b]])>0)){
+        d[[b]] <- cbind(vars_qual[[b]], info_logrank_num[[b]]$df_numASqual)
+        v_names[[b]] <- info_logrank_num[[b]]$df_nvar_lrtest[,1:2]
+        v_names[[b]] <- rbind(v_names[[b]], info_logrank_qual[[b]])
+
+      }else if(all(dim(vars_qual[[b]])>0)){
+        d[[b]] <- vars_qual[[b]]
+        v_names[[b]] <- info_logrank_qual[[b]]
+
+      }else{
+        d[[b]] <- info_logrank_num[[b]]$df_numASqual
+        v_names[[b]] <- info_logrank_num[[b]]$df_nvar_lrtest[,1:2]
+      }
+    }
+  }
+
+  if(!attr(model, "model") %in% pkg.env$multiblock_methods){
+    if(only_sig){
+
+      if(length(v_names[v_names$`P-Val (Log Rank)` <= alpha,]$Variable)==0){
+        if(verbose){
+          cat("All variables has a non-significant log-rank test value. Survival function, Hazard Curve and Cumulative Hazard plots will be returned.")
+        }
+      }
+
+      LST_SPLOT <- plot_survivalplot.qual(data = d,
+                                          sdata = data.frame(model$Y$data),
+                                          BREAKTIME = BREAKTIME,
+                                          cn_variables = v_names[v_names$`P-Val (Log Rank)` <= alpha,]$Variable,
+                                          name_data = NULL, title = title)
+    }else{
+      LST_SPLOT <- plot_survivalplot.qual(data = d,
+                                          sdata = data.frame(model$Y$data),
+                                          BREAKTIME = BREAKTIME,
+                                          cn_variables = v_names$Variable,
+                                          name_data = NULL, title = title)
+    }
+  }else{
+    LST_SPLOT <- list()
+    for(b in names(model$X$data)){
+      if(only_sig){
+        LST_SPLOT[[b]] <- plot_survivalplot.qual(data = d[[b]],
+                                                 sdata = data.frame(model$Y$data),
+                                                 BREAKTIME = BREAKTIME,
+                                                 cn_variables = v_names[[b]][v_names[[b]]$`P-Val (Log Rank)` <= alpha,]$Variable,
+                                                 name_data = NULL, title = title)
+      }else{
+        LST_SPLOT[[b]] <- plot_survivalplot.qual(data = d[[b]],
+                                                 sdata = data.frame(model$Y$data),
+                                                 BREAKTIME = BREAKTIME,
+                                                 cn_variables = v_names[[b]]$Variable,
+                                                 name_data = NULL, title = title)
+      }
+    }
+
+  }
+
+  return(list(info_logrank_qual = info_logrank_qual, info_logrank_num = info_logrank_num, LST_PLOTS = LST_SPLOT))
+
+}
+
+
 getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, n.breaks = 20, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
 
   if(attr(model, "model") %in% pkg.env$pls_methods){
@@ -3998,7 +4244,7 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
       return(NA)
     }
 
-    #selecting the variables with a W.star greater different than 0
+    #selecting the variables with a W.star different than 0
     vars_data <- list()
     vars <- list()
     for(c in comp){
