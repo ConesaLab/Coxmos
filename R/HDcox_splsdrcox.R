@@ -879,7 +879,7 @@ cv.splsdrcox <- function (X, Y,
   comp_model_lst = lst_model$comp_model_lst
   info = lst_model$info
 
-  if(all(is.na(unlist(comp_model_lst)))){
+  if(all(is.null(comp_model_lst))){
     message(paste0("Best model could NOT be obtained. All models computed present problems. Try to remove variance at fold level. If problem persists, try to delete manually some problematic variables."))
 
     t2 <- Sys.time()

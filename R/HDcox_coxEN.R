@@ -260,6 +260,8 @@ coxEN <- function(X, Y,
 
     best_cox <- lst_rnsc$cox
     removed_variables <- lst_rnsc$removed_variables
+
+    selected_variables <- length(best_cox$coefficients)
   }
 
   if(class(best_cox)[[1]] %in% "coxph.null"){

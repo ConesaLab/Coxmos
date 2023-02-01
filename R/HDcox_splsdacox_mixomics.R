@@ -407,7 +407,7 @@ cv.splsdacox_mixOmics <- function(X, Y,
   #                                    x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
   #                                    total_models = total_models, max.iter = max.iter)
 
-  if(all(is.na(unlist(comp_model_lst)))){
+  if(all(is.null(comp_model_lst))){
     message(paste0("Best model could NOT be obtained. All models computed present problems. Try to remove variance at fold level. If problem persists, try to delete manually some problematic variables."))
 
     t2 <- Sys.time()

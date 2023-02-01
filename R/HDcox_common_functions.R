@@ -1883,7 +1883,7 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
         for(f in 1:k_folds){
           model <- comp_model_lst[[comp]][[r]][[f]]
 
-          if(is.na(model) || all(is.null(model$survival_model))){
+          if(all(is.na(model)) || all(is.null(model$survival_model))){
             pb$tick()
             next
           }
@@ -1952,7 +1952,7 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
 
             model <- comp_model_lst[[comp]][[e]][[r]][[f]]
 
-            if(is.na(model) || all(is.null(model$survival_model))){
+            if(all(is.na(model)) || all(is.null(model$survival_model))){
               pb$tick()
               next
             }
@@ -2390,6 +2390,7 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
     rm(lst_inputs)
 
     ## We need to return a list of lists: COMP->REP->FOLDS
+    cont_problems = 0
     comp_model_lst <- list()
     for(c in max.ncomp){
       run_model_lst <- list()
@@ -2397,6 +2398,9 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
         fold_model_lst <- list()
         for(f in 1:k_folds){
           name <- paste0(c, "_", r, "_", f)
+          if(all(is.null(lst_all_models[[name]]$survival_model$fit))){
+            cont_problems = cont_problems + 1
+          }
           fold_model_lst[[f]] = lst_all_models[[name]]
         }
         names(fold_model_lst) <- paste0("fold_",1:k_folds)
@@ -2406,6 +2410,14 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
       comp_model_lst[[c]] <- run_model_lst
     }
     names(comp_model_lst) <- paste0("comp_",1:max.ncomp)
+
+    ## Before compute all intermediate models, check if all problems
+    if(cont_problems == n_run * k_folds){
+      if(verbose){
+        message(paste0("Best model could NOT be obtained. All models computed present problems. Try to remove variance at fold level. If problem persists, try to delete manually some problematic variables."))
+      }
+      return(NULL)
+    }
 
     ## We need to fill models from 1:max.ncomp (it uses max.ncomp to fill the others, if it is NULL, method fail!!!)
     pb_text <- "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated remaining time: :eta]"
@@ -2535,12 +2547,16 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
 
     ## We need to return a list of lists: ALPHA->REP->FOLDS
     comp_model_lst <- list()
+    cont_problems = 0
     for(c in 1:length(EN.alpha.list)){
       run_model_lst <- list()
       for(r in 1:n_run){
         fold_model_lst <- list()
         for(f in 1:k_folds){
           name <- paste0(c, "_", r, "_", f)
+          if(all(is.null(lst_all_models[[name]]$survival_model$fit))){
+            cont_problems = cont_problems + 1
+          }
           fold_model_lst[[f]] = lst_all_models[[name]]
         }
         names(fold_model_lst) <- paste0("fold_",1:k_folds)
@@ -2550,6 +2566,14 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
       comp_model_lst[[c]] <- run_model_lst
     }
     names(comp_model_lst) <- paste0("alpha_",EN.alpha.list)
+
+    ## Before compute all intermediate models, check if all problems
+    if(cont_problems == n_run * k_folds){
+      if(verbose){
+        message(paste0("Best model could NOT be obtained. All models computed present problems. Try to remove variance at fold level. If problem persists, try to delete manually some problematic variables."))
+      }
+      return(NULL)
+    }
 
     #### ### ### ### ### ### #
     # UPDATING GLOBALS SIZE #
@@ -2608,9 +2632,6 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
       }
 
       if(method==pkg.env$splsdrcox){
-        # 4 warnings
-        # 8 warnings
-        # 9 warnings
         lst_all_models <- furrr::future_map(lst_inputs, ~splsdrcox(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
                                                                   Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
                                                                   n.comp = .$comp, eta = eta.list[[.$eta_index]],
@@ -2666,6 +2687,7 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
 
     ## We need to return a list of lists: COMP->ETA->REP->FOLDS
     comp_model_lst <- list()
+    cont_problems = 0
     for(c in max.ncomp){
       eta_model_lst <- list()
       for(e in 1:length(eta.list)){
@@ -2674,6 +2696,9 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
           fold_model_lst <- list()
           for(f in 1:k_folds){
             name <- paste0(c, "_", e, "_", r, "_", f)
+            if(all(is.null(lst_all_models[[name]]$survival_model$fit))){
+              cont_problems = cont_problems + 1
+            }
             fold_model_lst[[f]] = lst_all_models[[name]]
           }
           names(fold_model_lst) <- paste0("fold_", 1:k_folds)
@@ -2688,6 +2713,14 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
     names(comp_model_lst) <- paste0("comp_", 1:max.ncomp)
 
     info <- "No info"
+
+    ## Before compute all intermediate models, check if all problems
+    if(cont_problems == n_run * k_folds){
+      if(verbose){
+        message(paste0("Best model could NOT be obtained. All models computed present problems. Try to remove variance at fold level. If problem persists, try to delete manually some problematic variables."))
+      }
+      return(NULL)
+    }
 
     ## We need to fill models from 1:max.ncomp (it uses max.ncomp to fill the others, if it is NULL, method fail!!!)
     for(comp in 1:(max.ncomp-1)){

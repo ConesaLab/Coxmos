@@ -215,7 +215,7 @@ getAUC_from_LP_2.0 <- function(linear.predictors, Y, times, bestModel = NULL, me
     #https://cran.r-project.org/web/packages/cenROC/
     #needs at least 2 events per time and time can not be day 0
     #Y is a matrix
-    times.vector <- timesAsumption_AUC_Eval(Y, times)
+    times.vector <- timesAsumption_AUC_Eval(Y, times, method = method)
     times.aux <- times #times[times.vector]
     if(!all(times.vector==F)){
       times_run <- times.aux[which(times.vector==T)]
@@ -472,12 +472,21 @@ getAUC_vector <-function(output, method, eval, times = NULL, times.vector = NULL
   return(list(AUC = AUC, AUC.vector = AUC.vector))
 }
 
-timesAsumption_AUC_Eval <- function(Y, times){
+timesAsumption_AUC_Eval <- function(Y, times, method = NULL){
   #which times can be computed
   res <- NULL
   for(t in times){
     if(!sum(Y[(Y[,"event"]==1 | Y[,"event"]==TRUE),"time"]<=t)<2 & t != 0){
-      res <- c(res, TRUE)
+      if(method==pkg.env$AUC_cenROC){
+        #cenROC needs also two events after the time
+        if(sum(Y[(Y[,"event"]==1 | Y[,"event"]==TRUE),"time"]>=t)>2 & t != 0){
+          res <- c(res, TRUE)
+        }else{
+          res <- c(res, FALSE)
+        }
+      }else{
+        res <- c(res, TRUE)
+      }
     }else{
       res <- c(res, FALSE)
     }

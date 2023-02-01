@@ -106,7 +106,7 @@ EPV
 #                           PARALLEL = T, verbose = F, seed = 123)
 
 ## ---- eval=FALSE--------------------------------------------------------------
-#  cv.coxen_res #2.7min.
+#  cv.coxen_res #3min.
 
 ## -----------------------------------------------------------------------------
 coxen_model <- coxEN(X = X_train, Y = Y_train, 
@@ -141,16 +141,16 @@ coxen_model
 #                               n_run = 2, k_folds = 10,
 #                               x.center = T, x.scale = F,
 #                               y.center = F, y.scale = F,
-#                               remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+#                               remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL, remove_variance_at_fold_level = F,
 #                               remove_non_significant_models = F, alpha = 0.05,
 #                               w_AIC = 0, w_c.index = 0, w_AUC = 1, times = NULL,
 #                               MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
 #                               pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
-#                               MIN_EPV = 5, return_models = F,
+#                               MIN_EPV = 5, return_models = F, remove_non_significant = F, returnData = F, tol = 1e-15,
 #                               PARALLEL = T, verbose = F, seed = 123)
 
 ## ---- eval=FALSE--------------------------------------------------------------
-#  cv.plsicox_res #5.45min.
+#  cv.plsicox_res #5.57min.
 
 ## ---- eval=FALSE, fig.small=T-------------------------------------------------
 #  # plot cv.plsicox
@@ -183,7 +183,7 @@ plsicox_model
 #                                   PARALLEL = T, verbose = F, seed = 123)
 
 ## ---- eval=FALSE--------------------------------------------------------------
-#  cv.splsdrcox_res #10.4min
+#  cv.splsdrcox_res #10.2min
 
 ## ---- eval=FALSE, fig.small=T-------------------------------------------------
 #  # plot cv.plsicox
@@ -364,7 +364,7 @@ ggp_biplot$plot
 ggp.simulated_beta <- plot_pseudobeta.list(lst_models = lst_models, 
                                            error.bar = T, onlySig = T, alpha = 0.05, 
                                            zero.rm = T, auto.limits = T, top = 20,
-                                           show_percentage = T, size_percentage = 3, verbose = F)
+                                           show_percentage = T, size_percentage = 2, verbose = F)
 
 ## ---- fig.small=T-------------------------------------------------------------
 ggp.simulated_beta$`sPLS-DRCOX-MixOmics`$plot

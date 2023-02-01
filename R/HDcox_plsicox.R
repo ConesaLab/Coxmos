@@ -491,7 +491,7 @@ cv.plsicox <- function (X, Y,
   max.ncomp <- check.maxPredictors(X, Y, MIN_EPV, max.ncomp)
 
   #### REQUIREMENTS
-  if(!remove_variance_at_fold_level){
+  if(!remove_variance_at_fold_level & (remove_near_zero_variance | remove_zero_variance)){
     lst_dnz <- deleteZeroOrNearZeroVariance(X = X,
                                             remove_near_zero_variance = remove_near_zero_variance,
                                             remove_zero_variance = remove_zero_variance,
@@ -525,12 +525,12 @@ cv.plsicox <- function (X, Y,
                                        lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
                                        max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL, n_run = n_run, k_folds = k_folds,
                                        x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
-                                       remove_near_zero_variance = ifelse(remove_variance_at_fold_level,T,F), remove_zero_variance = ifelse(remove_variance_at_fold_level,T,F), toKeep.zv = NULL,
+                                       remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
                                        remove_non_significant = remove_non_significant,
                                        total_models = total_models, tol = tol, PARALLEL = PARALLEL, verbose = verbose)
   t2 <- Sys.time()
   t2-t1
-  if(all(is.na(unlist(comp_model_lst)))){
+  if(all(is.null(comp_model_lst))){
     message(paste0("Best model could NOT be obtained. All models computed present problems. Try to remove variance at fold level. If problem persists, try to delete manually some problematic variables."))
 
     t2 <- Sys.time()
