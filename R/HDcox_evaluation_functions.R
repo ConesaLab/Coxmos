@@ -128,7 +128,7 @@ getAUC_from_LP_2.0 <- function(linear.predictors, Y, times, bestModel = NULL, me
   #### TIMES SHOULD BE SOMETHING NOW; BUT IN CASE WILL BE NULL...
   if(is.null(times)){
     max_time_points = 15
-    times <- getVectorOfTime(Y, max_time_points)
+    times <- getTimesVector(Y, max_time_points)
   }
 
   if(is.null(linear.predictors)){
@@ -477,16 +477,7 @@ timesAsumption_AUC_Eval <- function(Y, times, method = NULL){
   res <- NULL
   for(t in times){
     if(!sum(Y[(Y[,"event"]==1 | Y[,"event"]==TRUE),"time"]<=t)<2 & t != 0){
-      if(method==pkg.env$AUC_cenROC){
-        #cenROC needs also two events after the time
-        if(sum(Y[(Y[,"event"]==1 | Y[,"event"]==TRUE),"time"]>=t)>2 & t != 0){
-          res <- c(res, TRUE)
-        }else{
-          res <- c(res, FALSE)
-        }
-      }else{
-        res <- c(res, TRUE)
-      }
+      res <- c(res, TRUE)
     }else{
       res <- c(res, FALSE)
     }
@@ -579,7 +570,9 @@ cenROC_tryCatch <- function(Y, censor, M, t, method, ktype, alpha, plot, verbose
     },
     # Specifying error message
     error = function(e){
-      message(paste0(e$message, " for time ", t, " and method '",pkg.env$AUC_cenROC,"'"))
+      if(verbose){
+        message(paste0(e$message, " for time ", t, " and method '",pkg.env$AUC_cenROC,"'. Try another evaluator for the models with problems."))
+      }
       NA
     },
     # warning
@@ -628,217 +621,217 @@ risksetROC_tryCatch <- function(marker, Stime, status, predict.time, verbose = F
   return(out)
 }
 
-getAUC_from_LP <- function(linear.predictors, Y, times, bestModel = NULL, method = "cenROC"){
-  # method = c("risksetROC", "survivalROC")
-  if(!all(c("time", "event") %in% colnames(Y))){
-    stop_quietly("Data.frame Y must contain the columns time and event for COX model.")
-  }
-
-  if(is.null(linear.predictors)){
-    return(NA)
-  }else if(!isa(linear.predictors, "list")){
-    aux = linear.predictors
-    linear.predictors = NULL
-    linear.predictors$fit = aux
-  }else if(!"fit" %in% names(linear.predictors)){
-    stop_quietly("fit must be a list inside linea predictors object.")
-  }
-
-  #order Y
-  Y <- Y[names(linear.predictors$fit),]
-
-  if(method %in% c(pkg.env$AUC_nsROC, pkg.env$AUC_cenROC)){
-    Y <- data.matrix(Y)
-  }
-
-  AUC.cox = NULL #area under the curve for each timepoint
-
-  #### ### ### ### ###
-  #### NO PARALLEL ###
-  #### ### ### ### ###
-  t1 <- Sys.time()
-
-  if(method %in% c(pkg.env$AUC_risksetROC, pkg.env$AUC_survivalROC, pkg.env$AUC_cenROC, pkg.env$AUC_nsROC)){
-    for(t in times){
-      #https://cran.r-project.org/web/packages/risksetROC/risksetROC.pdf
-      if(method == pkg.env$AUC_risksetROC){
-        # out <- risksetROC::CoxWeights(linear.predictors$fit, Stime = Y$time, status = Y$event,
-        #                               predict.time = t)
-
-        out <- risksetROC_tryCatch(linear.predictors$fit, Stime = Y$time, status = Y$event,
-                                   predict.time = t)
-
-        AUC <- out$AUC
-      }else if(method == pkg.env$AUC_survivalROC){
-        #https://cran.r-project.org/web/packages/survivalROC/
-        #needs at least 2 events per time and time can not be day 0
-        if(!sum(Y[Y$event==1,]$time<=t)<2 & t != 0){
-          # out <- survivalROC::survivalROC(Stime = Y$time, status = Y$event, marker = linear.predictors$fit,
-          #                                 predict.time = t, method = "NNE",
-          #                                 span = 0.25 * nrow(Y)^(-0.20))
-
-          out <- survivalROC_tryCatch(Stime = Y$time, status = Y$event, marker = linear.predictors$fit,
-                                      predict.time = t, method = "NNE",
-                                      span = 0.25 * nrow(Y)^(-0.20))
-
-          AUC <- out$AUC
-        }else{
-          AUC <- NA
-        }
-      }else if(method == pkg.env$AUC_cenROC){
-        #https://cran.r-project.org/web/packages/cenROC/
-        #needs at least 2 events per time and time can not be day 0
-        #Y is a matrix
-        if(!sum(Y[Y[,"event"]==1,"time"]<=t)<2 & t != 0){
-          # out <- tryCatch(
-          #   # Specifying expression
-          #   expr = {
-          #     cenROC::cenROC(Y = Y[,"time"], censor = Y[,"event"], M = linear.predictors$fit,
-          #                    t = t, method = "tra", ktype  ="normal", alpha = 0.05, plot = F) #problems in simulated data
-          #   },
-          #   # Specifying error message
-          #   error = function(e){
-          #     return(NULL)
-          #   }
-          # )
-          out <- cenROC_tryCatch(Y = Y[,"time"], censor = Y[,"event"], M = linear.predictors$fit,
-                                 t = t, method = "tra", ktype  ="normal", alpha = 0.05, plot = F, verbose = F)
-
-          if(is.null(out)){
-            AUC <- NA
-          }else if(is.na(out)){
-            AUC <- NA
-          }else{
-            AUC <- out$AUC$AUC
-          }
-        }else{
-          AUC <- NA
-        }
-      }else if(method == pkg.env$AUC_nsROC){
-        #https://cran.r-project.org/web/packages/nsROC/nsROC.pdf
-        #needs at least 2 events per time and time can not be day 0
-        #Y is a matrix
-        #cumulative/dynamic approach
-        if(!sum(Y[Y[,"event"]==1,"time"]<=t)<2 & t != 0){
-          # out <- nsROC::cdROC(stime = Y[,"time"],
-          #                     status = Y[,"event"],
-          #                     marker = linear.predictors$fit,
-          #                     predict.time = t,
-          #                     method = "wKM", # Cox, KM, wKM (last with kernel-weighted)
-          #                     kernel = "normal", #normal, Epanechnikov, other (only if wKM)
-          #                     ci = F, #a lot of time and problems with NAs in bootstraping
-          #                     boot.n = 200,
-          #                     conf.level = 0.95,
-          #                     seed = 123)
-
-          out <- nsROC_tryCatch(stime = Y[,"time"],
-                                status = Y[,"event"],
-                                marker = linear.predictors$fit,
-                                predict.time = t,
-                                method = "wKM", # Cox, KM, wKM (last with kernel-weighted)
-                                kernel = "normal", #normal, Epanechnikov, other (only if wKM)
-                                ci = F, #a lot of time and problems with NAs in bootstraping
-                                boot.n = 200,
-                                conf.level = 0.95,
-                                seed = 123)
-
-          AUC <- out$auc
-        }else{
-          AUC <- NA
-        }
-      }
-      AUC.cox <- c(AUC.cox, AUC)
-    }
-
-  }else if(method %in% c(pkg.env$AUC_smoothROCtime_C, pkg.env$AUC_smoothROCtime_I)){
-
-    if(method == pkg.env$AUC_smoothROCtime_C){
-      #https://cran.r-project.org/web/packages/smoothROCtime/
-      new_times <- sapply(times, function(x){!sum(Y[Y$event==1,]$time<x)<2})
-
-      if(!all(new_times == FALSE)){
-        d <- cbind(Y$time, Y$event, linear.predictors$fit)
-        #default naive.pdf for banwidth matrix
-
-        # invisible(utils::capture.output(out <- tryCatch(
-        #   # Specifying expression
-        #   expr = {
-        #     #smoothROCtime::stRoc(data = d, t = times[new_times], tcr = "C", meth = "2") #Cumulative/Dynamic with p-kernel method #too much problems
-        #     smoothROCtime::stRoc(data = d, t = times[new_times], tcr = "C", meth = "1") #Cumulative/Dynamic with smooth method
-        #   },
-        #   # Specifying error message
-        #   error = function(e){
-        #     NULL
-        #   }
-        # )))
-
-        out <- smoothROCtime_tryCatch(data = d, times = times[new_times], tcr = "C", meth = "1")
-
-        if(is.null(out)){
-          AUC <- NA
-        }else if(is.na(out)){
-          AUC <- NA
-        }else{
-          AUC <- NULL
-          number_values <- table(out$t)[1]
-          for(i in seq(1,length(out$auc), number_values)){ #get the auc for each time (remember each value is rep)
-            AUC <- c(AUC, out$auc[i])
-          }
-
-          AUC.cox <- new_times
-          AUC.cox[AUC.cox==T] <- as.numeric(AUC)
-          AUC.cox[AUC.cox==0] <- NA
-        }
-      }else{
-        AUC <- NA
-      }
-
-    }else if(method == pkg.env$AUC_smoothROCtime_I){
-      #https://cran.r-project.org/web/packages/smoothROCtime/
-      new_times <- sapply(times, function(x){!sum(Y[Y$event==1,]$time<x)<2})
-
-      if(!all(new_times == FALSE)){
-        d <- cbind(Y$time, Y$event, linear.predictors$fit)
-
-        # invisible(utils::capture.output(out <- tryCatch(
-        #   # Specifying expression
-        #   expr = {
-        #     smoothROCtime::stRoc(data = d, t = times[new_times], tcr = "I") #Incident/Dynamic
-        #   },
-        #   # Specifying error message
-        #   error = function(e){
-        #     NULL
-        #   }
-        # )))
-
-        out <- smoothROCtime_tryCatch(data = d, times = times[new_times], tcr = "I")
-
-        if(is.null(out)){
-          AUC <- NA
-        }else if(is.na(out)){
-          AUC <- NA
-        }else{
-          AUC <- NULL
-          number_values <- table(out$t)[1]
-          for(i in seq(1,length(out$auc), number_values)){ #get the auc for each time (remember each value is rep)
-            AUC <- c(AUC, out$auc[i])
-          }
-
-          AUC.cox <- new_times
-          AUC.cox[AUC.cox==T] <- as.numeric(AUC)
-          AUC.cox[AUC.cox==0] <- NA
-        }
-      }else{
-        AUC <- NA
-      }
-    }
-
-  }else{
-    stop_quietly("No available method selected.")
-  }
-
-  t2 <- Sys.time()
-  t2-t1
-
-  return(list(lp.used = linear.predictors, AUC = AUC.cox))
-}
+# getAUC_from_LP <- function(linear.predictors, Y, times, bestModel = NULL, method = "cenROC", verbose = F){
+#   # method = c("risksetROC", "survivalROC")
+#   if(!all(c("time", "event") %in% colnames(Y))){
+#     stop_quietly("Data.frame Y must contain the columns time and event for COX model.")
+#   }
+#
+#   if(is.null(linear.predictors)){
+#     return(NA)
+#   }else if(!isa(linear.predictors, "list")){
+#     aux = linear.predictors
+#     linear.predictors = NULL
+#     linear.predictors$fit = aux
+#   }else if(!"fit" %in% names(linear.predictors)){
+#     stop_quietly("fit must be a list inside linea predictors object.")
+#   }
+#
+#   #order Y
+#   Y <- Y[names(linear.predictors$fit),]
+#
+#   if(method %in% c(pkg.env$AUC_nsROC, pkg.env$AUC_cenROC)){
+#     Y <- data.matrix(Y)
+#   }
+#
+#   AUC.cox = NULL #area under the curve for each timepoint
+#
+#   #### ### ### ### ###
+#   #### NO PARALLEL ###
+#   #### ### ### ### ###
+#   t1 <- Sys.time()
+#
+#   if(method %in% c(pkg.env$AUC_risksetROC, pkg.env$AUC_survivalROC, pkg.env$AUC_cenROC, pkg.env$AUC_nsROC)){
+#     for(t in times){
+#       #https://cran.r-project.org/web/packages/risksetROC/risksetROC.pdf
+#       if(method == pkg.env$AUC_risksetROC){
+#         # out <- risksetROC::CoxWeights(linear.predictors$fit, Stime = Y$time, status = Y$event,
+#         #                               predict.time = t)
+#
+#         out <- risksetROC_tryCatch(linear.predictors$fit, Stime = Y$time, status = Y$event,
+#                                    predict.time = t)
+#
+#         AUC <- out$AUC
+#       }else if(method == pkg.env$AUC_survivalROC){
+#         #https://cran.r-project.org/web/packages/survivalROC/
+#         #needs at least 2 events per time and time can not be day 0
+#         if(!sum(Y[Y$event==1,]$time<=t)<2 & t != 0){
+#           # out <- survivalROC::survivalROC(Stime = Y$time, status = Y$event, marker = linear.predictors$fit,
+#           #                                 predict.time = t, method = "NNE",
+#           #                                 span = 0.25 * nrow(Y)^(-0.20))
+#
+#           out <- survivalROC_tryCatch(Stime = Y$time, status = Y$event, marker = linear.predictors$fit,
+#                                       predict.time = t, method = "NNE",
+#                                       span = 0.25 * nrow(Y)^(-0.20))
+#
+#           AUC <- out$AUC
+#         }else{
+#           AUC <- NA
+#         }
+#       }else if(method == pkg.env$AUC_cenROC){
+#         #https://cran.r-project.org/web/packages/cenROC/
+#         #needs at least 2 events per time and time can not be day 0
+#         #Y is a matrix
+#         if(!sum(Y[Y[,"event"]==1,"time"]<=t)<2 & t != 0){
+#           # out <- tryCatch(
+#           #   # Specifying expression
+#           #   expr = {
+#           #     cenROC::cenROC(Y = Y[,"time"], censor = Y[,"event"], M = linear.predictors$fit,
+#           #                    t = t, method = "tra", ktype  ="normal", alpha = 0.05, plot = F) #problems in simulated data
+#           #   },
+#           #   # Specifying error message
+#           #   error = function(e){
+#           #     return(NULL)
+#           #   }
+#           # )
+#           out <- cenROC_tryCatch(Y = Y[,"time"], censor = Y[,"event"], M = linear.predictors$fit,
+#                                  t = t, method = "tra", ktype  ="normal", alpha = 0.05, plot = F, verbose = verbose)
+#
+#           if(is.null(out)){
+#             AUC <- NA
+#           }else if(is.na(out)){
+#             AUC <- NA
+#           }else{
+#             AUC <- out$AUC$AUC
+#           }
+#         }else{
+#           AUC <- NA
+#         }
+#       }else if(method == pkg.env$AUC_nsROC){
+#         #https://cran.r-project.org/web/packages/nsROC/nsROC.pdf
+#         #needs at least 2 events per time and time can not be day 0
+#         #Y is a matrix
+#         #cumulative/dynamic approach
+#         if(!sum(Y[Y[,"event"]==1,"time"]<=t)<2 & t != 0){
+#           # out <- nsROC::cdROC(stime = Y[,"time"],
+#           #                     status = Y[,"event"],
+#           #                     marker = linear.predictors$fit,
+#           #                     predict.time = t,
+#           #                     method = "wKM", # Cox, KM, wKM (last with kernel-weighted)
+#           #                     kernel = "normal", #normal, Epanechnikov, other (only if wKM)
+#           #                     ci = F, #a lot of time and problems with NAs in bootstraping
+#           #                     boot.n = 200,
+#           #                     conf.level = 0.95,
+#           #                     seed = 123)
+#
+#           out <- nsROC_tryCatch(stime = Y[,"time"],
+#                                 status = Y[,"event"],
+#                                 marker = linear.predictors$fit,
+#                                 predict.time = t,
+#                                 method = "wKM", # Cox, KM, wKM (last with kernel-weighted)
+#                                 kernel = "normal", #normal, Epanechnikov, other (only if wKM)
+#                                 ci = F, #a lot of time and problems with NAs in bootstraping
+#                                 boot.n = 200,
+#                                 conf.level = 0.95,
+#                                 seed = 123)
+#
+#           AUC <- out$auc
+#         }else{
+#           AUC <- NA
+#         }
+#       }
+#       AUC.cox <- c(AUC.cox, AUC)
+#     }
+#
+#   }else if(method %in% c(pkg.env$AUC_smoothROCtime_C, pkg.env$AUC_smoothROCtime_I)){
+#
+#     if(method == pkg.env$AUC_smoothROCtime_C){
+#       #https://cran.r-project.org/web/packages/smoothROCtime/
+#       new_times <- sapply(times, function(x){!sum(Y[Y$event==1,]$time<x)<2})
+#
+#       if(!all(new_times == FALSE)){
+#         d <- cbind(Y$time, Y$event, linear.predictors$fit)
+#         #default naive.pdf for banwidth matrix
+#
+#         # invisible(utils::capture.output(out <- tryCatch(
+#         #   # Specifying expression
+#         #   expr = {
+#         #     #smoothROCtime::stRoc(data = d, t = times[new_times], tcr = "C", meth = "2") #Cumulative/Dynamic with p-kernel method #too much problems
+#         #     smoothROCtime::stRoc(data = d, t = times[new_times], tcr = "C", meth = "1") #Cumulative/Dynamic with smooth method
+#         #   },
+#         #   # Specifying error message
+#         #   error = function(e){
+#         #     NULL
+#         #   }
+#         # )))
+#
+#         out <- smoothROCtime_tryCatch(data = d, times = times[new_times], tcr = "C", meth = "1")
+#
+#         if(is.null(out)){
+#           AUC <- NA
+#         }else if(is.na(out)){
+#           AUC <- NA
+#         }else{
+#           AUC <- NULL
+#           number_values <- table(out$t)[1]
+#           for(i in seq(1,length(out$auc), number_values)){ #get the auc for each time (remember each value is rep)
+#             AUC <- c(AUC, out$auc[i])
+#           }
+#
+#           AUC.cox <- new_times
+#           AUC.cox[AUC.cox==T] <- as.numeric(AUC)
+#           AUC.cox[AUC.cox==0] <- NA
+#         }
+#       }else{
+#         AUC <- NA
+#       }
+#
+#     }else if(method == pkg.env$AUC_smoothROCtime_I){
+#       #https://cran.r-project.org/web/packages/smoothROCtime/
+#       new_times <- sapply(times, function(x){!sum(Y[Y$event==1,]$time<x)<2})
+#
+#       if(!all(new_times == FALSE)){
+#         d <- cbind(Y$time, Y$event, linear.predictors$fit)
+#
+#         # invisible(utils::capture.output(out <- tryCatch(
+#         #   # Specifying expression
+#         #   expr = {
+#         #     smoothROCtime::stRoc(data = d, t = times[new_times], tcr = "I") #Incident/Dynamic
+#         #   },
+#         #   # Specifying error message
+#         #   error = function(e){
+#         #     NULL
+#         #   }
+#         # )))
+#
+#         out <- smoothROCtime_tryCatch(data = d, times = times[new_times], tcr = "I")
+#
+#         if(is.null(out)){
+#           AUC <- NA
+#         }else if(is.na(out)){
+#           AUC <- NA
+#         }else{
+#           AUC <- NULL
+#           number_values <- table(out$t)[1]
+#           for(i in seq(1,length(out$auc), number_values)){ #get the auc for each time (remember each value is rep)
+#             AUC <- c(AUC, out$auc[i])
+#           }
+#
+#           AUC.cox <- new_times
+#           AUC.cox[AUC.cox==T] <- as.numeric(AUC)
+#           AUC.cox[AUC.cox==0] <- NA
+#         }
+#       }else{
+#         AUC <- NA
+#       }
+#     }
+#
+#   }else{
+#     stop_quietly("No available method selected.")
+#   }
+#
+#   t2 <- Sys.time()
+#   t2-t1
+#
+#   return(list(lp.used = linear.predictors, AUC = AUC.cox))
+# }

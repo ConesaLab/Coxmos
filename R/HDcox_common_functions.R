@@ -464,7 +464,7 @@ removeNonSignificativeCox <- function(cox, alpha, cox_input, time.value = NULL, 
 
 }
 
-getFAST_LP_AUC <- function(fast_mode, comp_index, eta_index = NULL, run, fold, lst_X_test, lst_Y_test, comp_model_lst, times = NULL, lst_linear.predictors, df_results_evals_AUC, pred.method, pred.attr, PARALLEL = F){
+getFAST_LP_AUC <- function(fast_mode, comp_index, eta_index = NULL, run, fold, lst_X_test, lst_Y_test, comp_model_lst, times = NULL, lst_linear.predictors, df_results_evals_AUC, pred.method, pred.attr, PARALLEL = F, verbose = F){
   lst_linear.predictors <- NULL
   Y_test_full <- NULL
   lst_resCOMPLETE_LP <- getCOMPLETE_LP(comp_index = comp_index, eta_index = eta_index, run = run, fold = fold,
@@ -484,7 +484,7 @@ getFAST_LP_AUC <- function(fast_mode, comp_index, eta_index = NULL, run, fold, l
   lst_resCOMPLETE_LP_AUC <- getCOMPLETE_LP_AUC(Y_test_full = Y_test_to_use,
                                                lst_linear.predictors = lst_linear.predictors, times = times,
                                                df_results_evals_AUC = df_results_evals_AUC,
-                                               pred.method, pred.attr, PARALLEL = PARALLEL)
+                                               pred.method, pred.attr, PARALLEL = PARALLEL, verbose = verbose)
 
   lst_AUC_values <- lst_resCOMPLETE_LP_AUC$lst_AUC_values
   df_results_evals_AUC <- lst_resCOMPLETE_LP_AUC$df_results_evals_AUC
@@ -525,27 +525,35 @@ getCOMPLETE_LP <- function(comp_index, eta_index = NULL, run, fold, lst_X_test, 
   }
 }
 
-getCOMPLETE_LP_AUC <- function(Y_test_full, lst_linear.predictors, df_results_evals_AUC, times = NULL, pred.method, pred.attr, PARALLEL = F, max_time_points = 15, verbose = F){
-  #times
-  if(is.null(times)){
-    if(length(Y_test_full[Y_test_full[,"event"]==1,"time"])>0){
+getTimesVector <- function(Y_test_full, max_time_points = 15, ACCURACY = 0.001){
+
+  if(length(Y_test_full[Y_test_full[,"event"]==1,"time"])>0){
+    if(is.integer(Y_test_full[,"time"])){
       times <- 1:as.numeric(max(Y_test_full[Y_test_full[,"event"]==1,"time"]))
     }else{
+      inter <- max(Y_test_full[Y_test_full[,"event"]==1,"time"]) - min(Y_test_full[Y_test_full[,"event"]==1,"time"])
+      times <- seq(min(Y_test_full[Y_test_full[,"event"]==1,"time"]), max(Y_test_full[Y_test_full[,"event"]==1,"time"]), inter / (max_time_points-1))
+      times <- round2any(times, accuracy = ACCURACY, f = ceiling)
+    }
+  }else{
+    if(is.integer(Y_test_full[,"time"])){
       times <- 1:as.numeric(max(Y_test_full[Y_test_full[,"event"]==0,"time"]))
+    }else{
+      inter <- max(Y_test_full[Y_test_full[,"event"]==0,"time"]) - min(Y_test_full[Y_test_full[,"event"]==0,"time"])
+      times <- seq(min(Y_test_full[Y_test_full[,"event"]==1,"time"]), max(Y_test_full[Y_test_full[,"event"]==1,"time"]), inter / (max_time_points-1))
+      times <- round2any(times, accuracy = ACCURACY, f = ceiling)
     }
+  }
 
-    if(length(times)>max_time_points){
-      #a maximum of max_time_points time points will be selected
-      max_points = max_time_points
-      times <- 1:as.numeric(max(Y_test_full[Y_test_full[,"event"]==1,"time"]))
-      times <- times[round((length(times) / max_points) * 1:max_points)]
-      if(verbose){
-        message(paste0("\nA maximum of ", max_time_points, " time points will be used."))
-        message(paste0("Time point selected are: ", paste0(times, collapse = ", "), ".\n"))
-        message("For specific time points, use the argument 'times'.\n\n") #times no implemented in CV !!!!
-      }
-    }
+  return(times)
+}
 
+getCOMPLETE_LP_AUC <- function(Y_test_full, lst_linear.predictors, df_results_evals_AUC, times = NULL, pred.method, pred.attr, PARALLEL = F, max_time_points = 15, verbose = F){
+  #times
+
+  ACCURACY <- 0.001 #!!! think to a best mode to select the best accuracy for each possible time
+  if(is.null(times)){
+    times <- getTimesVector(Y_test_full, max_time_points = max_time_points, ACCURACY = ACCURACY)
   }else{
     if(length(times)>max_time_points){
       if(verbose){
@@ -1457,7 +1465,7 @@ get_COX_evaluation_AUC <- function(comp_model_lst,
                                    fast_mode, pred.method, pred.attr,
                                    max.ncomp, n_run, k_folds,
                                    w_AUC, #total_models,
-                                   MIN_AUC_INCREASE, MIN_AUC, MIN_COMP_TO_CHECK, method.train, PARALLEL = F){
+                                   MIN_AUC_INCREASE, MIN_AUC, MIN_COMP_TO_CHECK, method.train, PARALLEL = F, verbose = F){
 
   if(length(max.ncomp)==1 & !method.train==pkg.env$coxEN){
     max.ncomp <- 1:max.ncomp
@@ -1512,7 +1520,7 @@ get_COX_evaluation_AUC <- function(comp_model_lst,
                                             lst_X_test = lst_X_test, lst_Y_test = lst_Y_test, times = times,
                                             comp_model_lst = comp_model_lst, lst_linear.predictors = lst_linear.predictors,
                                             df_results_evals_AUC = df_results_evals_AUC,
-                                            pred.method = pred.method, pred.attr = pred.attr, PARALLEL = F)
+                                            pred.method = pred.method, pred.attr = pred.attr, PARALLEL = F, verbose = verbose)
 
           lst_AUC_values <- lst_FAST_LP_AUC$lst_AUC_values
           df_results_evals_AUC <- lst_FAST_LP_AUC$df_results_evals_AUC
@@ -1564,6 +1572,7 @@ get_COX_evaluation_AUC <- function(comp_model_lst,
           }
 
           #comp_index is the index of l for coxEN
+          # method updates automaticatly the lst of linear predictors addind each fold
           lst_COMPLETE_LP <- getCOMPLETE_LP(comp_index = l.index, run = r, fold = f,
                                             lst_X_test = lst_X_test, lst_Y_test = lst_Y_test, Y_test_full = Y_test_full,
                                             comp_model_lst = comp_model_lst, lst_linear.predictors = lst_linear.predictors)
@@ -1580,9 +1589,13 @@ get_COX_evaluation_AUC <- function(comp_model_lst,
 
         lst_resCOMPLETE_LP_AUC <- getCOMPLETE_LP_AUC(Y_test_full = Y_test_full, lst_linear.predictors = lst_linear.predictors,
                                                      times = times, df_results_evals_AUC = df_results_evals_AUC,
-                                                     pred.method = pred.method, pred.attr = pred.attr, PARALLEL = PARALLEL)
+                                                     pred.method = pred.method, pred.attr = pred.attr, PARALLEL = PARALLEL, verbose = verbose)
         lst_AUC_values <- lst_resCOMPLETE_LP_AUC$lst_AUC_values
         df_results_evals_AUC <- lst_resCOMPLETE_LP_AUC$df_results_evals_AUC
+
+        if(all(is.na(lst_AUC_values$AUC))){
+          lst_AUC_values$AUC <- NA
+        }
 
         lst_AUC_component_run[[r]] <- lst_AUC_values
         pb$tick()
@@ -1656,7 +1669,7 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
                                    fast_mode, pred.method, pred.attr,
                                    max.ncomp, eta.list, n_run, k_folds,
                                    w_AUC, total_models,
-                                   MIN_AUC_INCREASE, MIN_AUC, MIN_COMP_TO_CHECK, method.train, PARALLEL = F){
+                                   MIN_AUC_INCREASE, MIN_AUC, MIN_COMP_TO_CHECK, method.train, PARALLEL = F, verbose = F){
 
   if(length(max.ncomp)==1){
     max.ncomp <- 1:max.ncomp
@@ -1706,7 +1719,7 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
                                               lst_X_test = lst_X_test, lst_Y_test = lst_Y_test, times = times,
                                               comp_model_lst = comp_model_lst, lst_linear.predictors = lst_linear.predictors,
                                               df_results_evals_AUC = df_results_evals_AUC,
-                                              pred.method = pred.method, pred.attr = pred.attr, PARALLEL = PARALLEL)
+                                              pred.method = pred.method, pred.attr = pred.attr, PARALLEL = PARALLEL, verbose = verbose)
 
             lst_AUC_values <- lst_FAST_LP_AUC$lst_AUC_values
             df_results_evals_AUC <- lst_FAST_LP_AUC$df_results_evals_AUC
@@ -1775,7 +1788,7 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
           } #fold
 
           lst_resCOMPLETE_LP_AUC <- getCOMPLETE_LP_AUC(Y_test_full = Y_test_full, lst_linear.predictors = lst_linear.predictors,
-                                                       times = times, df_results_evals_AUC = df_results_evals_AUC, pred.method = pred.method, pred.attr = pred.attr, PARALLEL = PARALLEL)
+                                                       times = times, df_results_evals_AUC = df_results_evals_AUC, pred.method = pred.method, pred.attr = pred.attr, PARALLEL = PARALLEL, verbose = verbose)
           lst_AUC_values <- lst_resCOMPLETE_LP_AUC$lst_AUC_values
           df_results_evals_AUC <- lst_resCOMPLETE_LP_AUC$df_results_evals_AUC
 
@@ -2398,7 +2411,7 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
         fold_model_lst <- list()
         for(f in 1:k_folds){
           name <- paste0(c, "_", r, "_", f)
-          if(all(is.null(lst_all_models[[name]]$survival_model$fit))){
+          if(all(is.na(lst_all_models[[name]])) || all(is.null(lst_all_models[[name]]$survival_model$fit))){
             cont_problems = cont_problems + 1
           }
           fold_model_lst[[f]] = lst_all_models[[name]]
@@ -2413,9 +2426,9 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
 
     ## Before compute all intermediate models, check if all problems
     if(cont_problems == n_run * k_folds){
-      if(verbose){
-        message(paste0("Best model could NOT be obtained. All models computed present problems. Try to remove variance at fold level. If problem persists, try to delete manually some problematic variables."))
-      }
+      # if(verbose){
+      #   message(paste0("Best model could NOT be obtained. All models computed present problems. Try to remove variance at fold level. If problem persists, try to delete manually some problematic variables."))
+      # }
       return(NULL)
     }
 
@@ -2554,7 +2567,7 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
         fold_model_lst <- list()
         for(f in 1:k_folds){
           name <- paste0(c, "_", r, "_", f)
-          if(all(is.null(lst_all_models[[name]]$survival_model$fit))){
+          if(all(is.na(lst_all_models[[name]])) || all(is.null(lst_all_models[[name]]$survival_model$fit))){
             cont_problems = cont_problems + 1
           }
           fold_model_lst[[f]] = lst_all_models[[name]]
@@ -2696,7 +2709,7 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
           fold_model_lst <- list()
           for(f in 1:k_folds){
             name <- paste0(c, "_", e, "_", r, "_", f)
-            if(all(is.null(lst_all_models[[name]]$survival_model$fit))){
+            if(all(is.na(lst_all_models[[name]])) || all(is.null(lst_all_models[[name]]$survival_model$fit))){
               cont_problems = cont_problems + 1
             }
             fold_model_lst[[f]] = lst_all_models[[name]]
@@ -2850,39 +2863,39 @@ getVectorCuts <- function(vector, cut_points, verbose = F){
 
 }
 
-getVectorOfTime <- function(Y, max_time_points, verbose = F){
-  times = NULL
-  if(is.null(times)){
-    #a maximum of max_time_points time points will be selected
-    if(verbose){
-      message(paste0("\t A maximum of ", max_time_points, " time points will be used."))
-    }
-
-    max_points = max_time_points
-    times <- 1:as.numeric(max(Y[Y[,"event"]==1,"time"]))
-    times <- times[times %% (length(times) / max_points) < 1]
-    if(verbose){
-      message(paste0("\t Time point selected are: ", paste0(times, collapse = ", "), ".\n"))
-      message("\t For specific time points, use the argument 'times'.\n\n")
-    }
-
-  }else{
-    if(length(times)>20){
-      if(verbose){
-        message("\t More than 20 time points have been selected. CV processes could take a long time... Between 5-15 are recommended.\n")
-      }
-    }
-
-    if(max(times)>max(Y[,"time"])){
-      times = times[times <= max(Y[,"time"])]
-      if(verbose){
-        message(paste0("\t It has been selected a vector of times greater than the maximum Y time (censored) event. Time vector updated to: ", paste0(times, collapse = ", "),"\n"))
-      }
-    }
-  }
-
-  return(times)
-}
+# getVectorOfTime <- function(Y, max_time_points = 15, verbose = F){
+#   times = NULL
+#   if(is.null(times)){
+#     #a maximum of max_time_points time points will be selected
+#     if(verbose){
+#       message(paste0("\t A maximum of ", max_time_points, " time points will be used."))
+#     }
+#
+#     max_points = max_time_points
+#     times <- 1:as.numeric(max(Y[Y[,"event"]==1,"time"]))
+#     times <- times[times %% (length(times) / max_points) < 1]
+#     if(verbose){
+#       message(paste0("\t Time point selected are: ", paste0(times, collapse = ", "), ".\n"))
+#       message("\t For specific time points, use the argument 'times'.\n\n")
+#     }
+#
+#   }else{
+#     if(length(times)>20){
+#       if(verbose){
+#         message("\t More than 20 time points have been selected. CV processes could take a long time... Between 5-15 are recommended.\n")
+#       }
+#     }
+#
+#     if(max(times)>max(Y[,"time"])){
+#       times = times[times <= max(Y[,"time"])]
+#       if(verbose){
+#         message(paste0("\t It has been selected a vector of times greater than the maximum Y time (censored) event. Time vector updated to: ", paste0(times, collapse = ", "),"\n"))
+#       }
+#     }
+#   }
+#
+#   return(times)
+# }
 
 checkLibraryEvaluator <- function(pred.method){
   #Check evaluator installed:
@@ -2962,7 +2975,7 @@ eval_models4.0 <- function(lst_models, X_test, Y_test, pred.method, pred.attr = 
 
   #TEST DATA
   if(is.null(times)){
-    times <- getVectorOfTime(Y_test, max_time_points)
+    times <- getTimesVector(Y_test, max_time_points)
   }
 
   #MULTIBLOCK
@@ -3057,6 +3070,16 @@ eval_models4.0 <- function(lst_models, X_test, Y_test, pred.method, pred.attr = 
 
     new_df <- tidyr::pivot_longer(df, cols = starts_with("time_"), names_to = "time", values_to = "AUC",)
     new_df$time <- factor(new_df$time, levels = unique(new_df$time))
+  }
+
+  #Look for problems !!!!
+  #Could be cause by "sample is too sparse to find TD for time 3.25 and method 'cenROC'"
+  #Means SAMPLE have only two values for linear predictors (only one variable and its binary), so AUC cannot be compute for that model.
+
+  for(m in unique(new_df$method)){
+    if(all(is.na(new_df[new_df$method==m,]$AUC))){
+      message(paste0("Problems computing AUC metric for '", pred.method, "' evaluator and model '", m, "'"))
+    }
   }
 
   t2 <- Sys.time()
@@ -3372,7 +3395,7 @@ getBestVector <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN
   return(keepX)
 }
 
-getCIndex_AUC_CoxModel_spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keepX, scale = F, near.zero.var = F, EVAL_EVALUATOR = "cenROC", max.iter = 100){
+getCIndex_AUC_CoxModel_spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keepX, scale = F, near.zero.var = F, EVAL_EVALUATOR = "cenROC", max.iter = 100, verbose = F){
   model <- mixOmics::spls(X = Xh, Y = DR_coxph_ori, ncomp = n.comp, keepX = rep(keepX, n.comp), scale = scale, near.zero.var = near.zero.var, max.iter = max.iter)
   tt_mbsplsDR = model$variates
 
@@ -3402,15 +3425,15 @@ getCIndex_AUC_CoxModel_spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keepX, sca
   times = NULL
   max_time_points = 15
   if(is.null(times)){
-    times <- getVectorOfTime(Yh, max_time_points)
+    times <- getTimesVector(Yh, max_time_points)
   }
 
-  lst_AUC_values <- getAUC_from_LP_2.0(linear.predictors = lp, Y = Yh, times = times, bestModel = NULL, eval = "mean", method = EVAL_EVALUATOR, PARALLEL = FALSE)
+  lst_AUC_values <- getAUC_from_LP_2.0(linear.predictors = lp, Y = Yh, times = times, bestModel = NULL, eval = "mean", method = EVAL_EVALUATOR, PARALLEL = FALSE, verbose = verbose)
 
   return(list("c_index" = cox_model$fit$concordance["concordance"], "AUC" = lst_AUC_values$AUC))
 }
 
-getCIndex_AUC_CoxModel_splsda <- function(Xh, Yh, n.comp, keepX, scale = F, near.zero.var = F, EVAL_EVALUATOR = "cenROC", max.iter = 100){
+getCIndex_AUC_CoxModel_splsda <- function(Xh, Yh, n.comp, keepX, scale = F, near.zero.var = F, EVAL_EVALUATOR = "cenROC", max.iter = 100, verbose = F){
   model <- mixOmics::splsda(X = Xh, Y = Yh[,"event"], ncomp = n.comp, keepX = rep(keepX, n.comp), scale = scale, near.zero.var = near.zero.var, max.iter = max.iter)
   tt_mbsplsDA = model$variates
 
@@ -3438,11 +3461,11 @@ getCIndex_AUC_CoxModel_splsda <- function(Xh, Yh, n.comp, keepX, scale = F, near
   times = NULL
   max_time_points = 15
   if(is.null(times)){
-    times <- getVectorOfTime(Yh, max_time_points)
+    times <- getTimesVector(Yh, max_time_points)
   }
 
   lp <- getLinealPredictors(cox = cox_model$fit, data = d)
-  lst_AUC_values <- getAUC_from_LP_2.0(linear.predictors = lp, Y = Yh, times = times, bestModel = NULL, eval = "mean", method = EVAL_EVALUATOR, PARALLEL = FALSE)
+  lst_AUC_values <- getAUC_from_LP_2.0(linear.predictors = lp, Y = Yh, times = times, bestModel = NULL, eval = "mean", method = EVAL_EVALUATOR, PARALLEL = FALSE, verbose = verbose)
 
   return(list("c_index" = cox_model$fit$concordance["concordance"], "AUC" = lst_AUC_values$AUC))
 }

@@ -241,7 +241,7 @@ Xh_XXNA <- function(Xh, XXNA, value = 0){
   return(Xh)
 }
 
-getCIndex_AUC_CoxModel_block.spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keepX, scale = F, near.zero.var = F, EVAL_EVALUATOR = "cenROC", max.iter = 100){
+getCIndex_AUC_CoxModel_block.spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keepX, scale = F, near.zero.var = F, EVAL_EVALUATOR = "cenROC", max.iter = 100, verbose = F){
   model <- mixOmics::block.spls(X = Xh, Y = DR_coxph_ori, ncomp = n.comp, keepX = keepX, scale = scale, near.zero.var = near.zero.var, max.iter = max.iter)
   tt_mbsplsDR = model$variates[names(Xh)]
 
@@ -276,15 +276,15 @@ getCIndex_AUC_CoxModel_block.spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keep
   times = NULL
   max_time_points = 15
   if(is.null(times)){
-    times <- getVectorOfTime(Yh, max_time_points)
+    times <- getTimesVector(Yh, max_time_points)
   }
 
-  lst_AUC_values <- getAUC_from_LP_2.0(linear.predictors = lp, Y = Yh, times = times, bestModel = NULL, eval = "mean", method = EVAL_EVALUATOR, PARALLEL = FALSE)
+  lst_AUC_values <- getAUC_from_LP_2.0(linear.predictors = lp, Y = Yh, times = times, bestModel = NULL, eval = "mean", method = EVAL_EVALUATOR, PARALLEL = FALSE, verbose = verbose)
 
   return(list("c_index" = cox_model$fit$concordance["concordance"], "AUC" = lst_AUC_values$AUC))
 }
 
-getCIndex_AUC_CoxModel_block.splsda <- function(Xh, Yh, n.comp, keepX, scale = F, near.zero.var = F, EVAL_EVALUATOR = "cenROC", max.iter = 100){
+getCIndex_AUC_CoxModel_block.splsda <- function(Xh, Yh, n.comp, keepX, scale = F, near.zero.var = F, EVAL_EVALUATOR = "cenROC", max.iter = 100, verbose = verbose){
   model <- mixOmics::block.splsda(X = Xh, Y = Yh[,"event"], ncomp = n.comp, keepX = keepX, scale = scale, near.zero.var = near.zero.var, max.iter = max.iter)
   tt_mbsplsDR = model$variates[names(Xh)]
 
@@ -317,11 +317,11 @@ getCIndex_AUC_CoxModel_block.splsda <- function(Xh, Yh, n.comp, keepX, scale = F
   times = NULL
   max_time_points = 15
   if(is.null(times)){
-    times <- getVectorOfTime(Yh, max_time_points)
+    times <- getTimesVector(Yh, max_time_points)
   }
 
   lp <- getLinealPredictors(cox = cox_model$fit, data = d)
-  lst_AUC_values <- getAUC_from_LP_2.0(linear.predictors = lp, Y = Yh, times = times, bestModel = NULL, eval = "mean", method = EVAL_EVALUATOR, PARALLEL = FALSE)
+  lst_AUC_values <- getAUC_from_LP_2.0(linear.predictors = lp, Y = Yh, times = times, bestModel = NULL, eval = "mean", method = EVAL_EVALUATOR, PARALLEL = FALSE, verbose = verbose)
 
   return(list("c_index" = cox_model$fit$concordance["concordance"], "AUC" = lst_AUC_values$AUC))
 }
@@ -401,18 +401,18 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
 
     t1 <- Sys.time()
     if(mode %in% "spls"){
-      lst_cox_value <- furrr::future_map(list_KeepX, ~getCIndex_AUC_CoxModel_block.spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter), .progress = F)
+      lst_cox_value <- furrr::future_map(list_KeepX, ~getCIndex_AUC_CoxModel_block.spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter, verbose = verbose), .progress = F)
     }else{
-      lst_cox_value <- furrr::future_map(list_KeepX, ~getCIndex_AUC_CoxModel_block.splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter), .progress = F)
+      lst_cox_value <- furrr::future_map(list_KeepX, ~getCIndex_AUC_CoxModel_block.splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter, verbose = verbose), .progress = F)
     }
     t2 <- Sys.time()
     future::plan("sequential")
   }else{
     t1 <- Sys.time()
     if(mode %in% "spls"){
-      lst_cox_value <- purrr::map(list_KeepX, ~getCIndex_AUC_CoxModel_block.spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter), .progress = F)
+      lst_cox_value <- purrr::map(list_KeepX, ~getCIndex_AUC_CoxModel_block.spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter, verbose = verbose), .progress = F)
     }else{
-      lst_cox_value <- purrr::map(list_KeepX, ~getCIndex_AUC_CoxModel_block.splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter), .progress = F)
+      lst_cox_value <- purrr::map(list_KeepX, ~getCIndex_AUC_CoxModel_block.splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter, verbose = verbose), .progress = F)
     }
     t2 <- Sys.time()
   }
@@ -518,18 +518,18 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
 
       t1 <- Sys.time()
       if(mode %in% "spls"){
-        lst_cox_value <- furrr::future_map(list_KeepX_aux, ~getCIndex_AUC_CoxModel_block.spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter), .progress = F)
+        lst_cox_value <- furrr::future_map(list_KeepX_aux, ~getCIndex_AUC_CoxModel_block.spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter, verbose = verbose), .progress = F)
       }else{
-        lst_cox_value <- furrr::future_map(list_KeepX_aux, ~getCIndex_AUC_CoxModel_block.splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter), .progress = F)
+        lst_cox_value <- furrr::future_map(list_KeepX_aux, ~getCIndex_AUC_CoxModel_block.splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter, verbose = verbose), .progress = F)
       }
       t2 <- Sys.time()
       future::plan("sequential")
     }else{
       t1 <- Sys.time()
       if(mode %in% "spls"){
-        lst_cox_value <- purrr::map(list_KeepX_aux, ~getCIndex_AUC_CoxModel_block.spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter), .progress = F)
+        lst_cox_value <- purrr::map(list_KeepX_aux, ~getCIndex_AUC_CoxModel_block.spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter, verbose = verbose), .progress = F)
       }else{
-        lst_cox_value <- purrr::map(list_KeepX_aux, ~getCIndex_AUC_CoxModel_block.splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter), .progress = F)
+        lst_cox_value <- purrr::map(list_KeepX_aux, ~getCIndex_AUC_CoxModel_block.splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter, verbose = verbose), .progress = F)
       }
       t2 <- Sys.time()
     }

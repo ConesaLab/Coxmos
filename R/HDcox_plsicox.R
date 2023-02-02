@@ -581,6 +581,12 @@ cv.plsicox <- function (X, Y,
   if(w_AUC!=0){
     #total_models <- ifelse(!fast_mode, n_run * max.ncomp, k_folds * n_run * max.ncomp)#inside get_COX_evaluation_AUC
 
+    #times should be the same for all folds
+    #calculate time vector if still NULL
+    if(is.null(times)){
+      times <- getTimesVector(Y)
+    }
+
     #As we are measuring just one evaluator and one method - PARALLEL=F
     lst_df <- get_COX_evaluation_AUC(comp_model_lst = comp_model_lst,
                                      lst_X_test = lst_X_test, lst_Y_test = lst_Y_test,
@@ -589,7 +595,7 @@ cv.plsicox <- function (X, Y,
                                      max.ncomp = max.ncomp, n_run = n_run, k_folds = k_folds,
                                      MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
                                      w_AUC = w_AUC, #total_models = total_models,
-                                     method.train = pkg.env$plsicox, PARALLEL = F)
+                                     method.train = pkg.env$plsicox, PARALLEL = F, verbose = verbose)
 
     df_results_evals_comp <- lst_df$df_results_evals_comp
     df_results_evals_run <- lst_df$df_results_evals_run

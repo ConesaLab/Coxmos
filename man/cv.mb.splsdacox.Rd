@@ -18,6 +18,7 @@ cv.mb.splsdacox(
   remove_near_zero_variance = T,
   remove_zero_variance = T,
   toKeep.zv = NULL,
+  remove_variance_at_fold_level = F,
   remove_non_significant_models = F,
   remove_non_significant = F,
   alpha = 0.05,
@@ -70,6 +71,8 @@ cv.mb.splsdacox(
 \item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, remove_zero_variance variables will be removed.}
 
 \item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.}
+
+\item{remove_variance_at_fold_level}{Logical. Remove variance at fold level (T) or before split the data (F-default).}
 
 \item{remove_non_significant_models}{Logical. If remove_non_significant_models = TRUE, non-significant models are removed before computing the evaluation. A non-significant model is a model with at least one component/variable with a P-Value higher than the alpha cutoff. @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).}
 

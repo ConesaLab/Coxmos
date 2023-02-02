@@ -774,6 +774,7 @@ splsdrcox.modelPerComponent <- function (X, Y,
 #' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, remove_near_zero_variance variables will be removed.
 #' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, remove_zero_variance variables will be removed.
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.
+#' @param remove_variance_at_fold_level Logical. Remove variance at fold level (T) or before split the data (F-default).
 #' @param remove_non_significant_models Logical. If remove_non_significant_models = TRUE, non-significant models are removed before computing the evaluation. A non-significant model is a model with at least one component/variable with a P-Value higher than the alpha cutoff. @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
 #' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
 #' @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
@@ -803,7 +804,7 @@ cv.splsdrcox <- function (X, Y,
                          n_run = 10, k_folds = 10,
                          x.center = TRUE, x.scale = FALSE,
                          y.center = FALSE, y.scale = FALSE,
-                         remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
+                         remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL, remove_variance_at_fold_level = F,
                          remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,
                          w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
                          MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
@@ -836,13 +837,17 @@ cv.splsdrcox <- function (X, Y,
   max.ncomp <- check.maxPredictors(X, Y, MIN_EPV, max.ncomp, verbose = verbose)
 
   #### REQUIREMENTS
-  lst_dnz <- deleteZeroOrNearZeroVariance(X = X,
-                                          remove_near_zero_variance = remove_near_zero_variance,
-                                          remove_zero_variance = remove_zero_variance,
-                                          toKeep.zv = toKeep.zv,
-                                          freqCut = 95/5)
-  X <- lst_dnz$X
-  variablesDeleted <- lst_dnz$variablesDeleted
+  if(!remove_variance_at_fold_level & (remove_near_zero_variance | remove_zero_variance)){
+    lst_dnz <- deleteZeroOrNearZeroVariance(X = X,
+                                            remove_near_zero_variance = remove_near_zero_variance,
+                                            remove_zero_variance = remove_zero_variance,
+                                            toKeep.zv = toKeep.zv,
+                                            freqCut = 95/5)
+    X <- lst_dnz$X
+    variablesDeleted <- lst_dnz$variablesDeleted
+  }else{
+    variablesDeleted <- NULL
+  }
 
   #### #
   # CV #
@@ -865,7 +870,7 @@ cv.splsdrcox <- function (X, Y,
                                   max.ncomp = max.ncomp, eta.list = eta.list, EN.alpha.list = NULL,
                                   n_run = n_run, k_folds = k_folds,
                                   x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
-                                  remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL,
+                                  remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
                                   remove_non_significant = remove_non_significant, tol = tol,
                                   total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
 
@@ -924,6 +929,13 @@ cv.splsdrcox <- function (X, Y,
 
   if(w_AUC!=0){
     total_models <- ifelse(!fast_mode, n_run * max.ncomp * length(eta.list), k_folds * n_run * max.ncomp * length(eta.list))
+
+    #times should be the same for all folds
+    #calculate time vector if still NULL
+    if(is.null(times)){
+      times <- getTimesVector(Y)
+    }
+
     #As we are measuring just one evaluator and one method - PARALLEL=F
     lst_df <- get_COX_evaluation_AUC_sPLS(comp_model_lst = comp_model_lst,
                                           lst_X_test = lst_X_test, lst_Y_test = lst_Y_test,
@@ -931,7 +943,7 @@ cv.splsdrcox <- function (X, Y,
                                           fast_mode = fast_mode, pred.method = pred.method, pred.attr = pred.attr,
                                           max.ncomp = max.ncomp, eta.list = eta.list, n_run = n_run, k_folds = k_folds,
                                           MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                          w_AUC = w_AUC, total_models = total_models, method.train = "spls", PARALLEL = F)
+                                          w_AUC = w_AUC, total_models = total_models, method.train = "spls", PARALLEL = F, verbose = verbose)
 
     df_results_evals_comp <- lst_df$df_results_evals_comp
     df_results_evals_run <- lst_df$df_results_evals_run

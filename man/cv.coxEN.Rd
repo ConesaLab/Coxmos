@@ -18,6 +18,7 @@ cv.coxEN(
   remove_near_zero_variance = T,
   remove_zero_variance = T,
   toKeep.zv = NULL,
+  remove_variance_at_fold_level = F,
   remove_non_significant = F,
   alpha = 0.05,
   w_AIC = 0,
@@ -64,6 +65,8 @@ cv.coxEN(
 \item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, remove_zero_variance variables will be removed.}
 
 \item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.}
+
+\item{remove_variance_at_fold_level}{Logical. Remove variance at fold level (T) or before split the data (F-default).}
 
 \item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
 
