@@ -525,22 +525,28 @@ getCOMPLETE_LP <- function(comp_index, eta_index = NULL, run, fold, lst_X_test, 
   }
 }
 
-getTimesVector <- function(Y_test_full, max_time_points = 15, ACCURACY = 0.001){
+# If more than 2 events, get the maximum and the minimum time for event patients and compute X time points between them (equally distributed)
+# else, do it by the censored patients
+getTimesVector <- function(Y, max_time_points = 15, ACCURACY = 0.001){
 
-  if(length(Y_test_full[Y_test_full[,"event"]==1,"time"])>0){
-    if(is.integer(Y_test_full[,"time"])){
-      times <- 1:as.numeric(max(Y_test_full[Y_test_full[,"event"]==1,"time"]))
+  if(length(Y[Y[,"event"]==1,"time"])>1){
+    if(is.integer(Y[,"time"])){
+      inter <- max(Y[Y[,"event"]==1,"time"]) - min(Y[Y[,"event"]==1,"time"])
+      times <- seq(min(Y[Y[,"event"]==1,"time"]), max(Y[Y[,"event"]==1,"time"]), inter / (max_time_points-1))
+      times <- round2any(times, accuracy = 1, f = ceiling)
     }else{
-      inter <- max(Y_test_full[Y_test_full[,"event"]==1,"time"]) - min(Y_test_full[Y_test_full[,"event"]==1,"time"])
-      times <- seq(min(Y_test_full[Y_test_full[,"event"]==1,"time"]), max(Y_test_full[Y_test_full[,"event"]==1,"time"]), inter / (max_time_points-1))
+      inter <- max(Y[Y[,"event"]==1,"time"]) - min(Y[Y[,"event"]==1,"time"])
+      times <- seq(min(Y[Y[,"event"]==1,"time"]), max(Y[Y[,"event"]==1,"time"]), inter / (max_time_points-1))
       times <- round2any(times, accuracy = ACCURACY, f = ceiling)
     }
   }else{
-    if(is.integer(Y_test_full[,"time"])){
-      times <- 1:as.numeric(max(Y_test_full[Y_test_full[,"event"]==0,"time"]))
+    if(is.integer(Y[,"time"])){
+      inter <- max(Y[Y[,"event"]==0,"time"]) - min(Y[Y[,"event"]==0,"time"])
+      times <- seq(min(Y[Y[,"event"]==0,"time"]), max(Y[Y[,"event"]==0,"time"]), inter / (max_time_points-1))
+      times <- round2any(times, accuracy = 1, f = ceiling)
     }else{
-      inter <- max(Y_test_full[Y_test_full[,"event"]==0,"time"]) - min(Y_test_full[Y_test_full[,"event"]==0,"time"])
-      times <- seq(min(Y_test_full[Y_test_full[,"event"]==1,"time"]), max(Y_test_full[Y_test_full[,"event"]==1,"time"]), inter / (max_time_points-1))
+      inter <- max(Y[Y[,"event"]==0,"time"]) - min(Y[Y[,"event"]==0,"time"])
+      times <- seq(min(Y[Y[,"event"]==1,"time"]), max(Y[Y[,"event"]==1,"time"]), inter / (max_time_points-1))
       times <- round2any(times, accuracy = ACCURACY, f = ceiling)
     }
   }
@@ -2944,7 +2950,7 @@ checkAtLeastTwoEvents <- function(X_test, Y_test){
 #' @param pred.attr Mean or median
 #' @param times Vector of time points
 #' @param PARALLEL Use multicore option.
-#' @param max_time_points maximum number of time points to compute
+#' @param max_time_points maximum number of time points to compute in the prediction metric.
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #' @param progress_bar Show progress bar.
 #'
@@ -3197,7 +3203,7 @@ getLPforNewPatient <- function(model, new_pat, time = NULL, type = "lp", method 
 
 }
 
-getBestVector <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN_AUC_INCREASE, MIN_NVAR = 10, MAX_NVAR = 10000, cut_points = 3, EVAL_METHOD = "AUC", EVAL_EVALUATOR = "cenROC", PARALLEL = F, mode = "spls", verbose = F){
+getBestVector <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN_AUC_INCREASE, MIN_NVAR = 10, MAX_NVAR = 10000, cut_points = 5, EVAL_METHOD = "AUC", EVAL_EVALUATOR = "cenROC", PARALLEL = F, mode = "spls", times = NULL, max_time_points = 15, verbose = F){
 
   if(!mode %in% c("spls", "splsda")){
     stop("Mode must be one of: 'spls' or 'splsda'")
@@ -3241,18 +3247,18 @@ getBestVector <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN
 
     t1 <- Sys.time()
     if(mode %in% "spls"){
-      lst_cox_value <- furrr::future_map(vector, ~getCIndex_AUC_CoxModel_spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter), .progress = F)
+      lst_cox_value <- furrr::future_map(vector, ~getCIndex_AUC_CoxModel_spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter, times = times, max_time_points = max_time_points), .progress = F)
     }else{
-      lst_cox_value <- furrr::future_map(vector, ~getCIndex_AUC_CoxModel_splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter), .progress = F)
+      lst_cox_value <- furrr::future_map(vector, ~getCIndex_AUC_CoxModel_splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter, times = times, max_time_points = max_time_points), .progress = F)
     }
     t2 <- Sys.time()
     future::plan("sequential")
   }else{
     t1 <- Sys.time()
     if(mode %in% "spls"){
-      lst_cox_value <- purrr::map(vector, ~getCIndex_AUC_CoxModel_spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter), .progress = F)
+      lst_cox_value <- purrr::map(vector, ~getCIndex_AUC_CoxModel_spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter, times = times, max_time_points = max_time_points), .progress = F)
     }else{
-      lst_cox_value <- purrr::map(vector, ~getCIndex_AUC_CoxModel_splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter), .progress = F)
+      lst_cox_value <- purrr::map(vector, ~getCIndex_AUC_CoxModel_splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter, times = times, max_time_points = max_time_points), .progress = F)
     }
     t2 <- Sys.time()
   }
@@ -3346,18 +3352,18 @@ getBestVector <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN
 
       t1 <- Sys.time()
       if(mode %in% "spls"){
-        lst_cox_value <- furrr::future_map(vector_aux, ~getCIndex_AUC_CoxModel_spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter), .progress = F)
+        lst_cox_value <- furrr::future_map(vector_aux, ~getCIndex_AUC_CoxModel_spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter, times = times, max_time_points = max_time_points), .progress = F)
       }else{
-        lst_cox_value <- furrr::future_map(vector_aux, ~getCIndex_AUC_CoxModel_splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter), .progress = F)
+        lst_cox_value <- furrr::future_map(vector_aux, ~getCIndex_AUC_CoxModel_splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter, times = times, max_time_points = max_time_points), .progress = F)
       }
       t2 <- Sys.time()
       future::plan("sequential")
     }else{
       t1 <- Sys.time()
       if(mode %in% "spls"){
-        lst_cox_value <- purrr::map(vector_aux, ~getCIndex_AUC_CoxModel_spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter), .progress = F)
+        lst_cox_value <- purrr::map(vector_aux, ~getCIndex_AUC_CoxModel_spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter, times = times, max_time_points = max_time_points), .progress = F)
       }else{
-        lst_cox_value <- purrr::map(vector_aux, ~getCIndex_AUC_CoxModel_splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter), .progress = F)
+        lst_cox_value <- purrr::map(vector_aux, ~getCIndex_AUC_CoxModel_splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter, times = times, max_time_points = max_time_points), .progress = F)
       }
       t2 <- Sys.time()
     }
@@ -3395,7 +3401,7 @@ getBestVector <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN
   return(keepX)
 }
 
-getCIndex_AUC_CoxModel_spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keepX, scale = F, near.zero.var = F, EVAL_EVALUATOR = "cenROC", max.iter = 100, verbose = F){
+getCIndex_AUC_CoxModel_spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keepX, scale = F, near.zero.var = F, EVAL_EVALUATOR = "cenROC", max.iter = 100, verbose = F, times = NULL, max_time_points = 15){
   model <- mixOmics::spls(X = Xh, Y = DR_coxph_ori, ncomp = n.comp, keepX = rep(keepX, n.comp), scale = scale, near.zero.var = near.zero.var, max.iter = max.iter)
   tt_mbsplsDR = model$variates
 
@@ -3422,8 +3428,6 @@ getCIndex_AUC_CoxModel_spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keepX, sca
 
   lp <- getLinealPredictors(cox = cox_model$fit, data = d)
 
-  times = NULL
-  max_time_points = 15
   if(is.null(times)){
     times <- getTimesVector(Yh, max_time_points)
   }
@@ -3433,7 +3437,7 @@ getCIndex_AUC_CoxModel_spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keepX, sca
   return(list("c_index" = cox_model$fit$concordance["concordance"], "AUC" = lst_AUC_values$AUC))
 }
 
-getCIndex_AUC_CoxModel_splsda <- function(Xh, Yh, n.comp, keepX, scale = F, near.zero.var = F, EVAL_EVALUATOR = "cenROC", max.iter = 100, verbose = F){
+getCIndex_AUC_CoxModel_splsda <- function(Xh, Yh, n.comp, keepX, scale = F, near.zero.var = F, EVAL_EVALUATOR = "cenROC", max.iter = 100, verbose = F, times = NULL, max_time_points = 15){
   model <- mixOmics::splsda(X = Xh, Y = Yh[,"event"], ncomp = n.comp, keepX = rep(keepX, n.comp), scale = scale, near.zero.var = near.zero.var, max.iter = max.iter)
   tt_mbsplsDA = model$variates
 
@@ -3458,8 +3462,6 @@ getCIndex_AUC_CoxModel_splsda <- function(Xh, Yh, n.comp, keepX, scale = F, near
     }
   )
 
-  times = NULL
-  max_time_points = 15
   if(is.null(times)){
     times <- getTimesVector(Yh, max_time_points)
   }

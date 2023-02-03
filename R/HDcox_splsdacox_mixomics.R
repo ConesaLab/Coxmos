@@ -26,6 +26,8 @@
 #' @param EVAL_METHOD Numeric. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
 #' @param pred.method Character. AUC method for evaluation. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC")
 #' @param max.iter Maximum number of iterations for PLS convergence.
+#' @param times Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 15 points will be selected equally distributed.
+#' @param max_time_points maximum number of time points to compute in the prediction metric.
 #' @param MIN_EPV Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.
 #' @param returnData Logical. Return original and normalized X and Y matrices.
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
@@ -84,6 +86,7 @@ splsdacox_mixOmics <- function (X, Y,
                                remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
                                remove_non_significant = F, alpha = 0.05, tol = 1e-15,
                                EVAL_METHOD = "AUC", pred.method = "cenROC", max.iter = 200,
+                               times = NULL, max_time_points = 15,
                                MIN_EPV = 5, returnData = T, verbose = F){
 
   t1 <- Sys.time()
@@ -133,7 +136,7 @@ splsdacox_mixOmics <- function (X, Y,
 
   if(is.null(vector)){
     keepX <- getBestVector(Xh, DR_coxph, Yh, n.comp, max.iter, vector, MIN_AUC_INCREASE, MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, cut_points = n.cut_points,
-                           EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = F, mode = "splsda", verbose = verbose)
+                           EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = F, mode = "splsda", times = times, max_time_points = max_time_points, verbose = verbose)
   }else{
     if(is.numeric(vector)){
       keepX <- vector
@@ -149,7 +152,7 @@ splsdacox_mixOmics <- function (X, Y,
     }else{
       message("Vector does not has the proper structure. Optimizing best n.variables by using your vector as start vector.")
       keepX <- getBestVector(Xh, DR_coxph, Yh, n.comp, max.iter, vector = NULL, MIN_AUC_INCREASE, MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, cut_points = n.cut_points,
-                             EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = F, mode = "splsda", verbose = verbose)
+                             EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = F, mode = "splsda", times = times, max_time_points = max_time_points, verbose = verbose)
     }
   }
 
@@ -334,7 +337,7 @@ cv.splsdacox_mixOmics <- function(X, Y,
                         MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 5,
                         MIN_AUC_INCREASE = 0.01,
                         EVAL_METHOD = "AUC",
-                        w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
+                        w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL, max_time_points = 15,
                         MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                         pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                         max.iter = 500,
@@ -459,7 +462,7 @@ cv.splsdacox_mixOmics <- function(X, Y,
     #times should be the same for all folds
     #calculate time vector if still NULL
     if(is.null(times)){
-      times <- getTimesVector(Y)
+      times <- getTimesVector(Y, max_time_points = max_time_points)
     }
 
     lst_df <- get_COX_evaluation_AUC(comp_model_lst = comp_model_lst,

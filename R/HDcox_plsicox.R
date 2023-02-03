@@ -437,6 +437,7 @@ plsicox <- function (X, Y,
 #' @param w_c.index Numeric. Weight for C-Index evaluator. All three weights must sum 1 (default: 0).
 #' @param w_AUC Numeric. Weight for AUC evaluator. All three weights must sum 1 (default: 1).
 #' @param times Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 15 points will be selected equally distributed.
+#' @param max_time_points maximum number of time points to compute in the prediction metric.
 #' @param MIN_AUC_INCREASE Numeric. Minimum improvement between different EN.alpha.list to continue evaluating. If not reached for the next MIN_COMP_TO_CHECK penalties and the minimum MIN_AUC is reach, the evaluation stop.
 #' @param MIN_AUC Numeric. Minimum AUC desire.
 #' @param MIN_COMP_TO_CHECK Numeric. Number of penalties to check whether the AUC improves.
@@ -461,7 +462,7 @@ cv.plsicox <- function (X, Y,
                         y.center = FALSE, y.scale = FALSE,
                         remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL, remove_variance_at_fold_level = F,
                         remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,
-                        w_AIC = 0, w_c.index = 0, w_AUC = 1, times = NULL,
+                        w_AIC = 0, w_c.index = 0, w_AUC = 1, times = NULL, max_time_points = 15,
                         MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                         pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                         MIN_EPV = 5, return_models = F, returnData = F, tol = 1e-15,
@@ -584,7 +585,7 @@ cv.plsicox <- function (X, Y,
     #times should be the same for all folds
     #calculate time vector if still NULL
     if(is.null(times)){
-      times <- getTimesVector(Y)
+      times <- getTimesVector(Y, max_time_points = max_time_points)
     }
 
     #As we are measuring just one evaluator and one method - PARALLEL=F

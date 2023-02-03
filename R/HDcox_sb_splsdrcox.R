@@ -236,7 +236,7 @@ cv.sb.splsdrcox <- function(X, Y,
                            y.center = FALSE, y.scale = FALSE,
                            remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL, remove_variance_at_fold_level = F,
                            remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,
-                           w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
+                           w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL, max_time_points = 15,
                            MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                            pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                            MIN_EPV = 5, return_models = F, returnData = F, tol = 1e-15,
@@ -360,7 +360,7 @@ cv.sb.splsdrcox <- function(X, Y,
     #times should be the same for all folds
     #calculate time vector if still NULL
     if(is.null(times)){
-      times <- getTimesVector(Y)
+      times <- getTimesVector(Y, max_time_points = max_time_points)
     }
 
     lst_df <- get_COX_evaluation_AUC_sPLS(comp_model_lst = lst_model$comp_model_lst,
@@ -479,7 +479,7 @@ fast.cv.sb.splsdrcox <- function(X, Y,
                                 y.center = FALSE, y.scale = FALSE,
                                 remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL, remove_variance_at_fold_level = F,
                                 remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,
-                                w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
+                                w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL, max_time_points = 15,
                                 MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                                 pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                                 MIN_EPV = 5, returnData = T, return_models = F, tol = 1e-15,
@@ -559,7 +559,7 @@ fast.cv.sb.splsdrcox <- function(X, Y,
                                      max.ncomp = max.ncomp, eta.list = eta.list,
                                      n_run = n_run, k_folds = k_folds, alpha = alpha, remove_non_significant_models = remove_non_significant_models,
                                      remove_non_significant = remove_non_significant,
-                                     w_AIC = w_AIC, w_c.index = w_c.index, w_AUC = w_AUC, times = times,
+                                     w_AIC = w_AIC, w_c.index = w_c.index, w_AUC = w_AUC, times = times, max_time_points = max_time_points,
                                      MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
                                      x.scale = x.scale[[b]], x.center = x.center[[b]], y.scale = y.scale, y.center = y.center,
                                      remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
