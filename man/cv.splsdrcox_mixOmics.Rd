@@ -31,6 +31,7 @@ cv.splsdrcox_mixOmics(
   w_c.index = 0,
   w_AUC = 1,
   times = NULL,
+  max_time_points = 15,
   MIN_AUC = 0.8,
   MIN_COMP_TO_CHECK = 3,
   pred.attr = "mean",
@@ -97,6 +98,8 @@ cv.splsdrcox_mixOmics(
 \item{w_AUC}{Numeric. Weight for AUC evaluator. All three weights must sum 1 (default: 1).}
 
 \item{times}{Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 15 points will be selected equally distributed.}
+
+\item{max_time_points}{maximum number of time points to compute in the prediction metric.}
 
 \item{MIN_AUC}{Numeric. Minimum AUC desire.}
 

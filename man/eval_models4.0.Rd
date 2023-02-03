@@ -32,7 +32,7 @@ eval_models4.0(
 
 \item{PARALLEL}{Use multicore option.}
 
-\item{max_time_points}{maximum number of time points to compute}
+\item{max_time_points}{maximum number of time points to compute in the prediction metric.}
 
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 

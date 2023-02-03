@@ -26,6 +26,8 @@ splsdacox_mixOmics(
   EVAL_METHOD = "AUC",
   pred.method = "cenROC",
   max.iter = 200,
+  times = NULL,
+  max_time_points = 15,
   MIN_EPV = 5,
   returnData = T,
   verbose = F
@@ -73,6 +75,10 @@ splsdacox_mixOmics(
 \item{pred.method}{Character. AUC method for evaluation. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC")}
 
 \item{max.iter}{Maximum number of iterations for PLS convergence.}
+
+\item{times}{Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 15 points will be selected equally distributed.}
+
+\item{max_time_points}{maximum number of time points to compute in the prediction metric.}
 
 \item{MIN_EPV}{Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.}
 

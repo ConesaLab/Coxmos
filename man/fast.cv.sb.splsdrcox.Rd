@@ -26,6 +26,7 @@ fast.cv.sb.splsdrcox(
   w_c.index = 0,
   w_AUC = 1,
   times = NULL,
+  max_time_points = 15,
   MIN_AUC_INCREASE = 0.01,
   MIN_AUC = 0.8,
   MIN_COMP_TO_CHECK = 3,
@@ -83,6 +84,8 @@ fast.cv.sb.splsdrcox(
 \item{w_AUC}{Numeric. Weight for AUC evaluator. All three weights must sum 1 (default: 1).}
 
 \item{times}{Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 15 points will be selected equally distributed.}
+
+\item{max_time_points}{maximum number of time points to compute in the prediction metric.}
 
 \item{MIN_AUC_INCREASE}{Numeric. Minimum improvement between different EN.alpha.list to continue evaluating. If not reached for the next MIN_COMP_TO_CHECK penalties and the minimum MIN_AUC is reach, the evaluation stop.}
 
