@@ -2728,7 +2728,7 @@ get_HDCOX_models2.0 <- function(method = "PLS-ICOX",
     info <- "No info"
 
     ## Before compute all intermediate models, check if all problems
-    if(cont_problems == n_run * k_folds){
+    if(cont_problems == n_run * k_folds * length(eta.list)){
       if(verbose){
         message(paste0("Best model could NOT be obtained. All models computed present problems. Try to remove variance at fold level. If problem persists, try to delete manually some problematic variables."))
       }
