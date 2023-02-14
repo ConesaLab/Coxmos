@@ -2926,18 +2926,34 @@ checkLibraryEvaluator <- function(pred.method){
 
 checkAtLeastTwoEvents <- function(X_test, Y_test){
 
-  rn_X <- rownames(X_test)
+  if(!is.list(X_test)){
+    rn_X <- rownames(X_test)
 
-  if(!all(rn_X %in% rownames(Y_test))){
-    stop("Rownames in X_test must be in Y_test")
+    if(!all(rn_X %in% rownames(Y_test))){
+      stop("Rownames of X_test must be in Y_test")
+    }
+
+    sub_Y <- Y_test[rn_X,,drop=F]
+
+    if(sum(sub_Y[,"event"])<2){
+      stop("To evaluate a model, at least two events are mandatory in TEST data set.")
+    }
+
+  }else{ # MULTIOMIC APPROACH
+    for(block in names(X_test)){
+      rn_X <- rownames(X_test[[block]])
+
+      if(!all(rn_X %in% rownames(Y_test))){
+        stop(paste0("Rownames of X_test and block ", block," must be in Y_test"))
+      }
+
+      sub_Y <- Y_test[rn_X,,drop=F]
+
+      if(sum(sub_Y[,"event"])<2){
+        stop("To evaluate a model, at least two events are mandatory in TEST data set.")
+      }
+    }
   }
-
-  sub_Y <- Y_test[rn_X,,drop=F]
-
-  if(sum(sub_Y[,"event"])<2){
-    stop("To evaluate a model, at least two events are mandatory in TEST data set.")
-  }
-
 }
 
 #' eval_models4.0

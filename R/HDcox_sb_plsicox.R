@@ -531,7 +531,7 @@ fast.cv.sb.plsicox <- function(X, Y,
   lst_sb.pls <- list()
   for(b in names(Xh)){
 
-    message(paste0("Running cross validation ", pkg.env$sb.plsicox, " for block: ", b, "\n"))
+    message(paste0("\nRunning cross validation ", pkg.env$sb.plsicox, " for block: ", b, "\n"))
 
     cv.splsdrcox_res <- cv.plsicox(X = Xh[[b]], Y = Yh,
                                    max.ncomp = max.ncomp,
@@ -569,19 +569,30 @@ fast.cv.sb.plsicox <- function(X, Y,
 
   #colnames(data) <- apply(expand.grid(colnames(lst_sb.pls[[1]]$X$scores), names(Xh)), 1, paste, collapse="_")
   colnames(data) <- cn.merge
-  cox_model <- cox(X = data, Y = Yh, x.center = F, x.scale = F, y.center = F, y.scale = F, remove_non_significant = remove_non_significant, FORCE = T)
+  cox_model <- cox(X = data, Y = Yh,
+                   x.center = F, x.scale = F,
+                   y.center = F, y.scale = F,
+                   remove_non_significant = remove_non_significant,
+                   FORCE = T)
 
-  #RETURN a MODEL with ALL significant Variables from complete, deleting one by one in backward method
-  removed_variables <- NULL
+  # RETURN a MODEL with ALL significant Variables from complete, deleting one by one in backward method
+  # already performed in cox() function
+  # removed_variables <- NULL
+  # if(remove_non_significant){
+  #   if(all(c("time", "event") %in% colnames(data))){
+  #     lst_rnsc <- removeNonSignificativeCox(cox = cox_model$survival_model$fit, alpha = alpha, cox_input = data, time.value = NULL, event.value = NULL)
+  #   }else{
+  #     lst_rnsc <- removeNonSignificativeCox(cox = cox_model$survival_model$fit, alpha = alpha, cox_input = cbind(data, Yh), time.value = NULL, event.value = NULL)
+  #   }
+  #
+  #   cox_model$survival_model$fit <- lst_rnsc$cox
+  #   removed_variables <- lst_rnsc$removed_variables
+  # }
+
   if(remove_non_significant){
-    if(all(c("time", "event") %in% colnames(data))){
-      lst_rnsc <- removeNonSignificativeCox(cox = cox_model$fit, alpha = alpha, cox_input = data, time.value = NULL, event.value = NULL)
-    }else{
-      lst_rnsc <- removeNonSignificativeCox(cox = cox_model$fit, alpha = alpha, cox_input = cbind(data, Yh), time.value = NULL, event.value = NULL)
-    }
-
-    cox_model$fit <- lst_rnsc$cox
-    removed_variables <- lst_rnsc$removed_variables
+    removed_variables <- cox_model$nsv
+  }else{
+    removed_variables <- NULL
   }
 
   #### ### #
@@ -601,8 +612,8 @@ fast.cv.sb.plsicox <- function(X, Y,
                                 call = func_call,
                                 X_input = if(returnData) X_original else NA,
                                 Y_input = if(returnData) Y_original else NA,
-                               alpha = alpha,
-                               removed_variables_cox = removed_variables,
+                                alpha = alpha,
+                                removed_variables_cox = removed_variables,
                                 class = pkg.env$sb.plsicox,
                                 time = time)))
 }

@@ -1482,7 +1482,7 @@ coxweightplot.fromVector.HDcox <- function(model, vector, sd.min = NULL, sd.max 
 plot_pseudobeta.list <- function(lst_models, error.bar = T, onlySig = F, alpha = 0.05, zero.rm = F, top = NULL, auto.limits = T, show_percentage = T, size_percentage = 3, verbose = F){
 
 
-  if(all(unlist(purrr::map(lst_models, function(x){x$class})) %in% pkg.env$pls_methods)){
+  if(all(unlist(purrr::map(lst_models, function(x){x$class})) %in% c(pkg.env$pls_methods, pkg.env$multiblock_methods))){
     sub_lst_models <- lst_models
   }else{
     sub_lst_models <- lst_models[unlist(purrr::map(lst_models, function(x){x$class})) %in% pkg.env$pls_methods]
@@ -2781,12 +2781,13 @@ plot_events <- function(Y, max.breaks = 20, roundTo = 0.1, categories = c("Censo
     if(verbose){
       message("Y matrix must has event column as TRUE, FALSE. as.logical() function has been used.")
     }
-    Y$event <- as.logical(Y$event)
+    Y[,"event"] <- as.logical(Y[,"event"])
   }
 
   breaks_size = round2any((max(Y$time) - min(Y$time)) / (max.breaks+1), roundTo, f = ceiling)
   breaks = seq(min(Y$time), max(Y$time)+breaks_size, by=breaks_size)
   breaks = round2any(breaks, roundTo)
+  if(max(breaks)<max(Y[,"time"])){breaks=c(breaks, max(breaks)+breaks_size)}
   x.names <- cut(x = Y$time, breaks = breaks, include.lowest = T)
 
   Y$time_g <- x.names
@@ -3749,7 +3750,7 @@ getAutoKM.list <- function(type = "LP", lst_models, comp = 1:2, top = 10, ori_da
     lst <- purrr::map(lst_models, ~getLPKM(model = ., comp = comp, top = top, ori_data = ori_data, BREAKTIME = BREAKTIME, n.breaks = n.breaks, only_sig = only_sig, alpha = alpha, title = title, verbose = verbose))
   }else if(type == "COMP"){
 
-    if(all(unlist(purrr::map(lst_models, function(x){x$class})) %in% pkg.env$pls_methods)){
+    if(all(unlist(purrr::map(lst_models, function(x){x$class})) %in% c(pkg.env$pls_methods, pkg.env$multiblock_methods))){
       sub_lst_models <- lst_models
     }else{
       sub_lst_models <- lst_models[unlist(purrr::map(lst_models, function(x){x$class})) %in% pkg.env$pls_methods]
@@ -4212,6 +4213,13 @@ getLPVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NU
     LST_SPLOT <- list()
     for(b in names(model$X$data)){
       if(only_sig){
+
+        if(length(v_names[[b]][v_names[[b]]$`P-Val (Log Rank)` <= alpha,]$Variable)==0){
+          if(verbose){
+            cat("Any variable has a significant log-rank test value. Survival function, Hazard Curve and Cumulative Hazard plots will be returned.")
+          }
+        }
+
         LST_SPLOT[[b]] <- plot_survivalplot.qual(data = d[[b]],
                                                  sdata = data.frame(model$Y$data),
                                                  BREAKTIME = BREAKTIME,
@@ -4445,6 +4453,11 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
     LST_SPLOT <- list()
     for(b in names(model$X$data)){
       if(only_sig){
+
+        if(verbose & length(v_names[[b]][v_names[[b]]$`P-Val (Log Rank)` <= alpha,]$Variable)==0){
+          cat(paste0("Any variable has a significant log-rank test value for block '", b, "'. Survival function, Hazard Curve and Cumulative Hazard plots will be returned."))
+        }
+
         LST_SPLOT[[b]] <- plot_survivalplot.qual(data = d[[b]],
                                                   sdata = data.frame(model$Y$data),
                                                   BREAKTIME = BREAKTIME,
@@ -4998,12 +5011,22 @@ getCutoffAutoKM <- function(result){
     return(NULL)
   }
 
-  if(is.null(result$info_logrank_num$df_nvar_lrtest)){
-    return(NULL)
+  # High dimensional
+  if("df_nvar_lrtest" %in% names(result$info_logrank_num)){
+    value <- result$info_logrank_num$df_nvar_lrtest$Cutoff
+    names(value) <- result$info_logrank_num$df_nvar_lrtest$Variable
+  }else{
+    # MO
+    value <- list()
+    for(b in names(result$info_logrank_num)){
+      if(is.null(result$info_logrank_num[[b]]$df_nvar_lrtest)){
+        return(NULL)
+      }
+
+      value[[b]] <- result$info_logrank_num[[b]]$df_nvar_lrtest$Cutoff
+      names(value[[b]]) <- result$info_logrank_num[[b]]$df_nvar_lrtest$Variable
+    }
   }
 
-  value <- result$info_logrank_num$df_nvar_lrtest$Cutoff
-
-  names(value) <- result$info_logrank_num$df_nvar_lrtest$Variable
   return(value)
 }

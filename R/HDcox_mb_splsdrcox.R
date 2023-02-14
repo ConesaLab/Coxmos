@@ -194,6 +194,10 @@ mb.splsdrcox <- function (X, Y,
   # DIVIDE Y VENCERAS - BEST VECTOR SIZE #
   #### ### ### ### ### ### ### ### ### ###
 
+  if(is.null(times)){
+    times <- getTimesVector(Yh, max_time_points)
+  }
+
   if(is.null(vector)){
     keepX <- getBestVectorMB(Xh, DR_coxph, Yh, n.comp, max.iter, vector, MIN_AUC_INCREASE, MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, cut_points = n.cut_points,
                              EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = F, mode = "spls", times = times, max_time_points = max_time_points, verbose = verbose)

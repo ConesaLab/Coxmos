@@ -555,7 +555,7 @@ fast.cv.sb.splsdrcox <- function(X, Y,
   lst_sb.spls <- list()
   for(b in names(Xh)){
 
-    message(paste0("Running cross validation ", pkg.env$sb.splsdrcox ," for block: ", b, "\n"))
+    message(paste0("\nRunning cross validation ", pkg.env$sb.splsdrcox ," for block: ", b, "\n"))
 
     cv.splsdrcox_res <- cv.splsdrcox(X = Xh[[b]], Y = Yh,
                                      max.ncomp = max.ncomp, eta.list = eta.list,
@@ -597,6 +597,12 @@ fast.cv.sb.splsdrcox <- function(X, Y,
   colnames(data) <- cn.merge
   cox_model <- cox(X = data, Y = Yh, x.center = F, x.scale = F, y.center = F, y.scale = F, remove_non_significant = remove_non_significant, FORCE = T)
 
+  if(remove_non_significant){
+    removed_variables <- cox_model$nsv
+  }else{
+    removed_variables <- NULL
+  }
+
   #### ### #
   # RETURN #
   #### ### #
@@ -615,6 +621,8 @@ fast.cv.sb.splsdrcox <- function(X, Y,
                                 call = func_call,
                                 X_input = if(returnData) X_original else NA,
                                 Y_input = if(returnData) Y_original else NA,
+                                alpha = alpha,
+                                removed_variables_cox = removed_variables,
                                 class = pkg.env$sb.splsdrcox,
                                 time = time)))
 }

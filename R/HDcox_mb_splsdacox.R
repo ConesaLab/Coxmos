@@ -167,6 +167,10 @@ mb.splsdacox <- function (X, Y,
   # DIVIDE Y VENCERAS - BEST VECTOR SIZE #
   #### ### ### ### ### ### ### ### ### ###
 
+  if(is.null(times)){
+    times <- getTimesVector(Yh, max_time_points)
+  }
+
   DR_coxph = NULL #not used in plsda
 
   if(is.null(vector)){

@@ -179,7 +179,7 @@ getAUC_from_LP_2.0 <- function(linear.predictors, Y, times, bestModel = NULL, me
   }else if(method == pkg.env$AUC_survivalROC){
     #https://cran.r-project.org/web/packages/survivalROC/
     #needs at least 2 events per time and time can not be day 0
-    times.vector <- timesAsumption_AUC_Eval(Y, times)
+    times.vector <- timesAsumption_AUC_Eval(Y = Y, times = times)
     times.aux <- times #times[times.vector]
     if(!all(times.vector==F)){
       times_run <- times.aux[which(times.vector==T)]
@@ -215,7 +215,7 @@ getAUC_from_LP_2.0 <- function(linear.predictors, Y, times, bestModel = NULL, me
     #https://cran.r-project.org/web/packages/cenROC/
     #needs at least 2 events per time and time can not be day 0
     #Y is a matrix
-    times.vector <- timesAsumption_AUC_Eval(Y, times, method = method)
+    times.vector <- timesAsumption_AUC_Eval(Y = Y, times = times, method = method)
     times.aux <- times #times[times.vector]
     if(!all(times.vector==F)){
       times_run <- times.aux[which(times.vector==T)]
@@ -251,7 +251,7 @@ getAUC_from_LP_2.0 <- function(linear.predictors, Y, times, bestModel = NULL, me
     #needs at least 2 events per time and time can not be day 0
     #Y is a matrix
     #cumulative/dynamic approach
-    times.vector <- timesAsumption_AUC_Eval(Y, times)
+    times.vector <- timesAsumption_AUC_Eval(Y = Y, times = times)
     times.aux <- times #times[times.vector]
     if(!all(times.vector==F)){
       times_run <- times.aux[which(times.vector==T)]
@@ -300,7 +300,7 @@ getAUC_from_LP_2.0 <- function(linear.predictors, Y, times, bestModel = NULL, me
     }
   }else if(method == pkg.env$AUC_smoothROCtime_C){
     #https://cran.r-project.org/web/packages/smoothROCtime/
-    times.vector <- timesAsumption_AUC_Eval(Y, times)
+    times.vector <- timesAsumption_AUC_Eval(Y = Y, times = times)
     times.aux <- times #times[times.vector]
     if(!all(times.vector == FALSE)){
       times_run <- times.aux[which(times.vector==T)]
@@ -321,7 +321,7 @@ getAUC_from_LP_2.0 <- function(linear.predictors, Y, times, bestModel = NULL, me
 
   }else if(method == pkg.env$AUC_smoothROCtime_I){
     #https://cran.r-project.org/web/packages/smoothROCtime/
-    times.vector <- timesAsumption_AUC_Eval(Y, times)
+    times.vector <- timesAsumption_AUC_Eval(Y = Y, times = times)
     times.aux <- times #times[times.vector]
     if(!all(times.vector == FALSE)){
       times_run <- times.aux[which(times.vector==T)]
@@ -475,6 +475,11 @@ getAUC_vector <-function(output, method, eval, times = NULL, times.vector = NULL
 timesAsumption_AUC_Eval <- function(Y, times, method = NULL){
   #which times can be computed
   res <- NULL
+
+  if(length(times)==0 | is.null(times)){
+    stop("times has not a value")
+  }
+
   for(t in times){
     if(!sum(Y[(Y[,"event"]==1 | Y[,"event"]==TRUE),"time"]<=t)<2 & t != 0){
       res <- c(res, TRUE)
