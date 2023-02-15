@@ -3873,8 +3873,12 @@ getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NUL
       for(b in names(model$X$data)){
         if(attr(model, "model") %in% c(pkg.env$sb.plsicox, pkg.env$sb.splsdrcox)){
           lst_vars[[b]] <- colnames(model[[4]][[b]]$X$W.star)
+          keep <- which(paste0(lst_vars[[b]],"_",b) %in% names(model$survival_model$fit$coefficients))
+          lst_vars[[b]] <- lst_vars[[b]][keep]
         }else{
           lst_vars[[b]] <- colnames(model$X$W.star[[b]])
+          keep <- which(paste0(lst_vars[[b]],"_",b) %in% names(model$survival_model$fit$coefficients))
+          lst_vars[[b]] <- lst_vars[[b]][keep]
         }
       }
       vars <- names(model$survival_model$fit$coefficients)
@@ -4836,12 +4840,12 @@ getTestKM.list <- function(lst_models, X_test, Y_test, lst_cutoff, type = "LP", 
   }
 
   if(type == "COMP"){
-    if(all(unlist(purrr::map(lst_models, function(x){x$class})) %in% pkg.env$pls_methods)){
+    if(all(unlist(purrr::map(lst_models, function(x){x$class})) %in% c(pkg.env$pls_methods, pkg.env$multiblock_methods))){
       sub_lst_models <- lst_models
     }else{
-      sub_lst_models <- lst_models[unlist(purrr::map(lst_models, function(x){x$class})) %in% pkg.env$pls_methods]
+      sub_lst_models <- lst_models[unlist(purrr::map(lst_models, function(x){x$class})) %in% c(pkg.env$pls_methods, pkg.env$multiblock_methods)]
       if(verbose){
-        message(paste0("Model ", paste0(names(lst_models[!unlist(purrr::map(lst_models, function(x){x$class})) %in% pkg.env$pls_methods]), collapse = ", "), " are not based in PLS methodology. Other models computed."))
+        message(paste0("Model ", paste0(names(lst_models[!unlist(purrr::map(lst_models, function(x){x$class})) %in% c(pkg.env$pls_methods, pkg.env$multiblock_methods)]), collapse = ", "), " are not based in PLS methodology. Other models computed."))
       }
     }
   }else{
@@ -4907,9 +4911,14 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
   #create new variable
   if(type=="LP"){
     #predict scores X_test
-    test_score <- predict(model, newdata = X_test)
+    test_score <- predict(object = model, newdata = X_test)
     #predict LP using scores
     test_lp <- predict(model$survival_model$fit, newdata = as.data.frame(test_score))
+
+    if(is.na(cutoff)){
+      message("Cutoff not found for LP")
+      next
+    }
 
     txt_greater <- paste0("greater than ", cutoff)
     txt_lower <- paste0("lesser/equal than ", cutoff)
@@ -4934,17 +4943,21 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
 
     #predict scores X_test
     test_score <- predict(model, newdata = X_test)
-
+    test_score <- test_score[,names(model$survival_model$coef),drop=F]
     for(cn in names(model$survival_model$coef)){
-      index = which(cn==colnames(test_score))
       #get LP for individual components
       lst_test_lp[[cn]] <- test_score[,cn,drop=F] %*% model$survival_model$fit$coefficients[cn]
       colnames(lst_test_lp[[cn]]) <- cn
 
-      txt_greater <- paste0("greater than ", cutoff[[index]])
-      txt_lower <- paste0("lesser/equal than ", cutoff[[index]])
+      if(is.na(cutoff[[cn]])){
+        message(paste0("Cutoff not found for component: ", cn))
+        next
+      }
 
-      LP <- ifelse(lst_test_lp[[cn]]>cutoff[[index]], txt_greater, txt_lower)
+      txt_greater <- paste0("greater than ", cutoff[[cn]])
+      txt_lower <- paste0("lesser/equal than ", cutoff[[cn]])
+
+      LP <- ifelse(lst_test_lp[[cn]]>cutoff[[cn]], txt_greater, txt_lower)
       LP <- factor(LP)
 
       d <- as.data.frame(LP)
@@ -4954,12 +4967,41 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
                                               sdata = data.frame(Y_test),
                                               BREAKTIME = BREAKTIME,
                                               cn_variables = cn,
-                                              name_data = NULL, title = title)[[cn]]
+                                              name_data = NULL, title = paste0(title," - ",cn))[[cn]]
     }
 
     return(lst_ggp)
 
   }else if(type=="VAR"){
+
+    if(attr(model, "model") %in% c(pkg.env$sb.plsicox, pkg.env$sb.splsdrcox)){
+      lst_ggp <- NULL
+      ## SB.PLSICOX
+      if(attr(model, "model") %in% c(pkg.env$sb.plsicox)){
+        for(b in names(model$list_pls_models)){
+          new_cutoff <- cutoff[endsWith(names(cutoff), paste0("_",b))]
+          names(new_cutoff) <- unlist(lapply(names(new_cutoff), function(x){substr(x, start = 1, stop = nchar(x)-nchar(paste0("_",b)))}))
+          lst_ggp[[b]] <- getTestKM(model = model$list_pls_models[[b]], X_test = X_test[[b]], Y_test, new_cutoff, type, ori_data, BREAKTIME, n.breaks, title)
+        }
+        return(lst_ggp)
+      }else{
+        ## SB.sPLSDRCOX
+        for(b in names(model$list_spls_models)){
+          new_cutoff <- cutoff[endsWith(names(cutoff), paste0("_",b))]
+          names(new_cutoff) <- unlist(lapply(names(new_cutoff), function(x){substr(x, start = 1, stop = nchar(x)-nchar(paste0("_",b)))}))
+          lst_ggp[[b]] <- getTestKM(model$list_spls_models[[b]], X_test[[b]], Y_test, new_cutoff, type, ori_data, BREAKTIME, n.breaks, title)
+        }
+        return(lst_ggp)
+      }
+    }else if(attr(model, "model") %in% c(pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
+      ## MBs.
+      for(b in names(model$list_spls_models)){
+        new_cutoff <- cutoff[endsWith(names(cutoff), paste0("_",b))]
+        names(new_cutoff) <- unlist(lapply(names(new_cutoff), function(x){substr(x, start = 1, stop = nchar(x)-nchar(paste0("_",b)))}))
+        lst_ggp[[b]] <- getTestKM(model, X_test[[b]], Y_test, new_cutoff, type, ori_data, BREAKTIME, n.breaks, title)
+      }
+      return(lst_ggp)
+    }
 
     X_test <- X_test[,names(cutoff),drop=F]
     lst_ggp <- NULL
@@ -4968,6 +5010,11 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
     }
 
     for(cn in colnames(X_test)){
+
+        if(is.na(cutoff[[cn]])){
+          message(paste0("Cutoff not found for variable: ", cn))
+          next
+        }
 
         txt_greater <- paste0("greater than ", cutoff[[cn]])
         txt_lower <- paste0("lesser/equal than ", cutoff[[cn]])
@@ -4978,7 +5025,7 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
         d <- as.data.frame(LP)
         colnames(d) <- cn
 
-        lst_ggp[[cn]] <- plot_survivalplot.qual(d,
+        lst_ggp[[cn]] <- plot_survivalplot.qual(data = d,
                                                 sdata = data.frame(Y_test),
                                                 BREAKTIME = BREAKTIME,
                                                 cn_variables = cn,
@@ -5018,14 +5065,19 @@ getCutoffAutoKM <- function(result){
   }else{
     # MO
     value <- list()
+    cont = 1
     for(b in names(result$info_logrank_num)){
       if(is.null(result$info_logrank_num[[b]]$df_nvar_lrtest)){
         return(NULL)
       }
 
-      value[[b]] <- result$info_logrank_num[[b]]$df_nvar_lrtest$Cutoff
-      names(value[[b]]) <- result$info_logrank_num[[b]]$df_nvar_lrtest$Variable
+      value[[cont]] <- result$info_logrank_num[[b]]$df_nvar_lrtest$Cutoff
+      names(value[[cont]]) <- paste0(result$info_logrank_num[[b]]$df_nvar_lrtest$Variable, "_", b)
+      cont = cont + 1
     }
+
+    value <- unlist(value)
+
   }
 
   return(value)

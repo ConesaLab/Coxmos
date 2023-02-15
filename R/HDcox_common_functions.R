@@ -602,7 +602,9 @@ predict.HDcox <- function(object, ..., newdata = NULL){
     return(NULL)
   }
 
-  #SB is just splsdrcox
+  ## ## ## ## ## ##
+  # SB sPLS-DRCOX #
+  ## ## ## ## ## ##
   if(attr(model, "model") %in% pkg.env$sb.splsdrcox){
     #in this case, we should update newdata before run the method cause the normalization is performed before
     x.mean <- NULL
@@ -680,7 +682,9 @@ predict.HDcox <- function(object, ..., newdata = NULL){
     return(predicted_scores)
   }
 
-  #SB is just plsicox
+  ## ## ## ## ##
+  # SB PLS-ICOX #
+  ## ## ## ## ##
   if(attr(model, "model") %in% pkg.env$sb.plsicox){
     #in this case, we should update newdata before run the method cause the normalization is performed before
     x.mean <- NULL
@@ -757,6 +761,9 @@ predict.HDcox <- function(object, ..., newdata = NULL){
     return(predicted_scores)
   }
 
+  ## ## ## ## ## ## ##
+  # GET MEAN and SD #
+  ## ## ## ## ## ## ##
   x.mean <- NULL
   x.sd <- NULL
   if(!is.null(model$X$x.mean)){
@@ -767,7 +774,9 @@ predict.HDcox <- function(object, ..., newdata = NULL){
     x.sd <- model$X$x.sd
   }
 
-  ### TEST DATA
+  ## ## ## ## #
+  # NORM DATA #
+  ## ## ## ## #
   if(is.null(newdata)){
     X_test <- model$X$data
   }else{

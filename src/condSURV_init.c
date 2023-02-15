@@ -9,7 +9,7 @@
 /* .C calls */
 extern void SurvBeranKernel(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 
-static const R_CMethodDef CEntries[] = {
-  {"SurvBeranKernel", (DL_FUNC) &SurvBeranKernel, 10},
-  {NULL, NULL, 0}
-};
+// static const R_CMethodDef CEntries[] = {
+//   {"SurvBeranKernel", (DL_FUNC) &SurvBeranKernel, 10},
+//   {NULL, NULL, 0}
+// };
