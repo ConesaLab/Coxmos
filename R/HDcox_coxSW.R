@@ -198,8 +198,10 @@ coxSW <- function(X, Y,
             if(length(oneToDelete)>1){
               oneToDelete <- names(which.max(sapply(oneToDelete, nchar))) #if more than one word, just take it the longer match
             }
-            if(oneToDelete %in% lstMeetAssumption) #if accepted manually next
+
+            if(oneToDelete %in% lstMeetAssumption){ #if accepted manually next
               next
+            }
 
             #Get plot
             # grDevices::dev.new()
@@ -235,6 +237,7 @@ coxSW <- function(X, Y,
               }
 
               next #if everything it is ok, check next variable
+
             } else if (regexpr(question1, 'y', ignore.case = TRUE) == 1){
               grDevices::dev.off() #close window
 

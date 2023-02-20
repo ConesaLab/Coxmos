@@ -4493,13 +4493,16 @@ getLogRank_QualVariables <- function(data, sdata, VAR_EVENT, name_data = NULL){
   }
 
   for(cn in colnames(data)){
-    if(cn==VAR_EVENT) #skip outcome variable
+    if(cn==VAR_EVENT){ #skip outcome variable
       next
+    }
 
     variable <- data[,cn] #select the variable
 
     tbl <- as.data.frame(sort(table(variable)))
-    if(all(dim(tbl)==c(1,1))) next #just one factor
+    if(all(dim(tbl)==c(1,1))){
+      next #just one factor
+    }
     tbl$Rel <- round(tbl$Freq/sum(tbl$Freq), digits = 4)*100
 
     indexNONA <- which(!is.na(variable))
@@ -4917,7 +4920,7 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
 
     if(is.na(cutoff)){
       message("Cutoff not found for LP")
-      next
+      return(NA)
     }
 
     txt_greater <- paste0("greater than ", cutoff)
