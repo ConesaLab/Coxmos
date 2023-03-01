@@ -3,22 +3,22 @@
 #### ### ##
 
 #' cox
-#' @description Performs a standard cox model (based on survival::coxph R package).
+#' @description Performs a standard cox proportional hazard model (based on survival::coxph R package).
 #'
-#' @param X Numeric matrix. Predictor variables
-#' @param Y Numeric matrix. Response variables. It assumes it has two columns named as "time" and "event". For event column, values can be 0/1 or FALSE/TRUE for censored and event samples.
+#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
+#' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
 #' @param y.center Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).
 #' @param y.scale Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).
-#' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, remove_near_zero_variance variables will be removed.
-#' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, remove_zero_variance variables will be removed.
-#' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.
-#' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
-#' @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
-#' @param MIN_EPV Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.
+#' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
+#' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
+#' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
+#' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).
+#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
+#' @param MIN_EPV Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).
 #' @param FORCE Logical. In case the MIN_EPV is not meet, it allows to compute the model (default: FALSE).
-#' @param returnData Logical. Return original and normalized X and Y matrices.
+#' @param returnData Logical. Return original and normalized X and Y matrices (default: TRUE).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #'
 #' @return Instance of class "HDcox" and model "cox". The class contains the following elements:

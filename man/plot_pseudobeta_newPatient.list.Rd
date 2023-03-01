@@ -6,7 +6,7 @@
 \usage{
 plot_pseudobeta_newPatient.list(
   lst_models,
-  new_pat,
+  new_observation,
   error.bar = T,
   onlySig = T,
   alpha = 0.05,
@@ -18,26 +18,26 @@ plot_pseudobeta_newPatient.list(
 )
 }
 \arguments{
-\item{lst_models}{List of HDcox model}
+\item{lst_models}{List of HDcox models.}
 
-\item{new_pat}{Row of new patients}
+\item{new_observation}{Numeric matrix or data.frame. New explanatory variables (raw data) for one observation. Qualitative variables must be transform into binary variables.}
 
-\item{error.bar}{Logical. Show error bar}
+\item{error.bar}{Logical. Show error bar (default: TRUE).}
 
 \item{onlySig}{Logical. Compute psudobetas using only significant components.}
 
-\item{alpha}{Significant value (P.value).}
+\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
 
 \item{zero.rm}{Logical. Remove variables with a pseudobeta equal to 0.}
 
-\item{top}{Plot the top X variables with the higher pseudobetas in absolute value.}
+\item{top}{Numeric. Show "top" first variables with the higher pseudobetas in absolute value. If top = NULL, all variables are shown (default: NULL).}
 
-\item{auto.limits}{Compute Y limit automatically}
+\item{auto.limits}{Logical. If "auto.limits" = TRUE, limits are detected automatically (default: TRUE).}
 
-\item{show.betas}{Show original betas}
+\item{show.betas}{Logical. Show original betas (default: FALSE).}
 
-\item{verbose}{Shows extra messages}
+\item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
 \description{
-plot_pseudobeta_newPatient.list
+Run the function "plot_pseudobeta_newPatient" for a list of models. More information in "?plot_pseudobeta_newPatient".
 }

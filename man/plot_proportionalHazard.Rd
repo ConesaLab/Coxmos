@@ -7,7 +7,7 @@
 plot_proportionalHazard(model)
 }
 \arguments{
-\item{model}{HDcox model}
+\item{model}{HDcox model.}
 }
 \description{
 plot_proportionalHazard

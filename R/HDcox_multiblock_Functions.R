@@ -1,10 +1,10 @@
 #' deleteZeroOrNearZeroVariance.mb
 #'
-#' @param X Data.frame
-#' @param remove_near_zero_variance Logical. Remove NEAR zero variance
-#' @param remove_zero_variance Logical. Remove ZERO variance
-#' @param toKeep.zv Variables to keep.
-#' @param freqCut the cutoff for the ratio of the most common value to the second most common value
+#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
+#' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
+#' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
+#' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
+#' @param freqCut Numeric. Cutoff for the ratio of the most common value to the second most common value (default: 95/5).
 #'
 #' @export
 
@@ -266,7 +266,7 @@ getCIndex_AUC_CoxModel_block.spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keep
     },
     # Specifying error message
     error = function(e){
-      message(paste0("mb_splsdrcox_mixOmics: ",conditionMessage(e)))
+      message(paste0("mb_splsdrcox_dynamic: ",conditionMessage(e)))
       return(NA)
     }
   )
@@ -307,7 +307,7 @@ getCIndex_AUC_CoxModel_block.splsda <- function(Xh, Yh, n.comp, keepX, scale = F
     },
     # Specifying error message
     error = function(e){
-      message(paste0("mb_splsda_mixOmics: ",conditionMessage(e)))
+      message(paste0("mb_splsda_dynamic: ",conditionMessage(e)))
       return(NA)
     }
   )
@@ -341,7 +341,7 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
     names(vector) <- names(Xh)
   }else{
     #check vector is a list, and each value is less than the max.variables of that block
-    if(!class(vector[1]) %in% "list"){
+    if(!isa(vector[1],"list")){
       aux <- list()
       for(b in names(Xh)){
         aux[[b]] <- vector

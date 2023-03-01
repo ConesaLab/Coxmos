@@ -9,22 +9,22 @@ plot_divergent.biplot(
   Y,
   NAMEVAR1,
   NAMEVAR2,
-  breaks,
+  BREAKTIME,
   x.text = "N. of Samples"
 )
 }
 \arguments{
-\item{X}{A list of HDcox objects. Each HDCox object has the attribute time measured in minutes.}
+\item{X}{Numeric matrix or data.frame. Explanatory variables with "NAMEVAR1" and "NAMEVAR2" variables. "NAMEVAR1" must be a factor variable.}
 
-\item{Y}{X axis title.}
+\item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.}
 
-\item{NAMEVAR1}{factor variable name (must be located in colnames(X)).}
+\item{NAMEVAR1}{Character. Factor variable name (must be located in colnames(X) and have to have two levels).}
 
-\item{NAMEVAR2}{numerical variable name (must be located in colnames(X)).}
+\item{NAMEVAR2}{Character. Numerical variable name (must be located in colnames(X)).}
 
-\item{breaks}{Number of values for X numerical variable per each Y axis value. Example: breaks = 5 -> Y axis values: "0-4, 5-9, 10-14..."}
+\item{BREAKTIME}{Numeric. Size of time to split the data into "total_time / BREAKTIME + 1" points. If BREAKTIME = NULL, "n.breaks" is used (default: NULL).}
 
-\item{x.text}{Text for X axis.}
+\item{x.text}{Character. Title for X axis.}
 }
 \value{
 A ggplot2 two side bar plot. X axis represent the number of samples per each NAMEVAR1 factor levels and Y axis, the X NAMEVAR2 numerical variables categorize in groups of breaks.
@@ -39,6 +39,6 @@ For time comparison between best models, use the cross validation objects instea
 \dontrun{
   NAMEVAR1 = "sex"
   NAMEVAR2 = "age"
-  plot_divergent.biplot(X, Y, NAMEVAR1, NAMEVAR2, breaks = 5, x.text = "N. of Patients")
+  plot_divergent.biplot(X, Y, NAMEVAR1, NAMEVAR2, BREAKTIME = 5, x.text = "N. of Patients")
 }
 }

@@ -11,7 +11,7 @@ super.evalAllModels(
   pred.attr = "mean",
   times = NULL,
   max_time_points = 15,
-  PARALLEL = T,
+  PARALLEL = F,
   progress_bar = F
 )
 }
@@ -22,15 +22,15 @@ super.evalAllModels(
 
 \item{lst_evaluations}{List of which evaluators to use: "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I", "risksetROC"}
 
-\item{pred.attr}{Evaluate by "mean" or "median"}
+\item{pred.attr}{Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").}
 
-\item{times}{Time points to evaluate. If NULL, they will be compute automaticatly.}
+\item{times}{Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 'max_time_points' points will be selected equally distributed (default: NULL).}
 
-\item{max_time_points}{Maximum number of time points to compute.}
+\item{max_time_points}{Numeric. Maximum number of time points to use for evaluating the model (default: 15).}
 
-\item{PARALLEL}{Use multicore option.}
+\item{PARALLEL}{Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).}
 
-\item{progress_bar}{Show progress bar.}
+\item{progress_bar}{Logical. If progress_bar = TRUE, progress bar is shown (default = FALSE).}
 }
 \description{
 super.evalAllModels

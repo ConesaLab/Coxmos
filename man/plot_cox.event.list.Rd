@@ -4,15 +4,15 @@
 \alias{plot_cox.event.list}
 \title{plot_cox.event.list}
 \usage{
-plot_cox.event.list(lst_models, type = "lp", h.breaks = 30)
+plot_cox.event.list(lst_models, type = "lp", n.breaks = 20)
 }
 \arguments{
-\item{lst_models}{List of HDcox models}
+\item{lst_models}{List of HDcox models.}
 
-\item{type}{"lp", "risk", "expected" or "survival" methodology}
+\item{type}{Character. Prediction type: "lp", "risk", "expected" or "survival" (default: "lp").}
 
-\item{h.breaks}{Number of time breaks.}
+\item{n.breaks}{Numeric. Number of time-break points to compute (default: 20).}
 }
 \description{
-plot_cox.event.list
+Run the function "plot_cox.event" for a list of models. More information in "?plot_cox.event".
 }

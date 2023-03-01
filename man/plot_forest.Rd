@@ -14,18 +14,18 @@ plot_forest(
 )
 }
 \arguments{
-\item{model}{HDcox model}
+\item{model}{HDcox model.}
 
-\item{title}{title of the plot.}
+\item{title}{Character. Forest plot title (default: "Hazard Ratio").}
 
-\item{cpositions}{relative positions of first three columns in the OX scale.}
+\item{cpositions}{Numeric vector. Relative positions of first three columns in the OX scale (default: c(0.02, 0.22, 0.4)).}
 
-\item{fontsize}{relative size of annotations in the plot. Default value: 0.7.}
+\item{fontsize}{Numeric. Elative size of annotations in the plot (default: 0.7).}
 
-\item{refLabel}{label for reference levels of factor variables.}
+\item{refLabel}{Character. Label for reference levels of factor variables (default: "reference").}
 
-\item{noDigits}{number of digits for estimates and p-values in the plot.}
+\item{noDigits}{Numeric. Number of digits for estimates and p-values in the plot (default: 2).}
 }
 \description{
-Forest plot for HDcox models using the R library plot_forest
+Forest plot for HDcox models using the R library plot_forest. For more information check ?survminer::ggforest.
 }

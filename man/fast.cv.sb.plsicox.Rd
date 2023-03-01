@@ -8,7 +8,7 @@ fast.cv.sb.plsicox(
   X,
   Y,
   max.ncomp = 10,
-  n_run = 10,
+  n_run = 5,
   k_folds = 10,
   x.center = TRUE,
   x.scale = FALSE,
@@ -42,15 +42,15 @@ fast.cv.sb.plsicox(
 )
 }
 \arguments{
-\item{X}{Numeric matrix. Predictor variables}
+\item{X}{Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.}
 
-\item{Y}{Numeric matrix. Response variables. It assumes it has two columns named as "time" and "event". For event column, values can be 0/1 or FALSE/TRUE for censored and event samples.}
+\item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.}
 
-\item{max.ncomp}{Numeric. Maximum number of PLS components to compute for the cross validation.}
+\item{max.ncomp}{Numeric. Maximum number of PLS components to compute for the cross validation (default: 10).}
 
-\item{n_run}{Number. Number of runs for cross validation.}
+\item{n_run}{Numeric. Number of runs for cross validation (default: 5).}
 
-\item{k_folds}{Number. Number of folds for cross validation.}
+\item{k_folds}{Numeric. Number of folds for cross validation (default: 10).}
 
 \item{x.center}{Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).}
 
@@ -60,55 +60,55 @@ fast.cv.sb.plsicox(
 
 \item{y.scale}{Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).}
 
-\item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, remove_near_zero_variance variables will be removed.}
+\item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).}
 
-\item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, remove_zero_variance variables will be removed.}
+\item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).}
 
-\item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.}
+\item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).}
 
-\item{remove_variance_at_fold_level}{Logical. Remove variance at fold level (T) or before split the data (F-default).}
+\item{remove_variance_at_fold_level}{Logical. If remove_variance_at_fold_level = TRUE, (near) zero variance will be removed at fold level (default: FALSE).}
 
 \item{remove_non_significant_models}{Logical. If remove_non_significant_models = TRUE, non-significant models are removed before computing the evaluation.}
 
-\item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
+\item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).}
 
-\item{alpha}{Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).}
+\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
 
-\item{w_AIC}{Numeric. Weight for AIC evaluator. All three weights must sum 1 (default: 0).}
+\item{w_AIC}{Numeric. Weight for AIC evaluator. All weights must sum 1 (default: 0).}
 
-\item{w_c.index}{Numeric. Weight for C-Index evaluator. All three weights must sum 1 (default: 0).}
+\item{w_c.index}{Numeric. Weight for C-Index evaluator. All weights must sum 1 (default: 0).}
 
-\item{w_AUC}{Numeric. Weight for AUC evaluator. All three weights must sum 1 (default: 1).}
+\item{w_AUC}{Numeric. Weight for AUC evaluator. All weights must sum 1 (default: 1).}
 
-\item{times}{Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 15 points will be selected equally distributed.}
+\item{times}{Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 'max_time_points' points will be selected equally distributed (default: NULL).}
 
-\item{max_time_points}{maximum number of time points to compute in the prediction metric.}
+\item{max_time_points}{Numeric. Maximum number of time points to use for evaluating the model (default: 15).}
 
-\item{MIN_AUC_INCREASE}{Numeric. Minimum improvement between different EN.alpha.list to continue evaluating. If not reached for the next MIN_COMP_TO_CHECK penalties and the minimum MIN_AUC is reach, the evaluation stop.}
+\item{MIN_AUC_INCREASE}{Numeric. Minimum improvement between different cross validation models to continue evaluating higher values in the multiple tested parameters. If it is not reached for next 'MIN_COMP_TO_CHECK' models and the minimum 'MIN_AUC' value is reached, the evaluation stops (default: 0.01).}
 
-\item{MIN_AUC}{Numeric. Minimum AUC desire.}
+\item{MIN_AUC}{Numeric. Minimum AUC desire to reach cross-validation models. If the minimum is reached, the evaluation could stop if the improvement does not reach an AUC higher than adding the 'MIN_AUC_INCREASE' value (default: 0.8).}
 
-\item{MIN_COMP_TO_CHECK}{Numeric. Number of penalties to check whether the AUC improves.}
+\item{MIN_COMP_TO_CHECK}{Numeric. Number of penalties/components to evaluate to check if the AUC improves. If for the next 'MIN_COMP_TO_CHECK' the AUC is not better and the 'MIN_AUC' is meet, the evaluation could stop (default: 3).}
 
-\item{pred.attr}{Character. Method for average the AUC. Must be one of the following: "mean" or "median" (default: "mean").}
+\item{pred.attr}{Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").}
 
-\item{pred.method}{Character. AUC method for evaluation. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC")}
+\item{pred.method}{Character. AUC evaluation algorithm method for evaluate the model performance. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC").}
 
 \item{fast_mode}{Logical. If fast_mode = TRUE, for each run, only one fold is evaluated simultaneously. If fast_mode = FALSE, for each run, all linear predictors are computed for test observations. Once all have their linear predictors, the evaluation is perform across all the observations together (default: FALSE).}
 
-\item{MIN_EPV}{Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.}
+\item{MIN_EPV}{Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).}
 
-\item{returnData}{Logical. Return original and normalized X and Y matrices.}
+\item{returnData}{Logical. Return original and normalized X and Y matrices (default: TRUE).}
 
-\item{return_models}{Logical. Return all models computed in cross validation.}
+\item{return_models}{Logical. Return all models computed in cross validation (default: FALSE).}
 
-\item{tol}{Numeric. Tolerance for solving: solve(t(P) \%*\% W)}
+\item{tol}{Numeric. Tolerance for solving: solve(t(P) \%*\% W) (default: 1e-15).}
 
-\item{PARALLEL}{Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption.}
+\item{PARALLEL}{Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).}
 
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 
-\item{seed}{Number. Seed value for perform the runs/folds divisions.}
+\item{seed}{Number. Seed value for performing runs/folds divisions (default: 123).}
 }
 \value{
 Instance of class "HDcox" and model "SB.PLS-ICOX".

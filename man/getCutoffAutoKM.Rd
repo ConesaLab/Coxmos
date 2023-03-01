@@ -7,8 +7,8 @@
 getCutoffAutoKM(result)
 }
 \arguments{
-\item{result}{result of getAutoKM().}
+\item{result}{List. Result of getAutoKM() function.}
 }
 \description{
-getCutoffAutoKM
+Gets the cutoff value from the results of getAutoKM() functions.
 }

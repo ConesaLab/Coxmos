@@ -13,15 +13,15 @@ loadingplot.fromVector.HDcox(
 )
 }
 \arguments{
-\item{model}{HDcox model}
+\item{model}{HDcox model.}
 
 \item{vector}{Vector of loading}
 
-\item{zero.rm}{Remove variables equal to 0.}
+\item{zero.rm}{Logical. Remove variables equal to 0.}
 
-\item{top}{Number. Show top variables.}
+\item{top}{Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: NULL).}
 
-\item{auto.limits}{Logical. If TRUE, limits are detected for a better plot.}
+\item{auto.limits}{Logical. If "auto.limits" = TRUE, limits are detected automatically (default: TRUE).}
 }
 \description{
 loadingplot.fromVector.HDcox

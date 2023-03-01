@@ -5,28 +5,28 @@
 #' coxSW
 #' @description Performs a standard cox stepwise model (based on My.stepwise R package).
 #'
-#' @param X Numeric matrix. Predictor variables
-#' @param Y Numeric matrix. Response variables. It assumes it has two columns named as "time" and "event". For event column, values can be 0/1 or FALSE/TRUE for censored and event samples.
+#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
+#' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
 #' @param y.center Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).
 #' @param y.scale Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).
-#' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, remove_near_zero_variance variables will be removed.
-#' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, remove_zero_variance variables will be removed.
-#' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.
-#' @param initialModel Character vector. Name of variables in X to include in the initial model (default: "NULL").
-#' @param toKeep.sw Character vector. Name of variables in X to not be deleted by Step-wise selection.
-#' @param max.variables Numeric. Maximum number of variables you want to keep in the cox model. If MIN_EPV is not meet, the value will be change automatically.
-#' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
-#' @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
+#' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
+#' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
+#' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
+#' @param initialModel Character vector. Name of variables in X to include in the initial model (default: NULL).
+#' @param toKeep.sw Character vector. Name of variables in X to not be deleted by Step-wise selection (default: NULL).
+#' @param max.variables Numeric. Maximum number of variables you want to keep in the cox model. If MIN_EPV is not meet, the value will be change automatically (default: 20).
+#' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).
+#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
 #' @param alpha_ENT Numeric. Maximum P-Value for a variable to enter the model (default: 0.10).
 #' @param alpha_OUT Numeric. Minimum P-Value for a variable to leave the model (default: 0.15).
 #' @param alpha_PH Numeric. Maximum P-Value for a variable to meet Proportional Hazard Assumption (default: 0.05).
 #' @param check_PH Logical. If check_PH = TRUE, PH Assumption will be check (default: FALSE).
-#' @param boostDeletion Logical. If boostDeletion = TRUE, all variables with a P-Value greater than alpha_OUT will be deleted in each step. Instead of deleting one by one (default: FALSE).
-#' @param BACKWARDS Logical. If BACKWARDS = TRUE, backward strategy is perform.
-#' @param MIN_EPV Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.
-#' @param returnData Logical. Return original and normalized X and Y matrices.
+#' @param boostDeletion Logical. If boostDeletion = TRUE, all variables with a P-Value greater than alpha_OUT will be deleted in each step, instead of deleting one by one (default: FALSE).
+#' @param BACKWARDS Logical. If BACKWARDS = TRUE, backward strategy is performed (default: TRUE).
+#' @param MIN_EPV Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).
+#' @param returnData Logical. Return original and normalized X and Y matrices (default: TRUE).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #'
 #' @return Instance of class "HDcox" and model "coxSW". The class contains the following elements:
@@ -71,7 +71,7 @@ coxSW <- function(X, Y,
                   remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
                   remove_non_significant = F,
                   initialModel = "NULL", toKeep.sw = NULL, max.variables = 20,
-                  alpha = 0.05, alpha_ENT = 0.1, alpha_OUT = 0.15, alpha_PH = 0.05, check_PH = F, boostDeletion = F, BACKWARDS = F,
+                  alpha = 0.05, alpha_ENT = 0.1, alpha_OUT = 0.15, alpha_PH = 0.05, check_PH = F, boostDeletion = F, BACKWARDS = T,
                   MIN_EPV = 5, returnData = T, verbose = F){
 
   #DFCALLS

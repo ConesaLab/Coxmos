@@ -6,7 +6,7 @@
 \usage{
 plot_LP.multiplePatients(
   model,
-  df.pat,
+  new_data,
   error.bar = F,
   onlySig = T,
   alpha = 0.05,
@@ -16,21 +16,21 @@ plot_LP.multiplePatients(
 )
 }
 \arguments{
-\item{model}{HDcox models}
+\item{model}{HDcox model.}
 
-\item{df.pat}{Dataframe of observations}
+\item{new_data}{Numeric matrix or data.frame. New explanatory variables (raw data). Qualitative variables must be transform into binary variables.}
 
-\item{error.bar}{Show error bar.}
+\item{error.bar}{Logical. Show error bar (default: FALSE).}
 
-\item{onlySig}{Show only significant variables.}
+\item{onlySig}{Logical. Compute plot using only significant components.}
 
-\item{alpha}{Significant value.}
+\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
 
-\item{zero.rm}{Remove variables equal to 0.}
+\item{zero.rm}{Logical. Remove variables equal to 0.}
 
-\item{auto.limits}{Logical. If TRUE, limits are detected for a better plot.}
+\item{auto.limits}{Logical. If "auto.limits" = TRUE, limits are detected automatically (default: TRUE).}
 
-\item{top}{Number. Show top variables.}
+\item{top}{Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: NULL).}
 }
 \description{
 plot_LP.multiplePatients

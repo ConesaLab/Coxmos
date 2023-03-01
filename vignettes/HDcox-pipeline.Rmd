@@ -116,7 +116,7 @@ data("Y_miRNA_glioblastoma")
 X <- X_miRNA_glioblastoma
 Y <- Y_miRNA_glioblastoma
 
-rm(X_miRNA_glioblastoma, Y_miRNA_glioblastoma)
+#rm(X_miRNA_glioblastoma, Y_miRNA_glioblastoma)
 ```
 
 **X** and **Y** are two `data.frame` objects. **X** is related to the explanatory variables. Rows are observations and columns are the different variables of interest. For **Y** matrix, rows are the observations with the same row names as **X**, and it has to have two columns. The first one is called "time" and the second one, "event". "time" refers to the following up time until the event or until the last control if the observation is a right censored observation. The event could be TRUE/FALSE or 1/0 for those observations that have reach the event or are censored. An example could be show in the next code:
@@ -126,7 +126,8 @@ knitr::kable(X[1:5,1:5])
 
 knitr::kable(Y[1:5,])
 ```
-As we said, the dimension of each object is `r dim(X)[1]`x`r dim(X)[2]` for **X** matrix, and `r dim(Y)[1]`x`r dim(Y)[2]` for **Y** matrix.
+
+As we said, the dimension of each object is `r nrow(X)` x `r ncol(X)` for **X** matrix, and `r nrow(Y)` x `r ncol(Y)` for **Y** matrix.
 
 ```{r, echo = FALSE}
 knitr::kable(dim(X), col.names = "X")
@@ -159,12 +160,12 @@ After loading the data, it may be of interest for the user to perform a survival
 *HDcox* provides the following methodologies:
 
 * Classical approaches: COX, COX StepWise and COX Elastic Net.
-* PLS approaches: PLS-ICOX, sPLS-DRCOX, sPLS-DRCOX-MixOmics and sPLS-DACOX-MixOmics.
+* PLS approaches: PLS-ICOX, sPLS-DRCOX, sPLS-DRCOX-Dynamic and sPLS-DACOX-Dynamic.
 
 More information for each approach could be found in the help section for each function. The function name for each methodology are:
 
 * Classical approaches: cox(), coxSW() and coxEN().
-* PLS approaches: plsicox(), splsdrcox(), splsdrcox_mixOmics() and splsdacox_mixOmics().
+* PLS approaches: plsicox(), splsdrcox(), splsdrcox_dynamic() and splsdacox_dynamic().
 
 To perform a survival analysis with our example, we will use methodologies that can work with high-dimensional data. These are the set of methodologies that use PLS and COX Elastic Net techniques.
 
@@ -251,7 +252,7 @@ cv.coxen_res <- cv.coxEN(X = X_train, Y = Y_train,
                          MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                          pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                          MIN_EPV = 5, return_models = F,
-                         PARALLEL = T, verbose = F, seed = 123)
+                         PARALLEL = F, verbose = F, seed = 123)
 ```
 
 ```{r, eval=FALSE}
@@ -309,7 +310,7 @@ cv.plsicox_res <- cv.plsicox(X = X_train, Y = Y_train,
                              MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                              pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                              MIN_EPV = 5, return_models = F, remove_non_significant = F, returnData = F, tol = 1e-15,
-                             PARALLEL = T, verbose = F, seed = 123)
+                             PARALLEL = F, verbose = F, seed = 123)
 ```
 
 ```{r, eval=FALSE}
@@ -355,7 +356,7 @@ cv.splsdrcox_res <- cv.splsdrcox(X = X_train, Y = Y_train,
                                  MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                                  pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                                  MIN_EPV = 5, return_models = F,
-                                 PARALLEL = T, verbose = F, seed = 123)
+                                 PARALLEL = F, verbose = F, seed = 123)
 ```
 
 ```{r, eval=FALSE}
@@ -390,7 +391,7 @@ With this method, the user can specify the minimum and maximum number of variabl
 
 ```{r, eval=FALSE}
 # run cv.splsdrcox
-cv.splsdrcox_mo_res <- cv.splsdrcox_mixOmics(X = X_train, Y = Y_train, 
+cv.splsdrcox_mo_res <- cv.splsdrcox_dynamic(X = X_train, Y = Y_train, 
                                              max.ncomp = 10, vector = NULL, 
                                              MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 10, EVAL_METHOD = "cenROC",
                                              n_run = 2, k_folds = 10, 
@@ -402,7 +403,7 @@ cv.splsdrcox_mo_res <- cv.splsdrcox_mixOmics(X = X_train, Y = Y_train,
                                              MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                                              pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                                              MIN_EPV = 5, return_models = F,
-                                             PARALLEL = T, verbose = F, seed = 123)
+                                             PARALLEL = F, verbose = F, seed = 123)
 ```
 
 ```{r, eval=FALSE}
@@ -412,7 +413,7 @@ cv.splsdrcox_mo_res #3.45mins
 After the cross validation, the user can select the exact number of components and variables to use in their model.
 
 ```{r}
-splsdrcox_mo_model <- splsdrcox_mixOmics(X = X_train, Y = Y_train, 
+splsdrcox_mo_model <- splsdrcox_dynamic(X = X_train, Y = Y_train, 
                                          n.comp = 2, vector = 534,
                                          x.center = T, x.scale = F,
                                          y.center = F, y.scale = F,
@@ -431,7 +432,7 @@ Finally, we will launch a COX-based sPLS-DA model. This algorithm is the simples
 
 ```{r, eval=FALSE}
 # run cv.splsdrcox
-cv.splsdacox_res <- cv.splsdacox_mixOmics(X = X_train, Y = Y_train, 
+cv.splsdacox_res <- cv.splsdacox_dynamic(X = X_train, Y = Y_train, 
                                           max.ncomp = 10,  vector = NULL,
                                           MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 10, EVAL_METHOD = "cenROC",
                                           n_run = 2, k_folds = 10, 
@@ -443,7 +444,7 @@ cv.splsdacox_res <- cv.splsdacox_mixOmics(X = X_train, Y = Y_train,
                                           MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                                           pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                                           MIN_EPV = 5, return_models = F,
-                                          PARALLEL = T, verbose = F, seed = 123)
+                                          PARALLEL = F, verbose = F, seed = 123)
 ```
 
 ```{r, eval=FALSE}
@@ -453,7 +454,7 @@ cv.splsdacox_res #4min
 Once the best model is obtained through cross validation, it must be calculated using the desired parameters.
 
 ```{r}
-splsdacox_mo_model <- splsdacox_mixOmics(X = X_train, Y = Y_train, 
+splsdacox_mo_model <- splsdacox_dynamic(X = X_train, Y = Y_train, 
                                          n.comp = 6, vector = 184,
                                          x.center = T, x.scale = F,
                                          y.center = F, y.scale = F,
@@ -479,25 +480,25 @@ When evaluating survival model results, we must indicate at which temporal point
 lst_models <- list("COX-EN" = coxen_model,
                    "PLS-ICOX" = plsicox_model,
                    "sPLS-DRCOX" = splsdrcox_model,
-                   "sPLS-DRCOX-MixOmics" = splsdrcox_mo_model,
-                   "sPLS-DACOX-MixOmics" = splsdacox_mo_model)
+                   "sPLS-DRCOX-Dynamic" = splsdrcox_mo_model,
+                   "sPLS-DACOX-Dynamic" = splsdacox_mo_model)
 
-eval_results <- eval_models4.0(lst_models = lst_models,
-                               X_test = X_test, Y_test = Y_test, 
-                               pred.method = "cenROC",
-                               pred.attr = "mean",
-                               times = NULL, max_time_points = 15, 
-                               PARALLEL = T)
+eval_results <- eval_HDcox_models(lst_models = lst_models,
+                                  X_test = X_test, Y_test = Y_test, 
+                                  pred.method = "cenROC",
+                                  pred.attr = "mean",
+                                  times = NULL, max_time_points = 15, 
+                                  PARALLEL = F)
 
 # lst_evaluators <- c(cenROC = "cenROC", 
 #                     risksetROC = "risksetROC")
 # 
-# eval_results <- purrr::map(lst_evaluators, ~eval_models4.0(lst_models = lst_models,
+# eval_results <- purrr::map(lst_evaluators, ~eval_HDcox_models(lst_models = lst_models,
 #                                                            X_test = X_test, Y_test = Y_test, 
 #                                                            pred.method = .,
 #                                                            pred.attr = "mean",
 #                                                            times = seq(1,4,0.5), max_time_points = 15, 
-#                                                            PARALLEL = T))
+#                                                            PARALLEL = F))
 ```
 
 We can print the results obtained in the console where we can see, for each of the selected methods, the training time and the time it took to be evaluated, as well as their AIC, C-Index and AUC metrics and at which time points it was evaluated.
@@ -559,7 +560,7 @@ lst_forest_plot <- plot_forest.list(lst_models)
 ```
 
 ```{r, fig.small=T}
-lst_forest_plot$`sPLS-DRCOX-MixOmics`
+lst_forest_plot$`sPLS-DRCOX-Dynamic`
 ```
 
 ## PH Assumption
@@ -577,7 +578,7 @@ lst_ph_ggplot <- plot_proportionalHazard.list(lst_models)
 Variables or components with a significant P-Value indicate that the assumption is being violated.
 
 ```{r, fig.small=T}
-lst_ph_ggplot$`sPLS-DRCOX-MixOmics`
+lst_ph_ggplot$`sPLS-DRCOX-Dynamic`
 ```
 
 ## Density plots
@@ -603,8 +604,8 @@ density.plots.lp <- plot_cox.event.list(lst_models, type = "lp")
 ```
 
 ```{r, fig.small=T}
-density.plots.lp$`sPLS-DRCOX-MixOmics`$plot.density
-density.plots.lp$`sPLS-DRCOX-MixOmics`$plot.histogram
+density.plots.lp$`sPLS-DRCOX-Dynamic`$plot.density
+density.plots.lp$`sPLS-DRCOX-Dynamic`$plot.histogram
 ```
 
 ## Studying PLS model
@@ -612,7 +613,7 @@ density.plots.lp$`sPLS-DRCOX-MixOmics`$plot.histogram
 For those models based on PLS components, the PLS could be studied in terms of loadings/scores. In order to get the plots, the function plot_PLS_HDcox() has been developed where the user could specify to see "scores", "loadings" or a "biplot" for a couple of latent variables.
 
 ```{r}
-ggp_scores <- plot_PLS_HDcox(model = lst_models$`sPLS-DRCOX-MixOmics`, 
+ggp_scores <- plot_PLS_HDcox(model = lst_models$`sPLS-DRCOX-Dynamic`, 
                              comp = c(1,2), mode = "scores")
 ```
 
@@ -621,7 +622,7 @@ ggp_scores$plot
 ```
 
 ```{r}
-ggp_loadings <- plot_PLS_HDcox(model = lst_models$`sPLS-DRCOX-MixOmics`, 
+ggp_loadings <- plot_PLS_HDcox(model = lst_models$`sPLS-DRCOX-Dynamic`, 
                                comp = c(1,2), mode = "loadings",
                                top = 10) #length from 0,0
 ```
@@ -631,7 +632,7 @@ ggp_loadings$plot
 ```
 
 ```{r}
-ggp_biplot <- plot_PLS_HDcox(model = lst_models$`sPLS-DRCOX-MixOmics`, 
+ggp_biplot <- plot_PLS_HDcox(model = lst_models$`sPLS-DRCOX-Dynamic`, 
                              comp = c(1,2), mode = "biplot",
                              top = 15,
                              only_top = T,
@@ -659,12 +660,12 @@ ggp.simulated_beta <- plot_pseudobeta.list(lst_models = lst_models,
                                            show_percentage = T, size_percentage = 2, verbose = F)
 ```
 
-The sPSL-DRCOX-MixOmics model was computed using a total of `r lst_models[["sPLS-DRCOX-MixOmics"]]$n.comp` components. Although these components were classified as dangerous for the observations (based on coefficients greater than one), certain variables within the components may still have a protective effect, depending on their individual weights.
+The sPSL-DRCOX-Dynamic model was computed using a total of `r lst_models[["sPLS-DRCOX-Dynamic"]]$n.comp` components. Although these components were classified as dangerous for the observations (based on coefficients greater than one), certain variables within the components may still have a protective effect, depending on their individual weights.
 
-The following plot illustrates the pseudo-beta coefficient for the original variables in the sPSL-DRCOX-MixOmics model. As only the top 20 variables are shown, the plot represents only 25.07% of the total linear predictor total value. To view the complete model, all variables would need to be included in the plot by assigning the value NULL to the "top" parameter.
+The following plot illustrates the pseudo-beta coefficient for the original variables in the sPSL-DRCOX-Dynamic model. As only the top 20 variables are shown, the plot represents only 25.07% of the total linear predictor total value. To view the complete model, all variables would need to be included in the plot by assigning the value NULL to the "top" parameter.
 
 ```{r, fig.small=T}
-ggp.simulated_beta$`sPLS-DRCOX-MixOmics`$plot
+ggp.simulated_beta$`sPLS-DRCOX-Dynamic`$plot
 ```
 
 ## Kaplan-Meier
@@ -688,7 +689,7 @@ LST_KM_RES_LP <- getAutoKM.list(type = "LP",
 As a result, the Kaplan-Meier curve could be plotted.  
 
 ```{r, fig.small=T}
-LST_KM_RES_LP$`sPLS-DRCOX-MixOmics`$LST_PLOTS$LP
+LST_KM_RES_LP$`sPLS-DRCOX-Dynamic`$LST_PLOTS$LP
 ```
 After generating a Kaplan-Meier curve for the model, the cutoff value, which is used to divide the observations into two groups, can be used to evaluate how the test data is classified. The vector of cutoffs for multiple models, when "getAutoKM.list()" is applied, can be retrieved by using the function "getCutoffAutoKM.list()" and passing the output of "getAutoKM.list()" as a parameter.
 
@@ -707,7 +708,7 @@ LST_KM_TEST_LP <- getTestKM.list(lst_models = lst_models,
 ```
 
 ```{r, fig.small=T}
-LST_KM_TEST_LP$`sPLS-DRCOX-MixOmics`
+LST_KM_TEST_LP$`sPLS-DRCOX-Dynamic`
 ```
 
 ### Components
@@ -726,8 +727,8 @@ LST_KM_RES_COMP <- getAutoKM.list(type = "COMP",
 ```
 
 ```{r, fig.small=T}
-LST_KM_RES_COMP$`sPLS-DRCOX-MixOmics`$LST_PLOTS$comp_1
-LST_KM_RES_COMP$`sPLS-DRCOX-MixOmics`$LST_PLOTS$comp_2
+LST_KM_RES_COMP$`sPLS-DRCOX-Dynamic`$LST_PLOTS$comp_1
+LST_KM_RES_COMP$`sPLS-DRCOX-Dynamic`$LST_PLOTS$comp_2
 ```
 ```{r}
 lst_cutoff <- getCutoffAutoKM.list(LST_KM_RES_COMP)
@@ -740,7 +741,7 @@ LST_KM_TEST_COMP <- getTestKM.list(lst_models = lst_models,
 ```
 
 ```{r, fig.small=T}
-LST_KM_TEST_COMP$`sPLS-DRCOX-MixOmics`$comp_1
+LST_KM_TEST_COMP$`sPLS-DRCOX-Dynamic`$comp_1
 ```
 
 ### Original variables
@@ -760,8 +761,8 @@ LST_KM_RES_VAR <- getAutoKM.list(type = "VAR",
 ```
 
 ```{r, fig.small=T}
-LST_KM_RES_VAR$`sPLS-DRCOX-MixOmics`$LST_PLOTS$hsa_miR_222
-LST_KM_RES_VAR$`sPLS-DRCOX-MixOmics`$LST_PLOTS$hsa_miR_182
+LST_KM_RES_VAR$`sPLS-DRCOX-Dynamic`$LST_PLOTS$hsa_miR_222
+LST_KM_RES_VAR$`sPLS-DRCOX-Dynamic`$LST_PLOTS$hsa_miR_182
 ```
 
 ```{r}
@@ -775,7 +776,7 @@ LST_KM_TEST_VAR <- getTestKM.list(lst_models = lst_models,
 ```
 
 ```{r, fig.small=T}
-LST_KM_TEST_VAR$`sPLS-DRCOX-MixOmics`$hsa_miR_222
+LST_KM_TEST_VAR$`sPLS-DRCOX-Dynamic`$hsa_miR_222
 ```
 
 # New patients
@@ -802,7 +803,7 @@ ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient.list(lst_models = lst_mo
                                                              error.bar = T, onlySig = T, alpha = 0.05,
                                                              zero.rm = T, auto.limits = T, show.betas = T, top = 20)
 
-# ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient(model = lst_models$`sPLS-DRCOX-MixOmics`, 
+# ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient(model = lst_models$`sPLS-DRCOX-Dynamic`, 
 #                                                         new_pat = new_pat,
 #                                                         error.bar = T, onlySig = T, alpha = 0.05,
 #                                                         zero.rm = T, auto.limits = T, show.betas = T, top = 20)
@@ -810,7 +811,7 @@ ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient.list(lst_models = lst_mo
 On the left, a linear predictor value is shown for the observation and each variable. On the right, the pseudo-beta coefficients for the model's original variables are illustrated. This allows the user to compare the direction of the linear predictors per variable. A change in direction means that the variable's value is below the mean for hazard variables or above the mean for protective ones. Having an opposite direction for hazard variables and maintaining the direction for protective variables makes the observation safer over time.
 
 ```{r, fig.small=T}
-ggp.simulated_beta_newPat$`sPLS-DRCOX-MixOmics`$plot
+ggp.simulated_beta_newPat$`sPLS-DRCOX-Dynamic`$plot
 ```
 
 ## Add patient to density plot
@@ -820,7 +821,7 @@ Additionally, the new observation can be added to the density and histogram plot
 ```{r}
 pat_density <- plot_patient.eventDensity(patient = new_pat, 
                                          time = NULL, 
-                                         model = lst_models$`sPLS-DRCOX-MixOmics`, 
+                                         model = lst_models$`sPLS-DRCOX-Dynamic`, 
                                          type = "lp")
 ```
 
@@ -831,7 +832,7 @@ pat_density
 ```{r}
 pat_histogram <- plot_patient.eventHistogram(patient = new_pat, 
                                              time = NULL, 
-                                             model = lst_models$`sPLS-DRCOX-MixOmics`, 
+                                             model = lst_models$`sPLS-DRCOX-Dynamic`, 
                                              type = "lp")
 ```
 
@@ -860,5 +861,5 @@ lst_cox.comparison <- plot_LP.multiplePatients.list(lst_models = lst_models,
 ```
 
 ```{r, fig.small=T}
-lst_cox.comparison$`sPLS-DRCOX-MixOmics`$plot
+lst_cox.comparison$`sPLS-DRCOX-Dynamic`$plot
 ```

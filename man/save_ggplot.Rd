@@ -15,7 +15,7 @@ save_ggplot(
 )
 }
 \arguments{
-\item{plot}{ggplot2}
+\item{plot}{ggplot2 object}
 
 \item{folder}{folder}
 

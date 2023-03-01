@@ -7,8 +7,8 @@
 getCutoffAutoKM.list(lst_results)
 }
 \arguments{
-\item{lst_results}{result of getAutoKM,list().}
+\item{lst_results}{List of lists. Result of getAutoKM.list() function.}
 }
 \description{
-getCutoffAutoKM.list
+Run the function "getCutoffAutoKM" for a list of models. More information in "?getCutoffAutoKM".
 }

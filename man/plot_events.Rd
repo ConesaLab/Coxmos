@@ -9,22 +9,22 @@ plot_events(
   max.breaks = 20,
   roundTo = 0.1,
   categories = c("Censored", "Death"),
-  y.text = "Number of patients",
+  y.text = "Number of observations",
   verbose = F
 )
 }
 \arguments{
-\item{Y}{Y matrix}
+\item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.}
 
-\item{max.breaks}{Number maximum of breaks in X axis.}
+\item{max.breaks}{Numeric. Maximum number of breaks in X axis (default: 20).}
 
-\item{roundTo}{Round time to which value.}
+\item{roundTo}{Numeric. Value to round time. If roundTo = 0.1, the results will be rounded to the tenths (default: 0.1).}
 
-\item{categories}{Categories to print.}
+\item{categories}{Character vector. Vector of length two to name both categories for censored and non-censored observations (default: c("Censored","Death")).}
 
-\item{y.text}{Label for Y axis}
+\item{y.text}{Character. Y axis title (default: "Number of observations").}
 
-\item{verbose}{Return messages}
+\item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
 \description{
 plot_events

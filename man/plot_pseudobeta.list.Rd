@@ -18,26 +18,26 @@ plot_pseudobeta.list(
 )
 }
 \arguments{
-\item{lst_models}{List of HDcox model}
+\item{lst_models}{List of HDcox models.}
 
-\item{error.bar}{Logical. Show error bar}
+\item{error.bar}{Logical. Show error bar (default: TRUE).}
 
 \item{onlySig}{Logical. Compute psudobetas using only significant components.}
 
-\item{alpha}{Significant value (P.value).}
+\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
 
 \item{zero.rm}{Logical. Remove variables with a pseudobeta equal to 0.}
 
-\item{top}{Plot the top X variables with the higher pseudobetas in absolute value.}
+\item{top}{Numeric. Show "top" first variables with the higher pseudobetas in absolute value. If top = NULL, all variables are shown (default: NULL).}
 
-\item{auto.limits}{Compute Y limit automatically}
+\item{auto.limits}{Logical. If "auto.limits" = TRUE, limits are detected automatically (default: TRUE).}
 
-\item{show_percentage}{Show contribution percentage for each variable}
+\item{show_percentage}{Logical. If show_percentage = TRUE, it shows the contribution percentage for each variable to the full model (default: TRUE).}
 
-\item{size_percentage}{Size of percentage text}
+\item{size_percentage}{Numeric. Size of percentage text (default: 3).}
 
-\item{verbose}{Show messages}
+\item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
 \description{
-plot_pseudobeta.list
+Run the function "plot_pseudobeta" for a list of models. More information in "?plot_pseudobeta".
 }

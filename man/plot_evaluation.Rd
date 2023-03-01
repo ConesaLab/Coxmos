@@ -7,13 +7,13 @@
 plot_evaluation(eval_results, pred.attr = "mean", y.min = NULL, type = "both")
 }
 \arguments{
-\item{eval_results}{Eval_models4.0 object}
+\item{eval_results}{HDcox evaluation object}
 
-\item{pred.attr}{"mean" or "median"}
+\item{pred.attr}{Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").}
 
-\item{y.min}{Minimum Y value to plot. If NULL, automatic detection.}
+\item{y.min}{Numeric. Minimum Y value for establish the Y axis value. If y.min = NULL, automatic detection is performed (default: NULL).}
 
-\item{type}{type plot. Must be one of the following: "both", "line", "mean". In other case, "both" will be selected.}
+\item{type}{Character. Plot type. Must be one of the following: "both", "line" or "mean". In other case, "both" will be selected (default: "both").}
 }
 \description{
 plot_evaluation

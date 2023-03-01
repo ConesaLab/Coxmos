@@ -14,17 +14,17 @@ plot_patient.eventHistogram(
 )
 }
 \arguments{
-\item{patient}{observation}
+\item{patient}{Numeric matrix or data.frame. New explanatory variables (raw data) for one observation. Qualitative variables must be transform into binary variables.}
 
-\item{time}{time point of study}
+\item{time}{Numeric. Time point where the AUC will be evaluated.}
 
-\item{model}{HDcox model}
+\item{model}{HDcox model.}
 
-\item{type}{type between "lp", "risk, "expected", "survival"}
+\item{type}{Character. Prediction type: "lp", "risk", "expected" or "survival" (default: "lp").}
 
-\item{size}{size}
+\item{size}{Numeric. Point size (default: 3).}
 
-\item{color}{color}
+\item{color}{String. R Color.}
 }
 \description{
 patient.eventHistogram

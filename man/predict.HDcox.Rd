@@ -11,10 +11,10 @@
 
 \item{...}{additional arguments affecting the predictions produced.}
 
-\item{newdata}{New data (X matrix)}
+\item{newdata}{Numeric matrix or data.frame. New data for explanatory variables (raw data). Qualitative variables must be transform into binary variables.}
 }
 \value{
-Score values for new data using the PLS model.
+Score values for new data using the HDcox model selected.
 }
 \description{
 predict.HDcox

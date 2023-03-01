@@ -40,9 +40,9 @@ super.trainAllModels(
 
 \item{y.scale}{Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).}
 
-\item{MIN_EPV}{Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.}
+\item{MIN_EPV}{Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).}
 
-\item{PARALLEL}{Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption.
+\item{PARALLEL}{Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).
 
 @export}
 }

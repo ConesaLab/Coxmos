@@ -288,8 +288,8 @@ getSurvivalSubset <- function(X, Y, event.val = TRUE, EPV, p.censored, n.patient
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
 #' @param y.center Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).
 #' @param y.scale Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).
-#' @param MIN_EPV Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.
-#' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption.
+#' @param MIN_EPV Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).
+#' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).
 #'
 #'  @export
 
@@ -360,16 +360,16 @@ super.trainAllModels <- function(lst_subdata, methods,
 #' @param lst_subdata List of data
 #' @param lst_subdata_models List of model per each data
 #' @param lst_evaluations List of which evaluators to use: "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I", "risksetROC"
-#' @param pred.attr Evaluate by "mean" or "median"
-#' @param times Time points to evaluate. If NULL, they will be compute automaticatly.
-#' @param max_time_points Maximum number of time points to compute.
-#' @param PARALLEL Use multicore option.
-#' @param progress_bar Show progress bar.
+#' @param pred.attr Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").
+#' @param times Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 'max_time_points' points will be selected equally distributed (default: NULL).
+#' @param max_time_points Numeric. Maximum number of time points to use for evaluating the model (default: 15).
+#' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).
+#' @param progress_bar Logical. If progress_bar = TRUE, progress bar is shown (default = FALSE).
 #'
 #' @export
 super.evalAllModels <- function(lst_subdata, lst_subdata_models, lst_evaluations,
                                 pred.attr = "mean", times = NULL, max_time_points = 15,
-                                PARALLEL = T, progress_bar = F){
+                                PARALLEL = F, progress_bar = F){
 
   #test
   lst_models_to_test <- list()
@@ -403,7 +403,7 @@ super.evalAllModels <- function(lst_subdata, lst_subdata_models, lst_evaluations
       future::plan("multisession", workers = min(future::availableCores()-1, length(lst_models_to_test)))
     }
 
-    eval_results <- furrr::future_map(lst_models_to_test, ~eval_models4.0(lst_models = lst_subdata_models[[.$model]],
+    eval_results <- furrr::future_map(lst_models_to_test, ~eval_HDcox_models(lst_models = lst_subdata_models[[.$model]],
                                                                           X_test = lst_subdata[[.$EPV]][[.$censored]][[.$set]]$X_test,
                                                                           Y_test = lst_subdata[[.$EPV]][[.$censored]][[.$set]]$Y_test,
                                                                           pred.method = .$evaluator,
@@ -415,7 +415,7 @@ super.evalAllModels <- function(lst_subdata, lst_subdata_models, lst_evaluations
     future::plan("sequential")
 
   }else{
-    eval_results <- purrr::map(lst_models_to_test, ~eval_models4.0(lst_models = lst_subdata_models[[.$model]],
+    eval_results <- purrr::map(lst_models_to_test, ~eval_HDcox_models(lst_models = lst_subdata_models[[.$model]],
                                                                        X_test = lst_subdata[[.$EPV]][[.$censored]][[.$set]]$X_test,
                                                                        Y_test = lst_subdata[[.$EPV]][[.$censored]][[.$set]]$Y_test,
                                                                        pred.method = .$evaluator,
@@ -508,7 +508,7 @@ super.evalResults2DataFrame <- function(eval_results){
 }
 
 train_all_models2.5 <- function(lst_X_train, lst_Y_train,
-                                methods = c("cox", "coxSW", "coxEN", "PLS-ICOX", "sPLS-DRCOX", "sPLS-DRCOX-MixOmics", "sPLS-DACOX-MixOmics"),
+                                methods = c("cox", "coxSW", "coxEN", "PLS-ICOX", "sPLS-DRCOX", "sPLS-DRCOX-Dynamic", "sPLS-DACOX-Dynamic"),
                                 ncomp = 5, EN.alpha = 0.5, eta = 0.5, comp_calculation = "manual",
                                 n_run = 2, k_folds = 10, fast_mode = F, pred.method = "cenROC",
                                 x.center = TRUE, x.scale = FALSE,
@@ -704,10 +704,10 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
     res_splsdrcox <- NA
   }
 
-  if(pkg.env$splsdrcox_mixomics %in% methods){
+  if(pkg.env$splsdrcox_dynamic %in% methods){
 
     if(auto){
-      cv.splsdrcox_mixOmics_res <- cv.splsdrcox_mixOmics(X = X_train, Y = data.matrix(Y_train),
+      cv.splsdrcox_dynamic_res <- cv.splsdrcox_dynamic(X = X_train, Y = data.matrix(Y_train),
                                                        max.ncomp = max.ncomp, n_run = n_run, k_folds = k_folds,
                                                        alpha = alpha, remove_non_significant_models = remove_non_significant_models,
                                                        w_AIC = w_AIC, w_c.index = w_c.index, w_AUC = w_AUC, times = times,
@@ -719,10 +719,10 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
                                                        fast_mode = fast_mode, return_models = return_models, MIN_EPV = MIN_EPV,
                                                        pred.attr = pred.attr, pred.method = pred.method, seed = seed)
 
-      res_splsdrcox_mixOmics <- splsdrcox_mixOmics(X = X_train,
+      res_splsdrcox_dynamic <- splsdrcox_dynamic(X = X_train,
                                                  Y = data.matrix(Y_train),
-                                                 n.comp = cv.splsdrcox_mixOmics_res$opt.comp,
-                                                 vector = cv.splsdrcox_mixOmics_res$opt.nvar,
+                                                 n.comp = cv.splsdrcox_dynamic_res$opt.comp,
+                                                 vector = cv.splsdrcox_dynamic_res$opt.nvar,
                                                  MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
                                                  EVAL_METHOD = EVAL_METHOD,
                                                  x.center = x.center, x.scale = x.scale,
@@ -731,7 +731,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
 
     }else{
       #solo un spls
-      res_splsdrcox_mixOmics <- splsdrcox_mixOmics(X = X_train,
+      res_splsdrcox_dynamic <- splsdrcox_dynamic(X = X_train,
                                                  Y = data.matrix(Y_train),
                                                  n.comp = ncomp,
                                                  vector = vector,
@@ -743,11 +743,11 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
 
     }
   }else{
-    res_splsdrcox_mixOmics <- NA
+    res_splsdrcox_dynamic <- NA
   }
 
   #splsda+cox
-  if(pkg.env$splsdacox_mixomics %in% methods){
+  if(pkg.env$splsdacox_dynamic %in% methods){
 
     event <- Y_train[,"event"]
     if(!is.factor(event)){
@@ -755,11 +755,11 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
     }
 
     if(length(levels(event))==1){ #case 100% event [we cannot discriminate between classes]
-      res_splsdacox_mixOmics = NA
+      res_splsdacox_dynamic = NA
     }else{
 
       if(auto){
-        cv.splsdacox_mixOmics_res <- cv.splsdacox_mixOmics(X = X_train, Y = data.matrix(Y_train),
+        cv.splsdacox_dynamic_res <- cv.splsdacox_dynamic(X = X_train, Y = data.matrix(Y_train),
                                        max.ncomp = max.ncomp, n_run = n_run, k_folds = k_folds,
                                        alpha = alpha, remove_non_significant_models = remove_non_significant_models, max.iter = 500,
                                        w_AIC = w_AIC, w_c.index = w_c.index, w_AUC = w_AUC, times = times,
@@ -772,9 +772,9 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
                                        fast_mode = fast_mode, return_models = return_models, MIN_EPV = MIN_EPV,
                                        pred.attr = pred.attr, pred.method = pred.method, seed = seed)
 
-        res_splsdacox_mixOmics <- splsdacox_mixOmics(X_train, Y_train,
-                                 n.comp = cv.splsdacox_mixOmics_res$opt.comp,
-                                 vector = cv.splsdacox_mixOmics_res$opt.nvar,
+        res_splsdacox_dynamic <- splsdacox_dynamic(X_train, Y_train,
+                                 n.comp = cv.splsdacox_dynamic_res$opt.comp,
+                                 vector = cv.splsdacox_dynamic_res$opt.nvar,
                                  MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
                                  EVAL_METHOD = EVAL_METHOD,
                                  x.center = x.center, x.scale = x.scale,
@@ -783,7 +783,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
 
       }else{
 
-        res_splsdacox_mixOmics <- splsdacox_mixOmics(X_train, Y_train,
+        res_splsdacox_dynamic <- splsdacox_dynamic(X_train, Y_train,
                                  n.comp = ncomp,
                                  vector = vector,
                                  MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
@@ -796,7 +796,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
 
     }#more than one Y$event class
   }else{
-    res_splsdacox_mixOmics <- NA
+    res_splsdacox_dynamic <- NA
   }
 
   #### Save cox_models
@@ -830,16 +830,16 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
     lst_res[[pkg.env$splsdrcox]] <- NA
   }
 
-  if(!length(res_splsdrcox_mixOmics) == 1){
-    lst_res[[pkg.env$splsdrcox_mixomics]] <- res_splsdrcox_mixOmics
+  if(!length(res_splsdrcox_dynamic) == 1){
+    lst_res[[pkg.env$splsdrcox_dynamic]] <- res_splsdrcox_dynamic
   }else{
-    lst_res[[pkg.env$splsdrcox_mixomics]] <- NA
+    lst_res[[pkg.env$splsdrcox_dynamic]] <- NA
   }
 
-  if(!length(res_splsdacox_mixOmics) == 1){
-    lst_res[[pkg.env$splsdacox_mixomics]] <- res_splsdacox_mixOmics
+  if(!length(res_splsdacox_dynamic) == 1){
+    lst_res[[pkg.env$splsdacox_dynamic]] <- res_splsdacox_dynamic
   }else{
-    lst_res[[pkg.env$splsdacox_mixomics]] <- NA
+    lst_res[[pkg.env$splsdacox_dynamic]] <- NA
   }
 
   return(lst_res)

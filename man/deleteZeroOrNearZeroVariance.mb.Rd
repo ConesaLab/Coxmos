@@ -13,15 +13,15 @@ deleteZeroOrNearZeroVariance.mb(
 )
 }
 \arguments{
-\item{X}{Data.frame}
+\item{X}{Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.}
 
-\item{remove_near_zero_variance}{Logical. Remove NEAR zero variance}
+\item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).}
 
-\item{remove_zero_variance}{Logical. Remove ZERO variance}
+\item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).}
 
-\item{toKeep.zv}{Variables to keep.}
+\item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).}
 
-\item{freqCut}{the cutoff for the ratio of the most common value to the second most common value}
+\item{freqCut}{Numeric. Cutoff for the ratio of the most common value to the second most common value (default: 95/5).}
 }
 \description{
 deleteZeroOrNearZeroVariance.mb

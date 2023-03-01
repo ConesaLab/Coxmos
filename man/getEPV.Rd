@@ -7,9 +7,9 @@
 getEPV(X, Y)
 }
 \arguments{
-\item{X}{matrix}
+\item{X}{Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.}
 
-\item{Y}{matrix}
+\item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.}
 }
 \description{
 getEPV

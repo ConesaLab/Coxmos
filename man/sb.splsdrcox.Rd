@@ -25,13 +25,13 @@ sb.splsdrcox(
 )
 }
 \arguments{
-\item{X}{Numeric matrix. Predictor variables}
+\item{X}{Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.}
 
-\item{Y}{Numeric matrix. Response variables. It assumes it has two columns named as "time" and "event". For event column, values can be 0/1 or FALSE/TRUE for censored and event samples.}
+\item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.}
 
-\item{n.comp}{Numeric. Number of principal components to compute in the PLS model.}
+\item{n.comp}{Numeric. Number of latent components to compute for the (s)PLS model (default: 10).}
 
-\item{eta}{Numeric [0-1). Penalty for sPLS. Mean 0 no penalty and 1 maximum penalty. Greater than 1 cannot be selected.}
+\item{eta}{Numeric (0-1). Penalty for sPLS. If eta = 0 no penalty is applied and 1 maximum penalty (no variables are selected). Equal or greater than 1 cannot be selected (default: 0.5).}
 
 \item{x.center}{Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).}
 
@@ -41,21 +41,21 @@ sb.splsdrcox(
 
 \item{y.scale}{Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).}
 
-\item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, remove_near_zero_variance variables will be removed.}
+\item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).}
 
-\item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, remove_zero_variance variables will be removed.}
+\item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).}
 
-\item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.}
+\item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).}
 
-\item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
+\item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).}
 
-\item{alpha}{Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).}
+\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
 
-\item{tol}{Numeric. Tolerance for solving: solve(t(P) \%*\% W)}
+\item{tol}{Numeric. Tolerance for solving: solve(t(P) \%*\% W) (default: 1e-15).}
 
-\item{MIN_EPV}{Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.}
+\item{MIN_EPV}{Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).}
 
-\item{returnData}{Logical. Return original and normalized X and Y matrices.}
+\item{returnData}{Logical. Return original and normalized X and Y matrices (default: TRUE).}
 
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }

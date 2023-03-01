@@ -4,14 +4,14 @@
 \alias{plot_cox.event}
 \title{plot_cox.event}
 \usage{
-plot_cox.event(model, type = "lp", h.breaks = 30)
+plot_cox.event(model, type = "lp", n.breaks = 20)
 }
 \arguments{
-\item{model}{HDcox model}
+\item{model}{HDcox model.}
 
-\item{type}{"lp", "risk", "expected" or "survival" methodology}
+\item{type}{Character. Prediction type: "lp", "risk", "expected" or "survival" (default: "lp").}
 
-\item{h.breaks}{Number of time breaks.}
+\item{n.breaks}{Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to compute (default: 20).}
 }
 \description{
 plot_cox.event

@@ -5,22 +5,22 @@
 #' sPLS-DRCOX
 #' @description Performs a sPLS-DRCOX model (based on plsRcox R package idea).
 #'
-#' @param X Numeric matrix. Predictor variables
-#' @param Y Numeric matrix. Response variables. It assumes it has two columns named as "time" and "event". For event column, values can be 0/1 or FALSE/TRUE for censored and event samples.
-#' @param n.comp Numeric. Number of principal components to compute in the PLS model.
-#' @param eta Numeric [0-1). Penalty for sPLS. Mean 0 no penalty and 1 maximum penalty. Greater than 1 cannot be selected.
+#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
+#' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
+#' @param n.comp Numeric. Number of latent components to compute for the (s)PLS model (default: 10).
+#' @param eta Numeric (0-1). Penalty for sPLS. If eta = 0 no penalty is applied and 1 maximum penalty (no variables are selected). Equal or greater than 1 cannot be selected (default: 0.5).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
 #' @param y.center Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).
 #' @param y.scale Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).
-#' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, remove_near_zero_variance variables will be removed.
-#' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, remove_zero_variance variables will be removed.
-#' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.
-#' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
-#' @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
-#' @param tol Numeric. Tolerance for solving: solve(t(P) %*% W)
-#' @param MIN_EPV Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.
-#' @param returnData Logical. Return original and normalized X and Y matrices.
+#' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
+#' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
+#' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
+#' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).
+#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
+#' @param tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
+#' @param MIN_EPV Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).
+#' @param returnData Logical. Return original and normalized X and Y matrices (default: TRUE).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #'
 #' @return Instance of class "HDcox" and model "sPLS-DRCOX". The class contains the following elements:
@@ -82,7 +82,7 @@
 #' @export
 
 splsdrcox <- function (X, Y,
-                      n.comp = 2, eta = 0.5,
+                      n.comp = 4, eta = 0.5,
                       x.center = TRUE, x.scale = FALSE,
                       y.center = FALSE, y.scale = FALSE,
                       remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
@@ -758,51 +758,51 @@ splsdrcox.modelPerComponent <- function (X, Y,
 # CROSS-EVALUATION #
 #### ### ### ### ###
 
-#' Cross validation sPLS-DRCOX
+#' sPLS-DRCOX Cross-Validation
 #' @description sPLS-DRCOX cross validation model
 #'
-#' @param X Numeric matrix. Predictor variables
-#' @param Y Numeric matrix. Response variables. It assumes it has two columns named as "time" and "event". For event column, values can be 0/1 or FALSE/TRUE for censored and event samples.
-#' @param max.ncomp Numeric. Maximum number of PLS components to compute for the cross validation.
-#' @param eta.list Numeric vector. Vector of penalty values.
-#' @param n_run Number. Number of runs for cross validation.
-#' @param k_folds Number. Number of folds for cross validation.
+#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
+#' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
+#' @param max.ncomp Numeric. Maximum number of PLS components to compute for the cross validation (default: 10).
+#' @param eta.list Numeric vector. Vector of penalty values. Penalty for sPLS. If eta = 0 no penalty is applied and 1 maximum penalty (no variables are selected). Equal or greater than 1 cannot be selected (default: seq(0.1,0.9,0.1)).
+#' @param n_run Numeric. Number of runs for cross validation (default: 5).
+#' @param k_folds Numeric. Number of folds for cross validation (default: 10).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
 #' @param y.center Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).
 #' @param y.scale Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).
-#' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, remove_near_zero_variance variables will be removed.
-#' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, remove_zero_variance variables will be removed.
-#' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.
-#' @param remove_variance_at_fold_level Logical. Remove variance at fold level (T) or before split the data (F-default).
-#' @param remove_non_significant_models Logical. If remove_non_significant_models = TRUE, non-significant models are removed before computing the evaluation. A non-significant model is a model with at least one component/variable with a P-Value higher than the alpha cutoff. @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
-#' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).
-#' @param alpha Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).
-#' @param w_AIC Numeric. Weight for AIC evaluator. All three weights must sum 1 (default: 0).
-#' @param w_c.index Numeric. Weight for C-Index evaluator. All three weights must sum 1 (default: 0).
-#' @param w_AUC Numeric. Weight for AUC evaluator. All three weights must sum 1 (default: 1).
-#' @param times Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 15 points will be selected equally distributed.
-#' @param max_time_points maximum number of time points to compute in the prediction metric.
-#' @param MIN_AUC_INCREASE Numeric. Minimum improvement between different EN.alpha.list to continue evaluating. If not reached for the next MIN_COMP_TO_CHECK penalties and the minimum MIN_AUC is reach, the evaluation stop.
-#' @param MIN_AUC Numeric. Minimum AUC desire.
-#' @param MIN_COMP_TO_CHECK Numeric. Number of penalties to check whether the AUC improves.
-#' @param pred.attr Character. Method for average the AUC. Must be one of the following: "mean" or "median" (default: "mean").
-#' @param pred.method Character. AUC method for evaluation. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC")
+#' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
+#' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
+#' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
+#' @param remove_variance_at_fold_level Logical. If remove_variance_at_fold_level = TRUE, (near) zero variance will be removed at fold level (default: FALSE).
+#' @param remove_non_significant_models Logical. If remove_non_significant_models = TRUE, non-significant models are removed before computing the evaluation. A non-significant model is a model with at least one component/variable with a P-Value higher than the alpha cutoff. @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
+#' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).
+#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
+#' @param w_AIC Numeric. Weight for AIC evaluator. All weights must sum 1 (default: 0).
+#' @param w_c.index Numeric. Weight for C-Index evaluator. All weights must sum 1 (default: 0).
+#' @param w_AUC Numeric. Weight for AUC evaluator. All weights must sum 1 (default: 1).
+#' @param times Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 'max_time_points' points will be selected equally distributed (default: NULL).
+#' @param max_time_points Numeric. Maximum number of time points to use for evaluating the model (default: 15).
+#' @param MIN_AUC_INCREASE Numeric. Minimum improvement between different cross validation models to continue evaluating higher values in the multiple tested parameters. If it is not reached for next 'MIN_COMP_TO_CHECK' models and the minimum 'MIN_AUC' value is reached, the evaluation stops (default: 0.01).
+#' @param MIN_AUC Numeric. Minimum AUC desire to reach cross-validation models. If the minimum is reached, the evaluation could stop if the improvement does not reach an AUC higher than adding the 'MIN_AUC_INCREASE' value (default: 0.8).
+#' @param MIN_COMP_TO_CHECK Numeric. Number of penalties/components to evaluate to check if the AUC improves. If for the next 'MIN_COMP_TO_CHECK' the AUC is not better and the 'MIN_AUC' is meet, the evaluation could stop (default: 3).
+#' @param pred.attr Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").
+#' @param pred.method Character. AUC evaluation algorithm method for evaluate the model performance. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC").
 #' @param fast_mode Logical. If fast_mode = TRUE, for each run, only one fold is evaluated simultaneously. If fast_mode = FALSE, for each run, all linear predictors are computed for test observations. Once all have their linear predictors, the evaluation is perform across all the observations together (default: FALSE).
-#' @param MIN_EPV Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.
-#' @param return_models Logical. Return all models computed in cross validation.
-#' @param returnData Logical. Return original and normalized X and Y matrices.
-#' @param tol Numeric. Tolerance for solving: solve(t(P) %*% W)
-#' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption.
+#' @param MIN_EPV Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).
+#' @param return_models Logical. Return all models computed in cross validation (default: FALSE).
+#' @param returnData Logical. Return original and normalized X and Y matrices (default: TRUE).
+#' @param tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
+#' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
-#' @param seed Number. Seed value for perform the runs/folds divisions.
+#' @param seed Number. Seed value for performing runs/folds divisions (default: 123).
 #'
 #' @return Instance of class "HDcox" and model "cv.sPLS-DRCOX".
 #' @export
 
 cv.splsdrcox <- function (X, Y,
                          max.ncomp = 10, eta.list = seq(0.1,0.9,0.1),
-                         n_run = 10, k_folds = 10,
+                         n_run = 5, k_folds = 10,
                          x.center = TRUE, x.scale = FALSE,
                          y.center = FALSE, y.scale = FALSE,
                          remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL, remove_variance_at_fold_level = F,

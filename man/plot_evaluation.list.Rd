@@ -12,14 +12,14 @@ plot_evaluation.list(
 )
 }
 \arguments{
-\item{lst_eval_results}{List of eval_models4.0 results.}
+\item{lst_eval_results}{List of HDcox evaluation results.}
 
-\item{pred.attr}{"mean" or "median"}
+\item{pred.attr}{Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").}
 
-\item{y.min}{Minimum Y value to plot. If NULL, automatic detection.}
+\item{y.min}{Numeric. Minimum Y value for establish the Y axis value. If y.min = NULL, automatic detection is performed (default: NULL).}
 
-\item{type}{type plot. Must be one of the following: "both", "line", "mean". In other case, "both" will be selected.}
+\item{type}{Character. Plot type. Must be one of the following: "both", "line" or "mean". In other case, "both" will be selected (default: "both").}
 }
 \description{
-plot_evaluation.list
+Run the function "plot_evaluation" for a list of results. More information in "?plot_evaluation".
 }

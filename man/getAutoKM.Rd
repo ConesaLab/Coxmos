@@ -19,27 +19,27 @@ getAutoKM(
 )
 }
 \arguments{
-\item{type}{Kaplan Meier for linear predictors ("LP"), for PLS components ("COMP") or for original variables ("VAR").}
+\item{type}{Character. Kaplan Meier for complete model linear predictor ("LP"), for PLS components ("COMP") or for original variables ("VAR") (default: LP).}
 
-\item{model}{HDcox model}
+\item{model}{HDcox model.}
 
-\item{comp}{vector of two components}
+\item{comp}{Numeric vector. Vector of length two. Select which components to plot (default: c(1,2)).}
 
-\item{top}{select top X variables}
+\item{top}{Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: 10).}
 
-\item{ori_data}{Compute the KM with the original data cutpoints or the normalize (only for 'VAR' type)}
+\item{ori_data}{Logical. Compute the Kaplan-Meier plot with the raw-data or the normalize-data to compute the best cut-point for splitting the data into two groups. Only used when type = "VAR" (default: TRUE).}
 
-\item{BREAKTIME}{Break for time points}
+\item{BREAKTIME}{Numeric. Size of time to split the data into "total_time / BREAKTIME + 1" points. If BREAKTIME = NULL, "n.breaks" is used (default: NULL).}
 
-\item{n.breaks}{If BREAKTIME is NULL, number of time-breaks}
+\item{n.breaks}{Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to compute (default: 20).}
 
-\item{only_sig}{Return only significant log-rank test variables}
+\item{only_sig}{Logical. If "only_sig" = TRUE, then only significant log-rank test variables are returned (default: FALSE).}
 
-\item{alpha}{Significant cutoff}
+\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
 
-\item{title}{Title of the plot}
+\item{title}{Character. Kaplan-Meier plot title (default: NULL).}
 
-\item{verbose}{Return messages}
+\item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
 \description{
 getAutoKM

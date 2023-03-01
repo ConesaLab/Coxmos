@@ -20,29 +20,29 @@ plot_PLS_HDcox(
 )
 }
 \arguments{
-\item{model}{HDcox model}
+\item{model}{HDcox model.}
 
-\item{comp}{Numeric vector. Two values for choosing with two components to plot}
+\item{comp}{Numeric vector. Vector of length two. Select which components to plot (default: c(1,2)).}
 
-\item{mode}{scores, loadings o biplot}
+\item{mode}{Character. Choose one of the following plots: "scores", "loadings" o "biplot" (default: "scores").}
 
-\item{factor}{factor to color. If NULL, event will be used.}
+\item{factor}{Factor. Factor variable to color the observations. If factor = NULL, event will be used (default: NULL).}
 
-\item{legend.title}{Legend title}
+\item{legend.title}{Character. Legend title (default: NULL).}
 
-\item{top}{Number. How many loading names to show.}
+\item{top}{Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: NULL).}
 
-\item{only_top}{Logical. If TRUE, only top/radius loading will be shown in loading or biplot graph}
+\item{only_top}{Logical. If "only_top" = TRUE, then only top/radius loading variables will be shown in loading or biplot graph (default: FALSE).}
 
-\item{radius}{Radius to plot variable names}
+\item{radius}{Numeric. Radius size (loading/scale value) to plot variable names that are greater than the radius value (default: NULL).}
 
-\item{names}{Logical. Show loading names for top variables or outside radius}
+\item{names}{Logical. Show loading names for top variables or for those that are outside the radius size (default: TRUE).}
 
-\item{colorReverse}{Logical. Color reverse.}
+\item{colorReverse}{Logical. Reverse palette colors (default: FALSE).}
 
-\item{text.size}{Text size.}
+\item{text.size}{Numeric. Text size (default: 2).}
 
-\item{overlaps}{Number of overlaps to show loading names (default = 10)}
+\item{overlaps}{Numeric. Number of overlaps to show when plotting loading names (default: 10).}
 }
 \description{
 plot_PLS_HDcox

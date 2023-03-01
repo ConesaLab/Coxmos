@@ -23,9 +23,9 @@ cox(
 )
 }
 \arguments{
-\item{X}{Numeric matrix. Predictor variables}
+\item{X}{Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.}
 
-\item{Y}{Numeric matrix. Response variables. It assumes it has two columns named as "time" and "event". For event column, values can be 0/1 or FALSE/TRUE for censored and event samples.}
+\item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.}
 
 \item{x.center}{Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).}
 
@@ -35,21 +35,21 @@ cox(
 
 \item{y.scale}{Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).}
 
-\item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, remove_near_zero_variance variables will be removed.}
+\item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).}
 
-\item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, remove_zero_variance variables will be removed.}
+\item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).}
 
-\item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance filtering.}
+\item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).}
 
-\item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables in final cox model will be removed until all variables are significant (forward selection).}
+\item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).}
 
-\item{alpha}{Numeric. Cutoff for establish significant variables. Below the number are considered as significant (default: 0.05).}
+\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
 
-\item{MIN_EPV}{Minimum number of Events Per Variable you want reach for the final cox model. Used to restrict the number of variables can appear in cox model. If the minimum is not meet, the model is not computed.}
+\item{MIN_EPV}{Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).}
 
 \item{FORCE}{Logical. In case the MIN_EPV is not meet, it allows to compute the model (default: FALSE).}
 
-\item{returnData}{Logical. Return original and normalized X and Y matrices.}
+\item{returnData}{Logical. Return original and normalized X and Y matrices (default: TRUE).}
 
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
@@ -91,7 +91,7 @@ Instance of class "HDcox" and model "cox". The class contains the following elem
 \code{time}: time consumed for running the cox analysis.
 }
 \description{
-Performs a standard cox model (based on survival::coxph R package).
+Performs a standard cox proportional hazard model (based on survival::coxph R package).
 }
 \examples{
 \dontrun{

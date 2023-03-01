@@ -17,23 +17,23 @@ getTestKM(
 )
 }
 \arguments{
-\item{model}{HDcox model}
+\item{model}{HDcox model.}
 
-\item{X_test}{X_test matrix (not normalized)}
+\item{X_test}{Numeric matrix or data.frame. Explanatory variables for test data (raw format). Qualitative variables must be transform into binary variables.}
 
-\item{Y_test}{Y_test matrix}
+\item{Y_test}{Numeric matrix or data.frame. Response variables for test data. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.}
 
-\item{cutoff}{Cutoff to divide the observations. Recommended to compute optimal cutoff value with getAutoKM().}
+\item{cutoff}{Numeric. Cutoff value to split the observations into two groups. Recommended to compute optimal cutoff value with getAutoKM() function.}
 
-\item{type}{Kaplan Meier for linear predictors ("LP"), for PLS components ("COMP") or for original variables ("VAR").}
+\item{type}{Character. Kaplan Meier for complete model linear predictor ("LP"), for PLS components ("COMP") or for original variables ("VAR") (default: LP).}
 
-\item{ori_data}{Compute the KM with the original data cutpoints or the normalize (only for 'VAR' type)}
+\item{ori_data}{Logical. Compute the Kaplan-Meier plot with the raw-data or the normalize-data to compute the best cut-point for splitting the data into two groups. Only used when type = "VAR" (default: TRUE).}
 
-\item{BREAKTIME}{Break for time points}
+\item{BREAKTIME}{Numeric. Size of time to split the data into "total_time / BREAKTIME + 1" points. If BREAKTIME = NULL, "n.breaks" is used (default: NULL).}
 
-\item{n.breaks}{If BREAKTIME is NULL, number of time-breaks}
+\item{n.breaks}{Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to compute (default: 20).}
 
-\item{title}{Kaplan-Meier plot title}
+\item{title}{Character. Kaplan-Meier plot title (default: NULL).}
 }
 \description{
 getTestKM
