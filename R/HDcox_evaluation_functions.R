@@ -83,25 +83,32 @@ splitData_Iterations_Folds <- function(X, Y, n_run, k_folds, seed = 123){
   lst_X_test <- list()
   lst_Y_test <- list()
 
+  lst_obs_index_train <- list()
+  lst_obs_index_test <- list()
+
   for(i in 1:n_run){
     set.seed(seed+i)
-    trainIndex <- caret::createFolds(Y[,"event"],
+    testIndex <- caret::createFolds(Y[,"event"],
                                      k = k_folds,
                                      list = TRUE)
 
     #for each fold, take the others as train
-    lst_X_data_train <- lapply(trainIndex, function(ind, dat) dat[-ind,], dat = X)
-    lst_Y_data_train <- lapply(trainIndex, function(ind, dat) dat[-ind,], dat = Y)
+    lst_X_data_train <- lapply(testIndex, function(ind, dat) dat[-ind,], dat = X)
+    lst_Y_data_train <- lapply(testIndex, function(ind, dat) dat[-ind,], dat = Y)
 
     #for each fold, take just one as test
-    lst_X_data_test <- lapply(trainIndex, function(ind, dat) dat[ind,], dat = X)
-    lst_Y_data_test <- lapply(trainIndex, function(ind, dat) dat[ind,], dat = Y)
+    lst_X_data_test <- lapply(testIndex, function(ind, dat) dat[ind,], dat = X)
+    lst_Y_data_test <- lapply(testIndex, function(ind, dat) dat[ind,], dat = Y)
 
     lst_X_train[[i]] <- lst_X_data_train
     lst_Y_train[[i]] <- lst_Y_data_train
 
     lst_X_test[[i]] <- lst_X_data_test
     lst_Y_test[[i]] <- lst_Y_data_test
+
+    lst_obs_index_test[[i]] <- testIndex
+    aux <- 1:nrow(Y)
+    lst_obs_index_train[[i]] <- lapply(testIndex, function(ind, aux) aux[-ind], aux = aux)
   }
 
   names(lst_X_train) <- paste0("run", 1:n_run)
@@ -109,7 +116,10 @@ splitData_Iterations_Folds <- function(X, Y, n_run, k_folds, seed = 123){
   names(lst_X_test) <- paste0("run", 1:n_run)
   names(lst_Y_test) <- paste0("run", 1:n_run)
 
-  return(list(lst_X_train = lst_X_train, lst_Y_train = lst_Y_train, lst_X_test = lst_X_test, lst_Y_test = lst_Y_test))
+  names(lst_obs_index_train) <- paste0("run", 1:n_run)
+  names(lst_obs_index_test) <- paste0("run", 1:n_run)
+
+  return(list(lst_X_train = lst_X_train, lst_Y_train = lst_Y_train, lst_X_test = lst_X_test, lst_Y_test = lst_Y_test, lst_train_index = lst_obs_index_train, lst_test_index = lst_obs_index_test))
 }
 
 getAUC_from_LP_2.0 <- function(linear.predictors, Y, times, bestModel = NULL, method = "cenROC", eval = "median", PARALLEL = F, verbose = F){

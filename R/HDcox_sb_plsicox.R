@@ -271,6 +271,9 @@ cv.sb.plsicox <- function(X, Y,
   lst_X_test <- lst_data$lst_X_test
   lst_Y_test <- lst_data$lst_Y_test
 
+  lst_train_indexes <- lst_data$lst_train_index
+  lst_test_indexes <- lst_data$lst_test_index
+
   #### ### ### ###
   # TRAIN MODELS #
   #### ### ### ###
@@ -299,9 +302,9 @@ cv.sb.plsicox <- function(X, Y,
     t2 <- Sys.time()
     time <- difftime(t2,t1,units = "mins")
     if(return_models){
-      return(cv.sb.plsicox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = lst_model, pred.method = pred.method, opt.comp = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class = pkg.env$cv.sb.plsicox, time = time)))
+      return(cv.sb.plsicox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = lst_model, pred.method = pred.method, opt.comp = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class = pkg.env$cv.sb.plsicox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
     }else{
-      return(cv.sb.plsicox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class= pkg.env$cv.sb.plsicox, time = time)))
+      return(cv.sb.plsicox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class= pkg.env$cv.sb.plsicox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
     }
   }
 
@@ -319,9 +322,9 @@ cv.sb.plsicox <- function(X, Y,
     t2 <- Sys.time()
     time <- difftime(t2,t1,units = "mins")
     if(return_models){
-      return(cv.sb.plsicox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = lst_model, pred.method = pred.method, opt.comp = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class = pkg.env$cv.sb.plsicox, time = time)))
+      return(cv.sb.plsicox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = lst_model, pred.method = pred.method, opt.comp = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class = pkg.env$cv.sb.plsicox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
     }else{
-      return(cv.sb.plsicox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class= pkg.env$cv.sb.plsicox, time = time)))
+      return(cv.sb.plsicox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, plot_AUC = NULL, plot_c_index = NULL, plot_AIC = NULL, class= pkg.env$cv.sb.plsicox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
     }
   }
 
@@ -404,9 +407,9 @@ cv.sb.plsicox <- function(X, Y,
 
   invisible(gc())
   if(return_models){
-    return(cv.sb.plsicox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = lst_model, pred.method = pred.method, opt.comp = best_model_info$n.comps, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, class = pkg.env$cv.sb.plsicox, time = time)))
+    return(cv.sb.plsicox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = lst_model, pred.method = pred.method, opt.comp = best_model_info$n.comps, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, class = pkg.env$cv.sb.plsicox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
   }else{
-    return(cv.sb.plsicox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = NULL, pred.method = pred.method, opt.comp = best_model_info$n.comps, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, class = pkg.env$cv.sb.plsicox, time = time)))
+    return(cv.sb.plsicox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = NULL, pred.method = pred.method, opt.comp = best_model_info$n.comps, plot_AUC = ggp_AUC, plot_c_index = ggp_c_index, plot_AIC = ggp_AIC, class = pkg.env$cv.sb.plsicox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
   }
 }
 
