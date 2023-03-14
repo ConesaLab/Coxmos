@@ -508,7 +508,7 @@ super.evalResults2DataFrame <- function(eval_results){
 }
 
 train_all_models2.5 <- function(lst_X_train, lst_Y_train,
-                                methods = c("cox", "coxSW", "coxEN", "PLS-ICOX", "sPLS-DRCOX", "sPLS-DRCOX-Dynamic", "sPLS-DACOX-Dynamic"),
+                                methods = c("cox", "coxSW", "coxEN", "sPLS-ICOX", "sPLS-DRCOX", "sPLS-DRCOX-Dynamic", "sPLS-DACOX-Dynamic"),
                                 ncomp = 5, EN.alpha = 0.5, eta = 0.5, comp_calculation = "manual",
                                 n_run = 2, k_folds = 10, fast_mode = F, pred.method = "cenROC",
                                 x.center = TRUE, x.scale = FALSE,
@@ -533,7 +533,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
 
   #Weights Parameters
   w_AIC = 0
-  w_c.index = 0
+ w_c.index = 0
   w_AUC = 1
 
   #Eval stop detection
@@ -641,11 +641,11 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
     res_coxEN <- NA
   }
 
-  #plsicox-manual
-  if(pkg.env$plsicox %in% methods){
+  #splsicox-manual
+  if(pkg.env$splsicox %in% methods){
 
     if(auto){
-      cv.plsicox_res <- cv.plsicox(X = X_train, Y = data.matrix(Y_train),
+      cv.splsicox_res <- cv.splsicox(X = X_train, Y = data.matrix(Y_train),
                                    max.ncomp = max.ncomp,
                                    n_run = n_run, k_folds = k_folds, alpha = alpha, remove_non_significant_models = remove_non_significant_models,
                                    w_AIC = w_AIC, w_c.index = w_c.index, w_AUC = w_AUC, times = times,
@@ -655,19 +655,19 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
                                    pred.attr = pred.attr, pred.method = pred.method, seed = seed)
 
       ### Optimal number of components
-      res_plsicox <- plsicox(X = X_train, Y = data.matrix(Y_train),
-                             n.comp = cv.plsicox_res$opt.comp,
+      res_splsicox <- splsicox(X = X_train, Y = data.matrix(Y_train),
+                             n.comp = cv.splsicox_res$opt.comp,
                              x.center = x.center, x.scale = x.scale,
                              y.center = y.center, y.scale = y.scale, returnData = F)
 
     }else{
-      res_plsicox <- plsicox(X = X_train, Y = data.matrix(Y_train),
+      res_splsicox <- splsicox(X = X_train, Y = data.matrix(Y_train),
                              n.comp = ncomp,
                              x.center = x.center, x.scale = x.scale,
                              y.center = y.center, y.scale = y.scale, returnData = F)
     }
   }else{
-    res_plsicox <- NA
+    res_splsicox <- NA
   }
 
   #splsdrcox-manual
@@ -818,10 +818,10 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
     lst_res[[pkg.env$coxEN]] <- NA
   }
 
-  if(!length(res_plsicox) == 1){
-    lst_res[[pkg.env$plsicox]] <- res_plsicox
+  if(!length(res_splsicox) == 1){
+    lst_res[[pkg.env$splsicox]] <- res_splsicox
   }else{
-    lst_res[[pkg.env$plsicox]] <- NA
+    lst_res[[pkg.env$splsicox]] <- NA
   }
 
   if(!length(res_splsdrcox) == 1){

@@ -24,7 +24,7 @@ For time comparison between best models, use the cross validation objects instea
 }
 \examples{
 \dontrun{
-  lst_models = {"cox" = cox_model, "PLS-ICOX" = cv.plsicox_model, "sPLS-DRCOX" = cv.splsdrcox_model}
+  lst_models = {"cox" = cox.model, "cv.sPLS-ICOX" = cv.splsicox_model, "sPLS-ICOX" = splsicox_model}
   plot_time.list(lst_models, x.text = "Method")
 }
 }

@@ -25,6 +25,7 @@ cv.sb.splsdrcox(
   w_AIC = 0,
   w_c.index = 0,
   w_AUC = 1,
+  w_BRIER = 0,
   times = NULL,
   max_time_points = 15,
   MIN_AUC_INCREASE = 0.01,
@@ -82,6 +83,8 @@ cv.sb.splsdrcox(
 \item{w_c.index}{Numeric. Weight for C-Index evaluator. All weights must sum 1 (default: 0).}
 
 \item{w_AUC}{Numeric. Weight for AUC evaluator. All weights must sum 1 (default: 1).}
+
+\item{w_BRIER}{Numeric. Weight for BRIER SCORE evaluator. All weights must sum 1 (default: 0).}
 
 \item{times}{Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 'max_time_points' points will be selected equally distributed (default: NULL).}
 

@@ -1,20 +1,25 @@
-cv.getScoreFromWeight <- function(lst_cox_mean, w_AIC, w_c.index, w_AUC, colname_AIC = "AIC_mean", colname_c_index = "c_index_mean", colname_AUC = "AUC_mean"){
+cv.getScoreFromWeight <- function(lst_cox_mean, w_AIC, w_c.index, w_BRIER, w_AUC, colname_AIC = "AIC_mean", colname_c_index = "c_index_mean", colname_AUC = "AUC_mean", colname_BRIER = "BRIER_mean"){
+
+  # scale for all values
 
   if(nrow(lst_cox_mean)!=1){
-    if(w_AUC!=0){
-      aux <- scale(lst_cox_mean[,c(colname_AIC, colname_c_index, colname_AUC), drop=F])
+    if(w_AUC!=0){ #YES AUC
+      aux <- scale(lst_cox_mean[,c(colname_AIC, colname_c_index, colname_BRIER, colname_AUC), drop=F])
       #c_index and AUC max is better
-      aux[,1] <- aux[,colname_AIC]*-1 #min AIC better
-    }else{ #if AUC was no evaluated, it has not to be considered
-      aux <- scale(lst_cox_mean[,c(colname_AIC, colname_c_index), drop=F])
-      aux[,1] <- aux[,colname_AIC]*-1 #min AIC better
+      aux[,colname_AIC] <- aux[,colname_AIC]*-1 #min AIC better
+      aux[,colname_BRIER] <- aux[,colname_BRIER]*-1 #min BRIER better
+    }else{ #NO AUC
+      aux <- scale(lst_cox_mean[,c(colname_AIC, colname_c_index, colname_BRIER), drop=F])
+      #c_index and AUC max is better
+      aux[,colname_AIC] <- aux[,colname_AIC]*-1 #min AIC better
+      aux[,colname_BRIER] <- aux[,colname_BRIER]*-1 #min BRIER better
     }
 
   }else{
-    if(w_AUC!=0){
-      aux <- lst_cox_mean[,c(colname_AIC, colname_c_index, colname_AUC), drop=F]
+    if(w_AUC!=0){ #YES AUC, YES BRIER
+      aux <- lst_cox_mean[,c(colname_AIC, colname_c_index, colname_BRIER, colname_AUC), drop=F]
     }else{
-      aux <- lst_cox_mean[,c(colname_AIC, colname_c_index), drop = F]
+      aux <- lst_cox_mean[,c(colname_AIC, colname_c_index, colname_BRIER), drop=F]
     }
   }
 
@@ -25,6 +30,8 @@ cv.getScoreFromWeight <- function(lst_cox_mean, w_AIC, w_c.index, w_AUC, colname
         aux[,"AIC"] <- lst_cox_mean$AIC
       }else if(cn == "c_index"){
         aux[,"c_index"] <- lst_cox_mean$c_index
+      }else if(cn == "BRIER"){
+        aux[,"BRIER"] <- lst_cox_mean$BRIER
       }else if(cn == "AUC"){
         aux[,"AUC"] <- lst_cox_mean$AUC
       }
@@ -32,14 +39,15 @@ cv.getScoreFromWeight <- function(lst_cox_mean, w_AIC, w_c.index, w_AUC, colname
   }
 
   if(w_AUC!=0){
-    score = aux %*% c(w_AIC, w_c.index, w_AUC)
+    score = aux %*% c(w_AIC, w_c.index, w_BRIER, w_AUC)
   }else{
-    score = aux %*% c(w_AIC, w_c.index)
+    score = aux %*% c(w_AIC, w_c.index, w_BRIER)
     lst_cox_mean <- removeColumn(lst_cox_mean, colname_AUC)
   }
 
   lst_cox_mean[,"score"] <- score
 
+  rownames(lst_cox_mean) <- NULL
   return(lst_cox_mean)
 }
 
@@ -500,6 +508,104 @@ timesAsumption_AUC_Eval <- function(Y, times, method = NULL){
   return(res)
 }
 
+# SurvMetrics_BRIER <- function(model, X_test_mod, Y_test, times){
+#   aux <- as.data.frame(cbind(X_test_mod, Y_test))
+#   colnames(aux)[ncol(aux)] <- "status"
+#   colnames(aux)[ncol(aux)-1] <- "time"
+#
+#   cox <- model$survival_model$fit
+#   cox$naive.var <- NULL #must be NULL to work - predictCox does not know how to handle frailty
+#
+#   brier_survMetrics = list()
+#   for(t in times[times!=0]){
+#     brier_survMetrics$error <- c(brier_survMetrics$error, SurvMetrics::Brier(object = cox, pre_sp = aux, t_star = t))
+#   }
+#   brier_survMetrics$times <- times[times!=0]
+#   return(brier_survMetrics)
+# }
+
+SURVCOMP_BRIER <- function(model, X_test_mod, Y_test){
+  cox <- model$survival_model$fit
+  lp_test <- getLinealPredictors(cox = cox, data = X_test_mod, center = T)
+  train <- data.frame("time" = model$Y$data[,"time"],
+                      "event" = model$Y$data[,"event"],
+                      "score" = model$survival_model$lp)
+  test <- data.frame("time" = Y_test[,"time"],
+                     "event" = Y_test[,"event"],
+                     "score" = lp_test$fit)
+  brier_survcomp <- survcomp::sbrier.score2proba(data.tr=train, data.ts = test, method = "cox")
+  names(brier_survcomp) <- c("times", "error", "ierror")
+  return(brier_survcomp)
+}
+
+SURVCOMP_BRIER_LP <- function(lp_train, Y_train, lp_test, Y_test){
+  train <- data.frame("time" = Y_train[,"time"],
+                      "event" = Y_train[,"event"],
+                      "score" = lp_train)
+  test <- data.frame("time" = Y_test[,"time"],
+                     "event" = Y_test[,"event"],
+                     "score" = lp_test)
+  brier_survcomp <- survcomp::sbrier.score2proba(data.tr=train, data.ts = test, method = "cox")
+  names(brier_survcomp) <- c("times", "error", "ierror")
+  return(brier_survcomp)
+}
+
+# PEC_BRIER <- function(model, X_test_mod, Y_test){
+#   f <- formula(paste0("Surv(time, status) ~ ", paste0("`", colnames(X_test_mod), "`", collapse = " + ")))
+#   full_test <- as.data.frame(cbind(X_test_mod, Y_test))
+#   colnames(full_test)[which(colnames(full_test)=="event")] <- "status"
+#   full_test$status <- ifelse(full_test$status==T, 1, 0)
+#   full_train <- cbind(model$survival_model$fit$x, model$Y$data)
+#   colnames(full_train)[which(colnames(full_train)=="event")] <- "status"
+#
+#   # we need to create a new cox object with status column
+#   coxx <- coxph(f, data=data.frame(full_train), x=TRUE, y=TRUE)
+#   pec.obj.test <- pec::pec(object = list("cox" = coxx),
+#                            formula = f,
+#                            data=full_test,
+#                            traindata = full_train, times = times)
+#
+#   brier <- list()
+#   brier$error <- pec.obj.test$AppErr$cox
+#   brier$times <- pec.obj.test$time
+#
+#   BS3 <- pec::crps(pec.obj.test,times=c(max(Y_test$time)), start=c(1))
+#   brier$ierror <- BS3["cox",]
+#   return(brier)
+# }
+
+# survAUC_BRIER <- function(model, X_test, Y_test, times, raw_test = T){
+#   ## Get LP for each fold
+#   if(raw_test){
+#     X_test_mod <- predict.HDcox(object = model, newdata = X_test)
+#   }else{
+#     X_test_mod <- X_test
+#   }
+#
+#   cox <- model$survival_model$fit
+#
+#   Surv.rsp <- survival::Surv(model$Y$data[,"time"], model$Y$data[,"event"])
+#   Surv.rsp.new <- survival::Surv(Y_test[,"time"], Y_test[,"event"])
+#   lp_test <- getLinealPredictors(cox = cox, data = X_test_mod, center = T)
+#
+#   brier <- survAUC::predErr(Surv.rsp = Surv.rsp, Surv.rsp.new = Surv.rsp.new,
+#                             lp = cox$linear.predictors, lpnew = lp_test$fit,
+#                             times = times, type = "brier", int.type = "unweighted")
+#
+#   return(brier)
+# }
+
+# survAUC_BRIER_LP <- function(lp, Y, lp_new, Y_test){
+#   Surv.rsp <- survival::Surv(Y[,"time"], Y[,"event"])
+#   Surv.rsp.new <- survival::Surv(Y_test[,"time"], Y_test[,"event"])
+#
+#   brier <- survAUC::predErr(Surv.rsp = Surv.rsp, Surv.rsp.new = Surv.rsp.new,
+#                             lp = lp, lpnew = lp_new,
+#                             times = times, type = "brier", int.type = "unweighted")
+#
+#   return(brier)
+# }
+
 smoothROCtime_tryCatch <- function(data, times, tcr = "C", meth = "1", verbose = F){
   invisible(utils::capture.output(out <- tryCatch(
     # Specifying expression
@@ -600,7 +706,7 @@ cenROC_tryCatch <- function(Y, censor, M, t, method, ktype, alpha, plot, verbose
   return(out)
 }
 
-survivalROC_tryCatch <- function(Stime, status, marker, predict.time, method, span, verbose = F){
+survivalROC_tryCatch <- function(Stime, status, marker, predict.time, method = "NNE", span = NULL, verbose = F){
   invisible(utils::capture.output(out <- tryCatch(
     # Specifying expression
     expr = {

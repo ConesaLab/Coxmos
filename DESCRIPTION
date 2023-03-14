@@ -23,6 +23,7 @@ Imports:
     purrr,
     scattermore,
     stats,
+    survcomp,
     survival,
     survminer,
     tidyr,

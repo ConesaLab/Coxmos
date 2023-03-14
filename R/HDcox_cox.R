@@ -123,7 +123,7 @@ cox <- function (X, Y,
                       singular.ok = T,
                       robust = T,
                       nocenter = rep(1, ncol(Xh)),
-                      model=T)
+                      model=T, x = T)
     },
     # Specifying error message
     error = function(e){
@@ -143,7 +143,7 @@ cox <- function (X, Y,
                         singular.ok = T,
                         robust = T,
                         nocenter = rep(1, ncol(X)-2),
-                        model=T)
+                        model=T, x = T)
       },
       # Specifying error message
       error = function(e){
@@ -197,7 +197,7 @@ cox <- function (X, Y,
                         singular.ok = T,
                         robust = T,
                         nocenter = rep(1, ncol(d)-ncol(Yh)),
-                        model=T)
+                        model=T, x = T)
       },
       # Specifying error message
       error = function(e){
@@ -236,7 +236,7 @@ cox <- function (X, Y,
                         singular.ok = T,
                         robust = T,
                         nocenter = rep(1, ncol(d)-ncol(Yh)),
-                        model=T)
+                        model=T, x = T)
       },
       # Specifying error message
       error = function(e){

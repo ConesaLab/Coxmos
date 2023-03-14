@@ -18,7 +18,7 @@ rm(dpi)
 
 ## ---- eval=FALSE--------------------------------------------------------------
 #  install.packages("devtools")
-#  devtools::install_github("ConesaLab/HDcox", build_vignettes = TRUE)
+#  devtools::install_github("ConesaLab/HDcox")
 
 ## ----setup, eval=FALSE, results = "hide"--------------------------------------
 #  # load HDcox
@@ -40,11 +40,13 @@ data("Y_miRNA_glioblastoma")
 X <- X_miRNA_glioblastoma
 Y <- Y_miRNA_glioblastoma
 
-#rm(X_miRNA_glioblastoma, Y_miRNA_glioblastoma)
+X <- X[1:100,1:250]
+Y <- Y[1:100,]
+
+rm(X_miRNA_glioblastoma, Y_miRNA_glioblastoma)
 
 ## ---- echo = FALSE------------------------------------------------------------
 knitr::kable(X[1:5,1:5])
-
 knitr::kable(Y[1:5,])
 
 ## ---- echo = FALSE------------------------------------------------------------
@@ -98,11 +100,13 @@ EPV
 #                           x.center = T, x.scale = F,
 #                           y.center = F, y.scale = F,
 #                           remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+#                           remove_variance_at_fold_level = F,
 #                           remove_non_significant = F, alpha = 0.05,
-#                           w_AIC = 0, w_c.index = 0, w_AUC = 1, times = NULL,
+#                           w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL, max_time_points = 15,
 #                           MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
 #                           pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
 #                           MIN_EPV = 5, return_models = F,
+#                           returnData = F,
 #                           PARALLEL = F, verbose = F, seed = 123)
 
 ## ---- eval=FALSE--------------------------------------------------------------
@@ -134,40 +138,42 @@ coxen_model <- coxEN(X = X_train, Y = Y_train,
 ## -----------------------------------------------------------------------------
 coxen_model
 
-## ---- eval=FALSE, message=F---------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #  # run cv.plsicox
-#  cv.plsicox_res <- cv.plsicox(X = X_train, Y = Y_train,
-#                               max.ncomp = 10,
-#                               n_run = 2, k_folds = 10,
-#                               x.center = T, x.scale = F,
-#                               y.center = F, y.scale = F,
-#                               remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL, remove_variance_at_fold_level = F,
-#                               remove_non_significant_models = F, alpha = 0.05,
-#                               w_AIC = 0, w_c.index = 0, w_AUC = 1, times = NULL,
-#                               MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
-#                               pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
-#                               MIN_EPV = 5, return_models = F, remove_non_significant = F, returnData = F, tol = 1e-15,
-#                               PARALLEL = F, verbose = F, seed = 123)
+#  cv.splsicox_res <- cv.splsicox(X = X_train, Y = Y_train,
+#                                 max.ncomp = 2, spv_penalty.list = c(0.1,0.5),
+#                                 n_run = 2, k_folds = 3,
+#                                 x.center = T, x.scale = F,
+#                                 y.center = F, y.scale = F,
+#                                 remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+#                                 remove_variance_at_fold_level = F,
+#                                 remove_non_significant_models = F, alpha = 0.05,
+#                                 w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL, max_time_points = 15,
+#                                 MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
+#                                 pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
+#                                 MIN_EPV = 5, return_models = F, remove_non_significant = F, returnData = F, tol = 1e-15,
+#                                 PARALLEL = F, verbose = F, seed = 123)
 
 ## ---- eval=FALSE--------------------------------------------------------------
-#  cv.plsicox_res #5.57min.
+#  cv.splsicox_res #6min.
 
 ## ---- eval=FALSE, fig.small=T-------------------------------------------------
 #  # plot cv.plsicox
-#  cv.plsicox_res$plot_AUC
+#  cv.splsicox_res$plot_AUC
 
 ## -----------------------------------------------------------------------------
-plsicox_model <- plsicox(X = X_train, Y = Y_train, 
-                         n.comp = 3, #n.comp = cv.plsicox_res$opt.comp
-                         x.center = T, x.scale = F,
-                         y.center = F, y.scale = F,
-                         remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
-                         MIN_EPV = 5, returnData = T, verbose = F)
+splsicox_model <- splsicox(X = X_train, Y = Y_train, 
+                           #n.comp = cv.splsicox_res$opt.comp, spv_penalty = cv.splsicox_res$opt.spv_penalty
+                          n.comp = 1, spv_penalty = 0.1,
+                          x.center = T, x.scale = F,
+                          y.center = F, y.scale = F,
+                          remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+                          MIN_EPV = 5, returnData = T, verbose = F)
 
 ## -----------------------------------------------------------------------------
-plsicox_model
+splsicox_model
 
-## ---- eval=FALSE, message=F---------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #  # run cv.splsdrcox
 #  cv.splsdrcox_res <- cv.splsdrcox(X = X_train, Y = Y_train,
 #                                   max.ncomp = 10, eta.list = seq(0,0.9,0.25), #penalty
@@ -176,14 +182,14 @@ plsicox_model
 #                                   y.center = F, y.scale = F,
 #                                   remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
 #                                   remove_non_significant_models = F, alpha = 0.05,
-#                                   w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
+#                                   w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL,
 #                                   MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
 #                                   pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
 #                                   MIN_EPV = 5, return_models = F,
 #                                   PARALLEL = F, verbose = F, seed = 123)
 
 ## ---- eval=FALSE--------------------------------------------------------------
-#  cv.splsdrcox_res #10.2min
+#  cv.splsdrcox_res #14.45min
 
 ## ---- eval=FALSE, fig.small=T-------------------------------------------------
 #  # plot cv.plsicox
@@ -191,7 +197,7 @@ plsicox_model
 
 ## -----------------------------------------------------------------------------
 splsdrcox_model <- splsdrcox(X = X_train, Y = Y_train, 
-                             n.comp = 1, eta = 0.75, #n.comp = cv.splsdrcox_res$opt.comp, eta = cv.splsdrcox_res$opt.eta
+                             n.comp = 4, eta = 0.75, #n.comp = cv.splsdrcox_res$opt.comp, eta = cv.splsdrcox_res$opt.eta
                              x.center = T, x.scale = F,
                              y.center = F, y.scale = F,
                              remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
@@ -202,51 +208,56 @@ splsdrcox_model
 
 ## ---- eval=FALSE--------------------------------------------------------------
 #  # run cv.splsdrcox
-#  cv.splsdrcox_mo_res <- cv.splsdrcox_dynamic(X = X_train, Y = Y_train,
-#                                               max.ncomp = 10, vector = NULL,
-#                                               MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 10, EVAL_METHOD = "cenROC",
-#                                               n_run = 2, k_folds = 10,
-#                                               x.center = T, x.scale = F,
-#                                               y.center = F, y.scale = F,
-#                                               remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
-#                                               remove_non_significant_models = F, alpha = 0.05,
-#                                               w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
-#                                               MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
-#                                               pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
-#                                               MIN_EPV = 5, return_models = F,
-#                                               PARALLEL = F, verbose = F, seed = 123)
+#  cv.splsdrcox_dynamic_res <- cv.splsdrcox_dynamic(X = X_train, Y = Y_train,
+#                                              max.ncomp = 10, vector = NULL,
+#                                              MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 10, EVAL_METHOD = "AUC",
+#                                              n_run = 2, k_folds = 10,
+#                                              x.center = T, x.scale = F,
+#                                              y.center = F, y.scale = F,
+#                                              remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+#                                              remove_non_significant_models = F, alpha = 0.05,
+#                                              remove_variance_at_fold_level = F, remove_non_significant = F,
+#                                              w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0,
+#                                              times = NULL, max_time_points = 15, returnData = F, tol = 1e-10,
+#                                              MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
+#                                              pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
+#                                              MIN_EPV = 5, return_models = F,
+#                                              PARALLEL = F, verbose = F, seed = 123)
 
 ## ---- eval=FALSE--------------------------------------------------------------
-#  cv.splsdrcox_mo_res #3.45mins
+#  cv.splsdrcox_dynamic_res #5.58mins
 
 ## -----------------------------------------------------------------------------
-splsdrcox_mo_model <- splsdrcox_dynamic(X = X_train, Y = Y_train, 
-                                         n.comp = 2, vector = 534,
-                                         x.center = T, x.scale = F,
-                                         y.center = F, y.scale = F,
-                                         remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
-                                         MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 5,
-                                         MIN_AUC_INCREASE = 0.01,
-                                         EVAL_METHOD = "AUC", pred.method = "cenROC", max.iter = 200,
-                                         MIN_EPV = 5, returnData = T, verbose = F)
+splsdrcox_dynamic_model <- splsdrcox_dynamic(X = X_train, Y = Y_train, 
+                                             n.comp = 2, #cv.splsdrcox_dynamic_res$opt.comp 
+                                             vector = 49, #cv.splsdrcox_dynamic_res$opt.nvar
+                                             x.center = T, x.scale = F,
+                                             y.center = F, y.scale = F,
+                                             remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+                                             MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 5,
+                                             MIN_AUC_INCREASE = 0.01,
+                                             EVAL_METHOD = "AUC", pred.method = "cenROC", max.iter = 200,
+                                             MIN_EPV = 5, returnData = T, verbose = F)
 
-splsdrcox_mo_model
+splsdrcox_dynamic_model
 
 ## ---- eval=FALSE--------------------------------------------------------------
 #  # run cv.splsdrcox
 #  cv.splsdacox_res <- cv.splsdacox_dynamic(X = X_train, Y = Y_train,
-#                                            max.ncomp = 10,  vector = NULL,
-#                                            MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 10, EVAL_METHOD = "cenROC",
-#                                            n_run = 2, k_folds = 10,
-#                                            x.center = T, x.scale = F,
-#                                            y.center = F, y.scale = F,
-#                                            remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
-#                                            remove_non_significant_models = F, alpha = 0.05,
-#                                            w_AIC = 0,  w_c.index = 0, w_AUC = 1, times = NULL,
-#                                            MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
-#                                            pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
-#                                            MIN_EPV = 5, return_models = F,
-#                                            PARALLEL = F, verbose = F, seed = 123)
+#                                           max.ncomp = 10,  vector = NULL,
+#                                           MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 10, EVAL_METHOD = "AUC",
+#                                           n_run = 2, k_folds = 10,
+#                                           x.center = T, x.scale = F,
+#                                           y.center = F, y.scale = F,
+#                                           remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+#                                           remove_variance_at_fold_level = F, remove_non_significant = F,
+#                                           remove_non_significant_models = F, alpha = 0.05,
+#                                           w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0,
+#                                           times = NULL, max_time_points = 15, returnData = F,
+#                                           MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
+#                                           pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
+#                                           MIN_EPV = 5, return_models = F, max.iter = 200, tol = 1e-10,
+#                                           PARALLEL = F, verbose = F, seed = 123)
 
 ## ---- eval=FALSE--------------------------------------------------------------
 #  cv.splsdacox_res #4min
@@ -266,9 +277,9 @@ splsdacox_mo_model
 
 ## -----------------------------------------------------------------------------
 lst_models <- list("COX-EN" = coxen_model,
-                   "PLS-ICOX" = plsicox_model,
+                   "sPLS-ICOX" = splsicox_model,
                    "sPLS-DRCOX" = splsdrcox_model,
-                   "sPLS-DRCOX-Dynamic" = splsdrcox_mo_model,
+                   "sPLS-DRCOX-Dynamic" = splsdrcox_dynamic_model,
                    "sPLS-DACOX-Dynamic" = splsdacox_mo_model)
 
 eval_results <- eval_HDcox_models(lst_models = lst_models,
@@ -305,9 +316,9 @@ lst_eval_results$lst_plot_comparisons$anova
 
 ## -----------------------------------------------------------------------------
 lst_models_time <- list(coxen_model,
-                        plsicox_model,
+                        splsicox_model,
                         splsdrcox_model,
-                        splsdrcox_mo_model,
+                        splsdrcox_dynamic_model,
                         splsdacox_mo_model)
 
 ## -----------------------------------------------------------------------------

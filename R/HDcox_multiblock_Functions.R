@@ -1,3 +1,19 @@
+checkColnamesIllegalChars.mb <- function(X){
+
+  for(block in names(X)){
+    new_cn_X <- deleteIllegalChars(colnames(X[[block]]))
+
+    if(length(unique(new_cn_X)) == length(unique(colnames(X[[block]])))){
+      colnames(X[[block]]) <- new_cn_X
+    }else{
+      stop(paste0("When deleting illegal chars, some colnames in X (", block,") get the same name. Update manually the colnames to avoid the next chars: ", paste0(pkg.env$IllegalChars, collapse = " ")))
+    }
+  }
+
+  return(X)
+
+}
+
 #' deleteZeroOrNearZeroVariance.mb
 #'
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
@@ -153,6 +169,9 @@ splitData_Iterations_Folds.mb <- function(X, Y, n_run, k_folds, seed = 123){
   lst_X_test <- list()
   lst_Y_test <- list()
 
+  lst_obs_index_train <- list()
+  lst_obs_index_test <- list()
+
   for(i in 1:n_run){
     testIndex <- caret::createFolds(Y[,"event"],
                                      k = k_folds,
@@ -269,7 +288,7 @@ getCIndex_AUC_CoxModel_block.spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keep
                       singular.ok = T,
                       robust = T,
                       nocenter = rep(1, ncol(d)),
-                      model=T)
+                      model=T, x = T)
     },
     # Specifying error message
     error = function(e){
@@ -284,9 +303,14 @@ getCIndex_AUC_CoxModel_block.spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keep
     times <- getTimesVector(Yh, max_time_points)
   }
 
+  #C-index and AUC
   lst_AUC_values <- getAUC_from_LP_2.0(linear.predictors = lp, Y = Yh, times = times, bestModel = NULL, eval = "mean", method = EVAL_EVALUATOR, PARALLEL = FALSE, verbose = verbose)
 
-  return(list("c_index" = cox_model$fit$concordance["concordance"], "AUC" = lst_AUC_values$AUC))
+  #BRIER
+  #lst_BRIER_values <- survAUC_BRIER_LP(lp = lp$fit, Y = Yh, lp_new = lp$fit, Y_test = Yh)
+  lst_BRIER_values <- SURVCOMP_BRIER_LP(lp_train = lp$fit, Y_train = Yh, lp_test = lp$fit, Y_test = Yh)
+
+  return(list("c_index" = cox_model$fit$concordance["concordance"], "AUC" = lst_AUC_values$AUC, "BRIER" = lst_BRIER_values$ierror))
 }
 
 getCIndex_AUC_CoxModel_block.splsda <- function(Xh, Yh, n.comp, keepX, scale = F, near.zero.var = F, EVAL_EVALUATOR = "cenROC", max.iter = 100, verbose = verbose, times = NULL, max_time_points = 15){
@@ -310,7 +334,7 @@ getCIndex_AUC_CoxModel_block.splsda <- function(Xh, Yh, n.comp, keepX, scale = F
                       singular.ok = T,
                       robust = T,
                       nocenter = rep(1, ncol(d)),
-                      model=T)
+                      model=T, x = T)
     },
     # Specifying error message
     error = function(e){
@@ -324,9 +348,15 @@ getCIndex_AUC_CoxModel_block.splsda <- function(Xh, Yh, n.comp, keepX, scale = F
   }
 
   lp <- getLinealPredictors(cox = cox_model$fit, data = d)
+
+  #C-index and AUC
   lst_AUC_values <- getAUC_from_LP_2.0(linear.predictors = lp, Y = Yh, times = times, bestModel = NULL, eval = "mean", method = EVAL_EVALUATOR, PARALLEL = FALSE, verbose = verbose)
 
-  return(list("c_index" = cox_model$fit$concordance["concordance"], "AUC" = lst_AUC_values$AUC))
+  #BRIER
+  #lst_BRIER_values <- survAUC_BRIER_LP(lp = lp$fit, Y = Yh, lp_new = lp$fit, Y_test = Yh)
+  lst_BRIER_values <- SURVCOMP_BRIER_LP(lp_train = lp$fit, Y_train = Yh, lp_test = lp$fit, Y_test = Yh)
+
+  return(list("c_index" = cox_model$fit$concordance["concordance"], "AUC" = lst_AUC_values$AUC, "BRIER" = lst_BRIER_values$ierror))
 }
 
 getVarExpModel_block.spls <- function(Xh, DR_coxph_ori, n.comp, keepX, scale = F){
@@ -338,6 +368,10 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
 
   if(!mode %in% c("spls", "splsda")){
     stop("Mode must be one of: 'spls' or 'splsda'")
+  }
+
+  if(!EVAL_METHOD %in% c("AUC", "BRIER", "c_index")){
+    stop("Evaluation method must be one of: 'AUC', 'BRIER' or 'c_index'")
   }
 
   max_ncol <- purrr::map(Xh, ~ncol(.))
@@ -424,9 +458,14 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
   for(i in 1:length(lst_cox_value)){
     if(EVAL_METHOD=="AUC"){
       df_cox_value <- rbind(df_cox_value, lst_cox_value[[i]]$AUC)
-    }else{
+    }else if(EVAL_METHOD=="c_index"){
       df_cox_value <- rbind(df_cox_value, lst_cox_value[[i]]$c_index)
+    }else if(EVAL_METHOD=="BRIER"){
+      df_cox_value <- rbind(df_cox_value, lst_cox_value[[i]]$BRIER)
     }
+  }
+  if(EVAL_METHOD=="BRIER"){
+    df_cox_value <- 1 - df_cox_value #maximize 1-brier
   }
   rownames(df_cox_value) <- names(list_KeepX)
 
@@ -446,6 +485,9 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
 
   ori_vector <- vector
   aux_vector <- vector
+  p_val <- rep(NA, length(vector))
+  names(p_val) <- vector
+  p_val <- df_cox_value[,1]
 
   while(FLAG){
     cont = cont + 1
@@ -456,7 +498,7 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
 
     new_vector <- list()
 
-    #before_vector
+    #before_vector - always go two sides
     for(b in names(best_keepX)){
       aux <- best_keepX[[b]][[1]]
       index <- which(aux_vector[[b]] < aux)
@@ -480,6 +522,13 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
       new_vector[[b]] <- unique(c(new_vector[[b]], aux, value))
     }
 
+    for(b in names(best_keepX)){
+      #first value already tested if multiple
+      if(length(new_vector[[b]])>1){
+        new_vector[[b]] <- new_vector[[b]][-1]
+      }
+    }
+
     if(verbose){
       message(paste0("Testing: \n"), paste0("Block ", names(best_keepX), ": ", new_vector, "\n"))
     }
@@ -491,6 +540,9 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
     names(aux_vector) <- names(new_vector)
     aux_vector <- purrr::map(names(new_vector), ~aux_vector[[.]][order(aux_vector[[.]])])
     names(aux_vector) <- names(new_vector)
+
+    p_val <- c(p_val, rep(NA, prod(unlist(purrr::map(new_vector, length))))) #longitud es el el numero nuevo de posibles combinaciones posibles
+    names(p_val)[is.na(p_val)] <- apply(all_comb, 1, function(x){paste0(unlist(x), collapse = "_")})
 
     ### OTHER KEEP_VECTOR
     list_KeepX_aux <- list()
@@ -541,16 +593,22 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
     for(i in 1:length(lst_cox_value)){
       if(EVAL_METHOD=="AUC"){
         df_cox_value_aux <- rbind(df_cox_value_aux, lst_cox_value[[i]]$AUC)
-      }else{
+      }else if(EVAL_METHOD=="c_index"){
         df_cox_value_aux <- rbind(df_cox_value_aux, lst_cox_value[[i]]$c_index)
+      }else if(EVAL_METHOD=="BRIER"){
+        df_cox_value_aux <- rbind(df_cox_value_aux, lst_cox_value[[i]]$BRIER)
       }
     }
-
+    if(EVAL_METHOD=="BRIER"){
+      df_cox_value_aux <- 1 - df_cox_value_aux #maximize 1-brier
+    }
     rownames(df_cox_value_aux) <- names(list_KeepX_aux)
+
     #index <- which.max(rowSums(df_cox_value_aux)) #MAX VAR_MEDIA
     #index <- which.max(df_cox_value_aux[,"Y"]) #MAX Y?
     index <- which.max(df_cox_value_aux) #MAX CONCORDANCE
     best_c_index_aux <- df_cox_value_aux[index]
+    p_val[rownames(df_cox_value_aux)] <- df_cox_value_aux
 
     if(best_c_index >= best_c_index_aux | best_c_index_aux-best_c_index <= MIN_AUC_INCREASE){
       FLAG = F
@@ -566,6 +624,17 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
     }
   }
 
+  aux_df <- t(data.frame(sapply(names(p_val), strsplit, "_")))
+  aux_df <- as.data.frame(aux_df)
+  rownames(aux_df) <- names(p_val)
+  colnames(aux_df) <- names(aux_vector)
+  for(cn in colnames(aux_df)){
+    aux_df[,cn] <- as.numeric(aux_df[,cn])
+    aux_df <- aux_df[order(aux_df[,cn]),]
+  }
+
+  p_val <- p_val[rownames(aux_df)]
+
   keepX <- best_keepX
-  return(keepX)
+  return(list(best.keepX = keepX, p_val = p_val))
 }

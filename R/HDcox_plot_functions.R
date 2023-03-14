@@ -441,7 +441,7 @@ save_ggplot_lst.svg <- function(lst_plots, folder = NULL, prefix = NULL, suffix 
 #'
 #' @examples
 #' \dontrun{
-#'   lst_models = {"cox" = cox_model, "PLS-ICOX" = cv.plsicox_model, "sPLS-DRCOX" = cv.splsdrcox_model}
+#'   lst_models = {"cox" = cox.model, "cv.sPLS-ICOX" = cv.splsicox_model, "sPLS-ICOX" = splsicox_model}
 #'   plot_time.list(lst_models, x.text = "Method")
 #' }
 
@@ -584,7 +584,8 @@ evalplot_errorbar <- function(df, x.var, y.var, y.var.sd, x.color = NULL, best_c
   if(!is.null(x.color) & !is.null(best_component) & !is.null(best_eta)){
     best_flag = T
     best_df <- df[df[,x.var] == best_component,,drop=F]
-    best_df[!best_df[,x.color] == as.character(best_eta),c(y.var, y.var.sd)] <- NA
+    best_df[!best_df[,x.color] == as.character(best_eta),c(y.var, y.var.sd)] <- NA #I need NA because is moved (position_dodge)
+    #best_df <- best_df[best_df[,x.color] == as.character(best_eta),]
   }else if(!is.null(best_component)){
     best_flag = T
     best_df <- df[df[,x.var] == best_component,,drop=F]
@@ -628,9 +629,13 @@ evalplot_errorbar <- function(df, x.var, y.var, y.var.sd, x.color = NULL, best_c
 
   if(best_flag){
     if(!is.null(x.color)){
-      ggp <- ggp + geom_point(data = best_df, aes_string(x = x.var, y = y.var, color = x.color, group = x.color), position=position_dodge(error_pos), size = dot_size, shape = 23, fill = "white", stroke = 2, show.legend = F)
+      ggp <- ggp + geom_point(data = best_df, aes_string(x = x.var, y = y.var, color = x.color, group = x.color),
+                              position=position_dodge(error_pos), size = dot_size, shape = 23, fill = "white",
+                              stroke = 2, show.legend = F)
     }else{
-      ggp <- ggp + geom_point(data = best_df, aes_string(x = x.var, y = y.var), position=position_dodge(error_pos), size = dot_size, shape = 23, fill = "white", color = color_conesa, stroke = 2, show.legend = F)
+      ggp <- ggp + geom_point(data = best_df, aes_string(x = x.var, y = y.var), position=position_dodge(error_pos),
+                              size = dot_size, shape = 23, fill = "white", color = color_conesa,
+                              stroke = 2, show.legend = F)
     }
   }
 
@@ -844,6 +849,31 @@ comboplot.performance2.0 <- function(df, x.var = "time", y.var = "AUC", x.color 
 
   a <- lineplot.performace2.0(df, x.var, y.var, x.color, x.lab, y.lab, y.limit, point, mean = F, legend_rm = F)
   return(list(lineplot = a, lineplot.mean = pp))
+}
+
+plot_VAR_eval <- function(lst_BV, EVAL_METHOD = "AUC", dot_size = 3){
+  values = NULL #just in case
+  best_keepX <- lst_BV$best.keepX
+  best_keepX <- paste0(unlist(lapply(best_keepX, function(x){x[[1]]})), collapse = "_")
+  df.pval <- data.frame(names = factor(names(lst_BV$p_val), levels = names(lst_BV$p_val)), values = lst_BV$p_val)
+  if(EVAL_METHOD == "BRIER"){
+    df.pval$values <- 1- df.pval$values
+  }
+
+  if(requireNamespace("RColorConesa", quietly = TRUE)){
+    color_conesa <- RColorConesa::colorConesa(1)
+  }else{
+    color_conesa <- "blue"
+  }
+
+  ggp <- ggplot(df.pval, aes(x = names, y = values)) +
+    geom_line(group = 1, color = color_conesa, linewidth = 1.5) + ylab("Pred. Value") + xlab("Number of variables")
+  ggp <- ggp + geom_point(data = df.pval[df.pval$names==best_keepX,,drop=F],
+                          aes(x = names, y = values), color = color_conesa,
+                          size = dot_size, shape = 23, fill = "white",
+                          stroke = 2, show.legend = F)
+
+  return(ggp)
 }
 
 #' plot_evaluation.list
@@ -1522,7 +1552,7 @@ plot_pseudobeta.list <- function(lst_models, error.bar = T, onlySig = F, alpha =
 plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zero.rm = F, top = NULL, auto.limits = T, show_percentage = T, size_percentage = 3){
 
   if(!attr(model, "model") %in% c(pkg.env$pls_methods, pkg.env$multiblock_methods)){
-    stop("Model must be one of the follow models: 'PLS-ICOX', 'sPLS-DRCOX', 'sPLS-DRCOX-Dynamic', 'sPLS-DACOX-Dynamic', 'SB.PLS-ICOX', 'SB.sPLS-DRCOX', 'MB.sPLS-DRCOX', 'MB.sPLS-DACOX'")
+    stop("Model must be one of the follow models: 'sPLS-ICOX', 'sPLS-DRCOX', 'sPLS-DRCOX-Dynamic', 'sPLS-DACOX-Dynamic', 'SB.sPLS-ICOX', 'SB.sPLS-DRCOX', 'MB.sPLS-DRCOX', 'MB.sPLS-DACOX'")
   }
 
   if(all(is.null(model$survival_model))){
@@ -1582,7 +1612,7 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
       coefficients <- as.matrix(model$survival_model$fit$coefficients)[rn,,drop=F]
       sd <- df.aux[rn,"se(coef)",drop=F]
       W.star <- list()
-      if(attr(model, "model") %in% pkg.env$sb.plsicox){
+      if(attr(model, "model") %in% pkg.env$sb.splsicox){
         for(b in names(model$list_pls_models)){
           W.star[[b]] <- model$list_pls_models[[b]]$X$W.star
         }
@@ -1598,7 +1628,7 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
       coefficients <- as.matrix(model$survival_model$fit$coefficients)
       sd <- df.aux[,"se(coef)",drop=F]
       W.star <- list()
-      if(attr(model, "model") %in% pkg.env$sb.plsicox){
+      if(attr(model, "model") %in% pkg.env$sb.splsicox){
         for(b in names(model$list_pls_models)){
           W.star[[b]] <- model$list_pls_models[[b]]$X$W.star
         }
@@ -2935,7 +2965,7 @@ plot_HDcox.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor =
   }else if(attr(aux.model, "model") %in% c(pkg.env$multiblock_methods)){
     stop_quietly("For single block models, use the function 'plot_HDcox.MB.PLS.model'")
   }else if(!attr(aux.model, "model") %in% c(pkg.env$pls_methods, pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
-    stop_quietly("'model' must be a HDcox object PLS class ('PLS-ICOX','sPLS-DRCOX','sPLS-DRCOX-Dynamic', or 'sPLS-DACOX-Dynamic'.")
+    stop_quietly("'model' must be a HDcox object PLS class ('sPLS-ICOX','sPLS-DRCOX','sPLS-DRCOX-Dynamic', or 'sPLS-DACOX-Dynamic'.")
   }
 
   if(mode=="scores"){
@@ -3205,7 +3235,7 @@ plot_HDcox.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", facto
   }else if(attr(aux.model, "model") %in% pkg.env$pls_methods){
     stop_quietly("For PLS models, use the function 'plot_HDcox.PLS.model'")
   }else if(!attr(aux.model, "model") %in% pkg.env$multiblock_methods){
-    stop_quietly("'model' must be a HDcox object PLS class ('SB.PLS-ICOX','SB.sPLS-DRCOX','MB.sPLS-DRCOX' or 'MB.sPLS-DACOX').")
+    stop_quietly("'model' must be a HDcox object PLS class ('SB.sPLS-ICOX','SB.sPLS-DRCOX','MB.sPLS-DRCOX' or 'MB.sPLS-DACOX').")
   }
 
   lst_ggp <- list()
@@ -3220,7 +3250,7 @@ plot_HDcox.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", facto
 
       if(mode=="scores"){
 
-        if(attr(aux.model, "model") %in% c(pkg.env$sb.plsicox, pkg.env$sb.splsdrcox)){
+        if(attr(aux.model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox)){
           if(ncol(aux.model[[4]][[block]]$X$scores)==1){
             message("The model has only 1 component")
 
@@ -3276,7 +3306,7 @@ plot_HDcox.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", facto
 
       }else if(mode=="loadings"){
 
-        if(attr(aux.model, "model") %in% c(pkg.env$sb.plsicox, pkg.env$sb.splsdrcox)){
+        if(attr(aux.model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox)){
           if(ncol(aux.model[[4]][[block]]$X$loadings)==1){
             message("The model has only 1 component")
 
@@ -3353,7 +3383,7 @@ plot_HDcox.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", facto
       }else if(mode=="biplot"){
 
 
-        if(attr(aux.model, "model") %in% c(pkg.env$sb.plsicox, pkg.env$sb.splsdrcox)){
+        if(attr(aux.model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox)){
           if(ncol(aux.model[[4]][[block]]$X$loadings)==1){
             message("The model has only 1 component")
 
@@ -3886,7 +3916,7 @@ getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NUL
 
     if(!all(is.null(model$survival_model))){
       for(b in names(model$X$data)){
-        if(attr(model, "model") %in% c(pkg.env$sb.plsicox, pkg.env$sb.splsdrcox)){
+        if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox)){
           lst_vars[[b]] <- colnames(model[[4]][[b]]$X$W.star)
           keep <- which(paste0(lst_vars[[b]],"_",b) %in% names(model$survival_model$fit$coefficients))
           lst_vars[[b]] <- lst_vars[[b]][keep]
@@ -3919,7 +3949,7 @@ getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NUL
     vars_data <- list()
     for(b in names(model$X$data)){
       unique_vars <- deleteIllegalChars(unique(unlist(lst_vars[[b]])))
-      if(attr(model, "model") %in% c(pkg.env$sb.plsicox, pkg.env$sb.splsdrcox)){
+      if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox)){
         vars_data[[b]] <- as.data.frame(model[[4]][[b]]$X$scores[rownames(model[[4]][[b]]$X$scores),unique_vars,drop=F])
       }else{
         vars_data[[b]] <- as.data.frame(model$X$scores[[b]][rownames(model$X$scores[[b]]),unique_vars,drop=F])
@@ -4061,13 +4091,13 @@ getLPVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NU
     for(b in names(model$X$data)){
       vars <- list()
 
-      if(attr(model, "model") %in% pkg.env$sb.plsicox){
+      if(attr(model, "model") %in% pkg.env$sb.splsicox){
         aux <- model$list_pls_models[[b]]
       }else if(attr(model, "model") %in% pkg.env$sb.splsdrcox){
         aux <- model$list_spls_models[[b]]
       }
 
-      if(attr(model, "model") %in% c(pkg.env$sb.plsicox, pkg.env$sb.splsdrcox)){
+      if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox)){
 
         message("ARREGLAR PARA SB")
 
@@ -4309,13 +4339,13 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
       vars <- list()
       vars_data <- list()
 
-      if(attr(model, "model") %in% pkg.env$sb.plsicox){
+      if(attr(model, "model") %in% pkg.env$sb.splsicox){
         aux <- model$list_pls_models[[b]]
       }else if(attr(model, "model") %in% pkg.env$sb.splsdrcox){
         aux <- model$list_spls_models[[b]]
       }
 
-      if(attr(model, "model") %in% c(pkg.env$sb.plsicox, pkg.env$sb.splsdrcox)){
+      if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox)){
 
         for(c in comp){
           if(ncol(aux$X$W.star)>=c){
@@ -4992,10 +5022,10 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
 
   }else if(type=="VAR"){
 
-    if(attr(model, "model") %in% c(pkg.env$sb.plsicox, pkg.env$sb.splsdrcox)){
+    if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox)){
       lst_ggp <- NULL
       ## SB.PLSICOX
-      if(attr(model, "model") %in% c(pkg.env$sb.plsicox)){
+      if(attr(model, "model") %in% c(pkg.env$sb.splsicox)){
         for(b in names(model$list_pls_models)){
           new_cutoff <- cutoff[endsWith(names(cutoff), paste0("_",b))]
           names(new_cutoff) <- unlist(lapply(names(new_cutoff), function(x){substr(x, start = 1, stop = nchar(x)-nchar(paste0("_",b)))}))

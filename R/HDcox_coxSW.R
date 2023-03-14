@@ -504,11 +504,11 @@ stepwise.coxph <- function (Time = NULL, T1 = NULL, T2 = NULL, Status = NULL, va
       }
       aux_data <- as.data.frame(data[,colnames(data) %in% c(in.variable, "time", "event", "status"),drop=F])
       initial.model <- survival::coxph(as.formula(paste("Surv(", Time, ", ", Status, ") ~ .")), data = aux_data,
-                                       method = "efron", model = T, singular.ok = T)
+                                       method = "efron", model = T, singular.ok = T, x = F)
     }else{
       aux_data <- as.data.frame(data[,colnames(data) %in% c(in.variable, "time", "event", "status"),drop=F])
       initial.model <- survival::coxph(as.formula(paste("Surv(", Time, ", ", Status, ") ~ .")), data = aux_data,
-                                       method = "efron", model = T, singular.ok = T)
+                                       method = "efron", model = T, singular.ok = T, x = F)
     }
 
   }
@@ -523,12 +523,12 @@ stepwise.coxph <- function (Time = NULL, T1 = NULL, T2 = NULL, Status = NULL, va
       aux_data <- as.data.frame(data[,colnames(data) %in% c(in.variable, "time", "event", "status"),drop=F])
       initial.model <- survival::coxph(as.formula(paste("Surv(", T1, ", ", T2, ", ", Status, ") ~ .")),
                                        data = aux_data,
-                                       method = "efron", model = T, singular.ok = T)
+                                       method = "efron", model = T, singular.ok = T, x = F)
     }else{
       aux_data <- as.data.frame(data[,colnames(data) %in% c(in.variable, "time", "event", "status"),drop=F])
       initial.model <- survival::coxph(as.formula(paste("Surv(", T1, ", ", T2, ", ", Status, ") ~ .")),
                                        data = aux_data,
-                                       method = "efron", model = T, singular.ok = T)
+                                       method = "efron", model = T, singular.ok = T, x = F)
     }
 
   }
@@ -540,7 +540,7 @@ stepwise.coxph <- function (Time = NULL, T1 = NULL, T2 = NULL, Status = NULL, va
         uni.model <- tryCatch({ #si NA saltará aviso
           survival::coxph(as.formula(paste("Surv(", Time, ", ", Status, ") ~ .")),
                           data = aux_data,
-                          method = "efron", model = T, singular.ok = T)},
+                          method = "efron", model = T, singular.ok = T, x = F)},
           #save the error
           error=function(cond) {
             # Choose a return value in case of error
@@ -557,7 +557,7 @@ stepwise.coxph <- function (Time = NULL, T1 = NULL, T2 = NULL, Status = NULL, va
         uni.model <- tryCatch({ #si NA saltará aviso
           survival::coxph(as.formula(paste("Surv(", T1, ", ", T2, ", ", Status, ") ~ .")),
                           data = aux_data,
-                          method = "efron", model = T, singular.ok = T)},
+                          method = "efron", model = T, singular.ok = T, x = F)},
           #save the error
           error=function(cond) {
             # Choose a return value in case of error
@@ -578,12 +578,12 @@ stepwise.coxph <- function (Time = NULL, T1 = NULL, T2 = NULL, Status = NULL, va
       if (is.null(T2)) {
         aux_data <- as.data.frame(data[,colnames(data) %in% c(uni.x, "time", "event", "status"),drop=F])
         formula <- as.formula(paste("Surv(", Time, ", ", Status, ") ~ ", uni.x, sep = ""))
-        temp.model <- survival::coxph(formula, data = aux_data, method = "efron", model = T, singular.ok = T)
+        temp.model <- survival::coxph(formula, data = aux_data, method = "efron", model = T, singular.ok = T, x = F)
       }
       if (is.null(Time)) {
         aux_data <- as.data.frame(data[,colnames(data) %in% c(uni.x, "time", "event", "status"),drop=F])
         formula <- as.formula(paste("Surv(", T1, ", ", T2, ", ", Status, ") ~ ."))
-        temp.model <- survival::coxph(formula, data = aux_data, method = "efron", model = T, singular.ok = T)
+        temp.model <- survival::coxph(formula, data = aux_data, method = "efron", model = T, singular.ok = T, x = F)
       }
     }
   }
