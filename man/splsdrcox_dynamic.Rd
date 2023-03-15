@@ -95,8 +95,8 @@ Instance of class "HDcox" and model "sPLS-DRCOX-Dynamic". The class contains the
 \itemize{
 \item \code{(data)}: normalized X matrix
 \item \code{(weightings)}: PLS weights
-\item \code{(weightings_norm)}: PLS normalize weights
 \item \code{(W.star)}: PLS W* vector
+\item \code{(loadings)}: sPLS loadings
 \item \code{(scores)}: PLS scores/variates
 \item \code{(E)}: error matrices
 \item \code{(x.mean)}: mean values for X matrix
@@ -122,11 +122,13 @@ Instance of class "HDcox" and model "sPLS-DRCOX-Dynamic". The class contains the
 \item \code{Yresidus}: Y residuals.
 }
 
-\code{eta}: Penalty value selected.
-
 \code{n.comp}: Number of components selected.
 
 \code{n.varX}: Number of Variables selected in each PLS component.
+
+\code{var_by_component}: Variables selected in each PLS component.
+
+\code{plot_accuracyPerVariable}: If NULL vector is selected, return a plot for understanding the number of variable selection.
 
 \code{call}: call function
 
@@ -142,7 +144,13 @@ Instance of class "HDcox" and model "sPLS-DRCOX-Dynamic". The class contains the
 
 \code{SCT}: PLS SCT
 
+\code{alpha}: alpha value selected
+
+\code{removed_variables_cox}: Variables removed by sparse penalty.
+
 \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
+
+\code{class}: Model class.
 
 \code{time}: time consumed for running the cox analysis.
 }

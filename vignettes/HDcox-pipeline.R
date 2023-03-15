@@ -76,7 +76,7 @@ Y_train <- Y[index_train,]
 X_test <- X[-index_train,] #109x534
 Y_test <- Y[-index_train,]
 
-## ---- eval=FALSE, message=T, error=F------------------------------------------
+## ---- eval=FALSE, message=T---------------------------------------------------
 #  # classical approach
 #  cox_model <- cox(X = X_train, Y = Y_train,
 #                   x.center = T, x.scale = F,
@@ -128,7 +128,7 @@ coxen_model
 ## -----------------------------------------------------------------------------
 coxen_model <- coxEN(X = X_train, Y = Y_train, 
                      EN.alpha = 0, #cv.coxen_res$opt.EN.alpha
-                     max.variables = 47, #cv.coxen_res$opt.nvar
+                     max.variables = 8, #cv.coxen_res$opt.nvar
                      x.center = T, x.scale = F, 
                      y.center = F, y.scale = F, 
                      remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL, 
@@ -243,44 +243,44 @@ splsdrcox_dynamic_model
 
 ## ---- eval=FALSE--------------------------------------------------------------
 #  # run cv.splsdrcox
-#  cv.splsdacox_res <- cv.splsdacox_dynamic(X = X_train, Y = Y_train,
-#                                           max.ncomp = 10,  vector = NULL,
-#                                           MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 10, EVAL_METHOD = "AUC",
-#                                           n_run = 2, k_folds = 10,
-#                                           x.center = T, x.scale = F,
-#                                           y.center = F, y.scale = F,
-#                                           remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
-#                                           remove_variance_at_fold_level = F, remove_non_significant = F,
-#                                           remove_non_significant_models = F, alpha = 0.05,
-#                                           w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0,
-#                                           times = NULL, max_time_points = 15, returnData = F,
-#                                           MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
-#                                           pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
-#                                           MIN_EPV = 5, return_models = F, max.iter = 200, tol = 1e-10,
-#                                           PARALLEL = F, verbose = F, seed = 123)
+#  cv.splsdacox_dynamic_res <- cv.splsdacox_dynamic(X = X_train, Y = Y_train,
+#                                                   max.ncomp = 10,  vector = NULL,
+#                                                   MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 10, EVAL_METHOD = "AUC",
+#                                                   n_run = 2, k_folds = 10,
+#                                                   x.center = T, x.scale = F,
+#                                                   y.center = F, y.scale = F,
+#                                                   remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+#                                                   remove_variance_at_fold_level = F, remove_non_significant = F,
+#                                                   remove_non_significant_models = F, alpha = 0.05,
+#                                                   w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0,
+#                                                   times = NULL, max_time_points = 15, returnData = F,
+#                                                   MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
+#                                                   pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
+#                                                   MIN_EPV = 5, return_models = F, max.iter = 200, tol = 1e-10,
+#                                                   PARALLEL = F, verbose = F, seed = 123)
 
 ## ---- eval=FALSE--------------------------------------------------------------
-#  cv.splsdacox_res #3min
+#  cv.splsdacox_dynamic_res #3min
 
 ## -----------------------------------------------------------------------------
-splsdacox_mo_model <- splsdacox_dynamic(X = X_train, Y = Y_train, 
-                                         n.comp = 1, vector = 91,
-                                         x.center = T, x.scale = F,
-                                         y.center = F, y.scale = F,
-                                         remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
-                                         MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 5,
-                                         MIN_AUC_INCREASE = 0.01,
-                                         EVAL_METHOD = "AUC", pred.method = "cenROC", max.iter = 200,
-                                         MIN_EPV = 5, returnData = T, verbose = F)
+splsdacox_dynamic_model <- splsdacox_dynamic(X = X_train, Y = Y_train, 
+                                             n.comp = 1, vector = 91,
+                                             x.center = T, x.scale = F,
+                                             y.center = F, y.scale = F,
+                                             remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+                                             MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 5,
+                                             MIN_AUC_INCREASE = 0.01,
+                                             EVAL_METHOD = "AUC", pred.method = "cenROC", max.iter = 200,
+                                             MIN_EPV = 5, returnData = T, verbose = F)
 
-splsdacox_mo_model
+splsdacox_dynamic_model
 
 ## -----------------------------------------------------------------------------
 lst_models <- list("COX-EN" = coxen_model,
                    "sPLS-ICOX" = splsicox_model,
                    "sPLS-DRCOX" = splsdrcox_model,
                    "sPLS-DRCOX-Dynamic" = splsdrcox_dynamic_model,
-                   "sPLS-DACOX-Dynamic" = splsdacox_mo_model)
+                   "sPLS-DACOX-Dynamic" = splsdacox_dynamic_model)
 
 eval_results <- eval_HDcox_models(lst_models = lst_models,
                                   X_test = X_test, Y_test = Y_test, 
@@ -319,7 +319,7 @@ lst_models_time <- list(coxen_model,
                         splsicox_model,
                         splsdrcox_model,
                         splsdrcox_dynamic_model,
-                        splsdacox_mo_model)
+                        splsdacox_dynamic_model)
 
 ## -----------------------------------------------------------------------------
 ggp_time <- plot_time.list(lst_models_time)

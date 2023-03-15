@@ -39,8 +39,8 @@
 #' \itemize{
 #'  \item \code{(data)}: normalized X matrix
 #'  \item \code{(weightings)}: PLS weights
-#'  \item \code{(weightings_norm)}: PLS normalize weights
 #'  \item \code{(W.star)}: PLS W* vector
+#'  \item \code{(loadings)}: sPLS loadings
 #'  \item \code{(scores)}: PLS scores/variates
 #'  \item \code{(E)}: error matrices
 #'  \item \code{(x.mean)}: mean values for X matrix
@@ -66,11 +66,13 @@
 #'  \item \code{Yresidus}: Y residuals.
 #' }
 #'
-#' \code{eta}: Penalty value selected.
-#'
 #' \code{n.comp}: Number of components selected.
 #'
 #' \code{n.varX}: Number of Variables selected in each PLS component.
+#'
+#' \code{var_by_component}: Variables selected in each PLS component.
+#'
+#' \code{plot_accuracyPerVariable}: If NULL vector is selected, return a plot for understanding the number of variable selection.
 #'
 #' \code{call}: call function
 #'
@@ -86,7 +88,13 @@
 #'
 #' \code{SCT}: PLS SCT
 #'
+#' \code{alpha}: alpha value selected
+#'
+#' \code{removed_variables_cox}: Variables removed by sparse penalty.
+#'
 #' \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
+#'
+#' \code{class}: Model class.
 #'
 #' \code{time}: time consumed for running the cox analysis.
 #'
@@ -368,7 +376,7 @@ splsdrcox_dynamic <- function (X, Y,
   time <- difftime(t2,t1,units = "mins")
 
   invisible(gc())
-  return(splsdrcox_dynamic_class(list(X = list("data" = if(returnData) X_norm else NA, "loadings" = P, "weightings" = W, "W.star" = W.star, "scores" = Ts, "E" = E, "x.mean" = xmeans, "x.sd" = xsds),
+  return(splsdrcox_dynamic_class(list(X = list("data" = if(returnData) X_norm else NA, "weightings" = W, "W.star" = W.star, "loadings" = P, "scores" = Ts, "E" = E, "x.mean" = xmeans, "x.sd" = xsds),
                                       Y = list("deviance_residuals" = if(returnData) DR_coxph_ori else NA, "dr.mean" = NULL, "dr.sd" = NULL, #deviance_residuals object already centered
                                                 "data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
                                       survival_model = survival_model,
@@ -439,6 +447,28 @@ splsdrcox_dynamic <- function (X, Y,
 #' @param seed Number. Seed value for performing runs/folds divisions (default: 123).
 #'
 #' @return Instance of class "HDcox" and model "cv.sPLS-DRCOX-Dynamic".
+#' \code{best_model_info}: A data.frame with the information for the best model.
+#' \code{df_results_folds}: A data.frame with fold-level information.
+#' \code{df_results_runs}: A data.frame with run-level information.
+#' \code{df_results_comps}: A data.frame with component-level information (for cv.coxEN, EN.alpha information).
+#'
+#' \code{lst_models}: If return_models = TRUE, return a the list of all cross-validated models.
+#' \code{pred.method}: AUC evaluation algorithm method for evaluate the model performance.
+#'
+#' \code{opt.comp}: Optimal component selected by the best_model.
+#' \code{opt.nvar}: Optimal number of variables selected by the best_model.
+#'
+#' \code{plot_AIC}: AIC plot by each hyper-parameter.
+#' \code{plot_c_index}: C-Index plot by each hyper-parameter.
+#' \code{plot_BRIER}: Brier Score plot by each hyper-parameter.
+#' \code{plot_AUC}: AUC plot by each hyper-parameter.
+#'
+#' \code{class}: Cross-Validated model class.
+#'
+#' \code{lst_train_indexes}: List (of lists) of indexes for the observations used in each run/fold for train the models.
+#' \code{lst_test_indexes}: List (of lists) of indexes for the observations used in each run/fold for test the models.
+#'
+#' \code{time}: time consumed for running the cross-validated function.
 #' @export
 
 cv.splsdrcox_dynamic <- function (X, Y,

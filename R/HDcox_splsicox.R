@@ -28,10 +28,11 @@
 #' \code{X}: List of normalized X data information.
 #' \itemize{
 #'  \item \code{(data)}: normalized X matrix
-#'  \item \code{(weightings)}: PLS weights
-#'  \item \code{(weightings_norm)}: PLS normalize weights
-#'  \item \code{(W.star)}: PLS W* vector
-#'  \item \code{(scores)}: PLS scores/variates
+#'  \item \code{(weightings)}: sPLS weights
+#'  \item \code{(weightings_norm)}: sPLS normalize weights
+#'  \item \code{(W.star)}: sPLS W* vector
+#'  \item \code{(loadings)}: sPLS loadings
+#'  \item \code{(scores)}: sPLS scores/variates
 #'  \item \code{(E)}: error matrices
 #'  \item \code{(x.mean)}: mean values for X matrix
 #'  \item \code{(x.sd)}: standard deviation for X matrix
@@ -55,13 +56,21 @@
 #'
 #' \code{n.comp}: Number of components selected.
 #'
+#' \code{var_by_component}: Variables selected by each component.
+#'
 #' \code{call}: call function
 #'
 #' \code{X_input}: X input matrix
 #'
 #' \code{Y_input}: Y input matrix
 #'
+#' \code{alpha}: alpha value selected
+#'
+#' \code{removed_variables_cox}: Variables removed by sparse penalty.
+#'
 #' \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
+#'
+#' \code{class}: Model class.
 #'
 #' \code{time}: time consumed for running the cox analysis.
 #'
@@ -284,7 +293,7 @@ splsicox <- function(X, Y,
     t2 <- Sys.time()
     time <- difftime(t2,t1,units = "mins")
 
-    return(splsicox_class(list(X = list("data" = if(returnData) X_norm else NA, "loadings" = NULL, "weightings" = NULL, "weightings_norm" = NULL, "W.star" = NULL, "scores" = NULL, "E" = NULL, "x.mean" = xmeans, "x.sd" = xsds),
+    return(splsicox_class(list(X = list("data" = if(returnData) X_norm else NA, "weightings" = NULL, "weightings_norm" = NULL, "W.star" = NULL, "loadings" = NULL, "scores" = NULL, "E" = NULL, "x.mean" = xmeans, "x.sd" = xsds),
                                Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
                                beta_matrix = NULL, #NEED TO BE COMPUTED
                                survival_model = NULL,
@@ -330,7 +339,7 @@ splsicox <- function(X, Y,
     t2 <- Sys.time()
     time <- difftime(t2,t1,units = "mins")
 
-    return(splsicox_class(list(X = list("data" = if(returnData) X_norm else NA, "loadings" = NULL, "weightings" = NULL, "weightings_norm" = NULL, "W.star" = NULL, "scores" = NULL, "E" = NULL, "x.mean" = xmeans, "x.sd" = xsds),
+    return(splsicox_class(list(X = list("data" = if(returnData) X_norm else NA, "weightings" = NULL, "weightings_norm" = NULL, "W.star" = NULL, "loadings" = NULL, "scores" = NULL, "E" = NULL, "x.mean" = xmeans, "x.sd" = xsds),
                               Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
                               beta_matrix = NULL, #NEED TO BE COMPUTED
                               survival_model = NULL,
@@ -468,7 +477,7 @@ splsicox <- function(X, Y,
   time <- difftime(t2,t1,units = "mins")
 
   invisible(gc())
-  return(splsicox_class(list(X = list("data" = if(returnData) X_norm else NA, "loadings" = P, "weightings" = W, "weightings_norm" = W_norm, "W.star" = W.star, "scores" = Ts, "E" = E, "x.mean" = xmeans, "x.sd" = xsds),
+  return(splsicox_class(list(X = list("data" = if(returnData) X_norm else NA, "weightings" = W, "weightings_norm" = W_norm, "W.star" = W.star, "loadings" = P, "scores" = Ts, "E" = E, "x.mean" = xmeans, "x.sd" = xsds),
                             Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
                             survival_model = survival_model,
                             n.comp = h,
@@ -531,6 +540,28 @@ splsicox <- function(X, Y,
 #' @param seed Number. Seed value for performing runs/folds divisions (default: 123).
 #'
 #' @return Instance of class "HDcox" and model "cv.sPLS-ICOX".
+#' \code{best_model_info}: A data.frame with the information for the best model.
+#' \code{df_results_folds}: A data.frame with fold-level information.
+#' \code{df_results_runs}: A data.frame with run-level information.
+#' \code{df_results_comps}: A data.frame with component-level information (for cv.coxEN, EN.alpha information).
+#'
+#' \code{lst_models}: If return_models = TRUE, return a the list of all cross-validated models.
+#' \code{pred.method}: AUC evaluation algorithm method for evaluate the model performance.
+#'
+#' \code{opt.comp}: Optimal component selected by the best_model.
+#' \code{opt.nvar}: Optimal number of variables selected by the best_model.
+#'
+#' \code{plot_AIC}: AIC plot by each hyper-parameter.
+#' \code{plot_c_index}: C-Index plot by each hyper-parameter.
+#' \code{plot_BRIER}: Brier Score plot by each hyper-parameter.
+#' \code{plot_AUC}: AUC plot by each hyper-parameter.
+#'
+#' \code{class}: Cross-Validated model class.
+#'
+#' \code{lst_train_indexes}: List (of lists) of indexes for the observations used in each run/fold for train the models.
+#' \code{lst_test_indexes}: List (of lists) of indexes for the observations used in each run/fold for test the models.
+#'
+#' \code{time}: time consumed for running the cross-validated function.
 #' @export
 
 cv.splsicox <- function (X, Y,

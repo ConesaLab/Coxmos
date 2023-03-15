@@ -81,7 +81,11 @@ Instance of class "HDcox" and model "coxEN". The class contains the following el
 \item \code{Yresidus}: Y residuals.
 }
 
+\code{opt.lambda}: Optimal lambda computed by the model with maximum \% Var from glmnet function.
+
 \code{EN.alpha}: EN.alpha selected
+
+\code{n.var}: Number of variables selected
 
 \code{call}: call function
 
@@ -89,15 +93,17 @@ Instance of class "HDcox" and model "coxEN". The class contains the following el
 
 \code{Y_input}: Y input matrix
 
+\code{convergence_issue}: If any convergence issue has been found.
+
+\code{alpha}: alpha value selected
+
+\code{selected_variables_cox}: Variables selected to enter the cox model.
+
+\code{removed_variables_cox}: Variables removed by EN penalty.
+
 \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
 
-\code{selected_variables}: Variables selected to the cox model.
-
-\code{removed_variables}: Variables removed by EN penalty.
-
-\code{opt.lambda}: Optimal lambda used in EN.
-
-\code{convergence_issue}: Whether convergence issue is detected
+\code{class}: Model class.
 
 \code{time}: time consumed for running the cox analysis.
 }

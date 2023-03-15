@@ -91,22 +91,21 @@ Instance of class "HDcox" and model "sPLS-DACOX-Dynamic". The class contains the
 \code{X}: List of normalized X data information.
 \itemize{
 \item \code{(data)}: normalized X matrix
-\item \code{(weightings)}: PLS weights
-\item \code{(weightings_norm)}: PLS normalize weights
-\item \code{(W.star)}: PLS W* vector
-\item \code{(scores)}: PLS scores/variates
+\item \code{(weightings)}: sPLS weights
+\item \code{(W.star)}: sPLS W* vector
+\item \code{(loadings)}: sPLS loadings
+\item \code{(scores)}: sPLS scores/variates
 \item \code{(x.mean)}: mean values for X matrix
 \item \code{(x.sd)}: standard deviation for X matrix
 }
+
 \code{Y}: List of normalized Y data information.
 \itemize{
-\item \code{(deviance_residuals)}: deviance residual vector used as Y matrix in the sPLS.
-\item \code{(dr.mean)}: mean values for deviance residuals Y matrix
-\item \code{(dr.sd)}: standard deviation for deviance residuals Y matrix'
 \item \code{(data)}: normalized X matrix
 \item \code{(y.mean)}: mean values for Y matrix
 \item \code{(y.sd)}: standard deviation for Y matrix'
 }
+
 \code{survival_model}: List of survival model information.
 \itemize{
 \item \code{fit}: coxph object.
@@ -120,13 +119,25 @@ Instance of class "HDcox" and model "sPLS-DACOX-Dynamic". The class contains the
 
 \code{n.comp}: Number of components selected.
 
+\code{n.varX}: Number of Variables selected in each PLS component.
+
+\code{var_by_component}: Variables selected in each PLS component.
+
+\code{plot_accuracyPerVariable}: If NULL vector is selected, return a plot for understanding the number of variable selection.
+
 \code{call}: call function
 
 \code{X_input}: X input matrix
 
 \code{Y_input}: Y input matrix
 
+\code{alpha}: alpha value selected
+
+\code{removed_variables_cox}: Variables removed by sparse penalty.
+
 \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
+
+\code{class}: Model class.
 
 \code{time}: time consumed for running the cox analysis.
 }

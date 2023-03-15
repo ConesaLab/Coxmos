@@ -64,10 +64,11 @@ Instance of class "HDcox" and model "sPLS-ICOX". The class contains the followin
 \code{X}: List of normalized X data information.
 \itemize{
 \item \code{(data)}: normalized X matrix
-\item \code{(weightings)}: PLS weights
-\item \code{(weightings_norm)}: PLS normalize weights
-\item \code{(W.star)}: PLS W* vector
-\item \code{(scores)}: PLS scores/variates
+\item \code{(weightings)}: sPLS weights
+\item \code{(weightings_norm)}: sPLS normalize weights
+\item \code{(W.star)}: sPLS W* vector
+\item \code{(loadings)}: sPLS loadings
+\item \code{(scores)}: sPLS scores/variates
 \item \code{(E)}: error matrices
 \item \code{(x.mean)}: mean values for X matrix
 \item \code{(x.sd)}: standard deviation for X matrix
@@ -91,13 +92,21 @@ Instance of class "HDcox" and model "sPLS-ICOX". The class contains the followin
 
 \code{n.comp}: Number of components selected.
 
+\code{var_by_component}: Variables selected by each component.
+
 \code{call}: call function
 
 \code{X_input}: X input matrix
 
 \code{Y_input}: Y input matrix
 
+\code{alpha}: alpha value selected
+
+\code{removed_variables_cox}: Variables removed by sparse penalty.
+
 \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
+
+\code{class}: Model class.
 
 \code{time}: time consumed for running the cox analysis.
 }

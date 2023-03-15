@@ -47,7 +47,11 @@
 #'  \item \code{Yresidus}: Y residuals.
 #' }
 #'
+#' \code{opt.lambda}: Optimal lambda computed by the model with maximum % Var from glmnet function.
+#'
 #' \code{EN.alpha}: EN.alpha selected
+#'
+#' \code{n.var}: Number of variables selected
 #'
 #' \code{call}: call function
 #'
@@ -55,15 +59,17 @@
 #'
 #' \code{Y_input}: Y input matrix
 #'
+#' \code{convergence_issue}: If any convergence issue has been found.
+#'
+#' \code{alpha}: alpha value selected
+#'
+#' \code{selected_variables_cox}: Variables selected to enter the cox model.
+#'
+#' \code{removed_variables_cox}: Variables removed by EN penalty.
+#'
 #' \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
 #'
-#' \code{selected_variables}: Variables selected to the cox model.
-#'
-#' \code{removed_variables}: Variables removed by EN penalty.
-#'
-#' \code{opt.lambda}: Optimal lambda used in EN.
-#'
-#' \code{convergence_issue}: Whether convergence issue is detected
+#' \code{class}: Model class.
 #'
 #' \code{time}: time consumed for running the cox analysis.
 #'
@@ -270,8 +276,7 @@ coxEN <- function(X, Y,
 
     best_cox <- lst_rnsc$cox
     removed_variables <- lst_rnsc$removed_variables
-
-    selected_variables <- length(best_cox$coefficients)
+    selected_variables <- selected_variables[!selected_variables %in% lst_rnsc$removed_variables]
   }
 
   if(class(best_cox)[[1]] %in% "coxph.null"){
@@ -294,12 +299,12 @@ coxEN <- function(X, Y,
                           opt.lambda = best_lambda,
                           EN.alpha = EN.alpha,
                           n.var = max.variables,
-                          selected_variables = selected_variables,
                           call = func_call,
                           X_input = if(returnData) X_original else NA,
                           Y_input = if(returnData) Y_original else NA,
                           convergence_issue = problem,
                           alpha = alpha,
+                          selected_variables_cox = selected_variables,
                           removed_variables_cox = removed_variables,
                           nzv = variablesDeleted,
                           class = pkg.env$coxEN,
@@ -347,7 +352,29 @@ coxEN <- function(X, Y,
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #' @param seed Number. Seed value for performing runs/folds divisions (default: 123).
 #'
-#' @return Instance of class "HDcox" and model "cv.coxEN".
+#' @return Instance of class "HDcox" and model "cv.coxEN". The class contains the following elements:
+#' \code{best_model_info}: A data.frame with the information for the best model.
+#' \code{df_results_folds}: A data.frame with fold-level information.
+#' \code{df_results_runs}: A data.frame with run-level information.
+#' \code{df_results_comps}: A data.frame with component-level information (for cv.coxEN, EN.alpha information).
+#'
+#' \code{lst_models}: If return_models = TRUE, return a the list of all cross-validated models.
+#' \code{pred.method}: AUC evaluation algorithm method for evaluate the model performance.
+#'
+#' \code{opt.EN.alpha}: Optimal EN.alpha value selected by the best_model.
+#' \code{opt.nvar}: Optimal number of variables selected by the best_model.
+#'
+#' \code{plot_AIC}: AIC plot by each hyper-parameter.
+#' \code{plot_c_index}: C-Index plot by each hyper-parameter.
+#' \code{plot_BRIER}: Brier Score plot by each hyper-parameter.
+#' \code{plot_AUC}: AUC plot by each hyper-parameter.
+#'
+#' \code{class}: Cross-Validated model class.
+#'
+#' \code{lst_train_indexes}: List (of lists) of indexes for the observations used in each run/fold for train the models.
+#' \code{lst_test_indexes}: List (of lists) of indexes for the observations used in each run/fold for test the models.
+#'
+#' \code{time}: time consumed for running the cross-validated function.
 #' @export
 
 cv.coxEN <- function(X, Y,

@@ -58,6 +58,8 @@
 #'
 #' \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
 #'
+#' \code{class}: Model class.
+#'
 #' \code{time}: time consumed for running the cox analysis.
 #'
 #' @export
@@ -102,7 +104,9 @@ cox <- function (X, Y,
   checkY.colnames(Y)
 
   #### MAX PREDICTORS
-  check.maxPredictors.cox(X, Y, MIN_EPV, FORCE)
+  if(!check.maxPredictors.cox(X, Y, MIN_EPV, FORCE)){
+    return(NA)
+  }
 
   #### SCALING
   lst_scale <- XY.scale(X, Y, x.center, x.scale, y.center, y.scale)

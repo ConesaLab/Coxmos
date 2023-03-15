@@ -103,6 +103,8 @@ Instance of class "HDcox" and model "sb.splscox". The class contains the followi
 
 \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
 
+\code{class}: Model class.
+
 \code{time}: time consumed for running the cox analysis.
 }
 \description{

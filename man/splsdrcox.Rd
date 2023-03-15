@@ -64,10 +64,11 @@ Instance of class "HDcox" and model "sPLS-DRCOX". The class contains the followi
 \code{X}: List of normalized X data information.
 \itemize{
 \item \code{(data)}: normalized X matrix
-\item \code{(weightings)}: PLS weights
-\item \code{(weightings_norm)}: PLS normalize weights
-\item \code{(W.star)}: PLS W* vector
-\item \code{(scores)}: PLS scores/variates
+\item \code{(weightings)}: sPLS weights
+\item \code{(weightings_norm)}: sPLS normalize weights
+\item \code{(W.star)}: sPLS W* vector
+\item \code{(loadings)}: sPLS loadings
+\item \code{(scores)}: sPLS scores/variates
 \item \code{(E)}: error matrices
 \item \code{(x.mean)}: mean values for X matrix
 \item \code{(x.sd)}: standard deviation for X matrix
@@ -78,9 +79,14 @@ Instance of class "HDcox" and model "sPLS-DRCOX". The class contains the followi
 \item \code{(dr.mean)}: mean values for deviance residuals Y matrix
 \item \code{(dr.sd)}: standard deviation for deviance residuals Y matrix'
 \item \code{(data)}: normalized X matrix
+\item \code{(weightings)}: sPLS weights
+\item \code{(loadings)}: sPLS loadings
+\item \code{(scores)}: sPLS scores/variates
+\item \code{(ratio)}: r value for the sPLS model (used to perform predictions)
 \item \code{(y.mean)}: mean values for Y matrix
 \item \code{(y.sd)}: standard deviation for Y matrix'
 }
+
 \code{survival_model}: List of survival model information.
 \itemize{
 \item \code{fit}: coxph object.
@@ -104,15 +110,21 @@ Instance of class "HDcox" and model "sPLS-DRCOX". The class contains the followi
 
 \code{Y_input}: Y input matrix
 
-\code{B.hat}: PLS beta matrix
+\code{B.hat}: sPLS beta matrix
 
-\code{R2}: PLS R2
+\code{R2}: sPLS R2
 
-\code{SCR}: PLS SCR
+\code{SCR}: sPLS SCR
 
-\code{SCT}: PLS SCT
+\code{SCT}: sPLS SCT
+
+\code{alpha}: alpha value selected
+
+\code{removed_variables_cox}: Variables removed by sparse penalty.
 
 \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
+
+\code{class}: Model class.
 
 \code{time}: time consumed for running the cox analysis.
 }

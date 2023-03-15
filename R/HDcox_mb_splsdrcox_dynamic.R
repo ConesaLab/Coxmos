@@ -508,6 +508,28 @@ mb.splsdrcox <- function (X, Y,
 #' @param seed Number. Seed value for performing runs/folds divisions (default: 123).
 #'
 #' @return Instance of class "HDcox" and model "cv.MB.sPLS-DRCOX".
+#' \code{best_model_info}: A data.frame with the information for the best model.
+#' \code{df_results_folds}: A data.frame with fold-level information.
+#' \code{df_results_runs}: A data.frame with run-level information.
+#' \code{df_results_comps}: A data.frame with component-level information (for cv.coxEN, EN.alpha information).
+#'
+#' \code{lst_models}: If return_models = TRUE, return a the list of all cross-validated models.
+#' \code{pred.method}: AUC evaluation algorithm method for evaluate the model performance.
+#'
+#' \code{opt.comp}: Optimal component selected by the best_model.
+#' \code{opt.nvar}: Optimal number of variables selected by the best_model.
+#'
+#' \code{plot_AIC}: AIC plot by each hyper-parameter.
+#' \code{plot_c_index}: C-Index plot by each hyper-parameter.
+#' \code{plot_BRIER}: Brier Score plot by each hyper-parameter.
+#' \code{plot_AUC}: AUC plot by each hyper-parameter.
+#'
+#' \code{class}: Cross-Validated model class.
+#'
+#' \code{lst_train_indexes}: List (of lists) of indexes for the observations used in each run/fold for train the models.
+#' \code{lst_test_indexes}: List (of lists) of indexes for the observations used in each run/fold for test the models.
+#'
+#' \code{time}: time consumed for running the cross-validated function.
 #' @export
 
 cv.mb.splsdrcox <- function(X, Y,
