@@ -3,7 +3,8 @@
 #### ### ##
 
 #' sPLS-DRCOX
-#' @description Performs a sPLS-DRCOX model (based on plsRcox R package idea).
+#' @description This function performs a sparse partial least squares deviance residual Cox (sPLS-DRCOX) (based on plsRcox R package).
+#' The function returns a HDcox model with the attribute model as "sPLS-DRCOX".
 #'
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.

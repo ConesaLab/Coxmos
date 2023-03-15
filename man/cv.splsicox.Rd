@@ -120,5 +120,8 @@ cv.splsicox(
 Instance of class "HDcox" and model "cv.sPLS-ICOX".
 }
 \description{
-Performs a sPLS-ICOX cross validation.
+This function performs cross-validated sparse partial least squares Cox (sPLS-ICOX).
+The function returns the optimal number of components and the optimal sparsity penalty value based on cross-validation.
+The performance could be based on multiple metrics as Area Under the Curve (AUC), Brier Score or C-Index.
+Furthermore, the user could establish more than one metric simultaneously.
 }

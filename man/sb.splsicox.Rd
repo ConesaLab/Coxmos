@@ -106,5 +106,6 @@ Instance of class "HDcox" and model "sb.splsicox". The class contains the follow
 \code{time}: time consumed for running the cox analysis.
 }
 \description{
-Performs a SB.sPLS-ICOX model.
+This function performs a single-block sparse partial least squares individual Cox (SB.sPLS-ICOX).
+The function returns a HDcox model with the attribute model as "SB.sPLS-ICOX".
 }

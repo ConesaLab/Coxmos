@@ -91,7 +91,11 @@ Instance of class "HDcox" and model "cox". The class contains the following elem
 \code{time}: time consumed for running the cox analysis.
 }
 \description{
-Performs a standard cox proportional hazard model (based on survival::coxph R package).
+This function performs a cox model (based on survival::coxph R package).
+The function returns a HDcox model with the attribute model as "cox".
+}
+\details{
+If \code{"MIN_EPV"} condition is not meet,
 }
 \examples{
 \dontrun{

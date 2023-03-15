@@ -3,7 +3,8 @@
 #### ### ### ### ###
 
 #' coxSW
-#' @description Performs a standard cox stepwise model (based on My.stepwise R package).
+#' @description This function performs a cox stepwise model (based on My.stepwise R package).
+#' The function returns a HDcox model with the attribute model as "coxSW".
 #'
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.

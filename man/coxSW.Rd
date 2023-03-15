@@ -113,5 +113,6 @@ Instance of class "HDcox" and model "coxSW". The class contains the following el
 \code{time}: time consumed for running the cox analysis.
 }
 \description{
-Performs a standard cox stepwise model (based on My.stepwise R package).
+This function performs a cox stepwise model (based on My.stepwise R package).
+The function returns a HDcox model with the attribute model as "coxSW".
 }

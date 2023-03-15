@@ -3,7 +3,8 @@
 #### ### ##
 
 #' SB.sPLS-DRCOX
-#' @description Performs a SB.PLS-DRCOX model.
+#' @description This function performs a single-block sparse partial least squares deviance residual Cox (SB.sPLS-DRCOX).
+#' The function returns a HDcox model with the attribute model as "SB.sPLS-DRCOX".
 #'
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.

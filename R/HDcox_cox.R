@@ -3,7 +3,8 @@
 #### ### ##
 
 #' cox
-#' @description Performs a standard cox proportional hazard model (based on survival::coxph R package).
+#' @description This function performs a cox model (based on survival::coxph R package).
+#' The function returns a HDcox model with the attribute model as "cox".
 #'
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
@@ -20,6 +21,8 @@
 #' @param FORCE Logical. In case the MIN_EPV is not meet, it allows to compute the model (default: FALSE).
 #' @param returnData Logical. Return original and normalized X and Y matrices (default: TRUE).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
+#'
+#' @details If \code{"MIN_EPV"} condition is not meet,
 #'
 #' @return Instance of class "HDcox" and model "cox". The class contains the following elements:
 #'

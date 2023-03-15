@@ -151,5 +151,6 @@ Instance of class "HDcox" and model "MB.sPLS-DRCOX". The class contains the foll
 \code{time}: time consumed for running the cox analysis.
 }
 \description{
-Performs a MB.sPLS-DRCOX model.
+This function performs a multi-block sparse partial least squares deviance residual Cox (MB.sPLS-DRCOX) by dynamic variable selection methodology.
+The function returns a HDcox model with the attribute model as "MB.sPLS-DRCOX".
 }

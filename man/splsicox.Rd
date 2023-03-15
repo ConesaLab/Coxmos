@@ -102,5 +102,6 @@ Instance of class "HDcox" and model "sPLS-ICOX". The class contains the followin
 \code{time}: time consumed for running the cox analysis.
 }
 \description{
-Performs a sPLS-ICOX model (based on plsRcox R package idea).
+This function performs a sparse partial least squares individual Cox (sPLS-ICOX) (based on plsRcox R package).
+The function returns a HDcox model with the attribute model as "sPLS-ICOX".
 }

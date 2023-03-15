@@ -3,7 +3,8 @@
 #### ### ##
 
 #' sPLS-ICOX
-#' @description Performs a sPLS-ICOX model (based on plsRcox R package idea).
+#' @description This function performs a sparse partial least squares individual Cox (sPLS-ICOX) (based on plsRcox R package).
+#' The function returns a HDcox model with the attribute model as "sPLS-ICOX".
 #'
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
@@ -487,7 +488,10 @@ splsicox <- function(X, Y,
 #### ### ### ### ###
 
 #' sPLS-ICOX Cross-Validation
-#' @description Performs a sPLS-ICOX cross validation.
+#' @description This function performs cross-validated sparse partial least squares Cox (sPLS-ICOX).
+#' The function returns the optimal number of components and the optimal sparsity penalty value based on cross-validation.
+#' The performance could be based on multiple metrics as Area Under the Curve (AUC), Brier Score or C-Index.
+#' Furthermore, the user could establish more than one metric simultaneously.
 #'
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.

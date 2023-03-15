@@ -117,5 +117,6 @@ Instance of class "HDcox" and model "sPLS-DRCOX". The class contains the followi
 \code{time}: time consumed for running the cox analysis.
 }
 \description{
-Performs a sPLS-DRCOX model (based on plsRcox R package idea).
+This function performs a sparse partial least squares deviance residual Cox (sPLS-DRCOX) (based on plsRcox R package).
+The function returns a HDcox model with the attribute model as "sPLS-DRCOX".
 }

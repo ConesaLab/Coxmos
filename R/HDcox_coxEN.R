@@ -3,7 +3,8 @@
 #### ### ##
 
 #' coxEN
-#' @description Performs a cox elastic net model (based on glmnet R package).
+#' @description This function performs a cox elastic net model (based on glmnet R package).
+#' The function returns a HDcox model with the attribute model as "coxEN".
 #'
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
@@ -143,11 +144,20 @@ coxEN <- function(X, Y,
     }
   }
 
+  # BEST lambda
+  #I cannot add the limit for maximum number of variables bc it fails
+  # cvfit <- cv.glmnet(x = Xh, y = survival::Surv(time = Yh[,"time"], event = Yh[,"event"]),
+  #                    family = "cox", type.measure = "C",
+  #                    alpha = EN.alpha, dfmax = max.variables,
+  #                    standardize = F, nlambda=200)
+
+  #I cannot add the limit for maximum number of variables bc it fails
+  #pmax = max.variables
   EN_cox <- tryCatch(
     # Specifying expression
     expr = {
       glmnet::glmnet(x = Xh, y = survival::Surv(time = Yh[,"time"], event = Yh[,"event"]),
-                     family = "cox", alpha = EN.alpha, standardize = F, pmax = max.variables, nlambda=200)
+                     family = "cox", alpha = EN.alpha, standardize = F, nlambda=300, pmax = max.variables)
     },
     # Specifying error message
     error = function(e){
@@ -161,7 +171,7 @@ coxEN <- function(X, Y,
       }
       suppressWarnings(
         res <- glmnet::glmnet(x = Xh, y = survival::Surv(time = Yh[,"time"], event = Yh[,"event"]),
-                              family = "cox", EN.alpha = EN.alpha, standardize = F, pmax = max.variables, nlambda=200)
+                              family = "cox", EN.alpha = EN.alpha, standardize = F, pmax = max.variables, nlambda=300)
       )
       list(res = res, problem = T)
     }

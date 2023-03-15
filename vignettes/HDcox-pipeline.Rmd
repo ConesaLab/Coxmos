@@ -268,7 +268,7 @@ The cross validation will be omitted for time consumption, but one the best mode
 ```{r}
 coxen_model <- coxEN(X = X_train, Y = Y_train, 
                      EN.alpha = 0, #cv.coxen_res$opt.EN.alpha
-                     max.variables = 47, #cv.coxen_res$opt.nvar
+                     max.variables = 8, #cv.coxen_res$opt.nvar
                      x.center = T, x.scale = F, 
                      y.center = F, y.scale = F, 
                      remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL, 
@@ -295,17 +295,18 @@ coxen_model <- coxEN(X = X_train, Y = Y_train,
 ```{r}
 coxen_model
 ```
+
 After this change, a total of `r coxen_model$selected_variables` variables have been selected. And a total of `r length(coxen_model$removed_variables_cox)` have been removed due to non-significant.
 
-## PLS-ICOX
+## sPLS-ICOX
 
 In the same way, we will also perform a cross validation for the PLS-based models, starting with the PLS-ICOX methodology. In this case, the internal construction of the weights of the PLS model for the calculation of the components of the X matrix is based on univariate cox models. After this, we are able to reduce the dimensionality of our data set to ultimately launch a cox model with the latent variables or principal components of the PLS model.
 
 ```{r, eval=FALSE}
 # run cv.plsicox
 cv.splsicox_res <- cv.splsicox(X = X_train, Y = Y_train,
-                               max.ncomp = 2, spv_penalty.list = c(0.1,0.5),
-                               n_run = 2, k_folds = 3, 
+                               max.ncomp = 5, spv_penalty.list = seq(0.1,1,0.3),
+                               n_run = 2, k_folds = 10, 
                                x.center = T, x.scale = F, 
                                y.center = F, y.scale = F,
                                remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
@@ -319,7 +320,7 @@ cv.splsicox_res <- cv.splsicox(X = X_train, Y = Y_train,
 ```
 
 ```{r, eval=FALSE}
-cv.splsicox_res #6min.
+cv.splsicox_res #12min.
 ```
 
 If you want to see the evolution of your metric, you can access to the plots inside the cross validation object.
@@ -334,7 +335,7 @@ We will generate a PLS-ICOX model with a total of two principal components based
 ```{r}
 splsicox_model <- splsicox(X = X_train, Y = Y_train, 
                            #n.comp = cv.splsicox_res$opt.comp, spv_penalty = cv.splsicox_res$opt.spv_penalty
-                          n.comp = 1, spv_penalty = 0.1,
+                          n.comp = 5, spv_penalty = 0.4,
                           x.center = T, x.scale = F,
                           y.center = F, y.scale = F,
                           remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
@@ -366,7 +367,7 @@ cv.splsdrcox_res <- cv.splsdrcox(X = X_train, Y = Y_train,
 ```
 
 ```{r, eval=FALSE}
-cv.splsdrcox_res #14.45min
+cv.splsdrcox_res #6min
 ```
 
 ```{r, eval=FALSE, fig.small=T}
@@ -378,7 +379,7 @@ Based on the results obtained through cross validation, we will create a PLS-DRC
 
 ```{r}
 splsdrcox_model <- splsdrcox(X = X_train, Y = Y_train, 
-                             n.comp = 4, eta = 0.75, #n.comp = cv.splsdrcox_res$opt.comp, eta = cv.splsdrcox_res$opt.eta
+                             n.comp = 9, eta = 0, #n.comp = cv.splsdrcox_res$opt.comp, eta = cv.splsdrcox_res$opt.eta
                              x.center = T, x.scale = F,
                              y.center = F, y.scale = F,
                              remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
@@ -415,15 +416,16 @@ cv.splsdrcox_dynamic_res <- cv.splsdrcox_dynamic(X = X_train, Y = Y_train,
 ```
 
 ```{r, eval=FALSE}
-cv.splsdrcox_dynamic_res #5.58mins
+cv.splsdrcox_dynamic_res #3mins
 ```
+
 
 After the cross validation, the user can select the exact number of components and variables to use in their model.
 
 ```{r}
 splsdrcox_dynamic_model <- splsdrcox_dynamic(X = X_train, Y = Y_train, 
-                                             n.comp = 2, #cv.splsdrcox_dynamic_res$opt.comp 
-                                             vector = 49, #cv.splsdrcox_dynamic_res$opt.nvar
+                                             n.comp = 3, #cv.splsdrcox_dynamic_res$opt.comp 
+                                             vector = 118, #cv.splsdrcox_dynamic_res$opt.nvar
                                              x.center = T, x.scale = F,
                                              y.center = F, y.scale = F,
                                              remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
@@ -459,14 +461,14 @@ cv.splsdacox_res <- cv.splsdacox_dynamic(X = X_train, Y = Y_train,
 ```
 
 ```{r, eval=FALSE}
-cv.splsdacox_res #4min
+cv.splsdacox_res #3min
 ```
 
 Once the best model is obtained through cross validation, it must be calculated using the desired parameters.
 
 ```{r}
 splsdacox_mo_model <- splsdacox_dynamic(X = X_train, Y = Y_train, 
-                                         n.comp = 6, vector = 184,
+                                         n.comp = 1, vector = 91,
                                          x.center = T, x.scale = F,
                                          y.center = F, y.scale = F,
                                          remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
@@ -658,7 +660,7 @@ ggp_biplot$plot
 
 When a PLS-COX model is computed, the final survival model is based on the PLS latent variables. Although those new variables can explain the survival, in order to understand the disease, new coefficients could be computed in terms of the original variables. 
 
-The idea is to transfer the beta coefficient in the final cox model to an original variable by using its weight in that latent variable. More information could be found in ...!!!!
+The idea is to transfer the beta coefficient in the final cox model to an original variable by using its weight in that latent variable.
 
 ## Psudobeta
 
@@ -690,7 +692,7 @@ To run the full Kaplan-Meier model, the "type" parameter must be set to "LP" (li
 ```{r}
 LST_KM_RES_LP <- getAutoKM.list(type = "LP",
                                 lst_models = lst_models,
-                                comp = 1:4,
+                                comp = 1:10,
                                 top = 10,
                                 ori_data = T,
                                 BREAKTIME = NULL,
@@ -702,6 +704,7 @@ As a result, the Kaplan-Meier curve could be plotted.
 ```{r, fig.small=T}
 LST_KM_RES_LP$`sPLS-DRCOX-Dynamic`$LST_PLOTS$LP
 ```
+
 After generating a Kaplan-Meier curve for the model, the cutoff value, which is used to divide the observations into two groups, can be used to evaluate how the test data is classified. The vector of cutoffs for multiple models, when "getAutoKM.list()" is applied, can be retrieved by using the function "getCutoffAutoKM.list()" and passing the output of "getAutoKM.list()" as a parameter.
 
 Once the vector is obtained, the function "getTestKM.list()" or "getTestKM()" can be run with the list of models, the X test data, Y test data, the list of cutoffs or a single value, and the desired number of breaks for the new Kaplan-Meier plot.
@@ -729,7 +732,7 @@ To generate a Kaplan-Meier curve for a specific component, the "type" parameter 
 ```{r}
 LST_KM_RES_COMP <- getAutoKM.list(type = "COMP",
                                   lst_models = lst_models,
-                                  comp = 1:4,
+                                  comp = 1:10,
                                   top = 10,
                                   ori_data = T,
                                   BREAKTIME = NULL,
@@ -741,6 +744,7 @@ LST_KM_RES_COMP <- getAutoKM.list(type = "COMP",
 LST_KM_RES_COMP$`sPLS-DRCOX-Dynamic`$LST_PLOTS$comp_1
 LST_KM_RES_COMP$`sPLS-DRCOX-Dynamic`$LST_PLOTS$comp_2
 ```
+
 ```{r}
 lst_cutoff <- getCutoffAutoKM.list(LST_KM_RES_COMP)
 
@@ -752,7 +756,9 @@ LST_KM_TEST_COMP <- getTestKM.list(lst_models = lst_models,
 ```
 
 ```{r, fig.small=T}
-LST_KM_TEST_COMP$`sPLS-DRCOX-Dynamic`$comp_1
+#LST_KM_TEST_COMP$`sPLS-DRCOX-Dynamic`$comp_1 # all patients in same group 
+#LST_KM_TEST_COMP$`sPLS-DRCOX-Dynamic`$comp_2 # all patients in same group
+LST_KM_TEST_COMP$`sPLS-DRCOX-Dynamic`$comp_3
 ```
 
 ### Original variables
@@ -772,8 +778,8 @@ LST_KM_RES_VAR <- getAutoKM.list(type = "VAR",
 ```
 
 ```{r, fig.small=T}
-LST_KM_RES_VAR$`sPLS-DRCOX-Dynamic`$LST_PLOTS$hsa_miR_222
-LST_KM_RES_VAR$`sPLS-DRCOX-Dynamic`$LST_PLOTS$hsa_miR_182
+LST_KM_RES_VAR$`sPLS-DRCOX-Dynamic`$LST_PLOTS$hsa_miR_365
+LST_KM_RES_VAR$`sPLS-DRCOX-Dynamic`$LST_PLOTS$hsa_miR_146a
 ```
 
 ```{r}
@@ -787,7 +793,8 @@ LST_KM_TEST_VAR <- getTestKM.list(lst_models = lst_models,
 ```
 
 ```{r, fig.small=T}
-LST_KM_TEST_VAR$`sPLS-DRCOX-Dynamic`$hsa_miR_222
+LST_KM_TEST_VAR$`sPLS-DRCOX-Dynamic`$hsa_miR_365
+LST_KM_TEST_VAR$`sPLS-DRCOX-Dynamic`$hsa_miR_148a
 ```
 
 # New patients
@@ -810,12 +817,12 @@ The function "plot_pseudobeta_newPatient.list()" or "plot_pseudobeta_newPatient(
 
 ```{r}
 ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient.list(lst_models = lst_models, 
-                                                             new_pat = new_pat,
+                                                             new_observation = new_pat,
                                                              error.bar = T, onlySig = T, alpha = 0.05,
                                                              zero.rm = T, auto.limits = T, show.betas = T, top = 20)
 
-# ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient(model = lst_models$`sPLS-DRCOX-Dynamic`, 
-#                                                         new_pat = new_pat,
+# ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient(model = lst_models[[5]],
+#                                                         new_observation = new_pat,
 #                                                         error.bar = T, onlySig = T, alpha = 0.05,
 #                                                         zero.rm = T, auto.limits = T, show.betas = T, top = 20)
 ```
@@ -866,9 +873,9 @@ knitr::kable(Y_test[1:5,])
 To generate the figure, the function "plot_LP.multiplePatients.list()" or "plot_LP.multiplePatients()" can be used.
 
 ```{r}
-lst_cox.comparison <- plot_LP.multiplePatients.list(lst_models = lst_models, 
-                                                   df.pat = X_test[1:5,], 
-                                                   error.bar = T, zero.rm = T, onlySig = T, alpha = 0.05, top = 5)
+lst_cox.comparison <- plot_LP.multiplePatients.list(lst_models = lst_models,
+                                                    new_data = X_test[1:5,],
+                                                    error.bar = T, zero.rm = T, onlySig = T, alpha = 0.05, top = 5)
 ```
 
 ```{r, fig.small=T}

@@ -147,5 +147,6 @@ Instance of class "HDcox" and model "sPLS-DRCOX-Dynamic". The class contains the
 \code{time}: time consumed for running the cox analysis.
 }
 \description{
-Performs a sPLS-DRCOX_dynamic model (mixing sPLS-DRCOX and mixOmics custom variable selection).
+This function performs a sparse partial least squares deviance residual Cox (sPLS-DRCOX) by dynamic variable selection methodology.
+The function returns a HDcox model with the attribute model as "sPLS-DRCOX".
 }

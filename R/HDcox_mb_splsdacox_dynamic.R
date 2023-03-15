@@ -3,7 +3,8 @@
 #### ### ##
 
 #' MB.sPLS-DACOX
-#' @description Performs a mb.splsdacox model.
+#' @description This function performs a multi-block sparse partial least squares discriminant analysis Cox (MB.sPLS-DACOX) by dynamic variable selection methodology.
+#' The function returns a HDcox model with the attribute model as "MB.sPLS-DACOX".
 #'
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.

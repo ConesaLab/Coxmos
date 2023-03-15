@@ -242,6 +242,38 @@ deleteIllegalChars <- function(chr.vector){
   return(v)
 }
 
+#only for FORMULAS
+transformIllegalChars <- function(cn){
+  #### Formula cannot manage -,+,* symbols in cn
+  if(!length(cn)>1){
+    if(length(grep("-", cn, fixed = T))>0){
+      cn <- gsub("-", "_", x = cn, fixed = T)
+    }
+    if(length(grep("+", cn, fixed = T))>0){
+      cn <- gsub("+", ".", x = cn, fixed = T)
+    }
+    if(length(grep("*", cn, fixed = T))>0){
+      cn <- gsub("*", ".star.", x = cn, fixed = T)
+    }
+  }else{
+    new_cn <- NULL
+    for(c in cn){
+      if(length(grep("-", c, fixed = T))>0){
+        c <- gsub("-", "_", x = c, fixed = T)
+      }
+      if(length(grep("+", c, fixed = T))>0){
+        c <- gsub("+", ".", x = c, fixed = T)
+      }
+      if(length(grep("*", c, fixed = T))>0){
+        c <- gsub("*", ".star.", x = c, fixed = T)
+      }
+      new_cn <- c(new_cn, c)
+    }
+    cn <- new_cn
+  }
+  return(cn)
+}
+
 checkColnamesIllegalChars <- function(X){
   new_cn_X <- deleteIllegalChars(colnames(X))
 
@@ -3062,18 +3094,18 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                                returnData = returnData), .options = furrr_options(seed = TRUE))
 
         #test with for:
-        # for(i in lst_inputs){
-        #   coxEN(X = data.matrix(lst_X_train[[lst_inputs[[1]]$run]][[lst_inputs[[1]]$fold]]),
-        #         Y = data.matrix(lst_Y_train[[lst_inputs[[1]]$run]][[lst_inputs[[1]]$fold]]),
-        #         EN.alpha = EN.alpha.list[[lst_inputs[[1]]$alpha_index]],
-        #         max.variables = max.variables,
-        #         x.center = x.center, x.scale = x.scale,
-        #         y.center = y.center, y.scale = y.scale,
-        #         remove_non_significant = remove_non_significant,
-        #         remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
-        #         alpha = alpha, MIN_EPV = MIN_EPV, verbose = verbose,
-        #         returnData = F)
-        # }
+        for(i in lst_inputs){
+          coxEN(X = data.matrix(lst_X_train[[lst_inputs[[1]]$run]][[lst_inputs[[1]]$fold]]),
+                Y = data.matrix(lst_Y_train[[lst_inputs[[1]]$run]][[lst_inputs[[1]]$fold]]),
+                EN.alpha = EN.alpha.list[[lst_inputs[[1]]$alpha_index]],
+                max.variables = max.variables,
+                x.center = x.center, x.scale = x.scale,
+                y.center = y.center, y.scale = y.scale,
+                remove_non_significant = remove_non_significant,
+                remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
+                alpha = alpha, MIN_EPV = MIN_EPV, verbose = verbose,
+                returnData = F)
+        }
 
       }
 

@@ -1794,6 +1794,11 @@ plot_pseudobeta.newPatient <- function(model, new_observation, error.bar = T, on
                                               alpha = alpha, zero.rm = zero.rm, auto.limits = auto.limits, top = top)
   coefficients <- ggp.simulated_beta$beta
 
+  if(all(coefficients==0)){
+    message("No significant variables selected.")
+    return(NULL)
+  }
+
   coeff.min <- NULL
   coeff.max <- NULL
   if(error.bar){
@@ -2021,6 +2026,11 @@ plot_MB.pseudobeta.newPatient <- function(model, new_observation, error.bar = T,
     lp.new_observation_variable.max <- lp.new_observation_variable.max[rownames(ggp.simulated_beta$plot[[b]]$data),,drop=F]
 
     coefficients[[b]] <- coefficients[[b]][rownames(lp.new_observation_variable[[b]]),,drop=F]
+
+    if(all(coefficients[[b]]==0)){
+      message("No significant variables selected.")
+      next
+    }
 
     #terms
     if(error.bar){
@@ -2325,6 +2335,12 @@ plot_cox.comparePatients <- function(model, new_data, error.bar = F, onlySig = T
                                               alpha = alpha, zero.rm = zero.rm, auto.limits = auto.limits, top = top)
 
   coefficients <- ggp.simulated_beta$beta
+
+  if(all(coefficients==0)){
+    message("No significant variables selected.")
+    return(NULL)
+  }
+
   coefficients <- coefficients[order(coefficients$value, decreasing = T),,drop=F]
 
   if(!is.null(top)){
@@ -2452,6 +2468,11 @@ plot_MB.cox.comparePatients <- function(model, new_data, error.bar = F, onlySig 
   # blocks in ggp.simulated_beta$plot
   for(b in names(model$X$data)[names(model$X$data) %in% names(ggp.simulated_beta$plot)]){
     coefficients <- lst_coefficients[[b]][order(lst_coefficients[[b]]$value, decreasing = T),,drop=F]
+
+    if(all(coefficients==0)){
+      message("No significant variables selected.")
+      next
+    }
 
     if(!is.null(top)){
       if(top < nrow(coefficients)){
@@ -4609,15 +4630,7 @@ getLogRank_NumVariables <- function(data, sdata, VAR_EVENT, name_data = NULL, mi
 
     cn_ori <- cn
     #### Formula cannot manage -,+,* symbols in cn
-    if(length(grep("-", cn, fixed = T))>0){
-      cn <- gsub("-", "_", x = cn, fixed = T)
-    }
-    if(length(grep("+", cn, fixed = T))>0){
-      cn <- gsub("+", ".", x = cn, fixed = T)
-    }
-    if(length(grep("*", cn, fixed = T))>0){
-      cn <- gsub("*", ".star.", x = cn, fixed = T)
-    }
+    cn <- transformIllegalChars(cn)
 
     colnames(auxData)[3] <- cn
 
@@ -4735,7 +4748,7 @@ plot_survivalplot.qual <- function(data, sdata, cn_variables, name_data = NULL, 
 
       colnames(aux)[3] <- cn
 
-      f = as.formula(paste0("Surv(time = time, event = event) ~ ", cn))
+      f = as.formula(paste0("Surv(time = time, event = event) ~ `", cn, "`"))
 
       kmsurvival <- tryCatch(
         # Specifying expression
@@ -4913,9 +4926,9 @@ getTestKM.list <- function(lst_models, X_test, Y_test, lst_cutoff, type = "LP", 
                                                  BREAKTIME = BREAKTIME, n.breaks = n.breaks, title = title))
   }else{
     LST_GGP <- purrr::map2(.x = sub_lst_models, .y = lst_cutoff, ~getTestKM(model = .x,
-                                                                        X_test = X_test, Y_test = Y_test,
-                                                                        cutoff = .y, type = type, ori_data = ori_data,
-                                                                        BREAKTIME = BREAKTIME, n.breaks = n.breaks, title = title))
+                                                                            X_test = X_test, Y_test = Y_test,
+                                                                            cutoff = .y, type = type, ori_data = ori_data,
+                                                                            BREAKTIME = BREAKTIME, n.breaks = n.breaks, title = title))
   }
 
   return(LST_GGP)
@@ -5021,6 +5034,20 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
     return(lst_ggp)
 
   }else if(type=="VAR"){
+
+    #As deleteIllegalChars() is performed in KM_VAR, run it always for VAR in TEST
+    if(!attr(model, "model") %in% pkg.env$multiblock_methods){
+      new_cn <- deleteIllegalChars(colnames(X_test))
+      #### Formula cannot manage -,+,* symbols in cn
+      new_cn <- transformIllegalChars(new_cn)
+      colnames(X_test) <- new_cn
+    }else{
+      for(b in names(X_test)){
+        new_cn <- deleteIllegalChars(colnames(X_test[[b]]))
+        new_cn <- transformIllegalChars(new_cn)
+        colnames(X_test[[b]]) <- new_cn
+      }
+    }
 
     if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox)){
       lst_ggp <- NULL

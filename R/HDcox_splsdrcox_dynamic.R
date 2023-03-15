@@ -3,7 +3,8 @@
 #### ### ##
 
 #' sPLS-DRCOX
-#' @description Performs a sPLS-DRCOX_dynamic model (mixing sPLS-DRCOX and mixOmics custom variable selection).
+#' @description This function performs a sparse partial least squares deviance residual Cox (sPLS-DRCOX) by dynamic variable selection methodology.
+#' The function returns a HDcox model with the attribute model as "sPLS-DRCOX".
 #'
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
@@ -92,16 +93,16 @@
 #' @export
 
 splsdrcox_dynamic <- function (X, Y,
-                                n.comp = 4, vector = NULL,
-                                MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 5,
-                                MIN_AUC_INCREASE = 0.01,
-                                x.center = TRUE, x.scale = FALSE,
-                                y.center = FALSE, y.scale = FALSE,
-                                remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
-                                remove_non_significant = F, alpha = 0.05, tol = 1e-15,
-                                EVAL_METHOD = "AUC", pred.method = "cenROC", max.iter = 200,
-                                times = NULL, max_time_points = 15,
-                                MIN_EPV = 5, returnData = T, PARALLEL = F, verbose = F){
+                               n.comp = 4, vector = NULL,
+                               MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 5,
+                               MIN_AUC_INCREASE = 0.01,
+                               x.center = TRUE, x.scale = FALSE,
+                               y.center = FALSE, y.scale = FALSE,
+                               remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
+                               remove_non_significant = F, alpha = 0.05, tol = 1e-15,
+                               EVAL_METHOD = "AUC", pred.method = "cenROC", max.iter = 200,
+                               times = NULL, max_time_points = 15,
+                               MIN_EPV = 5, returnData = T, PARALLEL = F, verbose = F){
 
   t1 <- Sys.time()
 
@@ -195,7 +196,7 @@ splsdrcox_dynamic <- function (X, Y,
   #### ### ### ### ### ### ### ### ### ###
   # DIVIDE Y VENCERAS - BEST VECTOR SIZE #
   #### ### ### ### ### ### ### ### ### ###
-
+  plotVAR <- NULL
   if(is.null(vector)){
     lst_BV <- getBestVector(Xh, DR_coxph, Yh, n.comp, max.iter, vector, MIN_AUC_INCREASE, MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, cut_points = n.cut_points,
                            EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = F, mode = "spls", times = times, max_time_points = max_time_points, verbose = verbose)

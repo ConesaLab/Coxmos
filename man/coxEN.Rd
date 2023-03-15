@@ -102,5 +102,6 @@ Instance of class "HDcox" and model "coxEN". The class contains the following el
 \code{time}: time consumed for running the cox analysis.
 }
 \description{
-Performs a cox elastic net model (based on glmnet R package).
+This function performs a cox elastic net model (based on glmnet R package).
+The function returns a HDcox model with the attribute model as "coxEN".
 }

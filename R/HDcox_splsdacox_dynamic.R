@@ -3,7 +3,8 @@
 #### ### ##
 
 #' sPLSDA-COX
-#' @description Performs a splsdacox_dynamic model.
+#' @description This function performs a sparse partial least squares discriminant analysis Cox (sPLSDA-COX) by dynamic variable selection methodology.
+#' The function returns a HDcox model with the attribute model as "sPLSDA-COX".
 #'
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
@@ -131,7 +132,7 @@ splsdacox_dynamic <- function (X, Y,
   #### ### ### ### ### ### ### ### ### ###
   # DIVIDE Y VENCERAS - BEST VECTOR SIZE #
   #### ### ### ### ### ### ### ### ### ###
-
+  plotVAR <- NULL
   DR_coxph <- NULL
 
   if(is.null(vector)){
