@@ -67,6 +67,12 @@
 #' \code{time}: time consumed for running the cox analysis.
 #'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' coxSW(X, Y)
+#' coxSW(X, Y, x.center = TRUE, x.scale = TRUE)
+#' }
 
 coxSW <- function(X, Y,
                   x.center = TRUE, x.scale = FALSE,

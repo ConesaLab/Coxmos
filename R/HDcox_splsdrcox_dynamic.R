@@ -99,6 +99,11 @@
 #' \code{time}: time consumed for running the cox analysis.
 #'
 #' @export
+#'
+#' \dontrun{
+#' splsdrcox_dynamic(X, Y)
+#' splsdrcox_dynamic(X, Y, n.comp = 3, vector = NULL, x.center = TRUE, x.scale = TRUE)
+#' }
 
 splsdrcox_dynamic <- function (X, Y,
                                n.comp = 4, vector = NULL,
@@ -470,10 +475,15 @@ splsdrcox_dynamic <- function (X, Y,
 #'
 #' \code{time}: time consumed for running the cross-validated function.
 #' @export
+#'
+#' \dontrun{
+#' cv.splsdrcox_dynamic_model <- cv.splsdrcox_dynamic(X, Y, max.ncomp = 10, vector = NULL, x.center = TRUE, x.scale = TRUE)
+#' splsdrcox_model <- splsdrcox(X, Y, n.comp = cv.splsdrcox_dynamic_model$opt.comp, vector = cv.splsdrcox_dynamic_model$opt.nvar, x.center = TRUE, x.scale = TRUE)
+#' }
 
 cv.splsdrcox_dynamic <- function (X, Y,
-                                  max.ncomp = 10, n_run = 5, k_folds = 10,
-                                  vector = NULL,
+                                  max.ncomp = 10, vector = NULL,
+                                  n_run = 5, k_folds = 10,
                                   x.center = TRUE, x.scale = FALSE,
                                   y.center = FALSE, y.scale = FALSE,
                                   remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL, remove_variance_at_fold_level = F,

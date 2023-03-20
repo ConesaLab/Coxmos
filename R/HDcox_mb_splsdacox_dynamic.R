@@ -95,6 +95,11 @@
 #' \code{time}: time consumed for running the cox analysis.
 #'
 #' @export
+#'
+#' \dontrun{
+#' mb.splsdacox(X, Y)
+#' mb.splsdacox(X, Y, n.comp = 3, vector = NULL, x.center = TRUE, x.scale = TRUE)
+#' }
 
 mb.splsdacox <- function (X, Y,
                           n.comp = 4, vector = NULL,
@@ -500,6 +505,11 @@ mb.splsdacox <- function (X, Y,
 #'
 #' \code{time}: time consumed for running the cross-validated function.
 #' @export
+#'
+#' \dontrun{
+#' cv.mb.splsdacox_model <- cv.splsdacox_dynamic(X, Y, max.ncomp = 10, vector = NULL, x.center = TRUE, x.scale = TRUE)
+#' mb.splsdacox_model <- mb.splsdacox(X, Y, n.comp = cv.mb.splsdacox_model$opt.comp, vector = cv.mb.splsdacox_model$opt.nvar, x.center = TRUE, x.scale = TRUE)
+#' }
 
 cv.mb.splsdacox <- function(X, Y,
                             max.ncomp = 10, vector = NULL,

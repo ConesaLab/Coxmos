@@ -74,6 +74,12 @@
 #' \code{time}: time consumed for running the cox analysis.
 #'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' coxEN(X, Y)
+#' coxEN(X, Y, EN.alpha = 0.75, x.center = TRUE, x.scale = TRUE)
+#' }
 
 coxEN <- function(X, Y,
                   EN.alpha = 0.5, max.variables = 15,
@@ -376,6 +382,12 @@ coxEN <- function(X, Y,
 #'
 #' \code{time}: time consumed for running the cross-validated function.
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' cv.coxEN_model <- cv.coxEN(X, Y, EN.alpha.list = c(0.1,0.5,0.1), x.center = TRUE, x.scale = TRUE)
+#' coxEN_model <- coxEN(X, Y, EN.alpha = cv.coxEN_model$opt.EN.alpha, x.center = TRUE, x.scale = TRUE)
+#' }
 
 cv.coxEN <- function(X, Y,
                      EN.alpha.list = seq(0,1,0.1),

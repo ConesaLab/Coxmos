@@ -72,6 +72,11 @@
 #' \code{time}: time consumed for running the cox analysis.
 #'
 #' @export
+#'
+#' \dontrun{
+#' sb.splsdrcox(X, Y)
+#' sb.splsdrcox(X, Y, n.comp = 3, eta = 0.5, x.center = TRUE, x.scale = TRUE)
+#' }
 
 sb.splsdrcox <- function (X, Y,
                          n.comp = 4, eta = 0.5,
@@ -241,6 +246,7 @@ sb.splsdrcox <- function (X, Y,
 #' \code{pred.method}: AUC evaluation algorithm method for evaluate the model performance.
 #'
 #' \code{opt.comp}: Optimal component selected by the best_model.
+#' \code{opt.eta}: Optimal eta/penalty selected by the best_model.
 #' \code{opt.nvar}: Optimal number of variables selected by the best_model.
 #'
 #' \code{plot_AIC}: AIC plot by each hyper-parameter.
@@ -255,6 +261,11 @@ sb.splsdrcox <- function (X, Y,
 #'
 #' \code{time}: time consumed for running the cross-validated function.
 #' @export
+#'
+#' \dontrun{
+#' cv.sb.splsdrcox_model <- cv.sb.splsdrcox(X, Y, max.ncomp = 10, eta.list = seq(0.1,1,0.1), x.center = TRUE, x.scale = TRUE)
+#' sb.splsdrcox_model <- sb.splsdrcox(X, Y, n.comp = cv.sb.splsdrcox_model$opt.comp, eta = cv.sb.splsdrcox_model$opt.eta, x.center = TRUE, x.scale = TRUE)
+#' }
 
 cv.sb.splsdrcox <- function(X, Y,
                            max.ncomp = 10, eta.list = seq(0.1,0.9,0.1),
@@ -542,8 +553,58 @@ cv.sb.splsdrcox <- function(X, Y,
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #' @param seed Number. Seed value for performing runs/folds divisions (default: 123).
 #'
-#' @return Instance of class "HDcox" and model "SB.sPLS-DRCOX".
+#' @return Instance of class "HDcox" and model "sb.splscox". The class contains the following elements:
+#' \code{X}: List of normalized X data information.
+#' \itemize{
+#'  \item \code{(data)}: normalized X matrix
+#'  \item \code{(weightings)}: PLS weights
+#'  \item \code{(weightings_norm)}: PLS normalize weights
+#'  \item \code{(W.star)}: PLS W* vector
+#'  \item \code{(scores)}: PLS scores/variates
+#'  \item \code{(x.mean)}: mean values for X matrix
+#'  \item \code{(x.sd)}: standard deviation for X matrix
+#'  }
+#' \code{Y}: List of normalized Y data information.
+#' \itemize{
+#'  \item \code{(deviance_residuals)}: deviance residual vector used as Y matrix in the sPLS.
+#'  \item \code{(dr.mean)}: mean values for deviance residuals Y matrix
+#'  \item \code{(dr.sd)}: standard deviation for deviance residuals Y matrix'
+#'  \item \code{(data)}: normalized X matrix
+#'  \item \code{(y.mean)}: mean values for Y matrix
+#'  \item \code{(y.sd)}: standard deviation for Y matrix'
+#'  }
+#' \code{survival_model}: List of survival model information.
+#' \itemize{
+#'  \item \code{fit}: coxph object.
+#'  \item \code{AIC}: AIC of cox model.
+#'  \item \code{BIC}: BIC of cox model.
+#'  \item \code{lp}: linear predictors for train data.
+#'  \item \code{coef}: Coefficients for cox model.
+#'  \item \code{YChapeau}: Y Chapeau residuals.
+#'  \item \code{Yresidus}: Y residuals.
+#' }
+#'
+#' \code{list_spls_models}: List of sPLS-DRCOX models computed for each block.
+#'
+#' \code{n.comp}: Number of components selected.
+#'
+#' \code{call}: call function
+#'
+#' \code{X_input}: X input matrix
+#'
+#' \code{Y_input}: Y input matrix
+#'
+#' \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
+#'
+#' \code{class}: Model class.
+#'
+#' \code{time}: time consumed for running the cox analysis.
+#'
 #' @export
+#'
+#' \dontrun{
+#' sb.splsdrcox_model <- fast.cv.sb.splsdrcox(X, Y, max.ncomp = 10, eta.list = seq(0.1,1,0.1), x.center = TRUE, x.scale = TRUE)
+#' }
 
 fast.cv.sb.splsdrcox <- function(X, Y,
                                 max.ncomp = 10, eta.list = seq(0.1,0.9,0.1),

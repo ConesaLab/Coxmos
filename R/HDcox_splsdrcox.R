@@ -93,6 +93,11 @@
 #' \code{time}: time consumed for running the cox analysis.
 #'
 #' @export
+#'
+#' \dontrun{
+#' splsdrcox(X, Y)
+#' splsdrcox(X, Y, n.comp = 3, eta = 0.25, x.center = TRUE, x.scale = TRUE)
+#' }
 
 splsdrcox <- function (X, Y,
                       n.comp = 4, eta = 0.5,
@@ -821,6 +826,7 @@ splsdrcox.modelPerComponent <- function (X, Y,
 #' \code{pred.method}: AUC evaluation algorithm method for evaluate the model performance.
 #'
 #' \code{opt.comp}: Optimal component selected by the best_model.
+#' \code{opt.eta}: Optimal eta/penalty selected by the best_model.
 #' \code{opt.nvar}: Optimal number of variables selected by the best_model.
 #'
 #' \code{plot_AIC}: AIC plot by each hyper-parameter.
@@ -835,6 +841,11 @@ splsdrcox.modelPerComponent <- function (X, Y,
 #'
 #' \code{time}: time consumed for running the cross-validated function.
 #' @export
+#'
+#' \dontrun{
+#' cv.splsdrcox_model <- cv.splsdrcox(X, Y, max.ncomp = 10, eta.list = seq(0.1,0.9,0.1), x.center = TRUE, x.scale = TRUE)
+#' splsdrcox_model <- splsdrcox(X, Y, n.comp = cv.splsdrcox_model$opt.comp, eta = cv.splsdrcox_model$opt.eta, x.center = TRUE, x.scale = TRUE)
+#' }
 
 cv.splsdrcox <- function (X, Y,
                          max.ncomp = 10, eta.list = seq(0.1,0.9,0.1),
