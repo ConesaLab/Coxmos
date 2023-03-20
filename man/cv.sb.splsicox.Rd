@@ -127,7 +127,7 @@ Instance of class "HDcox" and model "cv.SB.sPLS-ICOX".
 \code{pred.method}: AUC evaluation algorithm method for evaluate the model performance.
 
 \code{opt.comp}: Optimal component selected by the best_model.
-\code{opt.nvar}: Optimal number of variables selected by the best_model.
+\code{opt.spv_penalty}: Optimal penalty value selected by the best_model.
 
 \code{plot_AIC}: AIC plot by each hyper-parameter.
 \code{plot_c_index}: C-Index plot by each hyper-parameter.
@@ -143,4 +143,12 @@ Instance of class "HDcox" and model "cv.SB.sPLS-ICOX".
 }
 \description{
 cv.sb.splsicox cross validation model
+}
+\examples{
+\dontrun{
+cv.sb.splsicox_model <- cv.sb.splsicox(X, Y, max.ncomp = 10,
+spv_penalty.list = seq(0.1,1,0.1), x.center = TRUE, x.scale = TRUE)
+sb.splsicox_model <- sb.splsicox(X, Y, n.comp = cv.sb.splsicox_model$opt.comp,
+spv_penalty = cv.sb.splsicox_model$opt.spv_penalty, x.center = TRUE, x.scale = TRUE)
+}
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/HDcox_plot_functions.R
 \name{save_ggplot_lst}
 \alias{save_ggplot_lst}
-\title{save_ggplot_lst !!!}
+\title{save_ggplot_lst}
 \usage{
 save_ggplot_lst(
   lst_plots,
@@ -36,5 +36,10 @@ save_ggplot_lst(
 \item{object_name}{file name}
 }
 \description{
-save_ggplot_lst !!!
+Allows to save a list of ggplot2 objects in .tiff format based on an specific resolution.
+}
+\examples{
+\dontrun{
+save_ggplot_lst(plot_lst, folder)
+}
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/HDcox_plot_functions.R
 \name{save_ggplot.svg}
 \alias{save_ggplot.svg}
-\title{save_ggplot.svg !!!}
+\title{save_ggplot.svg}
 \usage{
 save_ggplot.svg(
   plot,
@@ -30,5 +30,10 @@ save_ggplot.svg(
 \item{custom}{Custom size. Numeric vector of width and height}
 }
 \description{
-save_ggplot.svg !!!
+Allows to save ggplot2 objects in .svg format based on an specific resolution.
+}
+\examples{
+\dontrun{
+save_ggplot.svg(plot, folder)
+}
 }

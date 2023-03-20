@@ -196,7 +196,7 @@ Y_test <- Y[-index_train,]
 
 We have already mentioned that we need to work with a high-dimensional methodology. However, if we try to run a classical analysis with one of our functions such as a Cox analysis using the entire matrix X, we will get an error due to the specification of the **MIN_EPV** parameter.
 
-This parameter (set by default to 5) establishes a minimum ratio of variables that should be included in a survival model according to the number of patients who experience the event. The formula is ${#events} \over {#variables in the model}$. According to literature, the higher values the better. As a recommendation, values greater than 10 should be used to obtain models with good predictions, but this value should not be lower than 5.
+This parameter (set by default to 5) establishes a minimum ratio of variables that should be included in a survival model according to the number of patients who experience the event. The formula is $\frac{#events}{#variables in the model}$. According to literature, the higher values the better. As a recommendation, values greater than 10 should be used to obtain models with good predictions, but this value should not be lower than 5.
 
 If we perform a classical cox survival analysis we will obtain an error.
 
@@ -210,7 +210,7 @@ cox_model <- cox(X = X_train, Y = Y_train,
                  MIN_EPV = 5, FORCE = F, returnData = T, verbose = F)
 ```
 
-Despite specifying an **EPV** of 0.62, we should have a maximum of 55 variables in our final survival model in relation to the number of events found in our training set. To compute our **EPV**, we can used the function `getEPV()` that requires the matrix X and Y as input.
+Despite specifying an **EPV** of 5, we should have a maximum of 55 variables in our final survival model in relation to the number of events found in our training set. To compute our **EPV**, we can used the function `getEPV()` that requires the matrix X and Y as input.
 
 ```{r}
 EPV <- getEPV(X_train, Y_train)
@@ -228,7 +228,7 @@ Once the problem has been demonstrated, we will proceed to perform the methods t
 
 In order to perform survival analysis with our high-dimensional data, we have implemented a series of methods that utilize techniques such as Cox Elastic Net, to select a lower number of features applying a penalty or partial least squares (PLS) methodology in order to reduce the dimensionality of the input data. 
 
-To evaluate the performance of these methods, we have implemented cross-validation, which allows us to estimate the optimal parameters for future predictions based on prediction metrics such as: **AIC**, **C-INDEX**, and **AUC**. By default AUC metric (Area under the ROC curve) is used with the "cenROC" evaluator as it has provided the best results in our tests. However, multiple **AUC** evaluators could be used ("risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C" and "smoothROCtime_I"). 
+To evaluate the performance of these methods, we have implemented cross-validation, which allows us to estimate the optimal parameters for future predictions based on prediction metrics such as: **AIC**, **C-INDEX**, **I.BRIER** and **AUC**. By default AUC metric (Area under the ROC curve) is used with the "cenROC" evaluator as it has provided the best results in our tests. However, multiple **AUC** evaluators could be used ("risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C" and "smoothROCtime_I"). 
 
 Furthermore, a mix of multiple metrics could be used to obtain the optimal model. The user has to establish different weight for each emtric and all of them will be consider to compute the optimal model (the total weight must sum 1).
 

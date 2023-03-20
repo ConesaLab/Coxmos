@@ -29,3 +29,8 @@ plot_forest(
 \description{
 Forest plot for HDcox models using the R library plot_forest. For more information check ?survminer::ggforest.
 }
+\examples{
+\dontrun{
+plot_forest(model)
+}
+}

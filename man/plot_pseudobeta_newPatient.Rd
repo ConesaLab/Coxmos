@@ -23,11 +23,11 @@ plot_pseudobeta_newPatient(
 
 \item{error.bar}{Logical. Show error bar (default: TRUE).}
 
-\item{onlySig}{Logical. Compute psudobetas using only significant components.}
+\item{onlySig}{Logical. Compute psudobetas using only significant components (default: TRUE).}
 
 \item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
 
-\item{zero.rm}{Logical. Remove variables with a pseudobeta equal to 0.}
+\item{zero.rm}{Logical. Remove variables with a pseudobeta equal to 0 (default: TRUE).}
 
 \item{top}{Numeric. Show "top" first variables with the higher pseudobetas in absolute value. If top = NULL, all variables are shown (default: NULL).}
 
@@ -36,5 +36,10 @@ plot_pseudobeta_newPatient(
 \item{show.betas}{Logical. Show original betas (default: FALSE).}
 }
 \description{
-plot_pseudobeta.newPatient
+Generates a ggplot2 to compare the pseudobeta direction from de HDcox model and the values of the new observation.
+}
+\examples{
+\dontrun{
+plot_pseudobeta_newPatient(model, new_observation)
+}
 }

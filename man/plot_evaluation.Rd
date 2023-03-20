@@ -7,7 +7,7 @@
 plot_evaluation(eval_results, pred.attr = "mean", y.min = NULL, type = "both")
 }
 \arguments{
-\item{eval_results}{HDcox evaluation object}
+\item{eval_results}{HDcox evaluation object.}
 
 \item{pred.attr}{Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").}
 
@@ -16,5 +16,11 @@ plot_evaluation(eval_results, pred.attr = "mean", y.min = NULL, type = "both")
 \item{type}{Character. Plot type. Must be one of the following: "both", "line" or "mean". In other case, "both" will be selected (default: "both").}
 }
 \description{
-plot_evaluation
+Perform a evaluation test for the result object provided. It includes test comparison as "t.test", "anova", "wilcoxon", "kruscal-wallis". Furthermore, it generates plots for comparing the results.
+}
+\examples{
+\dontrun{
+eval_results <- eval_HDcox_models(lst_models, X_test, Y_test, pred.method)
+plot_evaluation(eval_results)
+}
 }

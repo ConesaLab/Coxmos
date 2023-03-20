@@ -127,6 +127,7 @@ Instance of class "HDcox" and model "cv.SB.sPLS-DRCOX".
 \code{pred.method}: AUC evaluation algorithm method for evaluate the model performance.
 
 \code{opt.comp}: Optimal component selected by the best_model.
+\code{opt.eta}: Optimal eta/penalty selected by the best_model.
 \code{opt.nvar}: Optimal number of variables selected by the best_model.
 
 \code{plot_AIC}: AIC plot by each hyper-parameter.
@@ -143,4 +144,12 @@ Instance of class "HDcox" and model "cv.SB.sPLS-DRCOX".
 }
 \description{
 cv.sb.splsdrcox cross validation model
+}
+\examples{
+\dontrun{
+cv.sb.splsdrcox_model <- cv.sb.splsdrcox(X, Y, max.ncomp = 10,
+eta.list = seq(0.1,1,0.1), x.center = TRUE, x.scale = TRUE)
+sb.splsdrcox_model <- sb.splsdrcox(X, Y, n.comp = cv.sb.splsdrcox_model$opt.comp,
+eta = cv.sb.splsdrcox_model$opt.eta, x.center = TRUE, x.scale = TRUE)
+}
 }

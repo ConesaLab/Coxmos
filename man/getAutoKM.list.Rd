@@ -44,3 +44,8 @@ getAutoKM.list(
 \description{
 Run the function "getAutoKM" for a list of models. More information in "?getAutoKM".
 }
+\examples{
+\dontrun{
+getAutoKM.list(type = "LP", lst_models)
+}
+}

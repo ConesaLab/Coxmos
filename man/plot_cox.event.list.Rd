@@ -16,3 +16,8 @@ plot_cox.event.list(lst_models, type = "lp", n.breaks = 20)
 \description{
 Run the function "plot_cox.event" for a list of models. More information in "?plot_cox.event".
 }
+\examples{
+\dontrun{
+plot_cox.event.list(lst_models)
+}
+}

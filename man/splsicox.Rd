@@ -114,3 +114,9 @@ Instance of class "HDcox" and model "sPLS-ICOX". The class contains the followin
 This function performs a sparse partial least squares individual Cox (sPLS-ICOX) (based on plsRcox R package).
 The function returns a HDcox model with the attribute model as "sPLS-ICOX".
 }
+\examples{
+\dontrun{
+splsicox(X, Y)
+splsicox(X, Y, n.comp = 3, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+}
+}

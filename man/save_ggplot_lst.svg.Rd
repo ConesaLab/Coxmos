@@ -2,7 +2,7 @@
 % Please edit documentation in R/HDcox_plot_functions.R
 \name{save_ggplot_lst.svg}
 \alias{save_ggplot_lst.svg}
-\title{save_ggplot_lst.svg !!!}
+\title{save_ggplot_lst.svg}
 \usage{
 save_ggplot_lst.svg(
   lst_plots,
@@ -36,5 +36,10 @@ save_ggplot_lst.svg(
 \item{object_name}{file name}
 }
 \description{
-save_ggplot_lst.svg !!!
+Allows to save a list of ggplot2 objects in .svg format based on an specific resolution.
+}
+\examples{
+\dontrun{
+save_ggplot_lst.svg(plot_lst, folder)
+}
 }

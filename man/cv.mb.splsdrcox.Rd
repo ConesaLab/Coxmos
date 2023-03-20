@@ -156,3 +156,11 @@ Instance of class "HDcox" and model "cv.MB.sPLS-DRCOX".
 \description{
 cv.mb.splsdrcox cross validation model
 }
+\examples{
+\dontrun{
+cv.mb.splsdrcox_model <- cv.splsdacox_dynamic(X, Y, max.ncomp = 10, vector = NULL,
+x.center = TRUE, x.scale = TRUE)
+mb.splsdrcox_model <- mb.splsdrcox(X, Y, n.comp = cv.mb.splsdrcox_model$opt.comp,
+vector = cv.mb.splsdrcox_model$opt.nvar, x.center = TRUE, x.scale = TRUE)
+}
+}

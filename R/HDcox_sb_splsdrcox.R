@@ -73,6 +73,7 @@
 #'
 #' @export
 #'
+#' @examples
 #' \dontrun{
 #' sb.splsdrcox(X, Y)
 #' sb.splsdrcox(X, Y, n.comp = 3, eta = 0.5, x.center = TRUE, x.scale = TRUE)
@@ -262,9 +263,12 @@ sb.splsdrcox <- function (X, Y,
 #' \code{time}: time consumed for running the cross-validated function.
 #' @export
 #'
+#' @examples
 #' \dontrun{
-#' cv.sb.splsdrcox_model <- cv.sb.splsdrcox(X, Y, max.ncomp = 10, eta.list = seq(0.1,1,0.1), x.center = TRUE, x.scale = TRUE)
-#' sb.splsdrcox_model <- sb.splsdrcox(X, Y, n.comp = cv.sb.splsdrcox_model$opt.comp, eta = cv.sb.splsdrcox_model$opt.eta, x.center = TRUE, x.scale = TRUE)
+#' cv.sb.splsdrcox_model <- cv.sb.splsdrcox(X, Y, max.ncomp = 10,
+#' eta.list = seq(0.1,1,0.1), x.center = TRUE, x.scale = TRUE)
+#' sb.splsdrcox_model <- sb.splsdrcox(X, Y, n.comp = cv.sb.splsdrcox_model$opt.comp,
+#' eta = cv.sb.splsdrcox_model$opt.eta, x.center = TRUE, x.scale = TRUE)
 #' }
 
 cv.sb.splsdrcox <- function(X, Y,
@@ -602,8 +606,10 @@ cv.sb.splsdrcox <- function(X, Y,
 #'
 #' @export
 #'
+#' @examples
 #' \dontrun{
-#' sb.splsdrcox_model <- fast.cv.sb.splsdrcox(X, Y, max.ncomp = 10, eta.list = seq(0.1,1,0.1), x.center = TRUE, x.scale = TRUE)
+#' sb.splsdrcox_model <- fast.cv.sb.splsdrcox(X, Y, max.ncomp = 10,
+#' eta.list = seq(0.1,1,0.1), x.center = TRUE, x.scale = TRUE)
 #' }
 
 fast.cv.sb.splsdrcox <- function(X, Y,

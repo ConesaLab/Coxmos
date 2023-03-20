@@ -73,6 +73,7 @@
 #'
 #' @export
 #'
+#' @examples
 #' \dontrun{
 #' sb.splsicox(X, Y)
 #' sb.splsicox(X, Y, n.comp = 3, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
@@ -246,9 +247,12 @@ sb.splsicox <- function (X, Y,
 #' \code{time}: time consumed for running the cross-validated function.
 #' @export
 #'
+#' @examples
 #' \dontrun{
-#' cv.sb.splsicox_model <- cv.sb.splsicox(X, Y, max.ncomp = 10, spv_penalty.list = seq(0.1,1,0.1), x.center = TRUE, x.scale = TRUE)
-#' sb.splsicox_model <- sb.splsicox(X, Y, n.comp = cv.sb.splsicox_model$opt.comp, spv_penalty = cv.sb.splsicox_model$opt.spv_penalty, x.center = TRUE, x.scale = TRUE)
+#' cv.sb.splsicox_model <- cv.sb.splsicox(X, Y, max.ncomp = 10,
+#' spv_penalty.list = seq(0.1,1,0.1), x.center = TRUE, x.scale = TRUE)
+#' sb.splsicox_model <- sb.splsicox(X, Y, n.comp = cv.sb.splsicox_model$opt.comp,
+#' spv_penalty = cv.sb.splsicox_model$opt.spv_penalty, x.center = TRUE, x.scale = TRUE)
 #' }
 
 
@@ -583,8 +587,10 @@ cv.sb.splsicox <- function(X, Y,
 #'
 #' @export
 #'
+#' @examples
 #' \dontrun{
-#' sb.splsicox_model <- fast.cv.sb.splsicox(X, Y, max.ncomp = 10, spv_penalty.list = seq(0.1,1,0.1), x.center = TRUE, x.scale = TRUE)
+#' sb.splsicox_model <- fast.cv.sb.splsicox(X, Y, max.ncomp = 10,
+#' spv_penalty.list = seq(0.1,1,0.1), x.center = TRUE, x.scale = TRUE)
 #' }
 
 fast.cv.sb.splsicox <- function(X, Y,

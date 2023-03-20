@@ -117,8 +117,59 @@ fast.cv.sb.splsdrcox(
 \item{seed}{Number. Seed value for performing runs/folds divisions (default: 123).}
 }
 \value{
-Instance of class "HDcox" and model "SB.sPLS-DRCOX".
+Instance of class "HDcox" and model "sb.splscox". The class contains the following elements:
+\code{X}: List of normalized X data information.
+\itemize{
+\item \code{(data)}: normalized X matrix
+\item \code{(weightings)}: PLS weights
+\item \code{(weightings_norm)}: PLS normalize weights
+\item \code{(W.star)}: PLS W* vector
+\item \code{(scores)}: PLS scores/variates
+\item \code{(x.mean)}: mean values for X matrix
+\item \code{(x.sd)}: standard deviation for X matrix
+}
+\code{Y}: List of normalized Y data information.
+\itemize{
+\item \code{(deviance_residuals)}: deviance residual vector used as Y matrix in the sPLS.
+\item \code{(dr.mean)}: mean values for deviance residuals Y matrix
+\item \code{(dr.sd)}: standard deviation for deviance residuals Y matrix'
+\item \code{(data)}: normalized X matrix
+\item \code{(y.mean)}: mean values for Y matrix
+\item \code{(y.sd)}: standard deviation for Y matrix'
+}
+\code{survival_model}: List of survival model information.
+\itemize{
+\item \code{fit}: coxph object.
+\item \code{AIC}: AIC of cox model.
+\item \code{BIC}: BIC of cox model.
+\item \code{lp}: linear predictors for train data.
+\item \code{coef}: Coefficients for cox model.
+\item \code{YChapeau}: Y Chapeau residuals.
+\item \code{Yresidus}: Y residuals.
+}
+
+\code{list_spls_models}: List of sPLS-DRCOX models computed for each block.
+
+\code{n.comp}: Number of components selected.
+
+\code{call}: call function
+
+\code{X_input}: X input matrix
+
+\code{Y_input}: Y input matrix
+
+\code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
+
+\code{class}: Model class.
+
+\code{time}: time consumed for running the cox analysis.
 }
 \description{
 fast.cv.sb.splsdrcox cross validation model
+}
+\examples{
+\dontrun{
+sb.splsdrcox_model <- fast.cv.sb.splsdrcox(X, Y, max.ncomp = 10,
+eta.list = seq(0.1,1,0.1), x.center = TRUE, x.scale = TRUE)
+}
 }

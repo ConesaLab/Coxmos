@@ -127,7 +127,7 @@ Instance of class "HDcox" and model "cv.sPLS-ICOX".
 \code{pred.method}: AUC evaluation algorithm method for evaluate the model performance.
 
 \code{opt.comp}: Optimal component selected by the best_model.
-\code{opt.nvar}: Optimal number of variables selected by the best_model.
+\code{opt.spv_penalty}: Optimal penalty value selected by the best_model.
 
 \code{plot_AIC}: AIC plot by each hyper-parameter.
 \code{plot_c_index}: C-Index plot by each hyper-parameter.
@@ -146,4 +146,12 @@ This function performs cross-validated sparse partial least squares Cox (sPLS-IC
 The function returns the optimal number of components and the optimal sparsity penalty value based on cross-validation.
 The performance could be based on multiple metrics as Area Under the Curve (AUC), Brier Score or C-Index.
 Furthermore, the user could establish more than one metric simultaneously.
+}
+\examples{
+\dontrun{
+cv.splsicox_model <- cv.splsicox(X, Y, max.ncomp = 10, spv_penalty.list = c(0.1,0.5,0.8),
+x.center = TRUE, x.scale = TRUE)
+splsicox_model <- splsicox(X, Y, n.comp = cv.splsicox_model$opt.comp,
+spv_penalty = cv.splsicox_model$opt.spv_penalty, x.center = TRUE, x.scale = TRUE)
+}
 }

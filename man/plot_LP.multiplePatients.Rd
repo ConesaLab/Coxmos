@@ -22,11 +22,11 @@ plot_LP.multiplePatients(
 
 \item{error.bar}{Logical. Show error bar (default: FALSE).}
 
-\item{onlySig}{Logical. Compute plot using only significant components.}
+\item{onlySig}{Logical. Compute plot using only significant components (default: TRUE).}
 
 \item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
 
-\item{zero.rm}{Logical. Remove variables equal to 0.}
+\item{zero.rm}{Logical. Remove variables equal to 0 (default: TRUE).}
 
 \item{auto.limits}{Logical. If "auto.limits" = TRUE, limits are detected automatically (default: TRUE).}
 
@@ -34,4 +34,9 @@ plot_LP.multiplePatients(
 }
 \description{
 plot_LP.multiplePatients
+}
+\examples{
+\dontrun{
+plot_LP.multiplePatients(model, new_data)
+}
 }

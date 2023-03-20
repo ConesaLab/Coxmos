@@ -118,3 +118,9 @@ Instance of class "HDcox" and model "coxSW". The class contains the following el
 This function performs a cox stepwise model (based on My.stepwise R package).
 The function returns a HDcox model with the attribute model as "coxSW".
 }
+\examples{
+\dontrun{
+coxSW(X, Y)
+coxSW(X, Y, x.center = TRUE, x.scale = TRUE)
+}
+}

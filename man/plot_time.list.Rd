@@ -7,7 +7,7 @@
 plot_time.list(lst_models, x.text = "Method", y.text = NULL)
 }
 \arguments{
-\item{lst_models}{List of HDcox models. Each HDCox object has the attribute time measured in minutes.}
+\item{lst_models}{List of HDcox models. Each HDCox object has the attribute time measured in minutes (cross-validation models could be also added to this function).}
 
 \item{x.text}{Character. X axis title.}
 
@@ -24,7 +24,9 @@ For time comparison between best models, use the cross validation objects instea
 }
 \examples{
 \dontrun{
-  lst_models = {"cox" = cox.model, "cv.sPLS-ICOX" = cv.splsicox_model, "sPLS-ICOX" = splsicox_model}
+  lst_models = list("cox" = cox.model,
+  "cv.sPLS-ICOX" = cv.splsicox_model,
+  "sPLS-ICOX" = splsicox_model)
   plot_time.list(lst_models, x.text = "Method")
 }
 }

@@ -36,5 +36,11 @@ getTestKM(
 \item{title}{Character. Kaplan-Meier plot title (default: NULL).}
 }
 \description{
-getTestKM
+Perform a new Kaplan-Meier curve for test data, but using the same cutoff computed in the original model.
+}
+\examples{
+\dontrun{
+cutoff <- getCutoffAutoKM(KM_RES_LP)
+getTestKM(model, X_test, Y_test, cutoff)
+}
 }

@@ -29,3 +29,8 @@ plot_forest.list(
 \description{
 Run the function "plot_forest" for a list of models. More information in "?plot_forest".
 }
+\examples{
+\dontrun{
+plot_forest.list(lst_models)
+}
+}

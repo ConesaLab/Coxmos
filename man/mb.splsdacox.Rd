@@ -154,3 +154,9 @@ Instance of class "HDcox" and model "MB.sPLS-DACOX". The class contains the foll
 This function performs a multi-block sparse partial least squares discriminant analysis Cox (MB.sPLS-DACOX) by dynamic variable selection methodology.
 The function returns a HDcox model with the attribute model as "MB.sPLS-DACOX".
 }
+\examples{
+\dontrun{
+mb.splsdacox(X, Y)
+mb.splsdacox(X, Y, n.comp = 3, vector = NULL, x.center = TRUE, x.scale = TRUE)
+}
+}

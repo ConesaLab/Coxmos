@@ -96,6 +96,7 @@
 #'
 #' @export
 #'
+#' @examples
 #' \dontrun{
 #' mb.splsdrcox(X, Y)
 #' mb.splsdrcox(X, Y, n.comp = 3, vector = NULL, x.center = TRUE, x.scale = TRUE)
@@ -537,9 +538,12 @@ mb.splsdrcox <- function (X, Y,
 #' \code{time}: time consumed for running the cross-validated function.
 #' @export
 #'
+#' @examples
 #' \dontrun{
-#' cv.mb.splsdrcox_model <- cv.splsdacox_dynamic(X, Y, max.ncomp = 10, vector = NULL, x.center = TRUE, x.scale = TRUE)
-#' mb.splsdrcox_model <- mb.splsdrcox(X, Y, n.comp = cv.mb.splsdrcox_model$opt.comp, vector = cv.mb.splsdrcox_model$opt.nvar, x.center = TRUE, x.scale = TRUE)
+#' cv.mb.splsdrcox_model <- cv.splsdacox_dynamic(X, Y, max.ncomp = 10, vector = NULL,
+#' x.center = TRUE, x.scale = TRUE)
+#' mb.splsdrcox_model <- mb.splsdrcox(X, Y, n.comp = cv.mb.splsdrcox_model$opt.comp,
+#' vector = cv.mb.splsdrcox_model$opt.nvar, x.center = TRUE, x.scale = TRUE)
 #' }
 
 cv.mb.splsdrcox <- function(X, Y,

@@ -2,7 +2,7 @@
 % Please edit documentation in R/HDcox_plot_functions.R
 \name{save_ggplot}
 \alias{save_ggplot}
-\title{save_ggplot !!!}
+\title{save_ggplot}
 \usage{
 save_ggplot(
   plot,
@@ -30,5 +30,10 @@ save_ggplot(
 \item{custom}{Custom size. Numeric vector of width and height}
 }
 \description{
-save_ggplot !!!
+Allows to save ggplot2 objects in .tiff format based on an specific resolution.
+}
+\examples{
+\dontrun{
+save_ggplot(plot, folder)
+}
 }

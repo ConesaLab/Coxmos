@@ -9,7 +9,7 @@ plot_pseudobeta(
   error.bar = T,
   onlySig = F,
   alpha = 0.05,
-  zero.rm = F,
+  zero.rm = T,
   top = NULL,
   auto.limits = T,
   show_percentage = T,
@@ -21,11 +21,11 @@ plot_pseudobeta(
 
 \item{error.bar}{Logical. Show error bar (default: TRUE).}
 
-\item{onlySig}{Logical. Compute psudobetas using only significant components.}
+\item{onlySig}{Logical. Compute psudobetas using only significant components (default: FALSE).}
 
 \item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
 
-\item{zero.rm}{Logical. Remove variables with a pseudobeta equal to 0.}
+\item{zero.rm}{Logical. Remove variables with a pseudobeta equal to 0 (default: TRUE).}
 
 \item{top}{Numeric. Show "top" first variables with the higher pseudobetas in absolute value. If top = NULL, all variables are shown (default: NULL).}
 
@@ -36,5 +36,10 @@ plot_pseudobeta(
 \item{size_percentage}{Numeric. Size of percentage text (default: 3).}
 }
 \description{
-plot_pseudobeta
+Decompose a PLS-cox model into a original variable pseudo-beta interpretation. As each component has associated a cox coeffitient, and each component has a weight related to the original variable. Cox final formula is expressed in terms of original variables.
+}
+\examples{
+\dontrun{
+plot_pseudobeta(model)
+}
 }

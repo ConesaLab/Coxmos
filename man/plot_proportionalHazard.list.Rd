@@ -12,3 +12,8 @@ plot_proportionalHazard.list(lst_models)
 \description{
 Run the function "plot_proportionalHazard" for a list of models. More information in "?plot_proportionalHazard".
 }
+\examples{
+\dontrun{
+plot_proportionalHazard.list(lst_models)
+}
+}

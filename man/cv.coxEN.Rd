@@ -138,3 +138,9 @@ Instance of class "HDcox" and model "cv.coxEN". The class contains the following
 \description{
 coxEN Cross-Validation
 }
+\examples{
+\dontrun{
+cv.coxEN_model <- cv.coxEN(X, Y, EN.alpha.list = c(0.1,0.5,0.1), x.center = TRUE, x.scale = TRUE)
+coxEN_model <- coxEN(X, Y, EN.alpha = cv.coxEN_model$opt.EN.alpha, x.center = TRUE, x.scale = TRUE)
+}
+}

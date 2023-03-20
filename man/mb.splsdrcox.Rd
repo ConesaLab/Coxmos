@@ -154,3 +154,9 @@ Instance of class "HDcox" and model "MB.sPLS-DRCOX". The class contains the foll
 This function performs a multi-block sparse partial least squares deviance residual Cox (MB.sPLS-DRCOX) by dynamic variable selection methodology.
 The function returns a HDcox model with the attribute model as "MB.sPLS-DRCOX".
 }
+\examples{
+\dontrun{
+mb.splsdrcox(X, Y)
+mb.splsdrcox(X, Y, n.comp = 3, vector = NULL, x.center = TRUE, x.scale = TRUE)
+}
+}

@@ -100,6 +100,7 @@
 #'
 #' @export
 #'
+#' @examples
 #' \dontrun{
 #' splsdrcox_dynamic(X, Y)
 #' splsdrcox_dynamic(X, Y, n.comp = 3, vector = NULL, x.center = TRUE, x.scale = TRUE)
@@ -476,9 +477,12 @@ splsdrcox_dynamic <- function (X, Y,
 #' \code{time}: time consumed for running the cross-validated function.
 #' @export
 #'
+#' @examples
 #' \dontrun{
-#' cv.splsdrcox_dynamic_model <- cv.splsdrcox_dynamic(X, Y, max.ncomp = 10, vector = NULL, x.center = TRUE, x.scale = TRUE)
-#' splsdrcox_model <- splsdrcox(X, Y, n.comp = cv.splsdrcox_dynamic_model$opt.comp, vector = cv.splsdrcox_dynamic_model$opt.nvar, x.center = TRUE, x.scale = TRUE)
+#' cv.splsdrcox_dynamic_model <- cv.splsdrcox_dynamic(X, Y, max.ncomp = 10, vector = NULL,
+#' x.center = TRUE, x.scale = TRUE)
+#' splsdrcox_model <- splsdrcox(X, Y, n.comp = cv.splsdrcox_dynamic_model$opt.comp,
+#' vector = cv.splsdrcox_dynamic_model$opt.nvar, x.center = TRUE, x.scale = TRUE)
 #' }
 
 cv.splsdrcox_dynamic <- function (X, Y,

@@ -42,5 +42,10 @@ getAutoKM(
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
 \description{
-getAutoKM
+Performs a Kaplan-Meier plot for the HDcox model selected. KM could be based on model Linear Predictor value ("LP"), based on PLS-COX component ("COMP") or at original variable level ("VAR").
+}
+\examples{
+\dontrun{
+getAutoKM(type = "LP", model)
+}
 }

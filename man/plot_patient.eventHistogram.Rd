@@ -16,7 +16,7 @@ plot_patient.eventHistogram(
 \arguments{
 \item{patient}{Numeric matrix or data.frame. New explanatory variables (raw data) for one observation. Qualitative variables must be transform into binary variables.}
 
-\item{time}{Numeric. Time point where the AUC will be evaluated.}
+\item{time}{Numeric. Time point where the AUC will be evaluated (default: NULL).}
 
 \item{model}{HDcox model.}
 
@@ -28,4 +28,9 @@ plot_patient.eventHistogram(
 }
 \description{
 patient.eventHistogram
+}
+\examples{
+\dontrun{
+plot_patient.eventHistogram(patient, time = NULL, model)
+}
 }

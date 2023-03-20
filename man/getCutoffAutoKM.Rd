@@ -12,3 +12,8 @@ getCutoffAutoKM(result)
 \description{
 Gets the cutoff value from the results of getAutoKM() functions.
 }
+\examples{
+\dontrun{
+getCutoffAutoKM(result)
+}
+}

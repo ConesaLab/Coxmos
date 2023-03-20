@@ -111,3 +111,9 @@ Instance of class "HDcox" and model "sb.splscox". The class contains the followi
 This function performs a single-block sparse partial least squares deviance residual Cox (SB.sPLS-DRCOX).
 The function returns a HDcox model with the attribute model as "SB.sPLS-DRCOX".
 }
+\examples{
+\dontrun{
+sb.splsdrcox(X, Y)
+sb.splsdrcox(X, Y, n.comp = 3, eta = 0.5, x.center = TRUE, x.scale = TRUE)
+}
+}

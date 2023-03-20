@@ -12,3 +12,8 @@ getCutoffAutoKM.list(lst_results)
 \description{
 Run the function "getCutoffAutoKM" for a list of models. More information in "?getCutoffAutoKM".
 }
+\examples{
+\dontrun{
+getCutoffAutoKM.list(lst_results)
+}
+}

@@ -158,3 +158,9 @@ Instance of class "HDcox" and model "sPLS-DRCOX-Dynamic". The class contains the
 This function performs a sparse partial least squares deviance residual Cox (sPLS-DRCOX) by dynamic variable selection methodology.
 The function returns a HDcox model with the attribute model as "sPLS-DRCOX".
 }
+\examples{
+\dontrun{
+splsdrcox_dynamic(X, Y)
+splsdrcox_dynamic(X, Y, n.comp = 3, vector = NULL, x.center = TRUE, x.scale = TRUE)
+}
+}

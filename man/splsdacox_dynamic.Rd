@@ -145,3 +145,9 @@ Instance of class "HDcox" and model "sPLS-DACOX-Dynamic". The class contains the
 This function performs a sparse partial least squares discriminant analysis Cox (sPLSDA-COX) by dynamic variable selection methodology.
 The function returns a HDcox model with the attribute model as "sPLSDA-COX".
 }
+\examples{
+\dontrun{
+splsdacox_dynamic(X, Y)
+splsdacox_dynamic(X, Y, n.comp = 3, vector = NULL, x.center = TRUE, x.scale = TRUE)
+}
+}

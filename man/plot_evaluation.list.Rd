@@ -12,7 +12,7 @@ plot_evaluation.list(
 )
 }
 \arguments{
-\item{lst_eval_results}{List of HDcox evaluation results.}
+\item{lst_eval_results}{List (named) of HDcox evaluation results.}
 
 \item{pred.attr}{Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").}
 
@@ -22,4 +22,10 @@ plot_evaluation.list(
 }
 \description{
 Run the function "plot_evaluation" for a list of results. More information in "?plot_evaluation".
+}
+\examples{
+\dontrun{
+#lst_eval_results #list of multiple eval_HDcox_models()
+plot_evaluation.list(lst_eval_results)
+}
 }

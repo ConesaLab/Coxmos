@@ -94,6 +94,7 @@
 #'
 #' @export
 #'
+#' @examples
 #' \dontrun{
 #' splsdrcox(X, Y)
 #' splsdrcox(X, Y, n.comp = 3, eta = 0.25, x.center = TRUE, x.scale = TRUE)
@@ -842,9 +843,12 @@ splsdrcox.modelPerComponent <- function (X, Y,
 #' \code{time}: time consumed for running the cross-validated function.
 #' @export
 #'
+#' @examples
 #' \dontrun{
-#' cv.splsdrcox_model <- cv.splsdrcox(X, Y, max.ncomp = 10, eta.list = seq(0.1,0.9,0.1), x.center = TRUE, x.scale = TRUE)
-#' splsdrcox_model <- splsdrcox(X, Y, n.comp = cv.splsdrcox_model$opt.comp, eta = cv.splsdrcox_model$opt.eta, x.center = TRUE, x.scale = TRUE)
+#' cv.splsdrcox_model <- cv.splsdrcox(X, Y, max.ncomp = 10,
+#' eta.list = seq(0.1,0.9,0.1), x.center = TRUE, x.scale = TRUE)
+#' splsdrcox_model <- splsdrcox(X, Y, n.comp = cv.splsdrcox_model$opt.comp,
+#' eta = cv.splsdrcox_model$opt.eta, x.center = TRUE, x.scale = TRUE)
 #' }
 
 cv.splsdrcox <- function (X, Y,

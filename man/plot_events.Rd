@@ -29,3 +29,8 @@ plot_events(
 \description{
 plot_events
 }
+\examples{
+\dontrun{
+plot_events(Y, categories = c("Censored","Death"))
+}
+}

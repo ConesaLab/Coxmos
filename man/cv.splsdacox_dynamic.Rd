@@ -8,9 +8,9 @@ cv.splsdacox_dynamic(
   X,
   Y,
   max.ncomp = 10,
+  vector = NULL,
   n_run = 5,
   k_folds = 10,
-  vector = NULL,
   x.center = TRUE,
   x.scale = FALSE,
   y.center = FALSE,
@@ -55,11 +55,11 @@ cv.splsdacox_dynamic(
 
 \item{max.ncomp}{Numeric. Maximum number of PLS components to compute for the cross validation (default: 10).}
 
+\item{vector}{Numeric vector. Used for computing best number of variables. As many values as components have to be provided. If vector = NULL, an automatic detection is perform (default: NULL).}
+
 \item{n_run}{Numeric. Number of runs for cross validation (default: 5).}
 
 \item{k_folds}{Numeric. Number of folds for cross validation (default: 10).}
-
-\item{vector}{Numeric vector. Used for computing best number of variables. As many values as components have to be provided. If vector = NULL, an automatic detection is perform (default: NULL).}
 
 \item{x.center}{Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).}
 
@@ -158,4 +158,12 @@ Instance of class "HDcox" and model "cv.sPLS-DACOX-Dynamic".
 }
 \description{
 plsdacox_dynamic cross validation model
+}
+\examples{
+\dontrun{
+cv.splsdacox_dynamic_model <- cv.splsdacox_dynamic(X, Y, max.ncomp = 10, vector = NULL,
+x.center = TRUE, x.scale = TRUE)
+splsdacox_model <- splsdacox(X, Y, n.comp = cv.splsdacox_dynamic_model$opt.comp,
+vector = cv.splsdacox_dynamic_model$opt.nvar, x.center = TRUE, x.scale = TRUE)
+}
 }

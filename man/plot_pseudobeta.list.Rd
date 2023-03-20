@@ -9,7 +9,7 @@ plot_pseudobeta.list(
   error.bar = T,
   onlySig = F,
   alpha = 0.05,
-  zero.rm = F,
+  zero.rm = T,
   top = NULL,
   auto.limits = T,
   show_percentage = T,
@@ -22,11 +22,11 @@ plot_pseudobeta.list(
 
 \item{error.bar}{Logical. Show error bar (default: TRUE).}
 
-\item{onlySig}{Logical. Compute psudobetas using only significant components.}
+\item{onlySig}{Logical. Compute psudobetas using only significant components (default: FALSE).}
 
 \item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
 
-\item{zero.rm}{Logical. Remove variables with a pseudobeta equal to 0.}
+\item{zero.rm}{Logical. Remove variables with a pseudobeta equal to 0 (default: TRUE).}
 
 \item{top}{Numeric. Show "top" first variables with the higher pseudobetas in absolute value. If top = NULL, all variables are shown (default: NULL).}
 
@@ -40,4 +40,9 @@ plot_pseudobeta.list(
 }
 \description{
 Run the function "plot_pseudobeta" for a list of models. More information in "?plot_pseudobeta".
+}
+\examples{
+\dontrun{
+plot_pseudobeta.list(lst_models)
+}
 }

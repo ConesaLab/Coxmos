@@ -41,3 +41,9 @@ getTestKM.list(
 \description{
 Run the function "getTestKM" for a list of models. More information in "?getTestKM".
 }
+\examples{
+\dontrun{
+lst_cutoff <- getCutoffAutoKM.list(LST_KM_RES_LP)
+getTestKM.list(lst_models, X_test, Y_test, lst_cutoff)
+}
+}

@@ -47,3 +47,8 @@ plot_PLS_HDcox(
 \description{
 plot_PLS_HDcox
 }
+\examples{
+\dontrun{
+plot_PLS_HDcox(model, comp = c(1,2), mode = "scores")
+}
+}

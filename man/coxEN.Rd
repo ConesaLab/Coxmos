@@ -28,7 +28,7 @@ coxEN(
 
 \item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.}
 
-\item{EN.alpha}{Numeric. Elastic net mixing parameter. If EN.alpha = 1 is the lasso penalty, and EN.alpha = 0 the ridge penalty (default: EN.alpha).}
+\item{EN.alpha}{Numeric. Elastic net mixing parameter. If EN.alpha = 1 is the lasso penalty, and EN.alpha = 0 the ridge penalty (default: 0.5).}
 
 \item{max.variables}{Numeric. Maximum number of variables you want to keep in the cox model. If MIN_EPV is not meet, the value will be change automatically (default: 20).}
 
@@ -110,4 +110,10 @@ Instance of class "HDcox" and model "coxEN". The class contains the following el
 \description{
 This function performs a cox elastic net model (based on glmnet R package).
 The function returns a HDcox model with the attribute model as "coxEN".
+}
+\examples{
+\dontrun{
+coxEN(X, Y)
+coxEN(X, Y, EN.alpha = 0.75, x.center = TRUE, x.scale = TRUE)
+}
 }

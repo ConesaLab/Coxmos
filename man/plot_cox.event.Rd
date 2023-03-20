@@ -16,3 +16,8 @@ plot_cox.event(model, type = "lp", n.breaks = 20)
 \description{
 plot_cox.event
 }
+\examples{
+\dontrun{
+plot_cox.event(model)
+}
+}

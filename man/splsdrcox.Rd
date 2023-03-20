@@ -132,3 +132,9 @@ Instance of class "HDcox" and model "sPLS-DRCOX". The class contains the followi
 This function performs a sparse partial least squares deviance residual Cox (sPLS-DRCOX) (based on plsRcox R package).
 The function returns a HDcox model with the attribute model as "sPLS-DRCOX".
 }
+\examples{
+\dontrun{
+splsdrcox(X, Y)
+splsdrcox(X, Y, n.comp = 3, eta = 0.25, x.center = TRUE, x.scale = TRUE)
+}
+}

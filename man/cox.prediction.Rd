@@ -11,7 +11,7 @@ cox.prediction(model, new_data, time = NULL, type = "lp", method = "cox")
 
 \item{new_data}{Numeric matrix or data.frame. New explanatory variables (raw data). Qualitative variables must be transform into binary variables.}
 
-\item{time}{Numeric. Time point where the AUC will be evaluated.}
+\item{time}{Numeric. Time point where the AUC will be evaluated (default: NULL).}
 
 \item{type}{Character. Prediction type: "lp", "risk", "expected" or "survival" (default: "lp").}
 
