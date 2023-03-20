@@ -70,6 +70,18 @@ assign(x = 'Brier', value = c("Brier_score"), pkg.env)
 #assign(x = 'IllegalChars', value = c("`", "*"), pkg.env)
 assign(x = 'IllegalChars', value = c("`"), pkg.env)
 
+
+#' norm01
+#' @description Normalize all values into 0-1 range.
+#' @param x matrix or data.frame
+norm01 <- function(x){
+  if(max(x)-min(x) != 0){
+    return((x-min(x))/(max(x)-min(x)))
+  }else{
+    return(x/length(x))
+  }
+}
+
 #' print.HDcox
 #'
 #' @param x HDcox object
@@ -3784,7 +3796,7 @@ evaluation_HDcox_class = function(object, ...) {
 #'
 #' @param model HDcox model.
 #' @param new_data Numeric matrix or data.frame. New explanatory variables (raw data). Qualitative variables must be transform into binary variables.
-#' @param time Numeric. Time point where the AUC will be evaluated.
+#' @param time Numeric. Time point where the AUC will be evaluated (default: NULL).
 #' @param type Character. Prediction type: "lp", "risk", "expected" or "survival" (default: "lp").
 #' @param method Character. Prediction method. It can be compute by using the cox model "cox" or by using W.star "W.star" (default: "cox"). (not implemented for MB approaches)!!!
 #'
