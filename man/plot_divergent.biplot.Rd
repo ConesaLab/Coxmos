@@ -31,6 +31,16 @@ A ggplot2 two side bar plot. X axis represent the number of samples per each NAM
 }
 \description{
 Two side plot by a qualitative and a quantitative variable and Y event matrix.
+
+Generates a two-sided plot that visualizes the relationship between a qualitative
+variable and a quantitative variable, along with the event/censoring status in the data.
+The qualitative variable is used to split the data into two sides, and then the quantitative variable
+is used to divide the data into different sections or intervals, which are displayed as horizontal bars
+on each side of the plot. The left side of the plot shows the data for one level of the qualitative
+variable, while the right side shows the data for the other level. Each side is colored according
+to the event/censored quantity of observations. The parameters "X" and "Y" are the data frames containing
+the variables to be plotted, "NAMEVAR1" and "NAMEVAR2" are the names of the qualitative and
+quantitative variables, respectively.
 }
 \details{
 For time comparison between best models, use the cross validation objects instead the final models. The training has to be taken into account.

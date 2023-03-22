@@ -45,7 +45,11 @@ plot_PLS_HDcox(
 \item{overlaps}{Numeric. Number of overlaps to show when plotting loading names (default: 10).}
 }
 \description{
-plot_PLS_HDcox
+Generates a ggplot2 graph for a HDcox model based on the partial least squares (PLS) methodology.
+The function generates a score plot, a loading plot, or a biplot, depending on the value of the "mode"
+parameter. The "model" parameter must be a HDcox model. The "comp" parameter specifies the components
+to be plotted (default is the first two components). If a factor is provided in the "factor" parameter,
+the observations will be colored according to the factor groups.
 }
 \examples{
 \dontrun{

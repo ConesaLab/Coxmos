@@ -13,8 +13,13 @@ plot_proportionalHazard(model)
 A ggplot2 plot.
 }
 \description{
-Perform the proportional hazard assumption for a specific HDcox model.
-It uses the functions "survival::cox.zph" and "survminer::ggcoxzph", but it returns a ggplot2 graph.
+Performs a test of the proportional hazards assumption for a HDcox model,
+and generates a ggplot2 to visualize the results. The function uses the "cox.zph" function
+from the "survival" package and the "ggcoxzph" function from the "survminer" package to
+generate the plot. The "model" parameter is the HDcox model to be tested. The plot shows
+the scaled Schoenfeld residuals for each variable/component included in the model, plotted against
+time. If the proportional hazards assumption holds, the residuals should be randomly distributed
+around zero.
 }
 \examples{
 \dontrun{

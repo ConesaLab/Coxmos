@@ -27,7 +27,9 @@ plot_patient.eventDensity(
 \item{color}{String. R Color.}
 }
 \description{
-patient.eventDensity
+Generates a density plot for the HDcox model selected, and adds a new point for a
+test patient specified in the "patient" parameter. The "type" parameter specifies the type of Cox
+prediction to use, with "lp", "risk", "expected", or "survival" as options.
 }
 \examples{
 \dontrun{

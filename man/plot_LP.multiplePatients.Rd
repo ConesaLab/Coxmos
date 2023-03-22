@@ -33,7 +33,11 @@ plot_LP.multiplePatients(
 \item{top}{Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: NULL).}
 }
 \description{
-plot_LP.multiplePatients
+Creates a ggplot2 graph with two panels. The left panel shows the linear predictor
+weights of the variables for each patient in the input dataset. The right panel shows the linear
+predictor values of the complete patient to be compared to the others. This allows for comparing
+multiple patients, or the same if it was measure in multiple time points after a treatment as an example.
+The user can select a top variables to be displayed on the left panel.
 }
 \examples{
 \dontrun{

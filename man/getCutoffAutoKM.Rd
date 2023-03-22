@@ -10,7 +10,9 @@ getCutoffAutoKM(result)
 \item{result}{List. Result of getAutoKM() function.}
 }
 \description{
-Gets the cutoff value from the results of getAutoKM() functions.
+This function takes the results of the getAutoKM() function and extracts the cutoff
+value that was determined for the Kaplan-Meier plot. The cutoff value is the value of the predictor
+variable at which the data is split into high-risk and low-risk groups.
 }
 \examples{
 \dontrun{

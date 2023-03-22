@@ -36,7 +36,15 @@ plot_pseudobeta_newPatient(
 \item{show.betas}{Logical. Show original betas (default: FALSE).}
 }
 \description{
-Generates a ggplot2 to compare the pseudobeta direction from de HDcox model and the values of the new observation.
+This function generates a ggplot2 graph that compares the pseudobeta direction from
+the HDcox model with the values of a new observation. The beta coefficients are shown as bars on
+the right-hand side of the plot, where a positive coefficient indicates a risky variable and a
+negative coefficient indicates a protective variable. On the left-hand side of the plot, another
+bar plot is shown with the same variables for the new patient. The direction of each bar is either
+up or down, depending on the value of the new patient. If the direction of the bar for a variable
+is the same as the pseudobeta coefficient, it indicates that the variable is dangerous for the new
+patient. The function also allows for the inclusion of error bars, only significant variables, top
+variables, and custom alpha and size values.
 }
 \examples{
 \dontrun{
