@@ -1,4 +1,6 @@
 .Rproj.user
 .Rhistory
+.Rbuildignore
+HDcox.Rproj
 /doc/
 /Meta/
