@@ -21,5 +21,14 @@ cox.prediction(model, new_data, time = NULL, type = "lp", method = "cox")
 Return the lp or other metric for the patient
 }
 \description{
-cox.prediction
+The function is used to perform a predict.cox() for a HDcox model from raw data. The function
+automatically generates the score matrix if a PLS Survival is performed and then performs the cox prediction.
+}
+\examples{
+\dontrun{
+X <- data[train_index,]
+X_test <- data[-train_index,]
+model <- plsicox(X, Y)
+cox.prediction(model = model, new_data = X_test)
+}
 }

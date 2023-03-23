@@ -17,5 +17,16 @@
 Score values for new data using the HDcox model selected.
 }
 \description{
-predict.HDcox
+The function is used to generate the prediction score matrix for PLS Survival models.
+The score matrix is required for the final survival prediction of the data, as dimensional reduction
+is performed before running the cox survival analysis.
+}
+\examples{
+\dontrun{
+X <- data[train_index,]
+Y <- data_Y[train_index,]
+X_test <- data[-train_index,]
+model <- splsicox(X, Y)
+predict.HDcox(object = model, newdata = X_test)
+}
 }

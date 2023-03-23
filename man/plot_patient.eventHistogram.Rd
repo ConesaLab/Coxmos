@@ -27,9 +27,7 @@ plot_patient.eventHistogram(
 \item{color}{String. R Color.}
 }
 \description{
-Generates a histogram plot for the HDcox model selected, and adds a new point for a
-test patient specified in the "patient" parameter. The "type" parameter specifies the type of Cox
-prediction to use, with "lp", "risk", "expected", or "survival" as options.
+patient.eventHistogram
 }
 \examples{
 \dontrun{

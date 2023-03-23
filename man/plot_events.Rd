@@ -27,9 +27,7 @@ plot_events(
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
 \description{
-Generates a histogram plot where the event and censored observations in the survival
-data are plotted in different colors to display the distribution along time on the x-axis and the
-frequency of each event/censored on the y-axis. The input "Y" is the survival object to be plotted.
+plot_events
 }
 \examples{
 \dontrun{

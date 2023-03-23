@@ -16,10 +16,7 @@ plot_evaluation(eval_results, pred.attr = "mean", y.min = NULL, type = "both")
 \item{type}{Character. Plot type. Must be one of the following: "both", "line" or "mean". In other case, "both" will be selected (default: "both").}
 }
 \description{
-Performs a comparative evaluation test on the result object provided, which includes
-tests for comparing the different models using "t.test", "anova", "wilcoxon", and "kruskal-wallis".
-The function also generates boxplots for comparing the results using the specified test and a line
-plot for each model, with the predicted time points on the x-axis and the AUC on the y-axis.
+Perform a evaluation test for the result object provided. It includes test comparison as "t.test", "anova", "wilcoxon", "kruscal-wallis". Furthermore, it generates plots for comparing the results.
 }
 \examples{
 \dontrun{

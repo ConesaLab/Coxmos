@@ -42,10 +42,7 @@ getAutoKM(
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
 \description{
-The getAutoKM function generates a Kaplan-Meier plot for a HDcox model based on the
-selected type of value. The argument type determines whether the plot is based on the model
-Linear Predictor value ("LP"), based on PLS-COX component ("COMP") or at original variable level
-("VAR"). The model argument should be the HDcox model object.
+Performs a Kaplan-Meier plot for the HDcox model selected. KM could be based on model Linear Predictor value ("LP"), based on PLS-COX component ("COMP") or at original variable level ("VAR").
 }
 \examples{
 \dontrun{

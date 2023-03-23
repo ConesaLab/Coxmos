@@ -12,5 +12,12 @@ getEPV(X, Y)
 \item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.}
 }
 \description{
-getEPV
+The function computes the (Events per Variable) EPV value for a given dataset.
+The function calculates the ratio of events in the Y matrix and the number of variables in the X
+matrix.
+}
+\examples{
+\dontrun{
+getEPV(X,Y)
+}
 }

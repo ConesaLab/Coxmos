@@ -14,10 +14,7 @@ plot_cox.event(model, type = "lp", n.breaks = 20)
 \item{n.breaks}{Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to compute (default: 20).}
 }
 \description{
-Generates a histogram and a density plot for the HDcox model train.
-The type of Cox predictions to be used can be specified using the "type" parameter, which accepts
-"lp" (linear predictor), "risk", "expected", or "survival". The resulting plots are colored by
-censored/event observations.
+plot_cox.event
 }
 \examples{
 \dontrun{

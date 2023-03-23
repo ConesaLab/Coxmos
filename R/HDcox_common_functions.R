@@ -83,11 +83,23 @@ norm01 <- function(x){
 }
 
 #' print.HDcox
-#'
+#' @description The function is used to print the output of an object of class HDcox. The function
+#' prints the final cox model if it is a survival model, or the characteristics of the best model if
+#' it is a cross-validated model.
 #' @param x HDcox object
 #' @param ... further arguments passed to or from other methods.
 #'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' cv.model <- cv.splsicox(X,Y, max.ncomp = 10, spv_penalty.list = seq(0.1,1,0.1), n_run = 5,
+#' k_folds = 10)
+#' print.HDcox(cv.model)
+#'
+#' model <- splsicox(X,Y)
+#' print.HDcox(model)
+#' }
 
 print.HDcox <- function(x, ...){
 
@@ -151,11 +163,18 @@ print.HDcox <- function(x, ...){
 }
 
 #' getEPV
-#'
+#' @description The function computes the (Events per Variable) EPV value for a given dataset.
+#' The function calculates the ratio of events in the Y matrix and the number of variables in the X
+#' matrix.
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
 #'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' getEPV(X,Y)
+#' }
 
 getEPV <- function(X,Y){
   if("event" %in% colnames(Y)){
@@ -165,6 +184,50 @@ getEPV <- function(X,Y){
   }
 
   return(EPV)
+}
+
+
+#' deleteZeroOrNearZeroVariance
+#' @description The function allows users to delete variables with near-zero or zero variance in a
+#' given dataset. The function has parameters to control whether near-zero variance variables should
+#' be removed or just zero variance variables. The function is based on the package and function caret::nearZeroVar().
+#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
+#' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
+#' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
+#' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
+#' @param freqCut Numeric. Cutoff for the ratio of the most common value to the second most common value (default: 95/5).
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # zero-variance variables
+#' deleteZeroOrNearZeroVariance(X, remove_near_zero_variance = F, remove_zero_variance = T)
+#' # near-zero-variance variables
+#' deleteZeroOrNearZeroVariance(X, remove_near_zero_variance = T, remove_zero_variance = T)
+#' }
+
+deleteZeroOrNearZeroVariance <- function(X, remove_near_zero_variance = F, remove_zero_variance = T, toKeep.zv = NULL, freqCut = 95/5){
+
+  auxX <- X
+
+  variablesDeleted <- NULL
+  if(remove_near_zero_variance){
+    lst.zv <- deleteZeroVarianceVariables(data = auxX, info = T, mustKeep = toKeep.zv, freqCut = freqCut)
+    variablesDeleted <- lst.zv$variablesDeleted[,1]
+    if(!is.null(variablesDeleted)){
+      auxX <- auxX[,!colnames(auxX) %in% variablesDeleted,drop=F]
+    }
+  }else if(remove_zero_variance){
+    lst.zv <- deleteZeroVarianceVariables(data = auxX, info = T, mustKeep = toKeep.zv, onlyZero = T)
+    variablesDeleted <- lst.zv$variablesDeleted[,1]
+    if(!is.null(variablesDeleted)){
+      auxX <- auxX[,!colnames(auxX) %in% variablesDeleted,drop=F]
+    }
+  }
+
+  return(list(X = auxX, variablesDeleted = variablesDeleted))
+
 }
 
 deleteZeroVarianceVariables <- function(data, mustKeep = NULL, names = NULL, info=T, freqCut = 95/5, onlyZero = F){
@@ -209,38 +272,6 @@ deleteZeroVarianceVariables <- function(data, mustKeep = NULL, names = NULL, inf
   return(list(filteredData = df, variablesDeleted = df_cn_deleted))
 }
 
-#' deleteZeroOrNearZeroVariance
-#'
-#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
-#' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
-#' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
-#' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
-#' @param freqCut Numeric. Cutoff for the ratio of the most common value to the second most common value (default: 95/5).
-#'
-#' @export
-
-deleteZeroOrNearZeroVariance <- function(X, remove_near_zero_variance = F, remove_zero_variance = T, toKeep.zv = NULL, freqCut = 95/5){
-
-  auxX <- X
-
-  variablesDeleted <- NULL
-  if(remove_near_zero_variance){
-    lst.zv <- deleteZeroVarianceVariables(data = auxX, info = T, mustKeep = toKeep.zv, freqCut = freqCut)
-    variablesDeleted <- lst.zv$variablesDeleted[,1]
-    if(!is.null(variablesDeleted)){
-      auxX <- auxX[,!colnames(auxX) %in% variablesDeleted,drop=F]
-    }
-  }else if(remove_zero_variance){
-    lst.zv <- deleteZeroVarianceVariables(data = auxX, info = T, mustKeep = toKeep.zv, onlyZero = T)
-    variablesDeleted <- lst.zv$variablesDeleted[,1]
-    if(!is.null(variablesDeleted)){
-      auxX <- auxX[,!colnames(auxX) %in% variablesDeleted,drop=F]
-    }
-  }
-
-  return(list(X = auxX, variablesDeleted = variablesDeleted))
-
-}
 
 #### ### ### ### ##
 # Other functions #
@@ -729,6 +760,9 @@ getCOMPLETE_LP_AUC <- function(Y_test_full, lst_linear.predictors, df_results_ev
 }
 
 #' predict.HDcox
+#' @description The function is used to generate the prediction score matrix for PLS Survival models.
+#' The score matrix is required for the final survival prediction of the data, as dimensional reduction
+#' is performed before running the cox survival analysis.
 #'
 #' @param object HDcox model
 #' @param ... additional arguments affecting the predictions produced.
@@ -736,6 +770,15 @@ getCOMPLETE_LP_AUC <- function(Y_test_full, lst_linear.predictors, df_results_ev
 #'
 #' @return Score values for new data using the HDcox model selected.
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' X <- data[train_index,]
+#' Y <- data_Y[train_index,]
+#' X_test <- data[-train_index,]
+#' model <- splsicox(X, Y)
+#' predict.HDcox(object = model, newdata = X_test)
+#' }
 
 predict.HDcox <- function(object, ..., newdata = NULL){
 
@@ -3590,7 +3633,10 @@ checkAtLeastTwoEvents <- function(X_test, Y_test){
 }
 
 #' eval_HDcox_models
-#' @description Evaluate multiple HDcox models simultaneously.
+#' @description The function is used to evaluate multiple HDcox models simultaneously. The function
+#' returns all the data needed for plotting the information, including the AUC per model and for each
+#' time point selected for the predictions. After their used, it is recommended to run the plot_evaluation()
+#' function.
 #'
 #' @param lst_models List of HDcox models. Each object of the list must be named.
 #' @param X_test Numeric matrix or data.frame. Explanatory variables for test data (raw format). Qualitative variables must be transform into binary variables.
@@ -3604,6 +3650,18 @@ checkAtLeastTwoEvents <- function(X_test, Y_test){
 #' @param progress_bar Logical. If progress_bar = TRUE, progress bar is shown (default = TRUE).
 #'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' X <- data[train_index,]
+#' Y <- data_Y[train_index,]
+#' X_test <- data[-train_index,]
+#' Y_test <- data_Y[-train_index,]
+#' model_icox <- splsicox(X, Y)
+#' model_drcox <- splsdrcox(X, Y)
+#' lst_models <- list("splsicox" = model, "splsdrcox" = model_drcox)
+#' eval_HDcox_models(lst_models, X_test, Y_test, pred.method = "cenROC")
+#' }
 
 ## Eval all models by the pred.methods the user defined
 eval_HDcox_models <- function(lst_models, X_test, Y_test, pred.method, pred.attr = "mean", times = NULL, PARALLEL = F, max_time_points = 15, verbose = F, progress_bar = T){
@@ -3793,6 +3851,8 @@ evaluation_HDcox_class = function(object, ...) {
 }
 
 #' cox.prediction
+#' @description The function is used to perform a predict.cox() for a HDcox model from raw data. The function
+#' automatically generates the score matrix if a PLS Survival is performed and then performs the cox prediction.
 #'
 #' @param model HDcox model.
 #' @param new_data Numeric matrix or data.frame. New explanatory variables (raw data). Qualitative variables must be transform into binary variables.
@@ -3802,6 +3862,14 @@ evaluation_HDcox_class = function(object, ...) {
 #'
 #' @return Return the lp or other metric for the patient
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' X <- data[train_index,]
+#' X_test <- data[-train_index,]
+#' model <- plsicox(X, Y)
+#' cox.prediction(model = model, new_data = X_test)
+#' }
 
 cox.prediction <- function(model, new_data, time = NULL, type = "lp", method = "cox"){
   #could be obtain by predicting scores or by computing W*

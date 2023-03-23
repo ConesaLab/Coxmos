@@ -36,11 +36,7 @@ plot_pseudobeta(
 \item{size_percentage}{Numeric. Size of percentage text (default: 3).}
 }
 \description{
-This function takes a HDcox PLS model and decomposes it into an original variable
-pseudo-beta interpretation. It expresses the Cox final formula in terms of original variables,
-using weights associated with each component. The function can also show the percentage contribution
-of each variable to the final model, either for all variables or for a specified number of top
-variables. Additionally, error bars can be added and only significant variables can be displayed.
+Decompose a PLS-cox model into a original variable pseudo-beta interpretation. As each component has associated a cox coeffitient, and each component has a weight related to the original variable. Cox final formula is expressed in terms of original variables.
 }
 \examples{
 \dontrun{

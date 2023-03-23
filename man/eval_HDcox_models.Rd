@@ -39,5 +39,20 @@ eval_HDcox_models(
 \item{progress_bar}{Logical. If progress_bar = TRUE, progress bar is shown (default = TRUE).}
 }
 \description{
-Evaluate multiple HDcox models simultaneously.
+The function is used to evaluate multiple HDcox models simultaneously. The function
+returns all the data needed for plotting the information, including the AUC per model and for each
+time point selected for the predictions. After their used, it is recommended to run the plot_evaluation()
+function.
+}
+\examples{
+\dontrun{
+X <- data[train_index,]
+Y <- data_Y[train_index,]
+X_test <- data[-train_index,]
+Y_test <- data_Y[-train_index,]
+model_icox <- splsicox(X, Y)
+model_drcox <- splsdrcox(X, Y)
+lst_models <- list("splsicox" = model, "splsdrcox" = model_drcox)
+eval_HDcox_models(lst_models, X_test, Y_test, pred.method = "cenROC")
+}
 }

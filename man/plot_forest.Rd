@@ -27,8 +27,7 @@ plot_forest(
 \item{noDigits}{Numeric. Number of digits for estimates and p-values in the plot (default: 2).}
 }
 \description{
-Generates a forest plot for a HDcox model using the "ggforest" function from the
-"survminer" package. The "model" parameter is the HDcox model to be plotted.
+Forest plot for HDcox models using the R library plot_forest. For more information check ?survminer::ggforest.
 }
 \examples{
 \dontrun{

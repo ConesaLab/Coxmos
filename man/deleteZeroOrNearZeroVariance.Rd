@@ -24,5 +24,15 @@ deleteZeroOrNearZeroVariance(
 \item{freqCut}{Numeric. Cutoff for the ratio of the most common value to the second most common value (default: 95/5).}
 }
 \description{
-deleteZeroOrNearZeroVariance
+The function allows users to delete variables with near-zero or zero variance in a
+given dataset. The function has parameters to control whether near-zero variance variables should
+be removed or just zero variance variables. The function is based on the package and function caret::nearZeroVar().
+}
+\examples{
+\dontrun{
+# zero-variance variables
+deleteZeroOrNearZeroVariance(X, remove_near_zero_variance = F, remove_zero_variance = T)
+# near-zero-variance variables
+deleteZeroOrNearZeroVariance(X, remove_near_zero_variance = T, remove_zero_variance = T)
+}
 }

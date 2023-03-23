@@ -12,5 +12,17 @@
 \item{...}{further arguments passed to or from other methods.}
 }
 \description{
-print.HDcox
+The function is used to print the output of an object of class HDcox. The function
+prints the final cox model if it is a survival model, or the characteristics of the best model if
+it is a cross-validated model.
+}
+\examples{
+\dontrun{
+cv.model <- cv.splsicox(X,Y, max.ncomp = 10, spv_penalty.list = seq(0.1,1,0.1), n_run = 5,
+k_folds = 10)
+print.HDcox(cv.model)
+
+model <- splsicox(X,Y)
+print.HDcox(model)
+}
 }

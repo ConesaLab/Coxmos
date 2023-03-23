@@ -36,11 +36,7 @@ getTestKM(
 \item{title}{Character. Kaplan-Meier plot title (default: NULL).}
 }
 \description{
-This function is used to perform a new Kaplan-Meier curve for test data, but using
-the same cutoff computed in the original model. It takes as input the HDcox model, the test data
-(predictors), the cutoff value obtained from the training KM. The type of KM
-curve to be computed could be "LP" based on Linear Predictor, "COMP" based on PLS-COX components or "VAR"
-based on original variables.
+Perform a new Kaplan-Meier curve for test data, but using the same cutoff computed in the original model.
 }
 \examples{
 \dontrun{
