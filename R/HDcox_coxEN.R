@@ -586,10 +586,6 @@ cv.coxEN <- function(X, Y,
   #### ### ### #
   # BEST MODEL #
   #### ### ### #
-  w_AIC = 0
-  w_c.index = 0
-  w_AUC = 0.3
-  w_BRIER = 0.7
   df_results_evals_comp <- cv.getScoreFromWeight(lst_cox_mean = df_results_evals_comp, w_AIC, w_c.index, w_BRIER, w_AUC,
                                                  colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC", colname_BRIER = "BRIER")
 

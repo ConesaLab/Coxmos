@@ -2047,6 +2047,7 @@ get_COX_evaluation_BRIER <- function(comp_model_lst,
                                        verbose = verbose)
 
         lst_BRIER_values <- lst_BRIER$brier_score
+
         lst_BRIER_component_folds[[f]] <- lst_BRIER_values$ierror
         df_results_evals_BRIER <- c(df_results_evals_BRIER, lst_BRIER_values$ierror)
 

@@ -1,10 +1,20 @@
-cv.getScoreFromWeight <- function(lst_cox_mean, w_AIC, w_c.index, w_BRIER, w_AUC, colname_AIC = "AIC_mean", colname_c_index = "c_index_mean", colname_AUC = "AUC_mean", colname_BRIER = "BRIER_mean"){
+cv.getScoreFromWeight <- function(lst_cox_mean, w_AIC, w_c.index, w_BRIER, w_AUC, colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC", colname_BRIER = "BRIER"){
+
+  all_metrics <- c(colname_AIC, colname_c_index, colname_BRIER, colname_AUC)
+
+  #if the same value for every metric...
+  aux <- lst_cox_mean[,all_metrics, drop=F]
+  if(length(unlist(apply(aux, 2, unique)))==length(all_metrics)){
+    score <- 1
+    lst_cox_mean[,"score"] <- score
+    rownames(lst_cox_mean) <- NULL
+    return(lst_cox_mean)
+  }
 
   # scale for all values
-
   if(nrow(lst_cox_mean)!=1){
     if(w_AUC!=0){ #YES AUC
-      aux <- scale(lst_cox_mean[,c(colname_AIC, colname_c_index, colname_BRIER, colname_AUC), drop=F])
+      aux <- scale(lst_cox_mean[,all_metrics, drop=F])
       #c_index and AUC max is better
       aux[,colname_AIC] <- aux[,colname_AIC]*-1 #min AIC better
       aux[,colname_BRIER] <- aux[,colname_BRIER]*-1 #min BRIER better
@@ -17,7 +27,7 @@ cv.getScoreFromWeight <- function(lst_cox_mean, w_AIC, w_c.index, w_BRIER, w_AUC
 
   }else{
     if(w_AUC!=0){ #YES AUC, YES BRIER
-      aux <- lst_cox_mean[,c(colname_AIC, colname_c_index, colname_BRIER, colname_AUC), drop=F]
+      aux <- lst_cox_mean[,all_metrics, drop=F]
     }else{
       aux <- lst_cox_mean[,c(colname_AIC, colname_c_index, colname_BRIER), drop=F]
     }
@@ -26,18 +36,27 @@ cv.getScoreFromWeight <- function(lst_cox_mean, w_AIC, w_c.index, w_BRIER, w_AUC
   for(cn in colnames(aux)){
     if(all(is.nan(aux[,cn]))){
       #all values the same, same models across penalties or components...
+      #we need to set the weigth to 0
       if(cn == "AIC"){
-        aux[,"AIC"] <- lst_cox_mean$AIC
+        aux[,"AIC"] <- lst_cox_mean$AIC# / lst_cox_mean$AIC
+        w_AIC = 0
       }else if(cn == "c_index"){
-        aux[,"c_index"] <- lst_cox_mean$c_index
+        aux[,"c_index"] <- lst_cox_mean$c_index# / lst_cox_mean$c_index
+        w_c.index = 0
       }else if(cn == "BRIER"){
-        aux[,"BRIER"] <- lst_cox_mean$BRIER
+        aux[,"BRIER"] <- lst_cox_mean$BRIER# / lst_cox_mean$BRIER
+        w_BRIER = 0
       }else if(cn == "AUC"){
-        aux[,"AUC"] <- lst_cox_mean$AUC
+        aux[,"AUC"] <- lst_cox_mean$AUC# / lst_cox_mean$AUC
+        w_AUC = 0
       }
     }
   }
 
+  # change NA for 0
+  aux[is.na(aux)] = 0
+
+  # at least one metric with different values, so at least one could be use to compute the score
   if(w_AUC!=0){
     score = aux %*% c(w_AIC, w_c.index, w_BRIER, w_AUC)
   }else{
@@ -533,7 +552,27 @@ SURVCOMP_BRIER <- function(model, X_test_mod, Y_test){
   test <- data.frame("time" = Y_test[,"time"],
                      "event" = Y_test[,"event"],
                      "score" = lp_test$fit)
-  brier_survcomp <- survcomp::sbrier.score2proba(data.tr=train, data.ts = test, method = "cox")
+
+  brier_survcomp <- tryCatch(
+    # Specifying expression
+    expr = {
+      survcomp::sbrier.score2proba(data.tr=train, data.ts = test, method = "cox")
+    },
+    # Specifying error message
+    error = function(e){
+      message(paste0("Error detected in survcomp::sbrier.score2proba() function: ", e))
+      return(NA)
+    }
+  )
+
+  if(all(is.na(brier_survcomp))){
+    brier_survcomp <- list()
+    brier_survcomp$times <- NA
+    brier_survcomp$error <- NA
+    brier_survcomp$ierror <- NA
+    return(brier_survcomp)
+  }
+
   names(brier_survcomp) <- c("times", "error", "ierror")
   return(brier_survcomp)
 }
@@ -545,7 +584,27 @@ SURVCOMP_BRIER_LP <- function(lp_train, Y_train, lp_test, Y_test){
   test <- data.frame("time" = Y_test[,"time"],
                      "event" = Y_test[,"event"],
                      "score" = lp_test)
-  brier_survcomp <- survcomp::sbrier.score2proba(data.tr=train, data.ts = test, method = "cox")
+
+  brier_survcomp <- tryCatch(
+    # Specifying expression
+    expr = {
+      survcomp::sbrier.score2proba(data.tr=train, data.ts = test, method = "cox")
+    },
+    # Specifying error message
+    error = function(e){
+      message(paste0("Error detected in survcomp::sbrier.score2proba() function: ", e))
+      return(NA)
+    }
+  )
+
+  if(all(is.na(brier_survcomp))){
+    brier_survcomp <- list()
+    brier_survcomp$times <- NA
+    brier_survcomp$error <- NA
+    brier_survcomp$ierror <- NA
+    return(brier_survcomp)
+  }
+
   names(brier_survcomp) <- c("times", "error", "ierror")
   return(brier_survcomp)
 }
