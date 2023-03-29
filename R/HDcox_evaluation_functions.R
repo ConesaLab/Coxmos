@@ -98,6 +98,12 @@ splitData_Iterations_Folds <- function(X, Y, n_run, k_folds, seed = 123){
   if(!is.numeric(k_folds) & k_folds > 1){
     stop_quietly("Parameter 'k_folds' must be a numeric greater or equal than 2.") #At least two folds for train/test
   }
+
+  if(k_folds > nrow(Y)){
+    warning(paste0("Parameter 'k_folds' cannot be greater than the number of observations (changed to ", nrow(Y), ").\n")) #Folds as observation as maximum
+    k_folds <- nrow(Y)
+  }
+
   if(!any(c("event", "status") %in% colnames(Y))){
     stop_quietly("Y data.frame must contain the colname 'event' or 'status'.")
   }else if("status" %in% colnames(Y)){
@@ -146,7 +152,7 @@ splitData_Iterations_Folds <- function(X, Y, n_run, k_folds, seed = 123){
   names(lst_obs_index_train) <- paste0("run", 1:n_run)
   names(lst_obs_index_test) <- paste0("run", 1:n_run)
 
-  return(list(lst_X_train = lst_X_train, lst_Y_train = lst_Y_train, lst_X_test = lst_X_test, lst_Y_test = lst_Y_test, lst_train_index = lst_obs_index_train, lst_test_index = lst_obs_index_test))
+  return(list(lst_X_train = lst_X_train, lst_Y_train = lst_Y_train, lst_X_test = lst_X_test, lst_Y_test = lst_Y_test, lst_train_index = lst_obs_index_train, lst_test_index = lst_obs_index_test, k_folds = k_folds))
 }
 
 getAUC_from_LP_2.0 <- function(linear.predictors, Y, times, bestModel = NULL, method = "cenROC", eval = "median", PARALLEL = F, verbose = F){
@@ -553,17 +559,22 @@ SURVCOMP_BRIER <- function(model, X_test_mod, Y_test){
                      "event" = Y_test[,"event"],
                      "score" = lp_test$fit)
 
-  brier_survcomp <- tryCatch(
-    # Specifying expression
-    expr = {
-      survcomp::sbrier.score2proba(data.tr=train, data.ts = test, method = "cox")
-    },
-    # Specifying error message
-    error = function(e){
-      message(paste0("Error detected in survcomp::sbrier.score2proba() function: ", e))
-      return(NA)
-    }
-  )
+  #requires at least one event, in other case the function will fail
+  if(sum(test$event)==0){
+    brier_survcomp <- NA
+  }else{
+    brier_survcomp <- tryCatch(
+      # Specifying expression
+      expr = {
+        survcomp::sbrier.score2proba(data.tr=train, data.ts = test, method = "cox")
+      },
+      # Specifying error message
+      error = function(e){
+        message(paste0("Error detected in survcomp::sbrier.score2proba() function: ", e))
+        return(NA)
+      }
+    )
+  }
 
   if(all(is.na(brier_survcomp))){
     brier_survcomp <- list()
@@ -571,6 +582,12 @@ SURVCOMP_BRIER <- function(model, X_test_mod, Y_test){
     brier_survcomp$error <- NA
     brier_survcomp$ierror <- NA
     return(brier_survcomp)
+  }
+
+  #if only one test, integrative score is NA
+  #we need to add error to ierror
+  if(is.na(brier_survcomp$bsc.integrated)){
+    brier_survcomp$bsc.integrated <- brier_survcomp$bsc
   }
 
   names(brier_survcomp) <- c("times", "error", "ierror")

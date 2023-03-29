@@ -157,6 +157,12 @@ splitData_Iterations_Folds.mb <- function(X, Y, n_run, k_folds, seed = 123){
   if(!is.numeric(k_folds) & k_folds > 1){
     stop_quietly("Parameter 'k_folds' must be a numeric greater or equal than 2.") #At least two folds for train/test
   }
+
+  if(k_folds > nrow(Y)){
+    warning(paste0("Parameter 'k_folds' cannot be greater than the number of observations (changed to ", nrow(Y), ").\n")) #Folds as observation as maximum
+    k_folds <- nrow(Y)
+  }
+
   if(!any(c("event", "status") %in% colnames(Y))){
     stop_quietly("Y data.frame must contain the colname 'event' or 'status'.")
   }else if("status" %in% colnames(Y)){
@@ -216,7 +222,7 @@ splitData_Iterations_Folds.mb <- function(X, Y, n_run, k_folds, seed = 123){
   names(lst_obs_index_train) <- paste0("run", 1:n_run)
   names(lst_obs_index_test) <- paste0("run", 1:n_run)
 
-  return(list(lst_X_train = lst_X_train, lst_Y_train = lst_Y_train, lst_X_test = lst_X_test, lst_Y_test = lst_Y_test, lst_train_index = lst_obs_index_train, lst_test_index = lst_obs_index_test))
+  return(list(lst_X_train = lst_X_train, lst_Y_train = lst_Y_train, lst_X_test = lst_X_test, lst_Y_test = lst_Y_test, lst_train_index = lst_obs_index_train, lst_test_index = lst_obs_index_test, k_folds = k_folds))
 }
 
 XY.mb.scale <- function(X, Y, x.center, x.scale, y.center, y.scale){

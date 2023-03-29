@@ -318,6 +318,7 @@ cv.sb.splsicox <- function(X, Y,
   lst_Y_train <- lst_data$lst_Y_train
   lst_X_test <- lst_data$lst_X_test
   lst_Y_test <- lst_data$lst_Y_test
+  k_folds <- lst_data$k_folds
 
   lst_train_indexes <- lst_data$lst_train_index
   lst_test_indexes <- lst_data$lst_test_index

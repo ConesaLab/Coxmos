@@ -222,21 +222,38 @@ coxEN <- function(X, Y,
       }
     )
 
-    # best_cox <- tryCatch(
-    #   expr = {
-    #   # Specifying expression
-    #   d <- as.data.frame(Xh[,selected_variables,drop=F]) #data
-    #   cox(X = d, Y = Yh, FORCE = T,
-    #       x.center = x.center, x.scale = x.scale,
-    #       y.center = y.center, y.scale = y.scale)
-    #   },
-    #   # Specifying error message
-    #   error = function(e){
-    #     message(paste0("COX: ", e))
-    #     invisible(gc())
-    #     return(NA)
-    #   }
-    # )
+    # REMOVE NA-PVAL VARIABLES
+    # p_val could be NA for some variables
+    # DO IT ALWAYS, we do not want problems in COX models
+    # if any NA is because "singular.ok" parameter in coxph -- correlated variables
+    removed_variables <- NULL
+    p_val <- summary(best_cox)[[7]][,"Pr(>|z|)"]
+    while(sum(is.na(p_val))>0){
+      to_remove <- names(p_val)[is.na(p_val)]
+      to_remove <- deleteIllegalChars(to_remove)
+      d <- d[,!colnames(d) %in% c(to_remove)]
+      best_cox <- tryCatch(
+        # Specifying expression
+        expr = {
+          survival::coxph(formula = survival::Surv(time,event) ~ .,
+                          data = d,
+                          ties = "efron",
+                          singular.ok = T,
+                          robust = T,
+                          nocenter = rep(1, ncol(d)-ncol(Yh)),
+                          model=T, x = T)
+        },
+        # Specifying error message
+        error = function(e){
+          message(paste0("COX: ", e))
+          invisible(gc())
+          return(NA)
+        }
+      )
+
+      removed_variables <- c(removed_variables, to_remove)
+      p_val <- summary(best_cox)[[7]][,"Pr(>|z|)"]
+    }
   }
 
   if(all(is.na(best_cox)) || (problem & all(best_cox$linear.predictors==0))){
@@ -250,7 +267,6 @@ coxEN <- function(X, Y,
     time <- difftime(t2,t1,units = "mins")
 
     survival_model <- NULL
-    removed_variables <- NULL
 
     invisible(gc())
     return(coxEN_class(list(X = list("data" = if(returnData) Xh else NA, "x.mean" = xmeans, "x.sd" = xsds),
@@ -272,7 +288,6 @@ coxEN <- function(X, Y,
   }
 
   #RETURN a MODEL with ALL significant Variables from complete, deleting one by one in backward method
-  removed_variables <- NULL
   if(remove_non_significant){
     if(all(c("time", "event") %in% colnames(d))){
       lst_rnsc <- removeNonSignificativeCox(cox = best_cox, alpha = alpha, cox_input = d, time.value = NULL, event.value = NULL)
@@ -449,6 +464,7 @@ cv.coxEN <- function(X, Y,
   lst_Y_train <- lst_data$lst_Y_train
   lst_X_test <- lst_data$lst_X_test
   lst_Y_test <- lst_data$lst_Y_test
+  k_folds <- lst_data$k_folds
 
   lst_train_indexes <- lst_data$lst_train_index
   lst_test_indexes <- lst_data$lst_test_index

@@ -190,7 +190,11 @@ splsicox <- function(X, Y,
           eps = 1e-14
           control <- survival::coxph.control(eps = eps, toler.chol = .Machine$double.eps^0.90,
                                              iter.max = 220, toler.inf = sqrt(eps), outer.max = 100, timefix = TRUE)
-          fit <- survival::coxph(survival::Surv(time = time, event = event, type = "right") ~ ., as.data.frame(cbind(Ts,x)), control = control)
+          fit <- survival::coxph(survival::Surv(time = time,
+                                                event = event,
+                                                type = "right") ~ ., as.data.frame(cbind(Ts,x)),
+                                 control = control,
+                                 singular.ok = T)
 
           if(length(getPvalFromCox(fit))==1){
             aux <- c(fit$coefficients["x"], getPvalFromCox(fit))
@@ -216,9 +220,11 @@ splsicox <- function(X, Y,
     }
 
     if(any(is.na(wh))){
-      message(paste0(paste0("Individual COX model cannot be computed for variables (", paste0(rownames(wh)[is.na(wh)], collapse = ", ") ,").")))
+      message(paste0(paste0("Individual COX model cannot be computed for variables (", paste0(rownames(wh)[is.na(wh[,1])], collapse = ", ") ,").")))
 
-      wh <- wh[-which(is.na(wh[,1])),]
+      #wh <- wh[-which(is.na(wh[,1])),]
+      #replace for beta of 0, and p-value of 1
+      wh[which(is.na(wh[,1])),] <- c(rep(0, length(rownames(wh)[is.na(wh[,1])])), rep(1, length(rownames(wh)[is.na(wh[,1])])))
 
       #stopped = T
       #break
@@ -641,6 +647,7 @@ cv.splsicox <- function (X, Y,
   lst_Y_train <- lst_data$lst_Y_train
   lst_X_test <- lst_data$lst_X_test
   lst_Y_test <- lst_data$lst_Y_test
+  k_folds <- lst_data$k_folds
 
   lst_train_indexes <- lst_data$lst_train_index
   lst_test_indexes <- lst_data$lst_test_index
@@ -820,14 +827,26 @@ cv.splsicox <- function (X, Y,
 
   message(paste0("Best model obtained."))
 
+  #### ### ### ### ##
+  # Change eta name #
+  #### ### ### ### ##
+  colnames(best_model_info)[which(colnames(best_model_info)=="eta")] <- "spv_penalty"
+  colnames(df_results_evals)[which(colnames(df_results_evals)=="eta")] <- "spv_penalty"
+  colnames(df_results_evals_run)[which(colnames(df_results_evals_run)=="eta")] <- "spv_penalty"
+  colnames(df_results_evals_comp)[which(colnames(df_results_evals_comp)=="eta")] <- "spv_penalty"
+  ggp_AUC <- ggp_AUC + guides(color=guide_legend(title="spv_penalty"))
+  ggp_BRIER <- ggp_BRIER + guides(color=guide_legend(title="spv_penalty"))
+  ggp_c_index <- ggp_c_index + guides(color=guide_legend(title="spv_penalty"))
+  ggp_AIC <- ggp_AIC + guides(color=guide_legend(title="spv_penalty"))
+
   t2 <- Sys.time()
   time <- difftime(t2,t1,units = "mins")
 
   invisible(gc())
   if(return_models){
-    return(cv.splsicox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.spv_penalty = best_model_info$eta, plot_AIC = ggp_AIC, plot_c_index = ggp_c_index, plot_BRIER = ggp_BRIER, plot_AUC = ggp_AUC, class = pkg.env$cv.splsicox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+    return(cv.splsicox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.spv_penalty = best_model_info$spv_penalty, plot_AIC = ggp_AIC, plot_c_index = ggp_c_index, plot_BRIER = ggp_BRIER, plot_AUC = ggp_AUC, class = pkg.env$cv.splsicox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
   }else{
-    return(cv.splsicox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = NULL, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.spv_penalty = best_model_info$eta, plot_AIC = ggp_AIC, plot_c_index = ggp_c_index, plot_BRIER = ggp_BRIER, plot_AUC = ggp_AUC, class = pkg.env$cv.splsicox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+    return(cv.splsicox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = NULL, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.spv_penalty = best_model_info$spv_penalty, plot_AIC = ggp_AIC, plot_c_index = ggp_c_index, plot_BRIER = ggp_BRIER, plot_AUC = ggp_AUC, class = pkg.env$cv.splsicox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
   }
 
 }

@@ -426,6 +426,10 @@ check.ncomp <- function(X, max.ncomp, verbose = F){
     }
     max.ncomp <- ncol(X)
   }
+
+  #as must be an integer round the value to units
+  max.ncomp <- round(max.ncomp)
+
   return(max.ncomp)
 }
 
@@ -2054,6 +2058,7 @@ get_COX_evaluation_BRIER <- function(comp_model_lst,
         pb$tick()
 
       } #fold
+
       if(!is.null(lst_BRIER_component_folds)){
         names(lst_BRIER_component_folds) <- paste0("fold_",unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$runs==r,]$fold))
       }

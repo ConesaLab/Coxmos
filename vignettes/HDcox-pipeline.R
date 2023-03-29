@@ -103,7 +103,7 @@ EPV
 #                           remove_variance_at_fold_level = F,
 #                           remove_non_significant = F, alpha = 0.05,
 #                           w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL, max_time_points = 15,
-#                           MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
+#                           MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
 #                           pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
 #                           MIN_EPV = 5, return_models = F,
 #                           returnData = F,
@@ -149,7 +149,7 @@ coxen_model
 #                                 remove_variance_at_fold_level = F,
 #                                 remove_non_significant_models = F, alpha = 0.05,
 #                                 w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL, max_time_points = 15,
-#                                 MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
+#                                 MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
 #                                 pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
 #                                 MIN_EPV = 5, return_models = F, remove_non_significant = F, returnData = F, tol = 1e-15,
 #                                 PARALLEL = F, verbose = F, seed = 123)
@@ -183,7 +183,7 @@ splsicox_model
 #                                   remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
 #                                   remove_non_significant_models = F, alpha = 0.05,
 #                                   w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL,
-#                                   MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
+#                                   MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
 #                                   pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
 #                                   MIN_EPV = 5, return_models = F,
 #                                   PARALLEL = F, verbose = F, seed = 123)
@@ -219,7 +219,7 @@ splsdrcox_model
 #                                              remove_variance_at_fold_level = F, remove_non_significant = F,
 #                                              w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0,
 #                                              times = NULL, max_time_points = 15, returnData = F, tol = 1e-10,
-#                                              MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
+#                                              MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
 #                                              pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
 #                                              MIN_EPV = 5, return_models = F,
 #                                              PARALLEL = F, verbose = F, seed = 123)
@@ -254,7 +254,7 @@ splsdrcox_dynamic_model
 #                                                   remove_non_significant_models = F, alpha = 0.05,
 #                                                   w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0,
 #                                                   times = NULL, max_time_points = 15, returnData = F,
-#                                                   MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
+#                                                   MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
 #                                                   pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
 #                                                   MIN_EPV = 5, return_models = F, max.iter = 200, tol = 1e-10,
 #                                                   PARALLEL = F, verbose = F, seed = 123)
