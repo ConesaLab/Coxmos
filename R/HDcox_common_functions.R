@@ -371,6 +371,32 @@ checkXY.class <- function(X, Y, verbose = F){
   return(list(X = X, Y = Y))
 }
 
+check_min0_max1_variables <- function(lst){
+  # Check if each element of lst is numeric and between 0-1
+  cont = 0
+  for(element in lst){
+    cont = cont + 1
+    name <- names(lst)[cont]
+    if(isa(element, "numeric")){
+      if(0 <= element & element <= 1){
+        next
+      }else{
+        stop(paste0("Variable: ", name, " must be in range [0,1] and ", element, " was detected."))
+      }
+    }else{
+      stop(paste0("Variable: ", name, " must be a numeric variable and ", class(element), " was detected."))
+    }
+  }
+}
+
+check_class <- function(lst, class = "numeric"){
+  check_numeric <- unlist(lapply(lst, isa, class))
+  if(!all(check_numeric)){
+    index <- which(check_numeric!=T)
+    stop(paste0("Variables: ", paste0(names(check_numeric[index]), collapse = ", "), " are not ",class,"."))
+  }
+}
+
 checkY.colnames <- function(Y){
   if(!all(colnames(Y) %in% c("event", "status", "time"))){
     stop_quietly("Y must contain 'event' or 'status' and 'time' columns.")
@@ -2863,7 +2889,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                 remove_near_zero_variance = F, remove_zero_variance = F,  toKeep.zv = NULL,
                                 remove_non_significant = F,
                                 alpha = 0.05, max.iter = 500, returnData = F,
-                                total_models, MIN_EPV = 0, tol = 1e-15, PARALLEL = F, verbose = F){
+                                total_models, MIN_EPV = 0, tol = 1e-10, PARALLEL = F, verbose = F){
 
   comp_model_lst <- list()
   fold_list <- list()

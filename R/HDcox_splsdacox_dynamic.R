@@ -102,7 +102,7 @@ splsdacox_dynamic <- function (X, Y,
                                x.center = TRUE, x.scale = FALSE,
                                y.center = FALSE, y.scale = FALSE,
                                remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
-                               remove_non_significant = F, alpha = 0.05, tol = 1e-15,
+                               remove_non_significant = F, alpha = 0.05, tol = 1e-10,
                                EVAL_METHOD = "AUC", pred.method = "cenROC", max.iter = 200,
                                times = NULL, max_time_points = 15,
                                MIN_EPV = 5, returnData = T, verbose = F){
@@ -115,6 +115,24 @@ splsdacox_dynamic <- function (X, Y,
 
   time <- Y[,"time"]
   event <- Y[,"event"]
+
+  #Check values classes and ranges
+  lst_01 <- list("alpha" = alpha, "MIN_AUC_INCREASE" = MIN_AUC_INCREASE)
+  check_min0_max1_variables(lst_01)
+
+  lst_num <- list("n.comp" = n.comp, "MIN_NVAR" = MIN_NVAR, "MAX_NVAR" = MAX_NVAR, "n.cut_points" = n.cut_points,
+                  "max_time_points" = max_time_points,
+                  "MIN_EPV" = MIN_EPV, "tol" = tol, "max.iter" = max.iter)
+  check_class(lst_num, class = "numeric")
+
+  lst_logical <- list("x.center" = x.center, "x.scale" = x.scale,
+                      "y.center" = y.center, "y.scale" = y.scale,
+                      "remove_near_zero_variance" = remove_near_zero_variance, "remove_zero_variance" = remove_zero_variance,
+                      "remove_non_significant" = remove_non_significant, "returnData" = returnData, "verbose" = verbose)
+  check_class(lst_logical, class = "logical")
+
+  lst_character <- list("EVAL_METHOD" = EVAL_METHOD, "pred.method" = pred.method)
+  check_class(lst_character, class = "character")
 
   #### REQUIREMENTS
   lst_check <- checkXY.class(X, Y, verbose = verbose)
@@ -403,7 +421,7 @@ cv.splsdacox_dynamic <- function(X, Y,
                         MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                         pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                         max.iter = 500,
-                        MIN_EPV = 5, return_models = F, returnData = F, tol = 1e-15,
+                        MIN_EPV = 5, return_models = F, returnData = F, tol = 1e-10,
                         PARALLEL = F, verbose = F, seed = 123){
 
   t1 <- Sys.time()
@@ -415,13 +433,34 @@ cv.splsdacox_dynamic <- function(X, Y,
   #Check evaluator installed:
   checkLibraryEvaluator(pred.method)
 
+  #Check values classes and ranges
+  lst_01 <- list("MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
+                 "w_AIC" = w_AIC, "w_c.index" = w_c.index, "w_AUC" = w_AUC, "w_BRIER" = w_BRIER)
+  check_min0_max1_variables(lst_01)
+
+  lst_num <- list("max.ncomp" = max.ncomp, "MIN_NVAR" = MIN_NVAR, "MAX_NVAR" = MAX_NVAR, "n.cut_points" = n.cut_points,
+                  "n_run" = n_run, "k_folds" = k_folds, "max_time_points" = max_time_points,
+                  "MIN_COMP_TO_CHECK" = MIN_COMP_TO_CHECK, "MIN_EPV" = MIN_EPV, "seed" = seed, "tol" = tol)
+  check_class(lst_num, class = "numeric")
+
+  lst_logical <- list("x.center" = x.center, "x.scale" = x.scale,
+                      "y.center" = y.center, "y.scale" = y.scale,
+                      "remove_near_zero_variance" = remove_near_zero_variance, "remove_zero_variance" = remove_zero_variance,
+                      "remove_variance_at_fold_level" = remove_variance_at_fold_level,
+                      "remove_non_significant_models" = remove_non_significant_models,
+                      "remove_non_significant" = remove_non_significant,
+                      "return_models" = return_models,"returnData" = returnData, "verbose" = verbose, "PARALLEL" = PARALLEL)
+  check_class(lst_logical, class = "logical")
+
+  lst_character <- list("EVAL_METHOD" = EVAL_METHOD, "pred.attr" = pred.attr, "pred.method" = pred.method)
+  check_class(lst_character, class = "character")
+
   #Illegal chars in colnames
   X <- checkColnamesIllegalChars(X)
 
   #### REQUIREMENTS
   checkY.colnames(Y)
   check.cv.weights(c(w_AIC, w_c.index, w_BRIER, w_AUC))
-  max.ncomp <- check.ncomp(X, max.ncomp)
   # if(!pred.method %in% c("risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I")){
   #   stop_quietly(paste0("pred.method must be one of the following: ", paste0(c("risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I"), collapse = ", ")))
   # }
@@ -430,7 +469,11 @@ cv.splsdacox_dynamic <- function(X, Y,
   }
 
   #### MAX PREDICTORS
+  max.ncomp <- check.ncomp(X, max.ncomp)
   max.ncomp <- check.maxPredictors(X, Y, MIN_EPV, max.ncomp, verbose = verbose)
+  if(MIN_COMP_TO_CHECK >= max.ncomp){
+    MIN_COMP_TO_CHECK = max.ncomp-1
+  }
 
   #### REQUIREMENTS
   if(!remove_variance_at_fold_level & (remove_near_zero_variance | remove_zero_variance)){

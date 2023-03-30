@@ -37,7 +37,7 @@ fast.cv.sb.splsicox(
   MIN_EPV = 5,
   returnData = T,
   return_models = F,
-  tol = 1e-15,
+  tol = 1e-10,
   PARALLEL = F,
   verbose = F,
   seed = 123

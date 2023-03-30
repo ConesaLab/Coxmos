@@ -18,7 +18,7 @@ mb.splsdacox(
   toKeep.zv = NULL,
   remove_non_significant = T,
   alpha = 0.05,
-  tol = 1e-15,
+  tol = 1e-10,
   MIN_NVAR = 10,
   MAX_NVAR = 10000,
   n.cut_points = 5,
@@ -30,7 +30,6 @@ mb.splsdacox(
   max_time_points = 15,
   MIN_EPV = 5,
   returnData = T,
-  PARALLEL = F,
   verbose = F
 )
 }
@@ -84,8 +83,6 @@ mb.splsdacox(
 \item{MIN_EPV}{Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).}
 
 \item{returnData}{Logical. Return original and normalized X and Y matrices (default: TRUE).}
-
-\item{PARALLEL}{Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).}
 
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }

@@ -18,7 +18,7 @@ splsdrcox(
   toKeep.zv = NULL,
   remove_non_significant = F,
   alpha = 0.05,
-  tol = 1e-15,
+  tol = 1e-10,
   MIN_EPV = 5,
   returnData = T,
   verbose = F

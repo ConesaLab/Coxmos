@@ -22,7 +22,7 @@ splsdacox_dynamic(
   toKeep.zv = NULL,
   remove_non_significant = F,
   alpha = 0.05,
-  tol = 1e-15,
+  tol = 1e-10,
   EVAL_METHOD = "AUC",
   pred.method = "cenROC",
   max.iter = 200,

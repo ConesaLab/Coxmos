@@ -41,7 +41,7 @@ cv.splsdrcox_dynamic(
   MIN_EPV = 5,
   return_models = F,
   returnData = F,
-  tol = 1e-15,
+  tol = 1e-10,
   PARALLEL = F,
   verbose = F,
   seed = 123

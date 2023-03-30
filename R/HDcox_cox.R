@@ -86,6 +86,19 @@ cox <- function (X, Y,
   time <- Y[,"time"]
   event <- Y[,"event"]
 
+  #Check values classes and ranges
+  lst_01 <- list("alpha" = alpha)
+  check_min0_max1_variables(lst_01)
+
+  lst_num <- list("MIN_EPV" = MIN_EPV)
+  check_class(lst_num, class = "numeric")
+
+  lst_logical <- list("x.center" = x.center, "x.scale" = x.scale,
+                      "y.center" = y.center, "y.scale" = y.scale,
+                      "remove_near_zero_variance" = remove_near_zero_variance, "remove_zero_variance" = remove_zero_variance,
+                      "remove_non_significant" = remove_non_significant, "returnData" = returnData, "verbose" = verbose)
+  check_class(lst_logical, class = "logical")
+
   #### REQUIREMENTS
   lst_check <- checkXY.class(X, Y, verbose = verbose)
   X <- lst_check$X
