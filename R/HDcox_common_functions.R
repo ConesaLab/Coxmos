@@ -149,6 +149,13 @@ print.HDcox <- function(x, ...){
           time_vector <- levels(x$df[x$df$method==m,c,drop=T])
           time_vector <- unlist(lapply(time_vector, function(x){gsub("time_", "", x)[[1]]}))
           cat(paste0("\t",c,": ", paste0(time_vector, collapse = ", "), "\n"))
+        }else if(c=="brier_time"){
+          time_vector <- levels(x$df[x$df$method==m,c,drop=T])
+          time_vector <- unlist(lapply(time_vector, function(x){gsub("brier_time_", "", x)[[1]]}))
+          cat(paste0("\t",c,": ", paste0(time_vector, collapse = ", "), "\n"))
+        }else if(c=="Brier"){ #use integrative brier
+          ave <- x$lst_BRIER[[m]]$ierror
+          cat(paste0("\t","I.Brier",": ", round(ave, 5), "\n"))
         }else{
           ave <- mean(x$df[x$df$method==m,c,drop=T], na.rm = T)
           cat(paste0("\t",c,": ", round(ave, 5), "\n"))
@@ -3776,20 +3783,25 @@ eval_HDcox_models <- function(lst_models, X_test, Y_test, pred.method, pred.attr
   names(lst_eval) <- names(lst_models)
 
   lst_AUC <- list()
+  lst_BRIER <- list()
   df <- NULL
   for(m in names(lst_eval)){
     lst_AUC[[m]] <- lst_eval[[m]]$lst_AUC_values
-
+    lst_BRIER[[m]] <- lst_eval[[m]]$brier.cox
     #if AUC_values is NA, we cannot access to lst_AUC_values$AUC.vector
     if(!all(is.na(lst_eval[[m]]$lst_AUC_values))){
-      df <- rbind(df, c(m, lst_eval[[m]]$model_time, lst_eval[[m]]$comp.time, lst_eval[[m]]$aic.cox, lst_eval[[m]]$c_index.cox, lst_eval[[m]]$lst_AUC_values$AUC.vector))
+      df <- rbind(df, c(m, lst_eval[[m]]$model_time, lst_eval[[m]]$comp.time, lst_eval[[m]]$aic.cox, lst_eval[[m]]$c_index.cox, lst_eval[[m]]$brier.cox$error, lst_eval[[m]]$lst_AUC_values$AUC.vector))
     }else{
-      df <- rbind(df, c(m, lst_eval[[m]]$model_time, lst_eval[[m]]$comp.time, lst_eval[[m]]$aic.cox, lst_eval[[m]]$c_index.cox, rep(NA, length(times))))
+      df <- rbind(df, c(m, lst_eval[[m]]$model_time, lst_eval[[m]]$comp.time, lst_eval[[m]]$aic.cox, lst_eval[[m]]$c_index.cox, lst_eval[[m]]$brier.cox$error, rep(NA, length(times))))
     }
 
     df <- as.data.frame(df)
 
   }
+
+  #round all to 4 digits
+  df[,2:ncol(df)] <- apply(df[,2:ncol(df)], 2, as.numeric)
+  df[,2:ncol(df)] <- apply(df[,2:ncol(df)], 2, round, digits = 4)
 
   final_times <- times #all the same
 
@@ -3803,18 +3815,20 @@ eval_HDcox_models <- function(lst_models, X_test, Y_test, pred.method, pred.attr
   # }
 
   if(all(is.na(df[,2])) & ncol(df) < (5+length(final_times))){
-    colnames(df) <- c("method", "training.time","evaluating.time", "AIC", "c.index", "AUC")
+    colnames(df) <- c("method", "training.time","evaluating.time", "AIC", "c.index", "Brier", "AUC")
     df <- as.data.frame(df)
     new_df <- tidyr::pivot_longer(df, cols = starts_with("time_"), names_to = "time", values_to = "AUC",)
     new_df$time <- factor(new_df$time, levels = unique(new_df$time))
   }else{
-    colnames(df) <- c("method", "training.time","evaluating.time", "AIC", "c.index", paste0("time_",final_times))
+    colnames(df) <- c("method", "training.time","evaluating.time", "AIC", "c.index", paste0("brier_time_",lst_eval[[m]]$brier.cox$times), paste0("time_",final_times))
     df <- as.data.frame(df)
     df$method <- factor(df$method, levels = unique(df$method))
-    df[,!colnames(df) %in% "method"] <- apply(df[,!colnames(df) %in% "method"], 2, as.numeric)
+    #df[,!colnames(df) %in% "method"] <- apply(df[,!colnames(df) %in% "method"], 2, as.numeric)
 
     new_df <- tidyr::pivot_longer(df, cols = starts_with("time_"), names_to = "time", values_to = "AUC",)
+    new_df <- tidyr::pivot_longer(new_df, cols = starts_with("brier_time_"), names_to = "brier_time", values_to = "Brier",)
     new_df$time <- factor(new_df$time, levels = unique(new_df$time))
+    new_df$brier_time <- factor(new_df$brier_time, levels = unique(new_df$brier_time))
   }
 
   #Look for problems !!!!
@@ -3834,7 +3848,7 @@ eval_HDcox_models <- function(lst_models, X_test, Y_test, pred.method, pred.attr
     message(paste0("\nTime for ", pred.method, ": ", as.character(round(time, 5))))
   }
 
-  return(evaluation_HDcox_class(list(df = new_df, lst_AUC = lst_AUC, time = time)))
+  return(evaluation_HDcox_class(list(df = new_df, lst_AUC = lst_AUC, lst_BRIER = lst_BRIER, time = time)))
 }
 
 evaluation_list_HDcox <- function(model, X_test, Y_test, pred.method, pred.attr = "mean", times = NULL, PARALLEL = F, verbose = F, progress_bar = F){
@@ -3864,6 +3878,9 @@ evaluation_list_HDcox <- function(model, X_test, Y_test, pred.method, pred.attr 
     X_test_mod <- predict.HDcox(object = model, newdata = X_test) #all multiblock or all PLS - Ok
   }
 
+  #brier score
+  brier_score <- SURVCOMP_BRIER(model = model, X_test_mod = X_test_mod, Y_test = Y_test)
+
   lp <- getLinealPredictors(cox = cox, data = X_test_mod)
   lst_AUC_values <- getAUC_from_LP_2.0(linear.predictors = lp, Y = Y_test, times = times, bestModel = NULL, eval = pred.attr, method = pred.method, PARALLEL = PARALLEL, verbose = verbose)
   #lst_AUC[[m]] <- lst_AUC_values
@@ -3873,7 +3890,7 @@ evaluation_list_HDcox <- function(model, X_test, Y_test, pred.method, pred.attr 
 
   #df <- rbind(df, c(m, model$time, comp.time, aic.cox, c_index.cox, lst_AUC_values$AUC.vector))
 
-  return(list(model_time = model$time, comp.time = comp.time, aic.cox = aic.cox, c_index.cox = c_index.cox, lst_AUC_values = lst_AUC_values))
+  return(list(model_time = model$time, comp.time = comp.time, aic.cox = aic.cox, c_index.cox = c_index.cox, brier.cox = brier_score, lst_AUC_values = lst_AUC_values))
 }
 
 evaluation_HDcox_class = function(object, ...) {

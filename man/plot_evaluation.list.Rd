@@ -6,6 +6,7 @@
 \usage{
 plot_evaluation.list(
   lst_eval_results,
+  evaluation = "AUC",
   pred.attr = "mean",
   y.min = NULL,
   type = "both"
@@ -13,6 +14,8 @@ plot_evaluation.list(
 }
 \arguments{
 \item{lst_eval_results}{List (named) of HDcox evaluation results.}
+
+\item{evaluation}{Character. Perform the evaluation using the "AUC" or "Brier" metric (default: "AUC").}
 
 \item{pred.attr}{Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").}
 

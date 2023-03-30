@@ -304,7 +304,8 @@ eval_results
 #eval_results$cenROC
 
 ## -----------------------------------------------------------------------------
-lst_eval_results <- plot_evaluation(eval_results)
+lst_eval_results <- plot_evaluation(eval_results, evaluation = "AUC", pred.attr = "mean")
+lst_eval_results_BRIER <- plot_evaluation(eval_results, evaluation = "Brier", pred.attr = "mean")
 #lst_eval_results <- plot_evaluation.list(eval_results)
 
 ## ---- fig.small=T-------------------------------------------------------------

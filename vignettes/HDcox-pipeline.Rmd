@@ -524,10 +524,11 @@ eval_results
 
 ## Plot comparison
 
-However, we can also obtain graphical results where we can compare each method over time, as well as their average scores using the function "plot_evaluation".
+However, we can also obtain graphical results where we can compare each method over time, as well as their average scores using the function "plot_evaluation". The user could choose to plot the AUC for time prediction points or Brier Score. In case of use Brier Score, instead of uses the Integrative Brier Score for the boxplots, the mean or median is used (plot_evaluation parameter).
 
 ```{r}
-lst_eval_results <- plot_evaluation(eval_results)
+lst_eval_results <- plot_evaluation(eval_results, evaluation = "AUC", pred.attr = "mean")
+lst_eval_results_BRIER <- plot_evaluation(eval_results, evaluation = "Brier", pred.attr = "mean")
 #lst_eval_results <- plot_evaluation.list(eval_results)
 ```
 

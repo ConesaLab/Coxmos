@@ -4,10 +4,18 @@
 \alias{plot_evaluation}
 \title{plot_evaluation}
 \usage{
-plot_evaluation(eval_results, pred.attr = "mean", y.min = NULL, type = "both")
+plot_evaluation(
+  eval_results,
+  evaluation = "AUC",
+  pred.attr = "mean",
+  y.min = NULL,
+  type = "both"
+)
 }
 \arguments{
 \item{eval_results}{HDcox evaluation object.}
+
+\item{evaluation}{Character. Perform the evaluation using the "AUC" or "Brier" metric (default: "AUC").}
 
 \item{pred.attr}{Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").}
 

@@ -606,6 +606,7 @@ plot_time.list <- function(lst_models, x.text = "Method", y.text = NULL){
 #' @description Run the function "plot_evaluation" for a list of results. More information in "?plot_evaluation".
 #'
 #' @param lst_eval_results List (named) of HDcox evaluation results.
+#' @param evaluation Character. Perform the evaluation using the "AUC" or "Brier" metric (default: "AUC").
 #' @param pred.attr Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").
 #' @param y.min Numeric. Minimum Y value for establish the Y axis value. If y.min = NULL, automatic detection is performed (default: NULL).
 #' @param type Character. Plot type. Must be one of the following: "both", "line" or "mean". In other case, "both" will be selected (default: "both").
@@ -618,9 +619,10 @@ plot_time.list <- function(lst_models, x.text = "Method", y.text = NULL){
 #' plot_evaluation.list(lst_eval_results)
 #' }
 
-plot_evaluation.list <- function(lst_eval_results, pred.attr = "mean", y.min = NULL, type = "both"){
+plot_evaluation.list <- function(lst_eval_results, evaluation = "AUC", pred.attr = "mean", y.min = NULL, type = "both"){
 
   lst_res <- purrr::map(lst_eval_results, ~plot_evaluation(eval_results = .,
+                                                           evaluation = evaluation,
                                                            pred.attr = pred.attr,
                                                            y.min = y.min, type = type))
 
@@ -632,6 +634,7 @@ plot_evaluation.list <- function(lst_eval_results, pred.attr = "mean", y.min = N
 #' @description Perform a evaluation test for the result object provided. It includes test comparison as "t.test", "anova", "wilcoxon", "kruscal-wallis". Furthermore, it generates plots for comparing the results.
 #'
 #' @param eval_results HDcox evaluation object.
+#' @param evaluation Character. Perform the evaluation using the "AUC" or "Brier" metric (default: "AUC").
 #' @param pred.attr Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").
 #' @param y.min Numeric. Minimum Y value for establish the Y axis value. If y.min = NULL, automatic detection is performed (default: NULL).
 #' @param type Character. Plot type. Must be one of the following: "both", "line" or "mean". In other case, "both" will be selected (default: "both").
@@ -644,7 +647,12 @@ plot_evaluation.list <- function(lst_eval_results, pred.attr = "mean", y.min = N
 #' plot_evaluation(eval_results)
 #' }
 
-plot_evaluation <- function(eval_results, pred.attr = "mean", y.min = NULL, type = "both"){
+plot_evaluation <- function(eval_results, evaluation = "AUC", pred.attr = "mean", y.min = NULL, type = "both"){
+
+  if(!evaluation %in% c("AUC", "Brier")){
+    message("Evaluation parameter is not 'AUC' or 'Brier'. Changed to 'AUC'.")
+    type = "AUC"
+  }
 
   if(!pred.attr %in% c("mean", "median")){
     stop("pred.attr parameter must be one of: 'mean' or 'median'")
@@ -656,18 +664,30 @@ plot_evaluation <- function(eval_results, pred.attr = "mean", y.min = NULL, type
 
   #select minimum for all evals
   if(is.null(y.min)){
-    y.min <- floor(min(eval_results$df$AUC, na.rm = T)*10)/10
+    if(evaluation=="AUC"){
+      y.min <- floor(min(eval_results$df$AUC, na.rm = T)*10)/10
+    }else{
+      y.min <- floor(min(eval_results$df$Brier, na.rm = T)*10)/10
+    }
+
   }
 
   if(is.infinite(y.min)){
-    message("All AUC is NA. Returning NA.")
+    if(evaluation=="AUC"){
+      message("All AUC is NA. Returning NA.")
+    }else{
+      message("All Brier is NA. Returning NA.")
+    }
     return(NA)
   }
 
   lst_ggp <- list()
 
   lst_plots <- comboplot.performance2.0(df = eval_results$df,
-                                        x.var = "time", y.var = "AUC", x.color = "method",
+                                        x.var = ifelse(evaluation=="AUC", "time", "brier_time"),
+                                        y.var = evaluation,
+                                        y.lab = ifelse(evaluation=="AUC", "AUC", "Brier Score"),
+                                        x.color = "method",
                                         y.limit = c(y.min, 1), pred.attr = pred.attr)
   if(type == "both"){
     lst_ggp <- lst_plots
@@ -689,12 +709,12 @@ plot_evaluation <- function(eval_results, pred.attr = "mean", y.min = NULL, type
 
     plot <- boxplot.performance(df = eval_results$df,
                                 x.var = "method",
-                                y.var = "AUC",
+                                y.var = evaluation,
                                 x.fill = "method",
                                 x.alpha = NULL,
                                 alpha.lab = NULL,
                                 x.lab = "Method",
-                                y.lab = "AUC",
+                                y.lab = ifelse(evaluation=="AUC", "AUC", "Brier Score"),
                                 fill.lab = NULL,
                                 title = paste0("Method Performance"),
                                 y.limit = NULL,
@@ -715,7 +735,7 @@ plot_evaluation <- function(eval_results, pred.attr = "mean", y.min = NULL, type
   table <- NULL
   for(m in unique(eval_results$df$method)){
     for(c in colnames(eval_results$df)){
-      if(c=="method" | c=="time"){
+      if(c=="method" | c=="time" | c=="brier_time"){
         next
       }else{
         vector <- c(m, c,
