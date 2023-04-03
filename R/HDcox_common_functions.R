@@ -2945,7 +2945,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
       for(r in 1:n_run){
         for(f in 1:k_folds){
           lst_inputs[[cont]] = list()
-          lst_inputs[[cont]]$comp = i
+          lst_inputs[[cont]]$comp = as.numeric(i)
           lst_inputs[[cont]]$run <- r
           lst_inputs[[cont]]$fold <- f
           lst_names <- c(lst_names, paste0(i, "_", r, "_", f))
@@ -3340,24 +3340,24 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                                      MIN_EPV = MIN_EPV, returnData = returnData), .options = furrr_options(seed = TRUE))
       }else if(method==pkg.env$splsdrcox){
         lst_all_models <- furrr::future_map(lst_inputs, ~splsdrcox(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
-                                                                  Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
-                                                                  n.comp = .$comp, eta = eta.list[[.$eta_index]],
-                                                                  x.center = x.center, x.scale = x.scale,
-                                                                  y.center = y.center, y.scale = y.scale,
-                                                                  remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
-                                                                  remove_non_significant = remove_non_significant,
-                                                                  verbose = verbose, alpha = alpha, tol = tol,
-                                                                  MIN_EPV = MIN_EPV, returnData = returnData), .options = furrr_options(seed = TRUE))
+                                                                   Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
+                                                                   n.comp = .$comp, eta = eta.list[[.$eta_index]],
+                                                                   x.center = x.center, x.scale = x.scale,
+                                                                   y.center = y.center, y.scale = y.scale,
+                                                                   remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
+                                                                   remove_non_significant = remove_non_significant,
+                                                                   verbose = verbose, alpha = alpha, tol = tol,
+                                                                   MIN_EPV = MIN_EPV, returnData = returnData), .options = furrr_options(seed = TRUE))
       }else if(method==pkg.env$sb.splsdrcox){
         lst_all_models <- furrr::future_map(lst_inputs, ~sb.splsdrcox(X = lst_X_train[[.$run]][[.$fold]],
-                                                                     Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
-                                                                  n.comp = .$comp, eta = eta.list[[.$eta_index]],
-                                                                  x.center = x.center, x.scale = x.scale,
-                                                                  y.center = y.center, y.scale = y.scale,
-                                                                  remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
-                                                                  remove_non_significant = remove_non_significant,
-                                                                  verbose = verbose, alpha = alpha, tol = tol,
-                                                                  MIN_EPV = MIN_EPV, returnData = FreturnData), .options = furrr_options(seed = TRUE))
+                                                                      Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
+                                                                      n.comp = .$comp, eta = eta.list[[.$eta_index]],
+                                                                      x.center = x.center, x.scale = x.scale,
+                                                                      y.center = y.center, y.scale = y.scale,
+                                                                      remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
+                                                                      remove_non_significant = remove_non_significant,
+                                                                      verbose = verbose, alpha = alpha, tol = tol,
+                                                                      MIN_EPV = MIN_EPV, returnData = FreturnData), .options = furrr_options(seed = TRUE))
       }
 
       future::plan("sequential")
@@ -3374,8 +3374,8 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                            returnData = returnData), .options = furrr_options(seed = TRUE))
       }else if(method==pkg.env$sb.splsicox){
         #lst_all_models <- purrr::map(cli::cli_progress_along(lst_inputs), ~sb.splsicox(X = lst_X_train[[lst_inputs[[.x]]$run]][[lst_inputs[[.x]]$fold]],
-        lst_all_models <- purrr::map(lst_inputs, ~sb.splsicox(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
-                                                              Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
+        lst_all_models <- purrr::map(lst_inputs, ~sb.splsicox(X = lst_X_train[[.$run]][[.$fold]],
+                                                              Y = lst_Y_train[[.$run]][[.$fold]],
                                                               n.comp = .$comp, spv_penalty = eta.list[[.$eta_index]],
                                                               x.center = x.center, x.scale = x.scale,
                                                               y.center = y.center, y.scale = y.scale,
