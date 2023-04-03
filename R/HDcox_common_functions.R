@@ -397,6 +397,15 @@ check_min0_max1_variables <- function(lst){
 }
 
 check_class <- function(lst, class = "numeric"){
+
+  if(class == "numeric"){
+    for(n in names(lst)){
+      if(isa(lst[[n]], "integer")){
+        lst[[n]] <- as.numeric(lst[[n]])
+      }
+    }
+  }
+
   check_numeric <- unlist(lapply(lst, isa, class))
   if(!all(check_numeric)){
     index <- which(check_numeric!=T)
@@ -543,8 +552,8 @@ getMaxNPredictors <- function(n.var, Y, MIN_EPV){
   EPV <-  floor(n_events / 1:n.var) #EPV
 
   max_n_predictors <- n.var
-  if(any(EPV > MIN_EPV)){
-    max_n_predictors <- max(which(EPV>MIN_EPV))
+  if(any(EPV >= MIN_EPV)){
+    max_n_predictors <- max(which(EPV>=MIN_EPV))
   }else{
     cat("Minimum EPV not reached. You should be less strict or increse the number of events.\n")
     return(0) #Treatment in the function that calls this one

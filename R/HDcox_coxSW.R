@@ -514,12 +514,24 @@ stepwise.coxph <- function (Time = NULL, T1 = NULL, T2 = NULL, Status = NULL, va
   if (is.null(T2)) {
 
     if(startBackwards){
-      in.variable <- colnames(data)[!colnames(data) %in% c("time", "event", "status")]
+      if(!in.variable == "NULL"){
+        in.variable <- colnames(data)[colnames(data) %in% in.variable]
+        if(length(in.variable)==0){
+          stop("Any variable was selected. Check that 'initialModel' variables belong to X data.")
+        }
+      }else{
+        in.variable <- colnames(data)[!colnames(data) %in% c("time", "event", "status")]
+      }
+
       if(!is.null(max.variables) & length(in.variable) > max.variables){
         set.seed(123)
+
+        # we cannot compute a standard cox bc the p.val and coefficients are not well computed for HD models
+        # we are using a FORCE = T model
+        # we should run a Individual COX model for starting or another technique !!!
         subcox <- cox(X = data[,colnames(data) %in% c(in.variable), drop=F],
                       Y = data[,colnames(data) %in% c("time", "event", "status")],
-                      remove_non_significant = F, MIN_EPV = 3, FORCE = T)
+                      remove_non_significant = F, MIN_EPV = 0, FORCE = T)
 
         vars_aux <- summary(subcox$survival_model$fit)[[7]]
         vars_aux <- vars_aux[order(vars_aux[,"Pr(>|z|)"]),]
@@ -530,36 +542,49 @@ stepwise.coxph <- function (Time = NULL, T1 = NULL, T2 = NULL, Status = NULL, va
       initial.model <- survival::coxph(as.formula(paste("Surv(", Time, ", ", Status, ") ~ .")), data = aux_data,
                                        method = "efron", model = T, singular.ok = T, x = F)
     }else{
-      aux_data <- as.data.frame(data[,colnames(data) %in% c(in.variable, "time", "event", "status"),drop=F])
+      if(!in.variable == "NULL"){
+        aux_data <- as.data.frame(data[,colnames(data) %in% c(in.variable, "time", "event", "status"),drop=F])
+      }else{
+        in.variable <- colnames(data)[!colnames(data) %in% c("time", "event", "status")]
+        aux_data <- as.data.frame(data[,colnames(data) %in% c(in.variable, "time", "event", "status"),drop=F])
+      }
+
+      # we cannot compute a standard cox bc the p.val and coefficients are not well computed for HD models
+      # we are using a FORCE = T model !!!
+      # we should run a Individual COX model for starting !!!
       initial.model <- survival::coxph(as.formula(paste("Surv(", Time, ", ", Status, ") ~ .")), data = aux_data,
                                        method = "efron", model = T, singular.ok = T, x = F)
     }
 
   }
-  else if (is.null(Time)) {
 
-    if(startBackwards){
-      in.variable <- colnames(data)[!colnames(data) %in% c("time", "event", "status")]
-      if(!is.null(max.variables)){
-        set.seed(123)
-        in.variable <- sample(1:length(in.variable), max.variables) #random selection of n_predictors because backwards selection
-      }
-      aux_data <- as.data.frame(data[,colnames(data) %in% c(in.variable, "time", "event", "status"),drop=F])
-      initial.model <- survival::coxph(as.formula(paste("Surv(", T1, ", ", T2, ", ", Status, ") ~ .")),
-                                       data = aux_data,
-                                       method = "efron", model = T, singular.ok = T, x = F)
-    }else{
-      aux_data <- as.data.frame(data[,colnames(data) %in% c(in.variable, "time", "event", "status"),drop=F])
-      initial.model <- survival::coxph(as.formula(paste("Surv(", T1, ", ", T2, ", ", Status, ") ~ .")),
-                                       data = aux_data,
-                                       method = "efron", model = T, singular.ok = T, x = F)
-    }
+  # Time must exists
 
-  }
-  if (is.null(initial.model$coefficients)) { #si no tenemos variables por defecto...
-    for (i in 1:length(variable.list)) { #por cada variable de estudio...
+  # }else if(is.null(Time)){
+  #
+  #   if(startBackwards){
+  #     in.variable <- colnames(data)[!colnames(data) %in% c("time", "event", "status")]
+  #     if(!is.null(max.variables)){
+  #       set.seed(123)
+  #       in.variable <- sample(1:length(in.variable), max.variables) #random selection of n_predictors because backwards selection
+  #     }
+  #     aux_data <- as.data.frame(data[,colnames(data) %in% c(in.variable, "time", "event", "status"),drop=F])
+  #     initial.model <- survival::coxph(as.formula(paste("Surv(", T1, ", ", T2, ", ", Status, ") ~ .")),
+  #                                      data = aux_data,
+  #                                      method = "efron", model = T, singular.ok = T, x = F)
+  #   }else{
+  #     aux_data <- as.data.frame(data[,colnames(data) %in% c(in.variable, "time", "event", "status"),drop=F])
+  #     initial.model <- survival::coxph(as.formula(paste("Surv(", T1, ", ", T2, ", ", Status, ") ~ .")),
+  #                                      data = aux_data,
+  #                                      method = "efron", model = T, singular.ok = T, x = F)
+  #   }
+  #
+  # }
+
+  if(is.null(initial.model$coefficients)){ #si no tenemos variables por defecto...
+    for(i in 1:length(variable.list)){ #por cada variable de estudio...
       utils::flush.console()
-      if(is.null(T2)) {
+      if(is.null(T2)){
         aux_data <- as.data.frame(data[,colnames(data) %in% c(variable.list[i], "time", "event", "status"),drop=F])
         uni.model <- tryCatch({ #si NA saltará aviso
           survival::coxph(as.formula(paste("Surv(", Time, ", ", Status, ") ~ .")),
