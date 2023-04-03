@@ -400,7 +400,7 @@ check_class <- function(lst, class = "numeric"){
   check_numeric <- unlist(lapply(lst, isa, class))
   if(!all(check_numeric)){
     index <- which(check_numeric!=T)
-    stop(paste0("Variables: ", paste0(names(check_numeric[index]), collapse = ", "), " are not ",class,"."))
+    stop(paste0("Variables: ", paste0(names(check_numeric[index]), collapse = ", "), " are not ",class,". Class ", class(lst[[names(check_numeric[index])]]), " found."))
   }
 }
 
