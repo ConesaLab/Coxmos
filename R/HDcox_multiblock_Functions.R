@@ -14,6 +14,33 @@ checkColnamesIllegalChars.mb <- function(X){
 
 }
 
+#' getEPV.mb
+#' @description The function computes the (Events per Variable) EPV value for a given multiblock dataset.
+#' The function calculates the ratio of events in the Y matrix and the number of variables in the list X
+#' object
+#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
+#' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' getEPV.mb(X,Y)
+#' }
+
+getEPV.mb <- function(X,Y){
+  EPV_lst <- list()
+  for(b in names(X)){
+    if("event" %in% colnames(Y)){
+      EPV_lst[[b]] <- getEPV(X[[b]], Y)
+    }else{
+      stop("Column event has not been detected in Y matrix.")
+    }
+  }
+
+  return(EPV_lst)
+}
+
 #' deleteZeroOrNearZeroVariance.mb
 #'
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.

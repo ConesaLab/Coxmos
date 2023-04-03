@@ -104,7 +104,7 @@ sb.splsdrcox <- function (X, Y,
                   "MIN_EPV" = MIN_EPV, "tol" = tol)
   check_class(lst_num, class = "numeric")
 
-  lst_logical <- list("x.center" = x.center, "x.scale" = x.scale,
+  lst_logical <- list("x.center" = unlist(x.center), "x.scale" = unlist(x.scale),
                       "y.center" = y.center, "y.scale" = y.scale,
                       "remove_near_zero_variance" = remove_near_zero_variance, "remove_zero_variance" = remove_zero_variance,
                       "remove_non_significant" = remove_non_significant, "returnData" = returnData, "verbose" = verbose)
@@ -317,7 +317,7 @@ cv.sb.splsdrcox <- function(X, Y,
                   "MIN_COMP_TO_CHECK" = MIN_COMP_TO_CHECK, "MIN_EPV" = MIN_EPV, "seed" = seed, "tol" = tol)
   check_class(lst_num, class = "numeric")
 
-  lst_logical <- list("x.center" = x.center, "x.scale" = x.scale,
+  lst_logical <- list("x.center" = unlist(x.center), "x.scale" = unlist(x.scale),
                       "y.center" = y.center, "y.scale" = y.scale,
                       "remove_near_zero_variance" = remove_near_zero_variance, "remove_zero_variance" = remove_zero_variance,
                       "remove_variance_at_fold_level" = remove_variance_at_fold_level,
@@ -679,7 +679,7 @@ fast.cv.sb.splsdrcox <- function(X, Y,
                   "MIN_COMP_TO_CHECK" = MIN_COMP_TO_CHECK, "MIN_EPV" = MIN_EPV, "seed" = seed, "tol" = tol)
   check_class(lst_num, class = "numeric")
 
-  lst_logical <- list("x.center" = x.center, "x.scale" = x.scale,
+  lst_logical <- list("x.center" = unlist(x.center), "x.scale" = unlist(x.scale),
                       "y.center" = y.center, "y.scale" = y.scale,
                       "remove_near_zero_variance" = remove_near_zero_variance, "remove_zero_variance" = remove_zero_variance,
                       "remove_variance_at_fold_level" = remove_variance_at_fold_level,
