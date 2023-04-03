@@ -93,9 +93,9 @@ EPV
 
 ## ---- eval=FALSE, warning=F---------------------------------------------------
 #  # run cv.coxEN
-#  cv.coxen_res <- cv.coxEN(X = X_train, Y = Y_train,
+#  cv.coxen_res <- cv.coxEN(X = X, Y = Y,
 #                           EN.alpha.list = seq(0,1,0.1),
-#                           max.variables = ncol(X_train),
+#                           max.variables = ncol(X),
 #                           n_run = 2, k_folds = 10,
 #                           x.center = T, x.scale = F,
 #                           y.center = F, y.scale = F,

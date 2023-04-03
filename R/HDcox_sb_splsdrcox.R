@@ -157,8 +157,12 @@ sb.splsdrcox <- function (X, Y,
   data <- NULL
   cn.merge <- NULL
   for(b in names(Xh)){
-    data <- cbind(data, lst_sb.spls[[b]]$X$scores)
-    cn.merge <- c(cn.merge, paste0(colnames(lst_sb.spls[[b]]$X$scores), "_", b))
+    if(!is.null(lst_sb.spls[[b]]$survival_model)){
+      data <- cbind(data, lst_sb.spls[[b]]$X$scores)
+      cn.merge <- c(cn.merge, paste0(colnames(lst_sb.spls[[b]]$X$scores), "_", b))
+    }else{
+      next
+    }
   }
 
   #colnames(data) <- apply(expand.grid(colnames(lst_sb.spls[[1]]$X$scores), names(Xh)), 1, paste, collapse="_")
@@ -797,8 +801,12 @@ fast.cv.sb.splsdrcox <- function(X, Y,
   data <- NULL
   cn.merge <- NULL
   for(b in names(Xh)){
-    data <- cbind(data, lst_sb.spls[[b]]$X$scores)
-    cn.merge <- c(cn.merge, paste0(colnames(lst_sb.spls[[b]]$X$scores), "_", b))
+    if(!is.null(lst_sb.spls[[b]]$survival_model)){
+      data <- cbind(data, lst_sb.spls[[b]]$X$scores)
+      cn.merge <- c(cn.merge, paste0(colnames(lst_sb.spls[[b]]$X$scores), "_", b))
+    }else{
+      next
+    }
   }
 
   #colnames(data) <- apply(expand.grid(colnames(lst_sb.spls[[1]]$X$scores), names(Xh)), 1, paste, collapse="_")
