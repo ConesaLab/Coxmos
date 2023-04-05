@@ -279,6 +279,105 @@ deleteZeroVarianceVariables <- function(data, mustKeep = NULL, names = NULL, inf
   return(list(filteredData = df, variablesDeleted = df_cn_deleted))
 }
 
+#### ### ### ### ### ### #
+# Individual Cox results #
+#### ### ### ### ### ### #
+getIndividualCox <- function(data, time_var = "time", event_var = "event"){
+  set.seed(123)
+
+  time <- data[,time_var]
+  event <- data[,event_var]
+
+  aux_data <- data[,!colnames(data) %in% c(time_var, event_var)]
+
+  wh <- tryCatch(
+    # Specifying expression
+    expr = {
+      as.data.frame(t(apply(aux_data, 2, function(x){
+        eps = 1e-14
+        control <- survival::coxph.control(eps = eps, toler.chol = .Machine$double.eps^0.90,
+                                           iter.max = 220, toler.inf = sqrt(eps), outer.max = 100, timefix = TRUE)
+        fit <- survival::coxph(survival::Surv(time = time,
+                                              event = event,
+                                              type = "right") ~ ., as.data.frame(x),
+                               control = control,
+                               singular.ok = T)
+
+        if(length(getPvalFromCox(fit))==1){
+          aux <- c(fit$coefficients["x"], getPvalFromCox(fit))
+        }else{
+          aux <- c(fit$coefficients["x"], getPvalFromCox(fit)["x"]) #cause variable of study is called 'x' and we extract new coefficient taking into account components already computed
+        }
+        aux
+      })))
+    },
+    # Specifying error message
+    error = function(e){
+      message(paste0("invidual_cox: ", e))
+      invisible(gc())
+      return(NA)
+      #if error we could return beta=0 (no significant) instead a NA!!!
+    }
+  )
+
+  colnames(wh) <- c("coefficient", "p.val")
+
+  if(all(is.na(wh))){
+    message(paste0("Individual COX models cannot be computed for each variable."))
+    return(NA)
+  }
+
+  if(any(is.na(wh))){
+    message(paste0(paste0("Individual COX model cannot be computed for variables (", paste0(rownames(wh)[is.na(wh[,1])], collapse = ", ") ,").")))
+
+    #wh <- wh[-which(is.na(wh[,1])),]
+    #replace for beta of 0, and p-value of 1
+    wh[which(is.na(wh[,1])),] <- c(rep(0, length(rownames(wh)[is.na(wh[,1])])), rep(1, length(rownames(wh)[is.na(wh[,1])])))
+  }
+
+  wh <- wh[order(wh$p.val, decreasing = F),]
+
+  return(wh)
+}
+
+
+removeNAcoxmodel <- function(model, data){
+  # REMOVE NA-PVAL VARIABLES
+  # p_val could be NA for some variables (if NA change to P-VAL=1)
+  # DO IT ALWAYS, we do not want problems in COX models
+  p_val <- getPvalFromCox(model)
+  removed_variables <- NULL
+  while(sum(is.na(p_val))>0){
+    to_remove <- names(p_val)[is.na(p_val)]
+    to_remove <- deleteIllegalChars(to_remove)
+    #data <- data[,!colnames(data) %in% c(to_remove)]
+    vars_to_include <- names(p_val)[!names(p_val) %in% to_remove]
+    model <- tryCatch(
+      # Specifying expression
+      expr = {
+        f <- as.formula(paste0("survival::Surv(time,event) ~ ", paste0(vars_to_include, collapse = " + ")))
+        survival::coxph(formula = f,
+                        data = data,
+                        ties = "efron",
+                        singular.ok = T,
+                        robust = F,
+                        nocenter = rep(1, ncol(data)-2),
+                        model=T, x = T)
+      },
+      # Specifying error message
+      error = function(e){
+        message(paste0("COX: ", e))
+        invisible(gc())
+        return(NA)
+      }
+    )
+
+    removed_variables <- c(removed_variables, to_remove)
+    p_val <- getPvalFromCox(model)
+  }
+
+  return(list(model = model, removed_variables = removed_variables, data = data))
+}
 
 #### ### ### ### ##
 # Other functions #
@@ -595,7 +694,7 @@ removeNonSignificativeCox <- function(cox, alpha, cox_input, time.value = NULL, 
       # Specifying expression
       expr = {
         survival::coxph(formula = survival::Surv(time,event) ~ .,
-                        data = d,
+                        data = as.data.frame(d),
                         ties = "efron",
                         singular.ok = T,
                         robust = T,

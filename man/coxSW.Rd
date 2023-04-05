@@ -7,6 +7,12 @@
 coxSW(
   X,
   Y,
+  max.variables = 20,
+  BACKWARDS = T,
+  alpha_ENT = 0.1,
+  alpha_OUT = 0.15,
+  toKeep.sw = NULL,
+  initialModel = NULL,
   x.center = TRUE,
   x.scale = FALSE,
   y.center = FALSE,
@@ -15,16 +21,7 @@ coxSW(
   remove_zero_variance = F,
   toKeep.zv = NULL,
   remove_non_significant = F,
-  initialModel = "NULL",
-  toKeep.sw = NULL,
-  max.variables = 20,
   alpha = 0.05,
-  alpha_ENT = 0.1,
-  alpha_OUT = 0.15,
-  alpha_PH = 0.05,
-  check_PH = F,
-  boostDeletion = F,
-  BACKWARDS = T,
   MIN_EPV = 5,
   returnData = T,
   verbose = F
@@ -34,6 +31,18 @@ coxSW(
 \item{X}{Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.}
 
 \item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.}
+
+\item{max.variables}{Numeric. Maximum number of variables you want to keep in the cox model. If MIN_EPV is not meet, the value will be change automatically (default: 20).}
+
+\item{BACKWARDS}{Logical. If BACKWARDS = TRUE, backward strategy is performed (default: TRUE).}
+
+\item{alpha_ENT}{Numeric. Maximum P-Value for a variable to enter the model (default: 0.10).}
+
+\item{alpha_OUT}{Numeric. Minimum P-Value for a variable to leave the model (default: 0.15).}
+
+\item{toKeep.sw}{Character vector. Name of variables in X to not be deleted by Step-wise selection (default: NULL).}
+
+\item{initialModel}{Character vector. Name of variables in X to include in the initial model (default: NULL).}
 
 \item{x.center}{Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).}
 
@@ -51,27 +60,9 @@ coxSW(
 
 \item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).}
 
-\item{initialModel}{Character vector. Name of variables in X to include in the initial model (default: NULL).}
-
-\item{toKeep.sw}{Character vector. Name of variables in X to not be deleted by Step-wise selection (default: NULL).}
-
-\item{max.variables}{Numeric. Maximum number of variables you want to keep in the cox model. If MIN_EPV is not meet, the value will be change automatically (default: 20).}
-
 \item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
 
-\item{alpha_ENT}{Numeric. Maximum P-Value for a variable to enter the model (default: 0.10).}
-
-\item{alpha_OUT}{Numeric. Minimum P-Value for a variable to leave the model (default: 0.15).}
-
-\item{alpha_PH}{Numeric. Maximum P-Value for a variable to meet Proportional Hazard Assumption (default: 0.05).}
-
-\item{check_PH}{Logical. If check_PH = TRUE, PH Assumption will be check (default: FALSE).}
-
-\item{boostDeletion}{Logical. If boostDeletion = TRUE, all variables with a P-Value greater than alpha_OUT will be deleted in each step, instead of deleting one by one (default: FALSE).}
-
-\item{BACKWARDS}{Logical. If BACKWARDS = TRUE, backward strategy is performed (default: TRUE).}
-
-\item{MIN_EPV}{Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).}
+\item{MIN_EPV}{Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. ifthe minimum is not meet, the model cannot be computed (default: 5).}
 
 \item{returnData}{Logical. Return original and normalized X and Y matrices (default: TRUE).}
 

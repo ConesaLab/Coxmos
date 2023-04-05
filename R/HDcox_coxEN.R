@@ -183,7 +183,7 @@ coxEN <- function(X, Y,
     # Specifying expression
     expr = {
       glmnet::glmnet(x = Xh, y = survival::Surv(time = Yh[,"time"], event = Yh[,"event"]),
-                     family = "cox", alpha = EN.alpha, standardize = F, nlambda=300, pmax = max.variables)
+                     family = "cox", alpha = EN.alpha, standardize = F, nlambda = 300, pmax = max.variables)
     },
     # Specifying error message
     error = function(e){

@@ -533,7 +533,8 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
 
   #Weights Parameters
   w_AIC = 0
- w_c.index = 0
+  w_c.index = 0
+  w_BRIER = 0
   w_AUC = 1
 
   #Eval stop detection
@@ -595,10 +596,10 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
   if(pkg.env$coxSW %in% methods){
 
     res_coxSW <- coxSW(X = X_train, Y = Y_train,
+                       max.variables = ncol(X_train), BACKWARDS = T,
                        x.center = x.center, x.scale = x.scale,
                        y.center = y.center, y.scale = y.scale,
                        MIN_EPV = MIN_EPV, #by default 0
-                       BACKWARDS = T, check_PH = F, boostDeletion = F,
                        returnData = F, verbose = F)
 
   }else{
