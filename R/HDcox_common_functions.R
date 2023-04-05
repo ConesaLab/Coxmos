@@ -477,6 +477,16 @@ checkXY.class <- function(X, Y, verbose = F){
   return(list(X = X, Y = Y))
 }
 
+checkFoldRuns <- function(Y, n_run, k_folds){
+  if(k_folds == nrow(Y)){
+    if(n_run != 1){
+      message("As you select 'leave one out' cross-validation. The number of runs is established to 1.")
+      n_run = 1
+    }
+  }
+  return(n_run)
+}
+
 check_min0_max1_variables <- function(lst){
   # Check if each element of lst is numeric and between 0-1
   cont = 0
@@ -3727,7 +3737,7 @@ getVectorCuts <- function(vector, cut_points, verbose = F){
 # }
 
 checkLibraryEvaluator <- function(pred.method){
-  #Check evaluator installed:
+  #### Check evaluator installed:
   if(!pred.method == pkg.env$AUC_cenROC){
     if(!pred.method %in% c(pkg.env$AUC_survivalROC, pkg.env$AUC_nsROC, pkg.env$AUC_smoothROCtime_C, pkg.env$AUC_smoothROCtime_I, pkg.env$AUC_risksetROC)){
       stop(paste0("A non-valid method has been selected. Select one of: ", paste0(c(pkg.env$AUC_cenROC, pkg.env$AUC_survivalROC, pkg.env$AUC_nsROC, pkg.env$AUC_smoothROCtime_C, pkg.env$AUC_smoothROCtime_I, pkg.env$AUC_risksetROC), collapse = ", ")))
@@ -3816,7 +3826,7 @@ eval_HDcox_models <- function(lst_models, X_test, Y_test, pred.method, pred.attr
   #Check at least two events in total
   checkAtLeastTwoEvents(X_test, Y_test)
 
-  #Check evaluator installed:
+  #### Check evaluator installed:
   checkLibraryEvaluator(pred.method)
 
   if(all(is.null(lst_models))){

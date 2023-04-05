@@ -96,7 +96,7 @@ sb.splsdrcox <- function (X, Y,
   time <- Y[,"time"]
   event <- Y[,"event"]
 
-  #Check values classes and ranges
+  #### Check values classes and ranges
   lst_01 <- list("alpha" = alpha, "eta" = eta)
   check_min0_max1_variables(lst_01)
 
@@ -308,10 +308,10 @@ cv.sb.splsdrcox <- function(X, Y,
   # WARNINGS #
   #### ### ###
 
-  #Check evaluator installed:
+  #### Check evaluator installed:
   checkLibraryEvaluator(pred.method)
 
-  #Check values classes and ranges
+  #### Check values classes and ranges
   lst_01 <- list("MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
                  "w_AIC" = w_AIC, "w_c.index" = w_c.index, "w_AUC" = w_AUC, "w_BRIER" = w_BRIER)
   check_min0_max1_variables(lst_01)
@@ -333,7 +333,10 @@ cv.sb.splsdrcox <- function(X, Y,
   lst_character <- list("pred.attr" = pred.attr, "pred.method" = pred.method)
   check_class(lst_character, class = "character")
 
-  #Illegal chars in colnames
+  #### Check cv-folds
+  n_run <- checkFoldRuns(Y, n_run, k_folds)
+
+  #### Illegal chars in colnames
   X <- checkColnamesIllegalChars.mb(X)
 
   #### REQUIREMENTS
@@ -670,10 +673,10 @@ fast.cv.sb.splsdrcox <- function(X, Y,
 
   t1 <- Sys.time()
 
-  #Check evaluator installed:
+  #### Check evaluator installed:
   checkLibraryEvaluator(pred.method)
 
-  #Check values classes and ranges
+  #### Check values classes and ranges
   lst_01 <- list("MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
                  "w_AIC" = w_AIC, "w_c.index" = w_c.index, "w_AUC" = w_AUC, "w_BRIER" = w_BRIER)
   check_min0_max1_variables(lst_01)
@@ -695,7 +698,10 @@ fast.cv.sb.splsdrcox <- function(X, Y,
   lst_character <- list("pred.attr" = pred.attr, "pred.method" = pred.method)
   check_class(lst_character, class = "character")
 
-  #Illegal chars in colnames
+  #### Check cv-folds
+  n_run <- checkFoldRuns(Y, n_run, k_folds)
+
+  #### Illegal chars in colnames
   X <- checkColnamesIllegalChars.mb(X)
 
   #### REQUIREMENTS

@@ -86,7 +86,7 @@ cox <- function (X, Y,
   time <- Y[,"time"]
   event <- Y[,"event"]
 
-  #Check values classes and ranges
+  #### Check values classes and ranges
   lst_01 <- list("alpha" = alpha)
   check_min0_max1_variables(lst_01)
 
