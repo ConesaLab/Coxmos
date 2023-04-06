@@ -477,14 +477,18 @@ checkXY.class <- function(X, Y, verbose = F){
   return(list(X = X, Y = Y))
 }
 
-checkFoldRuns <- function(Y, n_run, k_folds){
+checkFoldRuns <- function(Y, n_run, k_folds, fast_mode){
   if(k_folds == nrow(Y)){
     if(n_run != 1){
       message("As you select 'leave one out' cross-validation. The number of runs is established to 1.")
       n_run = 1
     }
+    if(fast_mode){
+      message("As you select 'leave one out' cross-validation. The 'fast_mode' is set to False.")
+      fast_mode = F #if loo, WE CANNOT USE FAST_MODE
+    }
   }
-  return(n_run)
+  return(list("n_run" = n_run, "fast_mode" = fast_mode))
 }
 
 check_min0_max1_variables <- function(lst){
@@ -1473,7 +1477,11 @@ getAUC_RUN_AND_COMP <- function(mode = "AUC", fast_mode, max.ncomp, n_run,
         if(optimal_comp_flag & l.index > (optimal_comp_index+MIN_COMP_TO_CHECK)){
           eval_aux.r[[mode]] <- NA
         }else{
-          eval_aux.r[[mode]] <- lst_AUC_component[[l.index]][[r]][[mode]]
+          if(mode=="BRIER"){
+            eval_aux.r[[mode]] <- lst_AUC_component[[l.index]][[r]]
+          }else if(mode == "AUC"){
+            eval_aux.r[[mode]] <- lst_AUC_component[[l.index]][[r]][[mode]]
+          }
         }
         eval_aux.run <- rbind(eval_aux.run, eval_aux.r)
       }
@@ -1530,6 +1538,8 @@ getAUC_RUN_AND_COMP <- function(mode = "AUC", fast_mode, max.ncomp, n_run,
           AUC_mean <- mean(AUC_v, na.rm = T)
         }
         eval_aux[[mode]] <- AUC_mean
+      }else if(mode=="BRIER"){
+        eval_aux[[mode]] <- mean(df_results_evals_run[df_results_evals_run[,"n.comps"] == l, "BRIER"], na.rm = T)
       }
 
       df_results_evals_comp <- rbind(df_results_evals_comp, eval_aux)
@@ -1883,13 +1893,12 @@ get_EVAL_PLOTS <- function(fast_mode, best_model_info, w_AUC, w_BRIER, max.ncomp
 
   sd_vector <- NULL
 
-  #First AIC - C_INDEX - BRIER at FOLD LEVEL ALWAYS
+  #First AIC - C_INDEX at FOLD LEVEL ALWAYS
   if(!is.null(eta.list)){
     for(l in 1:length(max.ncomp)){
       for(e in 1:length(eta.list)){
         vector <- c("AIC.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]] & df_results_evals_fold$eta==eta.list[[e]],colname_AIC]),
-                    "c_index.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]] & df_results_evals_fold$eta==eta.list[[e]],colname_c_index]),
-                    "BRIER.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]] & df_results_evals_fold$eta==eta.list[[e]],colname_BRIER]))
+                    "c_index.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]] & df_results_evals_fold$eta==eta.list[[e]],colname_c_index]))
 
         sd_vector <- rbind(sd_vector, vector)
 
@@ -1898,27 +1907,30 @@ get_EVAL_PLOTS <- function(fast_mode, best_model_info, w_AUC, w_BRIER, max.ncomp
   }else{
     for(l in 1:length(max.ncomp)){
       vector <- c("AIC.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]],colname_AIC]),
-                  "c_index.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]],colname_c_index]),
-                  "BRIER.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]],colname_BRIER]))
+                  "c_index.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]],colname_c_index]))
 
       sd_vector <- rbind(sd_vector, vector)
     }
   }
 
   sd_vector_AUC <- NULL
+  sd_vector_BRIER <- NULL
   # AUC - fast_mode
+  # BRIER - fast_mode
   if(w_AUC!=0){
     if(!is.null(eta.list)){
       if(fast_mode){
         for(l in 1:length(max.ncomp)){
           for(e in 1:length(eta.list)){
             sd_vector_AUC <- rbind(sd_vector_AUC, "AUC.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]] & df_results_evals_fold$eta==eta.list[[e]],colname_AUC]))
+            sd_vector_BRIER <- rbind(sd_vector_BRIER, "BRIER.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]] & df_results_evals_fold$eta==eta.list[[e]],colname_BRIER]))
           }
         }
       }else{
         for(l in 1:length(max.ncomp)){
           for(e in 1:length(eta.list)){
             sd_vector_AUC <- rbind(sd_vector_AUC, "AUC.sd" = sd(df_results_evals_run[df_results_evals_run$n.comps==max.ncomp[[l]] & df_results_evals_run$eta==eta.list[[e]],colname_AUC]))
+            sd_vector_BRIER <- rbind(sd_vector_BRIER, "BRIER.sd" = sd(df_results_evals_run[df_results_evals_run$n.comps==max.ncomp[[l]] & df_results_evals_run$eta==eta.list[[e]],colname_BRIER]))
           }
         }
       }
@@ -1926,13 +1938,20 @@ get_EVAL_PLOTS <- function(fast_mode, best_model_info, w_AUC, w_BRIER, max.ncomp
       if(fast_mode){
         for(l in 1:length(max.ncomp)){
           sd_vector_AUC <- rbind(sd_vector_AUC, "AUC.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]],colname_AUC]))
+          sd_vector_BRIER <- rbind(sd_vector_BRIER, "BRIER.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]],colname_BRIER]))
         }
       }else{
         for(l in 1:length(max.ncomp)){
           sd_vector_AUC <- rbind(sd_vector_AUC, "AUC.sd" = sd(df_results_evals_run[df_results_evals_run$n.comps==max.ncomp[[l]],colname_AUC]))
+          sd_vector_BRIER <- rbind(sd_vector_BRIER, "BRIER.sd" = sd(df_results_evals_run[df_results_evals_run$n.comps==max.ncomp[[l]],colname_BRIER]))
         }
       }
     }
+  }
+
+  if(!is.null(sd_vector_BRIER)){
+    colnames(sd_vector_BRIER) <- "BRIER.sd"
+    sd_vector <- cbind(sd_vector, sd_vector_BRIER)
   }
 
   if(!is.null(sd_vector_AUC)){
@@ -2138,6 +2157,7 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
 
 #BRIER is a FOLD LEVEL ALWAYS
 get_COX_evaluation_BRIER <- function(comp_model_lst,
+                                     fast_mode,
                                      lst_X_test, lst_Y_test,
                                      df_results_evals, times = NULL,
                                      pred.method, pred.attr,
@@ -2145,8 +2165,6 @@ get_COX_evaluation_BRIER <- function(comp_model_lst,
                                      w_BRIER,
                                      MIN_AUC_INCREASE, MIN_AUC, MIN_COMP_TO_CHECK,
                                      method.train, PARALLEL = F, verbose = F){
-
-  fast_mode = T #fold level in BRIER
 
   if(length(max.ncomp)==1 & !method.train==pkg.env$coxEN){
     max.ncomp <- 1:max.ncomp
@@ -2164,7 +2182,7 @@ get_COX_evaluation_BRIER <- function(comp_model_lst,
   optimal_eta_index <- NULL
   optimal_comp_flag <- FALSE
 
-  total_models <- nrow(df_results_evals)
+  total_models <- ifelse(fast_mode,nrow(df_results_evals),length(max.ncomp)*n_run)
 
   pb_text <- "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated remaining time: :eta]"
   pb <- progress::progress_bar$new(format = pb_text,
@@ -2176,69 +2194,127 @@ get_COX_evaluation_BRIER <- function(comp_model_lst,
                                    width = 100)      # Ancho de la barra de progreso
   pb$tick(0)
 
-  message(paste0("Evaluating prediction acuracy with Brier Score..."))
+  message(paste0("Evaluating prediction acuracy with Brier Score...", ifelse(fast_mode, " [FAST_MODE]", " [BEST_MODE]")))
 
-  # EVAL AUC FOR EACH FOLD
-  for(l in unique(df_results_evals$n.comps)){
+  # EVAL BRIER FOR EACH FOLD
+  if(fast_mode){
+    for(l in unique(df_results_evals$n.comps)){
 
-    l.index <- which(l == unique(df_results_evals$n.comps))
-    lst_BRIER_component_run <- NULL
+      l.index <- which(l == unique(df_results_evals$n.comps))
+      lst_BRIER_component_run <- NULL
 
-    for(r in unique(df_results_evals[df_results_evals$n.comps==l,]$runs)){
+      for(r in unique(df_results_evals[df_results_evals$n.comps==l,]$runs)){
 
-      lst_BRIER_component_folds <- NULL
+        lst_BRIER_component_folds <- NULL
 
-      for(f in unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$runs==r,]$fold)){
+        for(f in unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$runs==r,]$fold)){
 
-        # non-significant models could be filtered, check if the model exist in df_results_evals
-        if(nrow(df_results_evals[df_results_evals$n.comps==l & df_results_evals$runs==r & df_results_evals$fold==f,])==0){
+          # non-significant models could be filtered, check if the model exist in df_results_evals
+          if(nrow(df_results_evals[df_results_evals$n.comps==l & df_results_evals$runs==r & df_results_evals$fold==f,])==0){
+            pb$tick()
+            next
+          }
+
+          lst_BRIER <- getCOMPLETE_BRIER(comp_index = l.index, eta_index = NULL, run = r, fold = f,
+                                         lst_X_test = lst_X_test, lst_Y_test = lst_Y_test,
+                                         comp_model_lst = comp_model_lst, times = times,
+                                         verbose = verbose)
+
+          lst_BRIER_values <- lst_BRIER$brier_score
+
+          lst_BRIER_component_folds[[f]] <- lst_BRIER_values$ierror
+          df_results_evals_BRIER <- c(df_results_evals_BRIER, lst_BRIER_values$ierror)
+
           pb$tick()
-          next
+
+        } #fold
+
+        if(!is.null(lst_BRIER_component_folds)){
+          names(lst_BRIER_component_folds) <- paste0("fold_",unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$runs==r,]$fold))
         }
+        lst_BRIER_component_run[[r]] <- lst_BRIER_component_folds
+      } #run
 
-        lst_BRIER <- getCOMPLETE_BRIER(comp_index = l.index, eta_index = NULL, run = r, fold = f,
-                                       lst_X_test = lst_X_test, lst_Y_test = lst_Y_test,
-                                       comp_model_lst = comp_model_lst, times = times,
-                                       verbose = verbose)
+      if(!is.null(lst_BRIER_component_run)){
+        names(lst_BRIER_component_run) <- paste0("run_",unique(df_results_evals[df_results_evals$n.comps==l,]$runs))
+      }
 
-        lst_BRIER_values <- lst_BRIER$brier_score
+      lst_BRIER_component[[l.index]] <- lst_BRIER_component_run
 
-        lst_BRIER_component_folds[[f]] <- lst_BRIER_values$ierror
+    } #lambda
+  }else{
+    # EVAL BRIER FOR EACH RUN
+    for(l in unique(df_results_evals$n.comps)){
+
+      l.index <- which(l == unique(df_results_evals$n.comps))
+      lst_BRIER_component_run <- NULL
+
+      for(r in unique(df_results_evals[df_results_evals$n.comps==l,]$runs)){
+
+        lst_train_LP <- NULL
+        lst_train_Y <- NULL
+
+        lst_test_LP <- NULL
+        lst_test_Y <- NULL
+
+        for(f in unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$runs==r,]$fold)){
+
+          # non-significant models could be filtered, check if the model exist in df_results_evals
+          if(nrow(df_results_evals[df_results_evals$n.comps==l & df_results_evals$runs==r & df_results_evals$fold==f,])==0){
+            pb$tick()
+            next
+          }
+
+          model <- comp_model_lst[[l.index]][[r]][[f]]$survival_model$fit
+          lp_train <- comp_model_lst[[l.index]][[r]][[f]]$survival_model$lp
+          names(lp_train) <- rownames(comp_model_lst[[l.index]][[r]][[f]]$Y$data)
+          lst_train_LP <- c(lst_train_LP, lp_train)
+
+          index_2_add <- which(!rownames(comp_model_lst[[l.index]][[r]][[f]]$Y$data) %in% rownames(lst_train_Y))
+          lst_train_Y <- rbind(lst_train_Y, comp_model_lst[[l.index]][[r]][[f]]$Y$data[index_2_add,,drop=F])
+
+          test_data <- predict.HDcox(object = comp_model_lst[[l.index]][[r]][[f]], newdata = lst_X_test[[r]][[f]])
+          lp_test <- predict(object = model, newdata = as.data.frame(test_data), type = "lp")
+          lst_test_LP <- c(lst_test_LP, lp_test)
+
+        } #fold
+
+        # in some cases, one patient could be a test and not to be in any train
+        # probably a problem of caret or bc the division in folds
+        # vignette data adn coxEN
+
+        inters <- intersect(unique(names(lst_train_LP)), unique(names(lst_test_LP)))
+        lst_train_LP <- lst_train_LP[names(lst_train_LP) %in% inters]
+        lst_test_LP <- lst_test_LP[names(lst_test_LP) %in% inters]
+
+        mean_lp_train <- NULL
+        for(i in unique(names(lst_test_LP))){
+          mean_lp_train <- c(mean_lp_train, mean(lst_train_LP[names(lst_train_LP) %in% i], na.rm = T))
+        }
+        names(mean_lp_train) <- unique(names(lst_test_LP))
+        lst_train_Y <- lst_train_Y[names(mean_lp_train),]
+
+        # compute BRIER for all folds
+        lst_BRIER_values <- SURVCOMP_BRIER_LP(lp_train = mean_lp_train, Y_train = lst_train_Y, lp_test = lst_test_LP, Y_test = lst_train_Y)
+
+        lst_BRIER_component_run[[r]] <- lst_BRIER_values$ierror
         df_results_evals_BRIER <- c(df_results_evals_BRIER, lst_BRIER_values$ierror)
 
         pb$tick()
+      } #run
 
-      } #fold
-
-      if(!is.null(lst_BRIER_component_folds)){
-        names(lst_BRIER_component_folds) <- paste0("fold_",unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$runs==r,]$fold))
+      if(!is.null(lst_BRIER_component_run)){
+        names(lst_BRIER_component_run) <- paste0("run_",unique(df_results_evals[df_results_evals$n.comps==l,]$runs))
       }
-      lst_BRIER_component_run[[r]] <- lst_BRIER_component_folds
-    } #run
 
-    if(!is.null(lst_BRIER_component_run)){
-      names(lst_BRIER_component_run) <- paste0("run_",unique(df_results_evals[df_results_evals$n.comps==l,]$runs))
-    }
+      lst_BRIER_component[[l.index]] <- lst_BRIER_component_run
 
-    lst_BRIER_component[[l.index]] <- lst_BRIER_component_run
+    } #lambda
+  }
 
-    #CHECK AUC EVOLUTION PER COMPONENT
-    # lst_checkImprovement <- check_AUC_improvement(fast_mode = T, pred.attr = pred.attr, df_results_evals_AUC = df_results_evals_BRIER,
-    #                                               comp_index = l.index, n_run = n_run, k_folds = k_folds, lst_comp_AUC = lst_comp_BRIER,
-    #                                               MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK, MIN_AUC = MIN_AUC, MIN_AUC_INCREASE = MIN_AUC_INCREASE, max.ncomp = max.ncomp, method.train = method.train)
-    # optimal_comp_index <- lst_checkImprovement$optimal_comp_index
-    # optimal_comp_flag <- lst_checkImprovement$optimal_comp_flag
-    # lst_comp_BRIER <- lst_checkImprovement$lst_comp_AUC
-
-    # if(optimal_comp_flag){
-    #   break
-    # }
-
-  } #lambda
-
-  #### ### ### ###
+  #### ### ### ##
   # GET RESULTS #
-  #### ### ### ###
+  #### ### ### ##
   txt <- NULL
   if(method.train==pkg.env$coxEN){
     txt <- "lambda_"
@@ -2263,7 +2339,9 @@ get_COX_evaluation_BRIER <- function(comp_model_lst,
   #   }
   # }
 
-  df_results_evals$BRIER <- df_results_evals_BRIER
+  if(fast_mode){
+    df_results_evals$BRIER <- df_results_evals_BRIER
+  }
 
   #### ### ### ### ### ### ### ###
   # TABLES FOR RUN AND FOLD LEVEL #
@@ -2271,14 +2349,25 @@ get_COX_evaluation_BRIER <- function(comp_model_lst,
 
   #AUC per RUN AND COMP
   optimal_comp_index <- NULL
-  lst_AUC_RUN_COMP <- getAUC_RUN_AND_COMP(mode = "BRIER", fast_mode = fast_mode, max.ncomp = max.ncomp,
-                                          n_run = n_run, df_results_evals = df_results_evals,
-                                          optimal_comp_flag = optimal_comp_flag,
-                                          optimal_comp_index = optimal_comp_index, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                          lst_AUC_component = lst_BRIER_component,
-                                          df_results_evals_run = df_results_evals_run,
-                                          df_results_evals_comp = df_results_evals_comp,
-                                          method.train = method.train)
+  if(fast_mode){
+    lst_AUC_RUN_COMP <- getAUC_RUN_AND_COMP(mode = "BRIER", fast_mode = fast_mode, max.ncomp = max.ncomp,
+                                            n_run = n_run, df_results_evals = df_results_evals,
+                                            optimal_comp_flag = optimal_comp_flag,
+                                            optimal_comp_index = optimal_comp_index, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
+                                            lst_AUC_component = lst_BRIER_component,
+                                            df_results_evals_run = df_results_evals_run,
+                                            df_results_evals_comp = df_results_evals_comp,
+                                            method.train = method.train)
+  }else{
+    lst_AUC_RUN_COMP <- getAUC_RUN_AND_COMP(mode = "BRIER", fast_mode = fast_mode, max.ncomp = max.ncomp,
+                                            n_run = n_run, df_results_evals = df_results_evals,
+                                            optimal_comp_flag = optimal_comp_flag,
+                                            optimal_comp_index = optimal_comp_index, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
+                                            lst_AUC_component = lst_BRIER_component,
+                                            df_results_evals_run = df_results_evals_run,
+                                            df_results_evals_comp = df_results_evals_comp,
+                                            method.train = method.train)
+  }
 
   df_results_evals_run <- lst_AUC_RUN_COMP$df_results_evals_run
   df_results_evals_comp <- lst_AUC_RUN_COMP$df_results_evals_comp
@@ -2325,7 +2414,7 @@ get_COX_evaluation_BRIER_sPLS <- function(comp_model_lst,
                                    width = 100)      # Ancho de la barra de progreso
   pb$tick(0)
 
-  message(paste0("Evaluating prediction acuracy with Brier Score..."))
+  message(paste0("Evaluating prediction acuracy with Brier Score...", ifelse(fast_mode, " [FAST_MODE]", " [BEST_MODE]")))
 
   # EVAL AUC FOR EACH FOLD
   for(l in unique(df_results_evals$n.comps)){

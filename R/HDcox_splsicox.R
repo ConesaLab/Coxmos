@@ -643,7 +643,9 @@ cv.splsicox <- function (X, Y,
   check_class(lst_character, class = "character")
 
   #### Check cv-folds
-  n_run <- checkFoldRuns(Y, n_run, k_folds)
+  lst_checkFR <- checkFoldRuns(Y, n_run, k_folds, fast_mode)
+  n_run <- lst_checkFR$n_run
+  fast_mode <- lst_checkFR$fast_mode
 
   #### Illegal chars in colnames
   X <- checkColnamesIllegalChars(X)

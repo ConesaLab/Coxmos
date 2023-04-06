@@ -242,9 +242,9 @@ During the cross validation, we will iterate over the different alpha values bet
 
 ```{r, eval=FALSE, warning=F}
 # run cv.coxEN
-cv.coxen_res <- cv.coxEN(X = X, Y = Y,
+cv.coxen_res <- cv.coxEN(X = X_train, Y = Y_train,
                          EN.alpha.list = seq(0,1,0.1),
-                         max.variables = ncol(X),
+                         max.variables = ncol(X_train),
                          n_run = 2, k_folds = 10, 
                          x.center = T, x.scale = F, 
                          y.center = F, y.scale = F,

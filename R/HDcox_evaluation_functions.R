@@ -1,12 +1,17 @@
 cv.getScoreFromWeight <- function(lst_cox_mean, w_AIC, w_c.index, w_BRIER, w_AUC, colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC", colname_BRIER = "BRIER"){
 
   all_metrics <- c(colname_AIC, colname_c_index, colname_BRIER, colname_AUC)
+  all_metrics_weight <- c(w_AIC, w_c.index, w_BRIER, w_AUC)
+
+  index_noZero <- which(all_metrics_weight != 0)
 
   #if the same value for every metric...
-  aux <- lst_cox_mean[,all_metrics, drop=F]
-  if(length(unlist(apply(aux, 2, unique)))==length(all_metrics)){
-    score <- 1
+  aux <- lst_cox_mean[,all_metrics[index_noZero], drop=F]
+  if(length(unlist(apply(aux, 2, function(x){unique(aux[!is.na(aux)])})))==length(index_noZero)){
+    score <- rep(1, nrow(lst_cox_mean))
     lst_cox_mean[,"score"] <- score
+    na_rows <- which(rowSums(is.na(aux))>0)
+    lst_cox_mean[na_rows,"score"] <- NA
     rownames(lst_cox_mean) <- NULL
     return(lst_cox_mean)
   }

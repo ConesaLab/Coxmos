@@ -463,7 +463,9 @@ cv.coxEN <- function(X, Y,
   check_class(lst_character, class = "character")
 
   #### Check cv-folds
-  n_run <- checkFoldRuns(Y, n_run, k_folds)
+  lst_checkFR <- checkFoldRuns(Y, n_run, k_folds, fast_mode)
+  n_run <- lst_checkFR$n_run
+  fast_mode <- lst_checkFR$fast_mode
 
   #### Illegal chars in colnames
   X <- checkColnamesIllegalChars(X)
@@ -579,7 +581,7 @@ cv.coxEN <- function(X, Y,
     }
 
     #As we are measuring just one evaluator and one method - PARALLEL=F
-    lst_df <- get_COX_evaluation_BRIER(comp_model_lst = comp_model_lst,
+    lst_df <- get_COX_evaluation_BRIER(comp_model_lst = comp_model_lst, fast_mode = fast_mode,
                                        lst_X_test = lst_X_test, lst_Y_test = lst_Y_test,
                                        df_results_evals = df_results_evals, times = times,
                                        pred.method = pred.method, pred.attr = pred.attr,
