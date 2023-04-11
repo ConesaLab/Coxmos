@@ -80,7 +80,6 @@ Y_test <- Y[-index_train,]
 #  # classical approach
 #  cox_model <- cox(X = X_train, Y = Y_train,
 #                   x.center = T, x.scale = F,
-#                   y.center = F, y.scale = F,
 #                   remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
 #                   remove_non_significant = F, alpha = 0.05,
 #                   MIN_EPV = 5, FORCE = F, returnData = T, verbose = F)
@@ -93,12 +92,11 @@ EPV
 
 ## ---- eval=FALSE, warning=F---------------------------------------------------
 #  # run cv.coxEN
-#  cv.coxen_res <- cv.coxEN(X = X, Y = Y,
+#  cv.coxen_res <- cv.coxEN(X = X_train, Y = Y_train,
 #                           EN.alpha.list = seq(0,1,0.1),
-#                           max.variables = ncol(X),
+#                           max.variables = ncol(X_train),
 #                           n_run = 2, k_folds = 10,
 #                           x.center = T, x.scale = F,
-#                           y.center = F, y.scale = F,
 #                           remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
 #                           remove_variance_at_fold_level = F,
 #                           remove_non_significant = F, alpha = 0.05,
@@ -115,9 +113,8 @@ EPV
 ## -----------------------------------------------------------------------------
 coxen_model <- coxEN(X = X_train, Y = Y_train, 
                      EN.alpha = 0, #cv.coxen_res$opt.EN.alpha
-                     max.variables = 8, #cv.coxen_res$opt.nvar
-                     x.center = T, x.scale = F, 
-                     y.center = F, y.scale = F, 
+                     max.variables = 10, #cv.coxen_res$opt.nvar
+                     x.center = T, x.scale = F,
                      remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL, 
                      remove_non_significant = F, alpha = 0.05, 
                      MIN_EPV = 5, returnData = T, verbose = F)
@@ -128,9 +125,8 @@ coxen_model
 ## -----------------------------------------------------------------------------
 coxen_model <- coxEN(X = X_train, Y = Y_train, 
                      EN.alpha = 0, #cv.coxen_res$opt.EN.alpha
-                     max.variables = 8, #cv.coxen_res$opt.nvar
-                     x.center = T, x.scale = F, 
-                     y.center = F, y.scale = F, 
+                     max.variables = 10, #cv.coxen_res$opt.nvar
+                     x.center = T, x.scale = F,
                      remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL, 
                      remove_non_significant = T, alpha = 0.05, 
                      MIN_EPV = 5, returnData = T, verbose = F)
@@ -144,7 +140,6 @@ coxen_model
 #                                 max.ncomp = 5, spv_penalty.list = seq(0.1,1,0.3),
 #                                 n_run = 2, k_folds = 10,
 #                                 x.center = T, x.scale = F,
-#                                 y.center = F, y.scale = F,
 #                                 remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
 #                                 remove_variance_at_fold_level = F,
 #                                 remove_non_significant_models = F, alpha = 0.05,
@@ -166,7 +161,6 @@ splsicox_model <- splsicox(X = X_train, Y = Y_train,
                            #n.comp = cv.splsicox_res$opt.comp, spv_penalty = cv.splsicox_res$opt.spv_penalty
                           n.comp = 5, spv_penalty = 0.4,
                           x.center = T, x.scale = F,
-                          y.center = F, y.scale = F,
                           remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
                           MIN_EPV = 5, returnData = T, verbose = F)
 
@@ -179,7 +173,6 @@ splsicox_model
 #                                   max.ncomp = 10, eta.list = seq(0,0.9,0.25), #penalty
 #                                   n_run = 2, k_folds = 10,
 #                                   x.center = T, x.scale = F,
-#                                   y.center = F, y.scale = F,
 #                                   remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
 #                                   remove_non_significant_models = F, alpha = 0.05,
 #                                   w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL,
@@ -199,7 +192,6 @@ splsicox_model
 splsdrcox_model <- splsdrcox(X = X_train, Y = Y_train, 
                              n.comp = 9, eta = 0, #n.comp = cv.splsdrcox_res$opt.comp, eta = cv.splsdrcox_res$opt.eta
                              x.center = T, x.scale = F,
-                             y.center = F, y.scale = F,
                              remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
                              MIN_EPV = 5, returnData = T, verbose = F)
 
@@ -213,7 +205,6 @@ splsdrcox_model
 #                                              MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 10, EVAL_METHOD = "AUC",
 #                                              n_run = 2, k_folds = 10,
 #                                              x.center = T, x.scale = F,
-#                                              y.center = F, y.scale = F,
 #                                              remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
 #                                              remove_non_significant_models = F, alpha = 0.05,
 #                                              remove_variance_at_fold_level = F, remove_non_significant = F,
@@ -232,7 +223,6 @@ splsdrcox_dynamic_model <- splsdrcox_dynamic(X = X_train, Y = Y_train,
                                              n.comp = 3, #cv.splsdrcox_dynamic_res$opt.comp 
                                              vector = 118, #cv.splsdrcox_dynamic_res$opt.nvar
                                              x.center = T, x.scale = F,
-                                             y.center = F, y.scale = F,
                                              remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
                                              MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 5,
                                              MIN_AUC_INCREASE = 0.01,
@@ -248,7 +238,6 @@ splsdrcox_dynamic_model
 #                                                   MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 10, EVAL_METHOD = "AUC",
 #                                                   n_run = 2, k_folds = 10,
 #                                                   x.center = T, x.scale = F,
-#                                                   y.center = F, y.scale = F,
 #                                                   remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
 #                                                   remove_variance_at_fold_level = F, remove_non_significant = F,
 #                                                   remove_non_significant_models = F, alpha = 0.05,
@@ -266,7 +255,6 @@ splsdrcox_dynamic_model
 splsdacox_dynamic_model <- splsdacox_dynamic(X = X_train, Y = Y_train, 
                                              n.comp = 1, vector = 91,
                                              x.center = T, x.scale = F,
-                                             y.center = F, y.scale = F,
                                              remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
                                              MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 5,
                                              MIN_AUC_INCREASE = 0.01,

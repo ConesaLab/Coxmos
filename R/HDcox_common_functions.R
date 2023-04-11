@@ -105,23 +105,24 @@ print.HDcox <- function(x, ...){
 
   if(attr(x, "model") %in% pkg.env$all_methods){
 
-    cat("The method used is ", attr(x, "model"), ".\n\n", sep = "")
+    method <- attr(x, "model")
+    cat(paste0("The method used is ", method, ".\n\n"))
 
     if("removed_variables" %in% names(x) && !is.null(x$removed_variables)){
-      cat("A total of ", length(x$nzv), " variables have been removed due to Zero or Near-Zero Variance filter", ".\n\n", sep = "")
+      cat(paste0("A total of ", length(x$nzv), " variables have been removed due to Zero or Near-Zero Variance filter.\n\n"))
     }
 
     if("removed_variables_cox" %in% names(x) && !is.null(x$removed_variables_cox)){
-      cat("A total of ", length(x$removed_variables_cox), " variables have been removed due to non-significance filter inside cox model", ".\n\n", sep = "")
+      cat(paste0("A total of ", length(x$removed_variables_cox), " variables have been removed due to non-significance filter inside cox model.\n\n"))
     }
 
     if(!all(is.null(x$survival_model))){
-      cat("Survival model:\n", sep = "")
+      cat("Survival model:\n")
       tab <- summary(x$survival_model$fit)[[7]]
 
       print(tab)
     }else{
-      cat("Survival model could not be computed.\n\n", sep = "")
+      message("Survival model could not be computed.\n\n")
     }
 
   }else if(attr(x, "model") %in% pkg.env$all_cv){
@@ -219,18 +220,13 @@ deleteZeroOrNearZeroVariance <- function(X, remove_near_zero_variance = F, remov
   auxX <- X
 
   variablesDeleted <- NULL
-  if(remove_near_zero_variance){
-    lst.zv <- deleteZeroVarianceVariables(data = auxX, info = T, mustKeep = toKeep.zv, freqCut = freqCut)
-    variablesDeleted <- lst.zv$variablesDeleted[,1]
-    if(!is.null(variablesDeleted)){
-      auxX <- auxX[,!colnames(auxX) %in% variablesDeleted,drop=F]
-    }
-  }else if(remove_zero_variance){
-    lst.zv <- deleteZeroVarianceVariables(data = auxX, info = T, mustKeep = toKeep.zv, onlyZero = T)
-    variablesDeleted <- lst.zv$variablesDeleted[,1]
-    if(!is.null(variablesDeleted)){
-      auxX <- auxX[,!colnames(auxX) %in% variablesDeleted,drop=F]
-    }
+
+  lst.zv <- deleteZeroVarianceVariables(data = auxX, info = T, mustKeep = toKeep.zv,
+                                        onlyZero = ifelse(!remove_near_zero_variance & remove_zero_variance, T, F), freqCut = freqCut)
+
+  variablesDeleted <- lst.zv$variablesDeleted[,1]
+  if(!is.null(variablesDeleted)){
+    auxX <- auxX[,!colnames(auxX) %in% variablesDeleted,drop=F]
   }
 
   return(list(X = auxX, variablesDeleted = variablesDeleted))
@@ -259,23 +255,28 @@ deleteZeroVarianceVariables <- function(data, mustKeep = NULL, names = NULL, inf
     td <- td[-which(td %in% mustKeep)]
   }
 
-  lstDeleted <- td
-  df <- df[,!colnames(df) %in% lstDeleted, drop=F]
+  df <- df[,!colnames(df) %in% td, drop=F]
 
   #df deleted
   df_cn_deleted <- NULL
-  if(info){
-    if(!length(lstDeleted)==0){
-      for(cn in lstDeleted){
-        df_cn_deleted <- rbind(df_cn_deleted, c(cn))#, getInfo(cn)$Description))
-      }
-      if(!is.null(df_cn_deleted)){
-        df_cn_deleted <- as.data.frame(df_cn_deleted)
-        colnames(df_cn_deleted) <- c("Variables")#, "Description")
-        rownames(df_cn_deleted) <- NULL
-      }
-    }
+  if(info && length(td) > 0){
+    df_cn_deleted <- as.data.frame(t(data.frame(td)))
+    colnames(df_cn_deleted) <- c("Variables")
+    rownames(df_cn_deleted) <- NULL
   }
+
+  #df deleted
+  # df_cn_deleted <- NULL
+  # if(info && length(td) > 0){
+  #   for(cn in lstDeleted){
+  #     df_cn_deleted <- rbind(df_cn_deleted, c(cn))#, getInfo(cn)$Description))
+  #   }
+  #   if(!is.null(df_cn_deleted)){
+  #     df_cn_deleted <- as.data.frame(df_cn_deleted)
+  #     colnames(df_cn_deleted) <- c("Variables")#, "Description")
+  #     rownames(df_cn_deleted) <- NULL
+  #   }
+  # }
   return(list(filteredData = df, variablesDeleted = df_cn_deleted))
 }
 
@@ -287,39 +288,37 @@ getIndividualCox <- function(data, time_var = "time", event_var = "event"){
 
   time <- data[,time_var]
   event <- data[,event_var]
-
   aux_data <- data[,!colnames(data) %in% c(time_var, event_var)]
 
   wh <- tryCatch(
-    # Specifying expression
     expr = {
-      as.data.frame(t(apply(aux_data, 2, function(x){
+      result_list <- lapply(colnames(aux_data), function(x_col) {
         eps = 1e-14
         control <- survival::coxph.control(eps = eps, toler.chol = .Machine$double.eps^0.90,
                                            iter.max = 220, toler.inf = sqrt(eps), outer.max = 100, timefix = TRUE)
         fit <- survival::coxph(survival::Surv(time = time,
                                               event = event,
-                                              type = "right") ~ ., as.data.frame(x),
+                                              type = "right") ~ aux_data[[x_col]],
                                control = control,
                                singular.ok = T)
-
-        if(length(getPvalFromCox(fit))==1){
-          aux <- c(fit$coefficients["x"], getPvalFromCox(fit))
-        }else{
-          aux <- c(fit$coefficients["x"], getPvalFromCox(fit)["x"]) #cause variable of study is called 'x' and we extract new coefficient taking into account components already computed
+        if (length(getPvalFromCox(fit)) == 1) {
+          c(fit$coefficients, getPvalFromCox(fit))
+        } else {
+          c(fit$coefficients, getPvalFromCox(fit)["x"])
         }
-        aux
-      })))
+      })
+      wh <- do.call(rbind, result_list)
+      colnames(wh) <- c("coefficient", "p.val")
+      wh
     },
-    # Specifying error message
-    error = function(e){
+    error = function(e) {
       message(paste0("invidual_cox: ", e))
       invisible(gc())
       return(NA)
-      #if error we could return beta=0 (no significant) instead a NA!!!
     }
   )
 
+  rownames(wh) <- colnames(aux_data)
   colnames(wh) <- c("coefficient", "p.val")
 
   if(all(is.na(wh))){
@@ -329,17 +328,13 @@ getIndividualCox <- function(data, time_var = "time", event_var = "event"){
 
   if(any(is.na(wh))){
     message(paste0(paste0("Individual COX model cannot be computed for variables (", paste0(rownames(wh)[is.na(wh[,1])], collapse = ", ") ,").")))
-
-    #wh <- wh[-which(is.na(wh[,1])),]
     #replace for beta of 0, and p-value of 1
     wh[which(is.na(wh[,1])),] <- c(rep(0, length(rownames(wh)[is.na(wh[,1])])), rep(1, length(rownames(wh)[is.na(wh[,1])])))
   }
 
   wh <- wh[order(wh$p.val, decreasing = F),]
-
   return(wh)
 }
-
 
 removeNAcoxmodel <- function(model, data){
   # REMOVE NA-PVAL VARIABLES
@@ -347,6 +342,7 @@ removeNAcoxmodel <- function(model, data){
   # DO IT ALWAYS, we do not want problems in COX models
   p_val <- getPvalFromCox(model)
   removed_variables <- NULL
+
   while(sum(is.na(p_val))>0){
     to_remove <- names(p_val)[is.na(p_val)]
     to_remove <- deleteIllegalChars(to_remove)
@@ -384,43 +380,25 @@ removeNAcoxmodel <- function(model, data){
 #### ### ### ### ##
 
 deleteIllegalChars <- function(chr.vector){
-  v <- chr.vector
-  for(i in pkg.env$IllegalChars){
-    v <- unlist(sapply(v, function(x, i){gsub(i, "", x, fixed = T)}, i = i))
-  }
+  # v <- chr.vector
+  # for(i in pkg.env$IllegalChars){
+  #   v <- unlist(sapply(v, function(x, i){gsub(i, "", x, fixed = T)}, i = i))
+  # }
+  # return(v)
+
+  v <- vapply(chr.vector, function(x) {
+    gsub(paste0(pkg.env$IllegalChars, collapse = "|"), "", x)
+  }, character(1))
   return(v)
 }
 
 #only for FORMULAS
-transformIllegalChars <- function(cn){
-  #### Formula cannot manage -,+,* symbols in cn
-  if(!length(cn)>1){
-    if(length(grep("-", cn, fixed = T))>0){
-      cn <- gsub("-", "_", x = cn, fixed = T)
-    }
-    if(length(grep("+", cn, fixed = T))>0){
-      cn <- gsub("+", ".", x = cn, fixed = T)
-    }
-    if(length(grep("*", cn, fixed = T))>0){
-      cn <- gsub("*", ".star.", x = cn, fixed = T)
-    }
-  }else{
-    new_cn <- NULL
-    for(c in cn){
-      if(length(grep("-", c, fixed = T))>0){
-        c <- gsub("-", "_", x = c, fixed = T)
-      }
-      if(length(grep("+", c, fixed = T))>0){
-        c <- gsub("+", ".", x = c, fixed = T)
-      }
-      if(length(grep("*", c, fixed = T))>0){
-        c <- gsub("*", ".star.", x = c, fixed = T)
-      }
-      new_cn <- c(new_cn, c)
-    }
-    cn <- new_cn
-  }
-  return(cn)
+transformIllegalChars <- function(cn) {
+  illegal_chars <- c("-", "+", "*")
+  replacement <- c("_", ".", ".star.")
+  v = vapply(cn, function(x){gsub(pattern = illegal_chars[1], replacement = replacement[1],
+                             gsub(pattern = illegal_chars[2], replacement = replacement[2],
+                             gsub(pattern = illegal_chars[3], replacement = replacement[3], x, fixed = T), fixed = T), fixed = T)}, character(1))
 }
 
 checkColnamesIllegalChars <- function(X){
@@ -448,7 +426,7 @@ stop_quietly <- function(s = NULL) {
 
 checkXY.class <- function(X, Y, verbose = F){
   # Check if X and Y are matrices
-  if (!is.matrix(X)) {
+  if(!is.matrix(X)){
     if(is.data.frame(X)){
       if(verbose){
         message("X data is not a matrix, applying data.matrix\n")
@@ -459,7 +437,7 @@ checkXY.class <- function(X, Y, verbose = F){
     }
   }
 
-  if (!is.matrix(Y)) {
+  if(!is.matrix(Y)){
     if(is.data.frame(Y)){
       if(verbose){
         message("Y data is not a matrix, applying data.matrix\n")
@@ -2994,7 +2972,10 @@ getSubModel <- function(model, comp, remove_non_significant){
 
   #survival_model
   if(!all(is.na(res$X$scores)) & !all(is.na(res$Y$data))){
-    cox_model <- cox(X = res$X$scores, Y = res$Y$data, x.center = F, x.scale = F, y.center = F, y.scale = F, remove_non_significant = remove_non_significant, FORCE = T)
+    cox_model <- cox(X = res$X$scores, Y = res$Y$data,
+                     x.center = F, x.scale = F,
+                     #y.center = F, y.scale = F,
+                     remove_non_significant = remove_non_significant, FORCE = T)
     survival_model <- cox_model$survival_model
     res$survival_model <- survival_model
   }
@@ -3030,7 +3011,10 @@ getSubModel.mb <- function(model, comp, remove_non_significant){
 
     colnames(data) <- col_names
     #survival_model
-    cox_model <- cox(X = data, Y = res$Y$data, x.center = F, x.scale = F, y.center = F, y.scale = F, remove_non_significant = remove_non_significant, FORCE = T)
+    cox_model <- cox(X = data, Y = res$Y$data,
+                     x.center = F, x.scale = F,
+                     #y.center = F, y.scale = F,
+                     remove_non_significant = remove_non_significant, FORCE = T)
     survival_model <- cox_model$survival_model
 
     res$survival_model <- survival_model
@@ -3058,7 +3042,10 @@ getSubModel.mb <- function(model, comp, remove_non_significant){
 
     colnames(data) <- col_names
     #survival_model
-    cox_model <- cox(X = data, Y = res$Y$data, x.center = F, x.scale = F, y.center = F, y.scale = F, remove_non_significant = remove_non_significant, FORCE = T)
+    cox_model <- cox(X = data, Y = res$Y$data,
+                     x.center = F, x.scale = F,
+                     #y.center = F, y.scale = F,
+                     remove_non_significant = remove_non_significant, FORCE = T)
     survival_model <- cox_model$survival_model
 
     res$survival_model <- survival_model
@@ -3082,7 +3069,11 @@ getSubModel.mb <- function(model, comp, remove_non_significant){
 
     colnames(data) <- apply(expand.grid(colnames(res$X$scores[[1]]), names(res$X$scores)), 1, paste, collapse="_")
     #survival_model
-    cox_model <- cox(X = data, Y = res$Y$data, x.center = F, x.scale = F, y.center = F, y.scale = F, remove_non_significant = remove_non_significant, FORCE = T)
+    cox_model <- cox(X = data, Y = res$Y$data,
+                     x.center = F, x.scale = F,
+                     #y.center = F, y.scale = F,
+                     remove_non_significant = remove_non_significant, FORCE = T)
+
     survival_model <- cox_model$survival_model
 
     res$survival_model <- survival_model
@@ -3099,7 +3090,8 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                 max.ncomp, eta.list = NULL, EN.alpha.list = NULL, max.variables = 15,
                                 n_run, k_folds,
                                 MIN_NVAR = 10, MAX_NVAR = 10000, MIN_AUC_INCREASE = 0.01, n.cut_points = 5, EVAL_METHOD = "AUC",
-                                x.center, x.scale, y.center, y.scale,
+                                x.center, x.scale,
+                                y.center, y.scale,
                                 remove_near_zero_variance = F, remove_zero_variance = F,  toKeep.zv = NULL,
                                 remove_non_significant = F,
                                 alpha = 0.05, max.iter = 500, returnData = F,
@@ -3181,7 +3173,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                                            Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
                                                                            n.comp = .$comp,
                                                                            x.center = x.center, x.scale = x.scale,
-                                                                           y.center = y.center, y.scale = y.scale,
+                                                                           #y.center = y.center, y.scale = y.scale,
                                                                            remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
                                                                            remove_non_significant = remove_non_significant,
                                                                            vector = vector,
@@ -3195,7 +3187,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                                             Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
                                                                             n.comp = .$comp,
                                                                             x.center = x.center, x.scale = x.scale,
-                                                                            y.center = y.center, y.scale = y.scale,
+                                                                           #y.center = y.center, y.scale = y.scale,
                                                                             remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
                                                                             remove_non_significant = remove_non_significant,
                                                                             vector = vector,
@@ -3210,7 +3202,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                                      n.comp = .$comp, vector = vector,
                                                                      MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, MIN_AUC_INCREASE = MIN_AUC_INCREASE,
                                                                      x.center = x.center, x.scale = x.scale,
-                                                                     y.center = y.center, y.scale = y.scale,
+                                                                     #y.center = y.center, y.scale = y.scale,
                                                                      remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
                                                                      remove_non_significant = remove_non_significant,  tol = tol,  alpha = alpha, max.iter = max.iter,
                                                                      MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose), .options = furrr_options(seed = TRUE))
@@ -3221,7 +3213,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                                  n.comp = .$comp, vector = vector,
                                                                  MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, MIN_AUC_INCREASE = MIN_AUC_INCREASE,
                                                                  x.center = x.center, x.scale = x.scale,
-                                                                 y.center = y.center, y.scale = y.scale,
+                                                                 #y.center = y.center, y.scale = y.scale,
                                                                  remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
                                                                  remove_non_significant = remove_non_significant, tol = tol, alpha = alpha,
                                                                  MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose), .options = furrr_options(seed = TRUE))
@@ -3235,7 +3227,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                                      Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
                                                                      n.comp = .$comp,
                                                                      x.center = x.center, x.scale = x.scale,
-                                                                     y.center = y.center, y.scale = y.scale,
+                                                                    #y.center = y.center, y.scale = y.scale,
                                                                      MIN_EPV = MIN_EPV, remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
                                                                      remove_non_significant = remove_non_significant,
                                                                      vector = vector,
@@ -3249,7 +3241,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                                     Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
                                                                     n.comp = .$comp,
                                                                     x.center = x.center, x.scale = x.scale,
-                                                                    y.center = y.center, y.scale = y.scale,
+                                                                    #y.center = y.center, y.scale = y.scale,
                                                                     remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
                                                                     remove_non_significant = remove_non_significant,
                                                                     vector = vector,
@@ -3264,7 +3256,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                               n.comp = .$comp, vector = vector,
                                                               MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, MIN_AUC_INCREASE = MIN_AUC_INCREASE,
                                                               x.center = x.center, x.scale = x.scale,
-                                                              y.center = y.center, y.scale = y.scale,
+                                                              #y.center = y.center, y.scale = y.scale,
                                                               remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
                                                               remove_non_significant = remove_non_significant,  tol = tol,  alpha = alpha, max.iter = max.iter,
                                                               MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose))
@@ -3275,7 +3267,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                                n.comp = .$comp, vector = vector,
                                                                MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, MIN_AUC_INCREASE = MIN_AUC_INCREASE,
                                                                x.center = x.center, x.scale = x.scale,
-                                                               y.center = y.center, y.scale = y.scale,
+                                                               #y.center = y.center, y.scale = y.scale,
                                                                remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
                                                                remove_non_significant = remove_non_significant, tol = tol, alpha = alpha,
                                                                MIN_EPV = MIN_EPV, returnData = returnData))
@@ -3398,26 +3390,11 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                                EN.alpha = EN.alpha.list[[.$alpha_index]],
                                                                max.variables = max.variables,
                                                                x.center = x.center, x.scale = x.scale,
-                                                               y.center = y.center, y.scale = y.scale,
+                                                               #y.center = y.center, y.scale = y.scale,
                                                                remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
                                                                remove_non_significant = remove_non_significant,
                                                                alpha = alpha, MIN_EPV = MIN_EPV, verbose = verbose,
                                                                returnData = returnData), .options = furrr_options(seed = TRUE))
-
-        #test with for:
-        for(i in lst_inputs){
-          coxEN(X = data.matrix(lst_X_train[[lst_inputs[[1]]$run]][[lst_inputs[[1]]$fold]]),
-                Y = data.matrix(lst_Y_train[[lst_inputs[[1]]$run]][[lst_inputs[[1]]$fold]]),
-                EN.alpha = EN.alpha.list[[lst_inputs[[1]]$alpha_index]],
-                max.variables = max.variables,
-                x.center = x.center, x.scale = x.scale,
-                y.center = y.center, y.scale = y.scale,
-                remove_non_significant = remove_non_significant,
-                remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
-                alpha = alpha, MIN_EPV = MIN_EPV, verbose = verbose,
-                returnData = F)
-        }
-
       }
 
       future::plan("sequential")
@@ -3430,7 +3407,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                         EN.alpha = EN.alpha.list[[.$alpha_index]],
                                                         max.variables = max.variables,
                                                         x.center = x.center, x.scale = x.scale,
-                                                        y.center = y.center, y.scale = y.scale,
+                                                        #y.center = y.center, y.scale = y.scale,
                                                         remove_non_significant = remove_non_significant,
                                                         remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
                                                         alpha = alpha, MIN_EPV = MIN_EPV, verbose = verbose,
@@ -3532,7 +3509,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                                   Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
                                                                   n.comp = .$comp, spv_penalty = eta.list[[.$eta_index]],
                                                                   x.center = x.center, x.scale = x.scale,
-                                                                  y.center = y.center, y.scale = y.scale,
+                                                                  #y.center = y.center, y.scale = y.scale,
                                                                   remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
                                                                   remove_non_significant = remove_non_significant, tol = tol, alpha = alpha,
                                                                   MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose), .options = furrr_options(seed = TRUE))
@@ -3541,7 +3518,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                                      Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
                                                                      n.comp = .$comp, spv_penalty = eta.list[[.$eta_index]],
                                                                      x.center = x.center, x.scale = x.scale,
-                                                                     y.center = y.center, y.scale = y.scale,
+                                                                     #y.center = y.center, y.scale = y.scale,
                                                                      remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
                                                                      remove_non_significant = remove_non_significant, tol = tol, alpha = alpha,
                                                                      MIN_EPV = MIN_EPV, returnData = returnData), .options = furrr_options(seed = TRUE))
@@ -3550,7 +3527,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                                    Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
                                                                    n.comp = .$comp, eta = eta.list[[.$eta_index]],
                                                                    x.center = x.center, x.scale = x.scale,
-                                                                   y.center = y.center, y.scale = y.scale,
+                                                                   #y.center = y.center, y.scale = y.scale,
                                                                    remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
                                                                    remove_non_significant = remove_non_significant,
                                                                    verbose = verbose, alpha = alpha, tol = tol,
@@ -3560,7 +3537,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                                       Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
                                                                       n.comp = .$comp, eta = eta.list[[.$eta_index]],
                                                                       x.center = x.center, x.scale = x.scale,
-                                                                      y.center = y.center, y.scale = y.scale,
+                                                                      #y.center = y.center, y.scale = y.scale,
                                                                       remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
                                                                       remove_non_significant = remove_non_significant,
                                                                       verbose = verbose, alpha = alpha, tol = tol,
@@ -3575,7 +3552,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                            Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
                                                            n.comp = .$comp, spv_penalty = eta.list[[.$eta_index]],
                                                            x.center = x.center, x.scale = x.scale,
-                                                           y.center = y.center, y.scale = y.scale,
+                                                           #y.center = y.center, y.scale = y.scale,
                                                            MIN_EPV = MIN_EPV, remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
                                                            remove_non_significant = remove_non_significant, tol = tol, alpha = alpha,
                                                            returnData = returnData), .options = furrr_options(seed = TRUE))
@@ -3585,7 +3562,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                               Y = lst_Y_train[[.$run]][[.$fold]],
                                                               n.comp = .$comp, spv_penalty = eta.list[[.$eta_index]],
                                                               x.center = x.center, x.scale = x.scale,
-                                                              y.center = y.center, y.scale = y.scale,
+                                                              #y.center = y.center, y.scale = y.scale,
                                                               remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
                                                               remove_non_significant = remove_non_significant, tol = tol,
                                                               MIN_EPV = MIN_EPV, returnData = returnData), .options = furrr_options(seed = TRUE))
@@ -3594,7 +3571,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                            Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
                                                            n.comp = .$comp, eta = eta.list[[.$eta_index]],
                                                            x.center = x.center, x.scale = x.scale,
-                                                           y.center = y.center, y.scale = y.scale,
+                                                           #y.center = y.center, y.scale = y.scale,
                                                            remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
                                                            remove_non_significant = remove_non_significant,
                                                            verbose = verbose, alpha = alpha, tol = tol,
@@ -3604,7 +3581,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                               Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
                                                               n.comp = .$comp, eta = eta.list[[.$eta_index]],
                                                               x.center = x.center, x.scale = x.scale,
-                                                              y.center = y.center, y.scale = y.scale,
+                                                              #y.center = y.center, y.scale = y.scale,
                                                               remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
                                                               remove_non_significant = remove_non_significant,
                                                               verbose = verbose, alpha = alpha, tol = tol,

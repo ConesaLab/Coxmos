@@ -286,8 +286,6 @@ getSurvivalSubset <- function(X, Y, event.val = TRUE, EPV, p.censored, n.patient
 #' @param eta Eta for manual detection,
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
-#' @param y.center Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).
-#' @param y.scale Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).
 #' @param MIN_EPV Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).
 #' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).
 #'
@@ -297,10 +295,10 @@ super.trainAllModels <- function(lst_subdata, methods,
                                  comp_calculation = "manual",
                                  ncomp = 5, EN.alpha = 0.5, eta = 0.5,
                                  x.center = T, x.scale = T,
-                                 y.center = F, y.scale = F,
                                  MIN_EPV = 0, PARALLEL = T){
 
   #test
+  y.center = y.scale = FALSE
   lst_params <- list()
 
   for(e in names(lst_subdata)){ #EPV
@@ -584,7 +582,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
 
     res_cox <- cox(X = X_train, Y = Y_train,
                    x.center = x.center, x.scale = x.scale,
-                   y.center = y.center, y.scale = y.scale,
+                   #y.center = y.center, y.scale = y.scale,
                    MIN_EPV = MIN_EPV, #by default 0
                    remove_non_significant = F, alpha = 0.05,
                    FORCE = T, returnData = F, verbose = F)
@@ -598,7 +596,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
     res_coxSW <- coxSW(X = X_train, Y = Y_train,
                        max.variables = ncol(X_train), BACKWARDS = T,
                        x.center = x.center, x.scale = x.scale,
-                       y.center = y.center, y.scale = y.scale,
+                       #y.center = y.center, y.scale = y.scale,
                        MIN_EPV = MIN_EPV, #by default 0
                        returnData = F, verbose = F)
 
@@ -617,14 +615,14 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
                                w_AIC = w_AIC, w_c.index = w_c.index, w_AUC = w_AUC,
                                MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
                                x.scale = x.scale, x.center = x.center,
-                               y.scale = y.scale, y.center = y.center,
+                               #y.scale = y.scale, y.center = y.center,
                                fast_mode = fast_mode, return_models = return_models, MIN_EPV = MIN_EPV,
                                pred.attr = pred.attr, pred.method = pred.method, seed = seed)
 
       ### Optimal number of components
       res_coxEN <- coxEN(X = X_train, Y = data.matrix(Y_train), EN.alpha = cv.coxEN_res$opt.EN.alpha,
                          x.center = x.center, x.scale = x.scale,
-                         y.center = y.center, y.scale = y.scale,
+                         #y.center = y.center, y.scale = y.scale,
                          MIN_EPV = MIN_EPV, #by default 0
                          remove_non_significant = F, alpha = 0.05, returnData = F)
 
@@ -632,7 +630,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
 
       res_coxEN <- coxEN(X = X_train, Y = Y_train, EN.alpha = EN.alpha,
                          x.center = x.center, x.scale = x.scale,
-                         y.center = y.center, y.scale = y.scale,
+                         #y.center = y.center, y.scale = y.scale,
                          MIN_EPV = MIN_EPV, #by default 0
                          remove_non_significant = F, alpha = 0.05, returnData = F)
 
@@ -651,7 +649,8 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
                                    n_run = n_run, k_folds = k_folds, alpha = alpha, remove_non_significant_models = remove_non_significant_models,
                                    w_AIC = w_AIC, w_c.index = w_c.index, w_AUC = w_AUC, times = times,
                                    MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                   x.scale = x.scale, x.center = x.center, y.scale = y.scale, y.center = y.center,
+                                   x.scale = x.scale, x.center = x.center,
+                                   #y.scale = y.scale, y.center = y.center,
                                    fast_mode = fast_mode, return_models = return_models, MIN_EPV = MIN_EPV,
                                    pred.attr = pred.attr, pred.method = pred.method, seed = seed)
 
@@ -659,13 +658,15 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
       res_splsicox <- splsicox(X = X_train, Y = data.matrix(Y_train),
                              n.comp = cv.splsicox_res$opt.comp,
                              x.center = x.center, x.scale = x.scale,
-                             y.center = y.center, y.scale = y.scale, returnData = F)
+                             #y.center = y.center, y.scale = y.scale,
+                             returnData = F)
 
     }else{
       res_splsicox <- splsicox(X = X_train, Y = data.matrix(Y_train),
                              n.comp = ncomp,
                              x.center = x.center, x.scale = x.scale,
-                             y.center = y.center, y.scale = y.scale, returnData = F)
+                             #y.center = y.center, y.scale = y.scale,
+                             returnData = F)
     }
   }else{
     res_splsicox <- NA
@@ -680,7 +681,8 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
                                      n_run = n_run, k_folds = k_folds, alpha = alpha, remove_non_significant_models = remove_non_significant_models,
                                      w_AIC = w_AIC, w_c.index = w_c.index, w_AUC = w_AUC, times = times,
                                      MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                     x.scale = x.scale, x.center = x.center, y.scale = y.scale, y.center = y.center,
+                                     x.scale = x.scale, x.center = x.center,
+                                     #y.scale = y.scale, y.center = y.center,
                                      fast_mode = fast_mode, return_models = return_models, MIN_EPV = MIN_EPV,
                                      pred.attr = pred.attr, pred.method = pred.method, seed = seed)
 
@@ -689,7 +691,8 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
                                n.comp = cv.splsdrcox_res$opt.comp,
                                eta = cv.splsdrcox_res$opt.eta,
                                x.center = x.center, x.scale = x.scale,
-                               y.scale = y.scale, y.center = y.center, returnData = F)
+                               #y.scale = y.scale, y.center = y.center,
+                               returnData = F)
 
     }else{
       #solo un spls
@@ -698,7 +701,8 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
                                n.comp = ncomp,
                                eta = eta,
                                x.center = x.center, x.scale = x.scale,
-                               y.scale = y.scale, y.center = y.center, returnData = F)
+                               #y.scale = y.scale, y.center = y.center,
+                               returnData = F)
 
     }
   }else{
@@ -713,7 +717,8 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
                                                        alpha = alpha, remove_non_significant_models = remove_non_significant_models,
                                                        w_AIC = w_AIC, w_c.index = w_c.index, w_AUC = w_AUC, times = times,
                                                        MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                                       x.scale = x.scale, x.center = x.center, y.scale = y.scale, y.center = y.center,
+                                                       x.scale = x.scale, x.center = x.center,
+                                                       #y.scale = y.scale, y.center = y.center,
                                                        vector = vector,
                                                        MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
                                                        EVAL_METHOD = EVAL_METHOD,
@@ -727,7 +732,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
                                                  MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
                                                  EVAL_METHOD = EVAL_METHOD,
                                                  x.center = x.center, x.scale = x.scale,
-                                                 y.scale = y.scale, y.center = y.center,
+                                                 #y.scale = y.scale, y.center = y.center,
                                                  returnData = F)
 
     }else{
@@ -739,7 +744,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
                                                  MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
                                                  EVAL_METHOD = EVAL_METHOD,
                                                  x.center = x.center, x.scale = x.scale,
-                                                 y.scale = y.scale, y.center = y.center,
+                                                 #y.scale = y.scale, y.center = y.center,
                                                  returnData = F)
 
     }
@@ -766,7 +771,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
                                        w_AIC = w_AIC, w_c.index = w_c.index, w_AUC = w_AUC, times = times,
                                        MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
                                        x.scale = x.scale, x.center = x.center,
-                                       y.scale = y.scale, y.center = y.center,
+                                       #y.scale = y.scale, y.center = y.center,
                                        vector = vector,
                                        MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
                                        EVAL_METHOD = EVAL_METHOD,
@@ -779,18 +784,17 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
                                  MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
                                  EVAL_METHOD = EVAL_METHOD,
                                  x.center = x.center, x.scale = x.scale,
-                                 y.center = y.center, y.scale = y.scale,
+                                 #y.center = y.center, y.scale = y.scale,
                                  max.iter = 500, returnData = F)
 
       }else{
-
         res_splsdacox_dynamic <- splsdacox_dynamic(X_train, Y_train,
                                  n.comp = ncomp,
                                  vector = vector,
                                  MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
                                  EVAL_METHOD = EVAL_METHOD,
                                  x.center = x.center, x.scale = x.scale,
-                                 y.center = y.center, y.scale = y.scale,
+                                 #y.center = y.center, y.scale = y.scale,
                                  max.iter = 500, returnData = F)
 
       }

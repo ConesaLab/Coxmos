@@ -11,8 +11,6 @@ mb.splsdrcox(
   vector = NULL,
   x.center = TRUE,
   x.scale = FALSE,
-  y.center = FALSE,
-  y.scale = FALSE,
   remove_near_zero_variance = T,
   remove_zero_variance = T,
   toKeep.zv = NULL,
@@ -45,10 +43,6 @@ mb.splsdrcox(
 \item{x.center}{Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).}
 
 \item{x.scale}{Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).}
-
-\item{y.center}{Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).}
-
-\item{y.scale}{Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).}
 
 \item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).}
 

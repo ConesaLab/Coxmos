@@ -12,8 +12,6 @@
 #' @param eta Numeric (0-1). Penalty for sPLS. If eta = 0 no penalty is applied and 1 maximum penalty (no variables are selected). Equal or greater than 1 cannot be selected (default: 0.5).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
-#' @param y.center Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).
-#' @param y.scale Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).
 #' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
 #' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
@@ -82,33 +80,27 @@
 sb.splsdrcox <- function (X, Y,
                          n.comp = 4, eta = 0.5,
                          x.center = TRUE, x.scale = FALSE,
-                         y.center = FALSE, y.scale = FALSE,
                          remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
                          remove_non_significant = F, alpha = 0.05, tol = 1e-10,
                          MIN_EPV = 5, returnData = T, verbose = F){
 
   t1 <- Sys.time()
-
-  #### Original data
-  X_original <- X
-  Y_original <- Y
-
-  time <- Y[,"time"]
-  event <- Y[,"event"]
+  y.center = y.scale = FALSE
+  FREQ_CUT <- 95/5
 
   #### Check values classes and ranges
-  lst_01 <- list("alpha" = alpha, "eta" = eta)
-  check_min0_max1_variables(lst_01)
+  params_with_limits <- list("alpha" = alpha, "eta" = eta)
+  check_min0_max1_variables(params_with_limits)
 
-  lst_num <- list("n.comp" = n.comp,
+  numeric_params <- list("n.comp" = n.comp,
                   "MIN_EPV" = MIN_EPV, "tol" = tol)
-  check_class(lst_num, class = "numeric")
+  check_class(numeric_params, class = "numeric")
 
-  lst_logical <- list("x.center" = unlist(x.center), "x.scale" = unlist(x.scale),
-                      "y.center" = y.center, "y.scale" = y.scale,
+  logical_params <- list("x.center" = unlist(x.center), "x.scale" = unlist(x.scale),
+                         #"y.center" = y.center, "y.scale" = y.scale,
                       "remove_near_zero_variance" = remove_near_zero_variance, "remove_zero_variance" = remove_zero_variance,
                       "remove_non_significant" = remove_non_significant, "returnData" = returnData, "verbose" = verbose)
-  check_class(lst_logical, class = "logical")
+  check_class(logical_params, class = "logical")
 
   #### REQUIREMENTS
   lst_check <- checkXY.mb.class(X, Y, verbose = verbose)
@@ -117,12 +109,19 @@ sb.splsdrcox <- function (X, Y,
 
   checkY.colnames(Y)
 
+  #### Original data
+  X_original <- X
+  Y_original <- Y
+
+  time <- Y[,"time"]
+  event <- Y[,"event"]
+
   #### ZERO VARIANCE - ALWAYS
   lst_dnz <- deleteZeroOrNearZeroVariance.mb(X = X,
                                             remove_near_zero_variance = remove_near_zero_variance,
                                             remove_zero_variance = remove_zero_variance,
                                             toKeep.zv = toKeep.zv,
-                                            freqCut = 95/5)
+                                            freqCut = FREQ_CUT)
   X <- lst_dnz$X
   variablesDeleted <- lst_dnz$variablesDeleted
 
@@ -144,7 +143,8 @@ sb.splsdrcox <- function (X, Y,
   lst_sb.spls <- list()
   for(b in names(Xh)){
     lst_sb.spls[[b]] <- splsdrcox(X = Xh[[b]], Y = Yh, n.comp = n.comp, eta = eta,
-                                 x.scale = F, x.center = F, y.scale = F, y.center = F,
+                                 x.scale = F, x.center = F,
+                                 #y.scale = F, y.center = F,
                                  remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL, #zero_var already checked
                                  remove_non_significant = remove_non_significant, alpha = alpha, tol = tol,
                                  returnData = F, verbose = verbose)
@@ -169,7 +169,7 @@ sb.splsdrcox <- function (X, Y,
   colnames(data) <- cn.merge
   cox_model <- cox(X = data, Y = Yh,
                    x.center = F, x.scale = F,
-                   y.center = F, y.scale = F,
+                   #y.center = F, y.scale = F,
                    remove_near_zero_variance = F, remove_zero_variance = F,
                    remove_non_significant = remove_non_significant, FORCE = T)
 
@@ -226,8 +226,6 @@ sb.splsdrcox <- function (X, Y,
 #' @param k_folds Numeric. Number of folds for cross validation (default: 10).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
-#' @param y.center Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).
-#' @param y.scale Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).
 #' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
 #' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
@@ -293,7 +291,6 @@ cv.sb.splsdrcox <- function(X, Y,
                            max.ncomp = 10, eta.list = seq(0.1,0.9,0.1),
                            n_run = 5, k_folds = 10,
                            x.center = TRUE, x.scale = FALSE,
-                           y.center = FALSE, y.scale = FALSE,
                            remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL, remove_variance_at_fold_level = F,
                            remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,
                            w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL, max_time_points = 15,
@@ -303,6 +300,8 @@ cv.sb.splsdrcox <- function(X, Y,
                            PARALLEL = F, verbose = F, seed = 123){
 
   t1 <- Sys.time()
+  y.center = y.scale = FALSE
+  FREQ_CUT <- 95/5
 
   #### ### ###
   # WARNINGS #
@@ -312,26 +311,26 @@ cv.sb.splsdrcox <- function(X, Y,
   checkLibraryEvaluator(pred.method)
 
   #### Check values classes and ranges
-  lst_01 <- list("MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
+  params_with_limits <- list("MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
                  "w_AIC" = w_AIC, "w_c.index" = w_c.index, "w_AUC" = w_AUC, "w_BRIER" = w_BRIER)
-  check_min0_max1_variables(lst_01)
+  check_min0_max1_variables(params_with_limits)
 
-  lst_num <- list("max.ncomp" = max.ncomp, "eta.list" = eta.list,
+  numeric_params <- list("max.ncomp" = max.ncomp, "eta.list" = eta.list,
                   "n_run" = n_run, "k_folds" = k_folds, "max_time_points" = max_time_points,
                   "MIN_COMP_TO_CHECK" = MIN_COMP_TO_CHECK, "MIN_EPV" = MIN_EPV, "seed" = seed, "tol" = tol)
-  check_class(lst_num, class = "numeric")
+  check_class(numeric_params, class = "numeric")
 
-  lst_logical <- list("x.center" = unlist(x.center), "x.scale" = unlist(x.scale),
-                      "y.center" = y.center, "y.scale" = y.scale,
+  logical_params <- list("x.center" = unlist(x.center), "x.scale" = unlist(x.scale),
+                         #"y.center" = y.center, "y.scale" = y.scale,
                       "remove_near_zero_variance" = remove_near_zero_variance, "remove_zero_variance" = remove_zero_variance,
                       "remove_variance_at_fold_level" = remove_variance_at_fold_level,
                       "remove_non_significant_models" = remove_non_significant_models,
                       "remove_non_significant" = remove_non_significant,
                       "return_models" = return_models,"returnData" = returnData, "verbose" = verbose, "PARALLEL" = PARALLEL)
-  check_class(lst_logical, class = "logical")
+  check_class(logical_params, class = "logical")
 
-  lst_character <- list("pred.attr" = pred.attr, "pred.method" = pred.method)
-  check_class(lst_character, class = "character")
+  character_params <- list("pred.attr" = pred.attr, "pred.method" = pred.method)
+  check_class(character_params, class = "character")
 
   #### Check cv-folds
   lst_checkFR <- checkFoldRuns(Y, n_run, k_folds, fast_mode)
@@ -357,7 +356,7 @@ cv.sb.splsdrcox <- function(X, Y,
                                                remove_near_zero_variance = remove_near_zero_variance,
                                                remove_zero_variance = remove_zero_variance,
                                                toKeep.zv = toKeep.zv,
-                                               freqCut = 95/5)
+                                               freqCut = FREQ_CUT)
     X <- lst_dnz$X
     variablesDeleted <- lst_dnz$variablesDeleted
   }else{
@@ -397,15 +396,9 @@ cv.sb.splsdrcox <- function(X, Y,
                                   n_run = n_run, k_folds = k_folds,
                                   remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
                                   remove_non_significant = remove_non_significant, alpha = alpha, tol = tol,
-                                  x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
+                                  x.center = x.center, x.scale = x.scale,
+                                  y.center = y.center, y.scale = y.scale,
                                   total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
-
-  # lst_model <- get_HDCOX_models(method = "pkg.env$sb.splsdrcox,
-  #                               lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
-  #                               max.ncomp = max.ncomp, eta.list = eta.list, EN.alpha.list = NULL,
-  #                               n_run = n_run, k_folds = k_folds,
-  #                               x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
-  #                               total_models = total_models)
 
   if(all(is.na(unlist(lst_model)))){
     message(paste0("Best model could NOT be obtained. All models computed present problems. Try to remove variance at fold level. If problem persists, try to delete manually some problematic variables."))
@@ -576,8 +569,6 @@ cv.sb.splsdrcox <- function(X, Y,
 #' @param k_folds Numeric. Number of folds for cross validation (default: 10).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
-#' @param y.center Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).
-#' @param y.scale Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).
 #' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
 #' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
@@ -664,7 +655,6 @@ fast.cv.sb.splsdrcox <- function(X, Y,
                                 max.ncomp = 10, eta.list = seq(0.1,0.9,0.1),
                                 n_run = 5, k_folds = 10,
                                 x.center = TRUE, x.scale = FALSE,
-                                y.center = FALSE, y.scale = FALSE,
                                 remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL, remove_variance_at_fold_level = F,
                                 remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,
                                 w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL, max_time_points = 15,
@@ -674,31 +664,33 @@ fast.cv.sb.splsdrcox <- function(X, Y,
                                 PARALLEL = F, verbose = F, seed = 123){
 
   t1 <- Sys.time()
+  y.center = y.scale = FALSE
+  FREQ_CUT <- 95/5
 
   #### Check evaluator installed:
   checkLibraryEvaluator(pred.method)
 
   #### Check values classes and ranges
-  lst_01 <- list("MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
+  params_with_limits <- list("MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
                  "w_AIC" = w_AIC, "w_c.index" = w_c.index, "w_AUC" = w_AUC, "w_BRIER" = w_BRIER)
-  check_min0_max1_variables(lst_01)
+  check_min0_max1_variables(params_with_limits)
 
-  lst_num <- list("max.ncomp" = max.ncomp, "eta.list" = eta.list,
+  numeric_params <- list("max.ncomp" = max.ncomp, "eta.list" = eta.list,
                   "n_run" = n_run, "k_folds" = k_folds, "max_time_points" = max_time_points,
                   "MIN_COMP_TO_CHECK" = MIN_COMP_TO_CHECK, "MIN_EPV" = MIN_EPV, "seed" = seed, "tol" = tol)
-  check_class(lst_num, class = "numeric")
+  check_class(numeric_params, class = "numeric")
 
-  lst_logical <- list("x.center" = unlist(x.center), "x.scale" = unlist(x.scale),
-                      "y.center" = y.center, "y.scale" = y.scale,
+  logical_params <- list("x.center" = unlist(x.center), "x.scale" = unlist(x.scale),
+                         #"y.center" = y.center, "y.scale" = y.scale,
                       "remove_near_zero_variance" = remove_near_zero_variance, "remove_zero_variance" = remove_zero_variance,
                       "remove_variance_at_fold_level" = remove_variance_at_fold_level,
                       "remove_non_significant_models" = remove_non_significant_models,
                       "remove_non_significant" = remove_non_significant,
                       "return_models" = return_models,"returnData" = returnData, "verbose" = verbose, "PARALLEL" = PARALLEL)
-  check_class(lst_logical, class = "logical")
+  check_class(logical_params, class = "logical")
 
-  lst_character <- list("pred.attr" = pred.attr, "pred.method" = pred.method)
-  check_class(lst_character, class = "character")
+  character_params <- list("pred.attr" = pred.attr, "pred.method" = pred.method)
+  check_class(character_params, class = "character")
 
   #### Check cv-folds
   lst_checkFR <- checkFoldRuns(Y, n_run, k_folds, fast_mode)
@@ -749,7 +741,7 @@ fast.cv.sb.splsdrcox <- function(X, Y,
                                                remove_near_zero_variance = remove_near_zero_variance,
                                                remove_zero_variance = remove_zero_variance,
                                                toKeep.zv = toKeep.zv,
-                                               freqCut = 95/5)
+                                               freqCut = FREQ_CUT)
     X <- lst_dnz$X
     variablesDeleted <- lst_dnz$variablesDeleted
   }else{
@@ -785,7 +777,8 @@ fast.cv.sb.splsdrcox <- function(X, Y,
                                      remove_non_significant = remove_non_significant,
                                      w_AIC = w_AIC, w_c.index = w_c.index, w_AUC = w_AUC, times = times, max_time_points = max_time_points,
                                      MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                     x.scale = x.scale[[b]], x.center = x.center[[b]], y.scale = y.scale, y.center = y.center,
+                                     x.scale = x.scale[[b]], x.center = x.center[[b]],
+                                     #y.scale = y.scale, y.center = y.center,
                                      remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
                                      fast_mode = fast_mode, return_models = return_models, tol = tol,
                                      MIN_EPV = MIN_EPV, verbose = verbose,
@@ -799,7 +792,7 @@ fast.cv.sb.splsdrcox <- function(X, Y,
                                  remove_non_significant = remove_non_significant, alpha = alpha, tol = tol,
                                  returnData = F,
                                  x.center = x.center[[b]], x.scale = x.scale[[b]],
-                                 y.scale = y.scale, y.center = y.center,
+                                 #y.scale = y.scale, y.center = y.center,
                                  verbose = verbose)
   }
 
@@ -821,7 +814,10 @@ fast.cv.sb.splsdrcox <- function(X, Y,
 
   #colnames(data) <- apply(expand.grid(colnames(lst_sb.spls[[1]]$X$scores), names(Xh)), 1, paste, collapse="_")
   colnames(data) <- cn.merge
-  cox_model <- cox(X = data, Y = Yh, x.center = F, x.scale = F, y.center = F, y.scale = F, remove_non_significant = remove_non_significant, FORCE = T)
+  cox_model <- cox(X = data, Y = Yh,
+                   x.center = F, x.scale = F,
+                   #y.center = F, y.scale = F,
+                   remove_non_significant = remove_non_significant, FORCE = T)
 
   if(remove_non_significant){
     removed_variables <- cox_model$nsv

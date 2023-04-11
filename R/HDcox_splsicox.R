@@ -12,8 +12,6 @@
 #' @param spv_penalty Numeric. Penalty for variable selection for the individual cox models. Variables with a lower P-Value than "spv_penalty" in the individual cox analysis will be keep for the sPLS-ICOX approach (default: 1).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
-#' @param y.center Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).
-#' @param y.scale Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).
 #' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
 #' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
@@ -85,12 +83,13 @@
 splsicox <- function(X, Y,
                      n.comp = 4, spv_penalty = 1,
                      x.center = TRUE, x.scale = FALSE,
-                     y.center = FALSE, y.scale = FALSE,
                      remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
                      remove_non_significant = F, alpha = 0.05, tol = 1e-10,
                      MIN_EPV = 5, returnData = T, verbose = F){
 
   t1 <- Sys.time()
+  y.center = y.scale = FALSE
+  FREQ_CUT <- 95/5
 
   #### Original data
   X_original <- X
@@ -100,18 +99,18 @@ splsicox <- function(X, Y,
   event <- Y[,"event"]
 
   #### Check values classes and ranges
-  lst_01 <- list("alpha" = alpha, "eta" = spv_penalty)
-  check_min0_max1_variables(lst_01)
+  params_with_limits <- list("alpha" = alpha, "eta" = spv_penalty)
+  check_min0_max1_variables(params_with_limits)
 
-  lst_num <- list("n.comp" = n.comp,
+  numeric_params <- list("n.comp" = n.comp,
                   "MIN_EPV" = MIN_EPV, "tol" = tol)
-  check_class(lst_num, class = "numeric")
+  check_class(numeric_params, class = "numeric")
 
-  lst_logical <- list("x.center" = x.center, "x.scale" = x.scale,
-                      "y.center" = y.center, "y.scale" = y.scale,
+  logical_params <- list("x.center" = x.center, "x.scale" = x.scale,
+                         #"y.center" = y.center, "y.scale" = y.scale,
                       "remove_near_zero_variance" = remove_near_zero_variance, "remove_zero_variance" = remove_zero_variance,
                       "remove_non_significant" = remove_non_significant, "returnData" = returnData, "verbose" = verbose)
-  check_class(lst_logical, class = "logical")
+  check_class(logical_params, class = "logical")
 
   #### REQUIREMENTS
   lst_check <- checkXY.class(X, Y, verbose = verbose)
@@ -125,7 +124,7 @@ splsicox <- function(X, Y,
                                           remove_near_zero_variance = remove_near_zero_variance,
                                           remove_zero_variance = remove_zero_variance,
                                           toKeep.zv = toKeep.zv,
-                                          freqCut = 95/5)
+                                          freqCut = FREQ_CUT)
   X <- lst_dnz$X
   variablesDeleted <- lst_dnz$variablesDeleted
 
@@ -536,8 +535,6 @@ splsicox <- function(X, Y,
 #' @param k_folds Numeric. Number of folds for cross validation (default: 10).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
-#' @param y.center Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).
-#' @param y.scale Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).
 #' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
 #' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
@@ -602,7 +599,6 @@ cv.splsicox <- function (X, Y,
                         max.ncomp = 10, spv_penalty.list = seq(0.1,1,0.1),
                         n_run = 5, k_folds = 10,
                         x.center = TRUE, x.scale = FALSE,
-                        y.center = FALSE, y.scale = FALSE,
                         remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL, remove_variance_at_fold_level = F,
                         remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,
                         w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL, max_time_points = 15,
@@ -612,6 +608,8 @@ cv.splsicox <- function (X, Y,
                         PARALLEL = F, verbose = F, seed = 123){
 
   t1 <- Sys.time()
+  y.center = y.scale = FALSE
+  FREQ_CUT <- 95/5
 
   #### ### ###
   # WARNINGS #
@@ -621,26 +619,26 @@ cv.splsicox <- function (X, Y,
   checkLibraryEvaluator(pred.method)
 
   #### Check values classes and ranges
-  lst_01 <- list("MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
+  params_with_limits <- list("MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
                  "w_AIC" = w_AIC, "w_c.index" = w_c.index, "w_AUC" = w_AUC, "w_BRIER" = w_BRIER)
-  check_min0_max1_variables(lst_01)
+  check_min0_max1_variables(params_with_limits)
 
-  lst_num <- list("max.ncomp" = max.ncomp, "spv_penalty.list" = spv_penalty.list,
+  numeric_params <- list("max.ncomp" = max.ncomp, "spv_penalty.list" = spv_penalty.list,
                   "n_run" = n_run, "k_folds" = k_folds, "max_time_points" = max_time_points,
                   "MIN_COMP_TO_CHECK" = MIN_COMP_TO_CHECK, "MIN_EPV" = MIN_EPV, "seed" = seed, "tol" = tol)
-  check_class(lst_num, class = "numeric")
+  check_class(numeric_params, class = "numeric")
 
-  lst_logical <- list("x.center" = x.center, "x.scale" = x.scale,
-                      "y.center" = y.center, "y.scale" = y.scale,
+  logical_params <- list("x.center" = x.center, "x.scale" = x.scale,
+                         #"y.center" = y.center, "y.scale" = y.scale,
                       "remove_near_zero_variance" = remove_near_zero_variance, "remove_zero_variance" = remove_zero_variance,
                       "remove_variance_at_fold_level" = remove_variance_at_fold_level,
                       "remove_non_significant_models" = remove_non_significant_models,
                       "remove_non_significant" = remove_non_significant,
                       "return_models" = return_models,"returnData" = returnData, "verbose" = verbose, "PARALLEL" = PARALLEL)
-  check_class(lst_logical, class = "logical")
+  check_class(logical_params, class = "logical")
 
-  lst_character <- list("pred.attr" = pred.attr, "pred.method" = pred.method)
-  check_class(lst_character, class = "character")
+  character_params <- list("pred.attr" = pred.attr, "pred.method" = pred.method)
+  check_class(character_params, class = "character")
 
   #### Check cv-folds
   lst_checkFR <- checkFoldRuns(Y, n_run, k_folds, fast_mode)
@@ -673,13 +671,12 @@ cv.splsicox <- function (X, Y,
                                             remove_near_zero_variance = remove_near_zero_variance,
                                             remove_zero_variance = remove_zero_variance,
                                             toKeep.zv = toKeep.zv,
-                                            freqCut = 95/5)
+                                            freqCut = FREQ_CUT)
     X <- lst_dnz$X
     variablesDeleted <- lst_dnz$variablesDeleted
   }else{
     variablesDeleted <- NULL
   }
-
 
   #### #
   # CV #
@@ -706,7 +703,8 @@ cv.splsicox <- function (X, Y,
   lst_model <- get_HDCOX_models2.0(method = pkg.env$splsicox,
                                    lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
                                    max.ncomp = max.ncomp, eta.list = spv_penalty.list, EN.alpha.list = NULL, n_run = n_run, k_folds = k_folds,
-                                   x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
+                                   x.center = x.center, x.scale = x.scale,
+                                   y.center = y.center, y.scale = y.scale,
                                    remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
                                    remove_non_significant = remove_non_significant,
                                    total_models = total_models, tol = tol, PARALLEL = PARALLEL, verbose = verbose)
@@ -727,13 +725,6 @@ cv.splsicox <- function (X, Y,
       return(cv.splsicox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, nzv = variablesDeleted, class = pkg.env$cv.splsicox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
     }
   }
-
-  # comp_model_lst <- get_HDCOX_models(method = pkg.env$splsicox,
-  #                                    lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
-  #                                    max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL, n_run = n_run, k_folds = k_folds,
-  #                                    x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
-  #                                    remove_near_zero_variance = remove_near_zero_variance,
-  #                                    total_models = total_models)
 
   #### ### ### ### ### ### #
   # BEST MODEL FOR CV DATA #

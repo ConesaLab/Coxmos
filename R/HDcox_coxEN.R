@@ -12,8 +12,6 @@
 #' @param max.variables Numeric. Maximum number of variables you want to keep in the cox model. If MIN_EPV is not meet, the value will be change automatically (default: 20).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
-#' @param y.center Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).
-#' @param y.scale Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).
 #' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
 #' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
@@ -84,12 +82,32 @@
 coxEN <- function(X, Y,
                   EN.alpha = 0.5, max.variables = 15,
                   x.center = TRUE, x.scale = FALSE,
-                  y.center = FALSE, y.scale = FALSE,
                   remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
                   remove_non_significant = F, alpha = 0.05,
                   MIN_EPV = 5, returnData = T, verbose = F){
 
   t1 <- Sys.time()
+  y.center = y.scale = FALSE
+  FREQ_CUT <- 95/5
+
+  #### Check values classes and ranges
+  params_with_limits <- list("alpha" = alpha, "EN.alpha" = EN.alpha)
+  check_min0_max1_variables(params_with_limits)
+
+  numeric_params <- list("max.variables" = max.variables,
+                  "MIN_EPV" = MIN_EPV)
+  check_class(numeric_params, class = "numeric")
+
+  logical_params <- list("x.center" = x.center, "x.scale" = x.scale,
+                         #"y.center" = y.center, "y.scale" = y.scale,
+                      "remove_near_zero_variance" = remove_near_zero_variance, "remove_zero_variance" = remove_zero_variance,
+                      "remove_non_significant" = remove_non_significant, "returnData" = returnData, "verbose" = verbose)
+  check_class(logical_params, class = "logical")
+
+  #### REQUIREMENTS
+  lst_check <- checkXY.class(X, Y, verbose = verbose)
+  X <- lst_check$X
+  Y <- lst_check$Y
 
   #### Original data
   X_original <- X
@@ -98,31 +116,12 @@ coxEN <- function(X, Y,
   time <- Y[,"time"]
   event <- Y[,"event"]
 
-  #### Check values classes and ranges
-  lst_01 <- list("alpha" = alpha, "EN.alpha" = EN.alpha)
-  check_min0_max1_variables(lst_01)
-
-  lst_num <- list("max.variables" = max.variables,
-                  "MIN_EPV" = MIN_EPV)
-  check_class(lst_num, class = "numeric")
-
-  lst_logical <- list("x.center" = x.center, "x.scale" = x.scale,
-                      "y.center" = y.center, "y.scale" = y.scale,
-                      "remove_near_zero_variance" = remove_near_zero_variance, "remove_zero_variance" = remove_zero_variance,
-                      "remove_non_significant" = remove_non_significant, "returnData" = returnData, "verbose" = verbose)
-  check_class(lst_logical, class = "logical")
-
-  #### REQUIREMENTS
-  lst_check <- checkXY.class(X, Y, verbose = verbose)
-  X <- lst_check$X
-  Y <- lst_check$Y
-
   #### ZERO VARIANCE - ALWAYS
   lst_dnz <- deleteZeroOrNearZeroVariance(X = X,
                                           remove_near_zero_variance = remove_near_zero_variance,
                                           remove_zero_variance = remove_zero_variance,
                                           toKeep.zv = toKeep.zv,
-                                          freqCut = 95/5)
+                                          freqCut = FREQ_CUT)
   X <- lst_dnz$X
   variablesDeleted <- lst_dnz$variablesDeleted
 
@@ -360,8 +359,6 @@ coxEN <- function(X, Y,
 #' @param k_folds Numeric. Number of folds for cross validation (default: 10).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
-#' @param y.center Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).
-#' @param y.scale Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).
 #' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
 #' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
@@ -423,7 +420,6 @@ cv.coxEN <- function(X, Y,
                      max.variables = 15,
                      n_run = 5, k_folds = 10,
                      x.center = TRUE, x.scale = FALSE,
-                     y.center = FALSE, y.scale = FALSE,
                      remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL, remove_variance_at_fold_level = F,
                      remove_non_significant = F, alpha = 0.05,
                      w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL, max_time_points = 15,
@@ -433,6 +429,8 @@ cv.coxEN <- function(X, Y,
                      PARALLEL = F, verbose = F, seed = 123){
 
   t1 <- Sys.time()
+  FREQ_CUT <- 95/5
+  y.center = y.scale = FALSE
 
   #### ### ###
   # WARNINGS #
@@ -442,25 +440,25 @@ cv.coxEN <- function(X, Y,
   checkLibraryEvaluator(pred.method)
 
   #### Check values classes and ranges
-  lst_01 <- list("MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
+  params_with_limits <- list("MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
                         "w_AIC" = w_AIC, "w_c.index" = w_c.index, "w_AUC" = w_AUC, "w_BRIER" = w_BRIER)
-  check_min0_max1_variables(lst_01)
+  check_min0_max1_variables(params_with_limits)
 
-  lst_num <- list("EN.alpha.list" = EN.alpha.list, "max.variables" = max.variables,
+  numeric_params <- list("EN.alpha.list" = EN.alpha.list, "max.variables" = max.variables,
                   "n_run" = n_run, "k_folds" = k_folds, "max_time_points" = max_time_points,
                   "MIN_COMP_TO_CHECK" = MIN_COMP_TO_CHECK, "MIN_EPV" = MIN_EPV, "seed" = seed)
-  check_class(lst_num, class = "numeric")
+  check_class(numeric_params, class = "numeric")
 
-  lst_logical <- list("x.center" = x.center, "x.scale" = x.scale,
-                      "y.center" = y.center, "y.scale" = y.scale,
+  logical_params <- list("x.center" = x.center, "x.scale" = x.scale,
+                         #"y.center" = y.center, "y.scale" = y.scale,
                       "remove_near_zero_variance" = remove_near_zero_variance, "remove_zero_variance" = remove_zero_variance,
                       "remove_variance_at_fold_level" = remove_variance_at_fold_level,
                       "remove_non_significant" = remove_non_significant,
                       "return_models" = return_models,"returnData" = returnData, "verbose" = verbose, "PARALLEL" = PARALLEL)
-  check_class(lst_logical, class = "logical")
+  check_class(logical_params, class = "logical")
 
-  lst_character <- list("pred.attr" = pred.attr, "pred.method" = pred.method)
-  check_class(lst_character, class = "character")
+  character_params <- list("pred.attr" = pred.attr, "pred.method" = pred.method)
+  check_class(character_params, class = "character")
 
   #### Check cv-folds
   lst_checkFR <- checkFoldRuns(Y, n_run, k_folds, fast_mode)
@@ -488,7 +486,7 @@ cv.coxEN <- function(X, Y,
                                             remove_near_zero_variance = remove_near_zero_variance,
                                             remove_zero_variance = remove_zero_variance,
                                             toKeep.zv = toKeep.zv,
-                                            freqCut = 95/5)
+                                            freqCut = FREQ_CUT)
     X <- lst_dnz$X
     variablesDeleted <- lst_dnz$variablesDeleted
   }else{

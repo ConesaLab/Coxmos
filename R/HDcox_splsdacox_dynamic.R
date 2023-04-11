@@ -16,8 +16,6 @@
 #' @param MIN_AUC_INCREASE Numeric. Minimum improvement between different cross validation models to continue evaluating higher values in the multiple tested parameters. If it is not reached for next 'MIN_COMP_TO_CHECK' models and the minimum 'MIN_AUC' value is reached, the evaluation stops (default: 0.01).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
-#' @param y.center Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).
-#' @param y.scale Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).
 #' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
 #' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
@@ -100,7 +98,6 @@ splsdacox_dynamic <- function (X, Y,
                                MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 5,
                                MIN_AUC_INCREASE = 0.01,
                                x.center = TRUE, x.scale = FALSE,
-                               y.center = FALSE, y.scale = FALSE,
                                remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
                                remove_non_significant = F, alpha = 0.05, tol = 1e-10,
                                EVAL_METHOD = "AUC", pred.method = "cenROC", max.iter = 200,
@@ -108,31 +105,26 @@ splsdacox_dynamic <- function (X, Y,
                                MIN_EPV = 5, returnData = T, verbose = F){
 
   t1 <- Sys.time()
-
-  #### Original data
-  X_original <- X
-  Y_original <- Y
-
-  time <- Y[,"time"]
-  event <- Y[,"event"]
+  y.center = y.scale = FALSE
+  FREQ_CUT <- 95/5
 
   #### Check values classes and ranges
-  lst_01 <- list("alpha" = alpha, "MIN_AUC_INCREASE" = MIN_AUC_INCREASE)
-  check_min0_max1_variables(lst_01)
+  params_with_limits <- list("alpha" = alpha, "MIN_AUC_INCREASE" = MIN_AUC_INCREASE)
+  check_min0_max1_variables(params_with_limits)
 
-  lst_num <- list("n.comp" = n.comp, "MIN_NVAR" = MIN_NVAR, "MAX_NVAR" = MAX_NVAR, "n.cut_points" = n.cut_points,
+  numeric_params <- list("n.comp" = n.comp, "MIN_NVAR" = MIN_NVAR, "MAX_NVAR" = MAX_NVAR, "n.cut_points" = n.cut_points,
                   "max_time_points" = max_time_points,
                   "MIN_EPV" = MIN_EPV, "tol" = tol, "max.iter" = max.iter)
-  check_class(lst_num, class = "numeric")
+  check_class(numeric_params, class = "numeric")
 
-  lst_logical <- list("x.center" = x.center, "x.scale" = x.scale,
-                      "y.center" = y.center, "y.scale" = y.scale,
+  logical_params <- list("x.center" = x.center, "x.scale" = x.scale,
+                         #"y.center" = y.center, "y.scale" = y.scale,
                       "remove_near_zero_variance" = remove_near_zero_variance, "remove_zero_variance" = remove_zero_variance,
                       "remove_non_significant" = remove_non_significant, "returnData" = returnData, "verbose" = verbose)
-  check_class(lst_logical, class = "logical")
+  check_class(logical_params, class = "logical")
 
-  lst_character <- list("EVAL_METHOD" = EVAL_METHOD, "pred.method" = pred.method)
-  check_class(lst_character, class = "character")
+  character_params <- list("EVAL_METHOD" = EVAL_METHOD, "pred.method" = pred.method)
+  check_class(character_params, class = "character")
 
   #### REQUIREMENTS
   lst_check <- checkXY.class(X, Y, verbose = verbose)
@@ -141,12 +133,19 @@ splsdacox_dynamic <- function (X, Y,
 
   checkY.colnames(Y)
 
+  #### Original data
+  X_original <- X
+  Y_original <- Y
+
+  time <- Y[,"time"]
+  event <- Y[,"event"]
+
   #### ZERO VARIANCE - ALWAYS
   lst_dnz <- deleteZeroOrNearZeroVariance(X = X,
                                           remove_near_zero_variance = remove_near_zero_variance,
                                           remove_zero_variance = remove_zero_variance,
                                           toKeep.zv = toKeep.zv,
-                                          freqCut = 95/5)
+                                          freqCut = FREQ_CUT)
   X <- lst_dnz$X
   variablesDeleted <- lst_dnz$variablesDeleted
 
@@ -339,8 +338,6 @@ splsdacox_dynamic <- function (X, Y,
 #' @param k_folds Numeric. Number of folds for cross validation (default: 10).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
-#' @param y.center Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).
-#' @param y.scale Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).
 #' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
 #' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
@@ -411,7 +408,6 @@ cv.splsdacox_dynamic <- function(X, Y,
                         max.ncomp = 10, vector = NULL,
                         n_run = 5, k_folds = 10,
                         x.center = TRUE, x.scale = FALSE,
-                        y.center = FALSE, y.scale = FALSE,
                         remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL, remove_variance_at_fold_level = F,
                         remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,
                         MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 5,
@@ -425,6 +421,8 @@ cv.splsdacox_dynamic <- function(X, Y,
                         PARALLEL = F, verbose = F, seed = 123){
 
   t1 <- Sys.time()
+  y.center = y.scale = FALSE
+  FREQ_CUT <- 95/5
 
   #### ### ###
   # WARNINGS #
@@ -434,26 +432,26 @@ cv.splsdacox_dynamic <- function(X, Y,
   checkLibraryEvaluator(pred.method)
 
   #### Check values classes and ranges
-  lst_01 <- list("MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
+  params_with_limits <- list("MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
                  "w_AIC" = w_AIC, "w_c.index" = w_c.index, "w_AUC" = w_AUC, "w_BRIER" = w_BRIER)
-  check_min0_max1_variables(lst_01)
+  check_min0_max1_variables(params_with_limits)
 
-  lst_num <- list("max.ncomp" = max.ncomp, "MIN_NVAR" = MIN_NVAR, "MAX_NVAR" = MAX_NVAR, "n.cut_points" = n.cut_points,
+  numeric_params <- list("max.ncomp" = max.ncomp, "MIN_NVAR" = MIN_NVAR, "MAX_NVAR" = MAX_NVAR, "n.cut_points" = n.cut_points,
                   "n_run" = n_run, "k_folds" = k_folds, "max_time_points" = max_time_points,
                   "MIN_COMP_TO_CHECK" = MIN_COMP_TO_CHECK, "MIN_EPV" = MIN_EPV, "seed" = seed, "tol" = tol)
-  check_class(lst_num, class = "numeric")
+  check_class(numeric_params, class = "numeric")
 
-  lst_logical <- list("x.center" = x.center, "x.scale" = x.scale,
-                      "y.center" = y.center, "y.scale" = y.scale,
+  logical_params <- list("x.center" = x.center, "x.scale" = x.scale,
+                         #"y.center" = y.center, "y.scale" = y.scale,
                       "remove_near_zero_variance" = remove_near_zero_variance, "remove_zero_variance" = remove_zero_variance,
                       "remove_variance_at_fold_level" = remove_variance_at_fold_level,
                       "remove_non_significant_models" = remove_non_significant_models,
                       "remove_non_significant" = remove_non_significant,
                       "return_models" = return_models,"returnData" = returnData, "verbose" = verbose, "PARALLEL" = PARALLEL)
-  check_class(lst_logical, class = "logical")
+  check_class(logical_params, class = "logical")
 
-  lst_character <- list("EVAL_METHOD" = EVAL_METHOD, "pred.attr" = pred.attr, "pred.method" = pred.method)
-  check_class(lst_character, class = "character")
+  character_params <- list("EVAL_METHOD" = EVAL_METHOD, "pred.attr" = pred.attr, "pred.method" = pred.method)
+  check_class(character_params, class = "character")
 
   #### Check cv-folds
   lst_checkFR <- checkFoldRuns(Y, n_run, k_folds, fast_mode)
@@ -486,7 +484,7 @@ cv.splsdacox_dynamic <- function(X, Y,
                                             remove_near_zero_variance = remove_near_zero_variance,
                                             remove_zero_variance = remove_zero_variance,
                                             toKeep.zv = toKeep.zv,
-                                            freqCut = 95/5)
+                                            freqCut = FREQ_CUT)
     X <- lst_dnz$X
     variablesDeleted <- lst_dnz$variablesDeleted
   }else{
@@ -521,16 +519,11 @@ cv.splsdacox_dynamic <- function(X, Y,
                                        MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
                                        MIN_AUC_INCREASE = MIN_AUC_INCREASE,
                                        EVAL_METHOD = EVAL_METHOD,
-                                       x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
+                                       x.center = x.center, x.scale = x.scale,
+                                       y.center = y.center, y.scale = y.scale,
                                        remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
                                        remove_non_significant = remove_non_significant,
                                        total_models = total_models, max.iter = max.iter, tol = tol, PARALLEL = PARALLEL, verbose = verbose)
-
-  # comp_model_lst <- get_HDCOX_models(method = pkg.env$splsdacox_dynamic,
-  #                                    lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
-  #                                    max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL, n_run = n_run, k_folds = k_folds,
-  #                                    x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
-  #                                    total_models = total_models, max.iter = max.iter)
 
   if(all(is.null(comp_model_lst))){
     message(paste0("Best model could NOT be obtained. All models computed present problems. Try to remove variance at fold level. If problem persists, try to delete manually some problematic variables."))

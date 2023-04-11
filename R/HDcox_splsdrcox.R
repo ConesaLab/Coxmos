@@ -12,8 +12,6 @@
 #' @param eta Numeric (0-1). Penalty for sPLS. If eta = 0 no penalty is applied and 1 maximum penalty (no variables are selected). Equal or greater than 1 cannot be selected (default: 0.5).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
-#' @param y.center Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).
-#' @param y.scale Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).
 #' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
 #' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
@@ -103,33 +101,27 @@
 splsdrcox <- function (X, Y,
                       n.comp = 4, eta = 0.5,
                       x.center = TRUE, x.scale = FALSE,
-                      y.center = FALSE, y.scale = FALSE,
                       remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
                       remove_non_significant = F, alpha = 0.05, tol = 1e-10,
                       MIN_EPV = 5, returnData = T, verbose = F){
 
   t1 <- Sys.time()
-
-  #### Original data
-  X_original <- X
-  Y_original <- Y
-
-  time <- Y[,"time"]
-  event <- Y[,"event"]
+  y.center = y.scale = FALSE
+  FREQ_CUT <- 95/5
 
   #### Check values classes and ranges
-  lst_01 <- list("alpha" = alpha, "eta" = eta)
-  check_min0_max1_variables(lst_01)
+  params_with_limits <- list("alpha" = alpha, "eta" = eta)
+  check_min0_max1_variables(params_with_limits)
 
-  lst_num <- list("n.comp" = n.comp,
+  numeric_params <- list("n.comp" = n.comp,
                   "MIN_EPV" = MIN_EPV, "tol" = tol)
-  check_class(lst_num, class = "numeric")
+  check_class(numeric_params, class = "numeric")
 
-  lst_logical <- list("x.center" = x.center, "x.scale" = x.scale,
-                      "y.center" = y.center, "y.scale" = y.scale,
+  logical_params <- list("x.center" = x.center, "x.scale" = x.scale,
+                         #"y.center" = y.center, "y.scale" = y.scale,
                       "remove_near_zero_variance" = remove_near_zero_variance, "remove_zero_variance" = remove_zero_variance,
                       "remove_non_significant" = remove_non_significant, "returnData" = returnData, "verbose" = verbose)
-  check_class(lst_logical, class = "logical")
+  check_class(logical_params, class = "logical")
 
   #### REQUIREMENTS
   lst_check <- checkXY.class(X, Y, verbose = verbose)
@@ -138,12 +130,19 @@ splsdrcox <- function (X, Y,
 
   checkY.colnames(Y)
 
+  #### Original data
+  X_original <- X
+  Y_original <- Y
+
+  time <- Y[,"time"]
+  event <- Y[,"event"]
+
   #### ZERO VARIANCE - ALWAYS
   lst_dnz <- deleteZeroOrNearZeroVariance(X = X,
                                           remove_near_zero_variance = remove_near_zero_variance,
                                           remove_zero_variance = remove_zero_variance,
                                           toKeep.zv = toKeep.zv,
-                                          freqCut = 95/5)
+                                          freqCut = FREQ_CUT)
   X <- lst_dnz$X
   variablesDeleted <- lst_dnz$variablesDeleted
 
@@ -494,299 +493,6 @@ splsdrcox <- function (X, Y,
                              time = time)))
 }
 
-splsdrcox.modelPerComponent <- function (X, Y,
-                                        n.comp = 4, eta = 0.5,
-                                        x.center = TRUE, x.scale = FALSE,
-                                        y.center = FALSE, y.scale = FALSE,
-                                        remove_near_zero_variance = T, toKeep.zv = NULL, tol = 1e-10,
-                                        returnData = T, remove_zero_variance = F, verbose = F){
-
-  #### REQUIREMENTS
-  lst_check <- checkXY.class(X, Y, verbose = verbose)
-  X <- lst_check$X
-  Y <- lst_check$Y
-
-  checkY.colnames(Y)
-
-  #### Original data
-  X_original <- X
-  Y_original <- Y
-
-  time <- Y[,"time"]
-  event <- Y[,"event"]
-
-  #### ZERO VARIANCE - ALWAYS
-  lst_dnz <- deleteZeroOrNearZeroVariance(X = X,
-                                          remove_near_zero_variance = remove_near_zero_variance,
-                                          remove_zero_variance = remove_zero_variance,
-                                          toKeep.zv = toKeep.zv,
-                                          freqCut = 95/5)
-  X <- lst_dnz$X
-  variablesDeleted <- lst_dnz$variablesDeleted
-
-  #### SCALING
-  lst_scale <- XY.scale(X, Y, x.center, x.scale, y.center, y.scale)
-  Xh <- lst_scale$Xh
-  Yh <- lst_scale$Yh
-  xmeans <- lst_scale$xmeans
-  xsds <- lst_scale$xsds
-  ymeans <- lst_scale$ymeans
-  ysds <- lst_scale$ysds
-
-  X_norm <- Xh
-
-  XXNA <- is.na(Xh) #T is NA
-  YNA <- is.na(Y) #T is NA
-
-  #### ### ### ### ### ### ### ### ### ### ### #
-  ### ##             sPLS-COX             ### ##
-  #### ### ### ### ### ### ### ### ### ### ### #
-
-  #2. Surv function - NULL model
-  coxDR <- survival::coxph(survival::Surv(time = time, event = event, type = "right") ~ 1, as.data.frame(Xh))
-
-  #3. Residuals - Default is deviance because eval type="deviance"
-  DR_coxph <- residuals(coxDR, type = "deviance") #"martingale", "deviance", "score", "schoenfeld", "dfbeta"', "dfbetas", "scaledsch" and "partial"
-
-  #### ### ### ### ### ### ### ### ### ### ### ###
-  #### ### ### ### ### ### ### ### ### ### ### ###
-  ##                                            ##
-  ##  Beginning of the loop for the components  ##
-  ##                                            ##
-  #### ### ### ### ### ### ### ### ### ### ### ###
-  #### ### ### ### ### ### ### ### ### ### ### ###
-
-  #4. sPLS Algorithm
-  n_var <- ncol(Xh)
-  n_dr <- ncol(DR_coxph)
-
-  if(is.null(n_dr)){
-    n_dr=1
-  }
-
-  #CENTER DEVIANCE RESIUDALS
-  mu <- mean(DR_coxph) #equivalent because Y it is not normalized
-  DR_coxph <- scale(DR_coxph, center = mu, scale = FALSE) #center DR to DR / patients
-  DR_coxph_ori <- DR_coxph
-
-  #### INITIALISING VARIABLES
-  lst_HDcox_spls <- list()
-
-  beta_pls <- matrix(0, n_var, n_dr)
-  beta_matrix <- list()
-  var_by_component <- list()
-  var_by_component_nzv <- list()
-  plsfit_list <- list()
-  predplsfit_list <- list()
-  Z_list <- list()
-  ww_list <- list()
-
-  lst_pls <- NULL
-  last.pls <- NULL
-
-  E <- list()
-  R2 <- list()
-  SCR <- list()
-  SCT <- list()
-
-  for(h in 1:n.comp) {
-    #4.1
-    #t(Xh) * Deviance Residuals
-    #por cada variable, multiplicamos su valor por el residuo de cada paciente (aunque este sea el total de todo)
-    #Ej. Sex = 1.1724346  1.1724346  1.1724346  1.1724346 -0.8528423  1.1724346
-    #Residual = -0.1754595 -0.004732449 0.8676313 -0.757973 -0.3859317 -0.004732449
-    #Res = 0.2408943 (Valor de relacion entre los residuos y las variables)
-    #valores cercanos a cero es porque no hay residuos
-
-    Xh[XXNA] <- 0
-    #for matrix multiplications, NA as 0 is the same as not using that patient
-    Z <- t(Xh) %*% DR_coxph #this Z is not the same as the paper
-    Z_list[[h]] <- Z
-
-    Xh[XXNA] <- NA
-
-    #4.2 Get selected variables using eta: what <- spls.dv(Z, eta, kappa, eps, maxstep)
-    # spls DEVIANCE RESIDUALS
-    Z_median <- median(abs(Z))
-    Z_norm <- Z/Z_median #normalizar respecto la mediana
-
-    # ww2 <- matrix(0, n_var, 1)
-    # rownames(ww2) <- colnames(Xh)
-    # lambda = 0.2
-    # Z2_l <- (abs(Z2) - lambda/2)
-    # ww2[Z2_l >= 0] <- Z2_l[Z2_l>=0] * sign(Z2)[Z2_l>=0]
-
-    ww <- matrix(0, n_var, 1)
-    rownames(ww) <- colnames(Xh)
-    if(eta < 1) {#threshold para penalizacion?
-      Z_mod <- abs(Z_norm) - eta * max(abs(Z_norm)) #keep those variables greater than eta * max value
-
-      if(sum(Z_mod >= 0)==1){ #only one variable does not allow to compute a PLS model (take the another one)
-        Z_mod_neg <- Z_mod[which(Z_mod < 0),,drop=F]
-        cn_extra <- rownames(Z_mod_neg)[which.max(Z_mod_neg)]
-        Z_mod[cn_extra,] <- 0.01
-      }
-
-      ww[Z_mod >= 0] <- Z_mod[Z_mod >= 0] * (sign(Z_mod))[Z_mod >= 0] #keeping the sign
-    }else{
-      stop_quietly("eta should be a value between [0, 1), default is 0.5")
-    }
-
-    ww_list[[h]] <- ww
-
-    #4.3 Get variables greater than 0 and variables already selected (beta !=0)
-    if(h==1){
-      A <- rownames(ww[which(ww != 0),,drop=F])
-    }else{
-      A <- unique(c(rownames(ww[which(ww != 0),,drop=F]), names(beta_matrix[,h-1])[which(beta_matrix[, h-1]!=0)]))
-    }
-
-    Xa <- Xh[,A,drop = FALSE]
-
-    #4.4 Run standard PLS with new components and the deviance residuals - Filter near zero variables
-    nZ <- caret::nearZeroVar(Xa, saveMetrics = T) #to check if we have to do some changes in the data
-    td <- rownames(nZ[nZ$nzv==T,])
-
-    #Do not delete
-    # if(any(mustKeep %in% td)){
-    #   td <- td[-which(td %in% mustKeep)]
-    # }
-
-    lstDeleted <- td
-    if(length(lstDeleted)>0 & ncol(Xa)>2){
-      Xa <- Xa[,!colnames(Xa) %in% lstDeleted, drop=F]
-    }
-    A_nzv <- colnames(Xa)
-
-    #### ### ### #
-    # PREDICTION #
-    #### ### ### #
-
-    #But always using the complete residuals
-    #plsfit2 <- mixOmics::pls(Xa, DR_coxph_ori, ncomp = min(h, ncol(Xa)), scale = F)
-    plsfit <- pls2(X = Xa, Y = DR_coxph_ori, n.comp = min(h, ncol(Xa)),
-                   x.center = F, x.scale = F, y.center = F, y.scale = F,
-                   it = 1, tol.W.star = tol, verbose = verbose)
-    plsfit_list[[h]] <- plsfit
-
-    XaNA <- is.na(Xa) #T is NA
-    Xa[XaNA] <- 0
-    predplsfit <- Xa[,rownames(plsfit$X$loadings),drop=F] %*% plsfit$B[,,drop=F]
-    Xa[XaNA] <- NA
-
-    #### ### ### ### ###
-    # UPDATING RESULTS #
-    #### ### ### ### ###
-    predplsfit_list[[h]] <- predplsfit
-
-    beta_pls <- matrix(0, n_var, n_dr)
-    rownames(beta_pls) <- colnames(Xh)
-    #beta_pls[A_nzv,] <- matrix(data = plsfit$B[,min(h, ncol(Xa)),drop=F], nrow = length(A_nzv), ncol = n_dr) #n.comp from new pls and not all
-    beta_pls[A_nzv,] <- matrix(data = plsfit$B[,,drop=F], nrow = length(A_nzv), ncol = n_dr) #just return the best prediction (all components, so you do not need to select the last one)
-    beta_matrix <- cbind(beta_matrix, beta_pls) #res
-
-    var_by_component[[h]] <- A
-    var_by_component_nzv[[h]] <- A_nzv
-
-    #### ### ### ### ###
-    # UPDATING VALUES #
-    #### ### ### ### ###
-    #DR_coxph <- DR_coxph_ori - predplsfit[,min(h, ncol(Xa)),drop=F] #for manual prediction
-    DR_coxph <- DR_coxph_ori - predplsfit[,,drop=F] #just return the best prediction (all components, so you do not need to select the last one)
-
-    #R2 calculation
-    #E[[h]] = DR_coxph_ori - predplsfit$predict[,,plsfit$n.comp] #same formula, but adding components
-    E[[h]] = DR_coxph #same formula, but adding components
-
-    SCR[[h]] = sum(apply(E[[h]],2,function(x) sum(x**2)))
-    SCT[[h]] = sum(apply(as.matrix(DR_coxph_ori),2,function(x) sum(x**2))) #equivalent sum((DR_coxph_ori - mean(DR_coxph_ori))**2)
-    R2[[h]] = 1 - (SCR[[h]]/SCT[[h]]) #deviance residuals explanation
-
-    last.pls <- plsfit
-
-    #### ### ### ### ### ### ### ### ### ### ### #
-    #                                            #
-    #      Computation of the coefficients       #
-    #      of the model with kk components       #
-    #                                            #
-    #### ### ### ### ### ### ### ### ### ### ### #
-
-    #### ### ### ### ### ### ### ### ### ### ###
-    ### ##              PLS-COX            ### ##
-    #### ### ### ### ### ### ### ### ### ### ###
-
-    n.comp_used <- ncol(last.pls$X$scores)
-
-    d <- as.data.frame(last.pls$X$scores[,,drop=F])
-    rownames(d) <- rownames(X)
-    colnames(d) <- paste0("comp_", 1:n.comp_used)
-    cox_model <- NULL
-
-    cox_model$fit <- tryCatch(
-      # Specifying expression
-      expr = {
-        survival::coxph(formula = survival::Surv(time,event) ~ .,
-                        data = d,
-                        ties = "efron",
-                        singular.ok = T,
-                        robust = T,
-                        nocenter = rep(1, ncol(d)),
-                        model=T, x = T)
-      },
-      # Specifying error message
-      error = function(e){
-        message(e)
-        invisible(gc())
-        return(NA)
-      }
-    )
-
-    survival_model <- NULL
-    if(!length(cox_model$fit) == 1){
-      survival_model <- getInfoCoxModel(cox_model$fit)
-    }
-
-    func_call <- match.call()
-
-    lst_HDcox_spls[[h]] <- splsdrcox_class(list(X = list("data" = if(returnData) X_norm else NA,
-                                                        "weightings" = last.pls$X$weightings,
-                                                        "W.star" = last.pls$X$W.star,
-                                                        "loadings" = last.pls$X$loadings,
-                                                        "scores" = last.pls$X$scores,
-                                                        "E" = E,
-                                                        "x.mean" = xmeans,
-                                                        "x.sd" = xsds),
-                                               Y = list("deviance_residuals" = if(returnData) DR_coxph_ori else NA,
-                                                        "dr.mean" = mu,
-                                                        "dr.sd" = NULL, #deviance_residuals object already centered
-                                                        "data" = Yh,
-                                                        "weightings" = last.pls$Y$weightings,
-                                                        "loadings" = last.pls$Y$loadings,
-                                                        "scores" = last.pls$Y$scores,
-                                                        "ratio" = last.pls$Y$ratio,
-                                                        "y.mean" = ymeans,
-                                                        "y.sd" = ysds),
-                                               survival_model = survival_model,
-                                               eta = eta,
-                                               n.comp = n.comp_used, #number of components
-                                               var_by_component = var_by_component_nzv, #variables selected for each component
-                                               call = func_call,
-                                               X_input = if(returnData) X_original else NA,
-                                               Y_input = if(returnData) Y_original else NA,
-                                               B.hat = last.pls$B,
-                                               R2 = R2,
-                                               SCR = SCR,
-                                               SCT = SCT))
-
-  }
-
-  names(lst_HDcox_spls) <- paste0("comp_",1:length(lst_HDcox_spls)) #max comp
-
-  invisible(gc())
-  return(lst_HDcox_spls) #list of spls_models \ one per component 1:X
-
-}
-
 #### ### ### ### ###
 # CROSS-EVALUATION #
 #### ### ### ### ###
@@ -802,8 +508,6 @@ splsdrcox.modelPerComponent <- function (X, Y,
 #' @param k_folds Numeric. Number of folds for cross validation (default: 10).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
-#' @param y.center Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).
-#' @param y.scale Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).
 #' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
 #' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
@@ -869,7 +573,6 @@ cv.splsdrcox <- function (X, Y,
                          max.ncomp = 10, eta.list = seq(0.1,0.9,0.1),
                          n_run = 5, k_folds = 10,
                          x.center = TRUE, x.scale = FALSE,
-                         y.center = FALSE, y.scale = FALSE,
                          remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL, remove_variance_at_fold_level = F,
                          remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,
                          w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL, max_time_points = 15,
@@ -879,6 +582,8 @@ cv.splsdrcox <- function (X, Y,
                          PARALLEL = F, verbose = F, seed = 123){
 
   t1 <- Sys.time()
+  y.center = y.scale = FALSE
+  FREQ_CUT <- 95/5
 
   #### ### ###
   # WARNINGS #
@@ -888,26 +593,26 @@ cv.splsdrcox <- function (X, Y,
   checkLibraryEvaluator(pred.method)
 
   #### Check values classes and ranges
-  lst_01 <- list("MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
+  params_with_limits <- list("MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
                  "w_AIC" = w_AIC, "w_c.index" = w_c.index, "w_AUC" = w_AUC, "w_BRIER" = w_BRIER)
-  check_min0_max1_variables(lst_01)
+  check_min0_max1_variables(params_with_limits)
 
-  lst_num <- list("max.ncomp" = max.ncomp, "eta.list" = eta.list,
+  numeric_params <- list("max.ncomp" = max.ncomp, "eta.list" = eta.list,
                   "n_run" = n_run, "k_folds" = k_folds, "max_time_points" = max_time_points,
                   "MIN_COMP_TO_CHECK" = MIN_COMP_TO_CHECK, "MIN_EPV" = MIN_EPV, "seed" = seed, "tol" = tol)
-  check_class(lst_num, class = "numeric")
+  check_class(numeric_params, class = "numeric")
 
-  lst_logical <- list("x.center" = x.center, "x.scale" = x.scale,
-                      "y.center" = y.center, "y.scale" = y.scale,
+  logical_params <- list("x.center" = x.center, "x.scale" = x.scale,
+                         #"y.center" = y.center, "y.scale" = y.scale,
                       "remove_near_zero_variance" = remove_near_zero_variance, "remove_zero_variance" = remove_zero_variance,
                       "remove_variance_at_fold_level" = remove_variance_at_fold_level,
                       "remove_non_significant_models" = remove_non_significant_models,
                       "remove_non_significant" = remove_non_significant,
                       "return_models" = return_models,"returnData" = returnData, "verbose" = verbose, "PARALLEL" = PARALLEL)
-  check_class(lst_logical, class = "logical")
+  check_class(logical_params, class = "logical")
 
-  lst_character <- list("pred.attr" = pred.attr, "pred.method" = pred.method)
-  check_class(lst_character, class = "character")
+  character_params <- list("pred.attr" = pred.attr, "pred.method" = pred.method)
+  check_class(character_params, class = "character")
 
   #### Check cv-folds
   lst_checkFR <- checkFoldRuns(Y, n_run, k_folds, fast_mode)
@@ -942,7 +647,7 @@ cv.splsdrcox <- function (X, Y,
                                             remove_near_zero_variance = remove_near_zero_variance,
                                             remove_zero_variance = remove_zero_variance,
                                             toKeep.zv = toKeep.zv,
-                                            freqCut = 95/5)
+                                            freqCut = FREQ_CUT)
     X <- lst_dnz$X
     variablesDeleted <- lst_dnz$variablesDeleted
   }else{
@@ -973,17 +678,11 @@ cv.splsdrcox <- function (X, Y,
                                   lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
                                   max.ncomp = max.ncomp, eta.list = eta.list, EN.alpha.list = NULL,
                                   n_run = n_run, k_folds = k_folds,
-                                  x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
+                                  x.center = x.center, x.scale = x.scale,
+                                  y.center = y.center, y.scale = y.scale,
                                   remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
                                   remove_non_significant = remove_non_significant, tol = tol,
                                   total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
-
-  # lst_model <- get_HDCOX_models(method = pkg.env$splsdrcox,
-  #                               lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
-  #                               max.ncomp = max.ncomp, eta.list = eta.list, EN.alpha.list = NULL,
-  #                               n_run = n_run, k_folds = k_folds,
-  #                               x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale,
-  #                               total_models = total_models)
 
   comp_model_lst = lst_model$comp_model_lst
   info = lst_model$info

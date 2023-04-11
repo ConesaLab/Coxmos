@@ -16,8 +16,6 @@
 #' @param initialModel Character vector. Name of variables in X to include in the initial model (default: NULL).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
-#' @param y.center Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).
-#' @param y.scale Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).
 #' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
 #' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
@@ -76,18 +74,37 @@ coxSW <- function(X, Y,
                   alpha_ENT = 0.1, alpha_OUT = 0.15, toKeep.sw = NULL,
                   initialModel = NULL,
                   x.center = TRUE, x.scale = FALSE,
-                  y.center = FALSE, y.scale = FALSE,
                   remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
                   remove_non_significant = F, alpha = 0.05,
                   MIN_EPV = 5, returnData = T, verbose = F){
 
-  #DFCALLS
+  t1 <- Sys.time()
+  y.center = y.scale = FALSE
+  FREQ_CUT <- 95/5
+
   if(is.null(initialModel)){
     initialModel = "NULL"
   }
 
-  #function updated from My.stepwise package
-  t1 <- Sys.time()
+  #### Check values classes and ranges
+  params_with_limits <- list("alpha_ENT" = alpha_ENT, "alpha_OUT" = alpha_OUT, "alpha" = alpha)
+  check_min0_max1_variables(params_with_limits)
+
+  numeric_params <- list("max.variables" = max.variables,
+                  "MIN_EPV" = MIN_EPV)
+  check_class(numeric_params, class = "numeric")
+
+  logical_params <- list("x.center" = x.center, "x.scale" = x.scale,
+                         #"y.center" = y.center, "y.scale" = y.scale,
+                      "remove_near_zero_variance" = remove_near_zero_variance, "remove_zero_variance" = remove_zero_variance,
+                      "remove_non_significant" = remove_non_significant, "returnData" = returnData, "verbose" = verbose,
+                      "BACKWARDS" = BACKWARDS)
+  check_class(logical_params, class = "logical")
+
+  #### REQUIREMENTS
+  lst_check <- checkXY.class(X, Y, verbose = verbose)
+  X <- lst_check$X
+  Y <- lst_check$Y
 
   #### Original data
   X_original <- X
@@ -96,32 +113,12 @@ coxSW <- function(X, Y,
   time <- Y[,"time"]
   event <- Y[,"event"]
 
-  #### Check values classes and ranges
-  lst_01 <- list("alpha_ENT" = alpha_ENT, "alpha_OUT" = alpha_OUT, "alpha" = alpha)
-  check_min0_max1_variables(lst_01)
-
-  lst_num <- list("max.variables" = max.variables,
-                  "MIN_EPV" = MIN_EPV)
-  check_class(lst_num, class = "numeric")
-
-  lst_logical <- list("x.center" = x.center, "x.scale" = x.scale,
-                      "y.center" = y.center, "y.scale" = y.scale,
-                      "remove_near_zero_variance" = remove_near_zero_variance, "remove_zero_variance" = remove_zero_variance,
-                      "remove_non_significant" = remove_non_significant, "returnData" = returnData, "verbose" = verbose,
-                      "BACKWARDS" = BACKWARDS)
-  check_class(lst_logical, class = "logical")
-
-  #### REQUIREMENTS
-  lst_check <- checkXY.class(X, Y, verbose = verbose)
-  X <- lst_check$X
-  Y <- lst_check$Y
-
   #### ZERO VARIANCE - ALWAYS
   lst_dnz <- deleteZeroOrNearZeroVariance(X = X,
                                           remove_near_zero_variance = remove_near_zero_variance,
                                           remove_zero_variance = remove_zero_variance,
                                           toKeep.zv = toKeep.zv,
-                                          freqCut = 95/5)
+                                          freqCut = FREQ_CUT)
   X <- lst_dnz$X
   variablesDeleted <- lst_dnz$variablesDeleted
 

@@ -2,6 +2,10 @@
 # METHODS #
 #### ### ##
 
+#y.center Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).
+#y.scale Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).
+
+
 #' cox
 #' @description This function performs a cox model (based on survival::coxph R package).
 #' The function returns a HDcox model with the attribute model as "cox".
@@ -10,8 +14,6 @@
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
-#' @param y.center Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).
-#' @param y.scale Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).
 #' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
 #' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
@@ -72,12 +74,31 @@
 
 cox <- function (X, Y,
                  x.center = TRUE, x.scale = FALSE,
-                 y.center = FALSE, y.scale = FALSE,
                  remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
                  remove_non_significant = F, alpha = 0.05,
                  MIN_EPV = 5, FORCE = F, returnData = T, verbose = F){
 
   t1 <- Sys.time()
+  FREQ_CUT <- 95/5
+  y.center = y.scale = FALSE
+
+  #### Check values classes and ranges
+  params_with_limits <- list("alpha" = alpha)
+  check_min0_max1_variables(params_with_limits)
+
+  numeric_params <- list("MIN_EPV" = MIN_EPV)
+  check_class(numeric_params, class = "numeric")
+
+  logical_params <- list("x.center" = x.center, "x.scale" = x.scale,
+                         #"y.center" = y.center, "y.scale" = y.scale,
+                      "remove_near_zero_variance" = remove_near_zero_variance, "remove_zero_variance" = remove_zero_variance,
+                      "remove_non_significant" = remove_non_significant, "returnData" = returnData, "verbose" = verbose)
+  check_class(logical_params, class = "logical")
+
+  #### REQUIREMENTS
+  lst_check <- checkXY.class(X, Y, verbose = verbose)
+  X <- lst_check$X
+  Y <- lst_check$Y
 
   #### Original data
   X_original <- X
@@ -86,30 +107,12 @@ cox <- function (X, Y,
   time <- Y[,"time"]
   event <- Y[,"event"]
 
-  #### Check values classes and ranges
-  lst_01 <- list("alpha" = alpha)
-  check_min0_max1_variables(lst_01)
-
-  lst_num <- list("MIN_EPV" = MIN_EPV)
-  check_class(lst_num, class = "numeric")
-
-  lst_logical <- list("x.center" = x.center, "x.scale" = x.scale,
-                      "y.center" = y.center, "y.scale" = y.scale,
-                      "remove_near_zero_variance" = remove_near_zero_variance, "remove_zero_variance" = remove_zero_variance,
-                      "remove_non_significant" = remove_non_significant, "returnData" = returnData, "verbose" = verbose)
-  check_class(lst_logical, class = "logical")
-
-  #### REQUIREMENTS
-  lst_check <- checkXY.class(X, Y, verbose = verbose)
-  X <- lst_check$X
-  Y <- lst_check$Y
-
   #### ZERO VARIANCE - ALWAYS
   lst_dnz <- deleteZeroOrNearZeroVariance(X = X,
                                           remove_near_zero_variance = remove_near_zero_variance,
                                           remove_zero_variance = remove_zero_variance,
                                           toKeep.zv = toKeep.zv,
-                                          freqCut = 95/5)
+                                          freqCut = FREQ_CUT)
   X <- lst_dnz$X
   variablesDeleted <- lst_dnz$variablesDeleted
 

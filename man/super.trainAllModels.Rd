@@ -13,8 +13,6 @@ super.trainAllModels(
   eta = 0.5,
   x.center = T,
   x.scale = T,
-  y.center = F,
-  y.scale = F,
   MIN_EPV = 0,
   PARALLEL = T
 )
@@ -35,10 +33,6 @@ super.trainAllModels(
 \item{x.center}{Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).}
 
 \item{x.scale}{Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).}
-
-\item{y.center}{Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).}
-
-\item{y.scale}{Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).}
 
 \item{MIN_EPV}{Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).}
 
