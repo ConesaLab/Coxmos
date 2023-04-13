@@ -9,6 +9,10 @@ cv.mb.splsdacox(
   Y,
   max.ncomp = 10,
   vector = NULL,
+  MIN_NVAR = 10,
+  MAX_NVAR = 10000,
+  n.cut_points = 5,
+  EVAL_METHOD = "AUC",
   n_run = 5,
   k_folds = 10,
   x.center = TRUE,
@@ -20,10 +24,6 @@ cv.mb.splsdacox(
   remove_non_significant_models = F,
   remove_non_significant = F,
   alpha = 0.05,
-  MIN_NVAR = 10,
-  MAX_NVAR = 10000,
-  n.cut_points = 5,
-  EVAL_METHOD = "AUC",
   w_AIC = 0,
   w_c.index = 0,
   w_AUC = 1,
@@ -35,6 +35,7 @@ cv.mb.splsdacox(
   MIN_COMP_TO_CHECK = 3,
   pred.attr = "mean",
   pred.method = "cenROC",
+  max.iter = 200,
   fast_mode = F,
   MIN_EPV = 5,
   return_models = F,
@@ -53,6 +54,14 @@ cv.mb.splsdacox(
 \item{max.ncomp}{Numeric. Maximum number of PLS components to compute for the cross validation (default: 10).}
 
 \item{vector}{Numeric vector. Used for computing best number of variables. As many values as components have to be provided. If vector = NULL, an automatic detection is perform (default: NULL).}
+
+\item{MIN_NVAR}{Numeric. Minimum range size for computing cut points to select the best number of variables to use (default: 10).}
+
+\item{MAX_NVAR}{Numeric. Maximum range size for computing cut points to select the best number of variables to use (default: 1000).}
+
+\item{n.cut_points}{Numeric. Number of cut points for searching the optimal number of variables. If only two cut points are selected, minimum and maximum size are used (default: 5)}
+
+\item{EVAL_METHOD}{Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best number of variables. In other case, c-index metrix will be used (default: "AUC").}
 
 \item{n_run}{Numeric. Number of runs for cross validation (default: 5).}
 
@@ -76,14 +85,6 @@ cv.mb.splsdacox(
 
 \item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
 
-\item{MIN_NVAR}{Numeric. Minimum range size for computing cut points to select the best number of variables to use (default: 10).}
-
-\item{MAX_NVAR}{Numeric. Maximum range size for computing cut points to select the best number of variables to use (default: 1000).}
-
-\item{n.cut_points}{Numeric. Number of cut points for searching the optimal number of variables. If only two cut points are selected, minimum and maximum size are used (default: 5)}
-
-\item{EVAL_METHOD}{Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best number of variables. In other case, c-index metrix will be used (default: "AUC").}
-
 \item{w_AIC}{Numeric. Weight for AIC evaluator. All weights must sum 1 (default: 0).}
 
 \item{w_c.index}{Numeric. Weight for C-Index evaluator. All weights must sum 1 (default: 0).}
@@ -105,6 +106,8 @@ cv.mb.splsdacox(
 \item{pred.attr}{Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").}
 
 \item{pred.method}{Character. AUC evaluation algorithm method for evaluate the model performance. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC").}
+
+\item{max.iter}{Numeric. Maximum number of iterations for PLS convergence (default: 200).}
 
 \item{fast_mode}{Logical. If fast_mode = TRUE, for each run, only one fold is evaluated simultaneously. If fast_mode = FALSE, for each run, all linear predictors are computed for test observations. Once all have their linear predictors, the evaluation is perform across all the observations together (default: FALSE).}
 

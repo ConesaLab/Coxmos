@@ -524,7 +524,7 @@ timesAsumption_AUC_Eval <- function(Y, times, method = NULL){
   #which times can be computed
   res <- NULL
 
-  if(length(times)==0 | is.null(times)){
+  if(length(times)==0 || is.null(times)){
     stop("times has not a value")
   }
 

@@ -676,13 +676,17 @@ cv.splsdrcox <- function (X, Y,
 
   lst_model <- get_HDCOX_models2.0(method = pkg.env$splsdrcox,
                                   lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
-                                  max.ncomp = max.ncomp, eta.list = eta.list, EN.alpha.list = NULL,
+                                  max.ncomp = max.ncomp, eta.list = eta.list, EN.alpha.list = NULL, max.variables = NULL, vector = NULL,
                                   n_run = n_run, k_folds = k_folds,
+                                  MIN_NVAR = NULL, MAX_NVAR = NULL, MIN_AUC_INCREASE = NULL, EVAL_METHOD = NULL,
+                                  n.cut_points = NULL,
                                   x.center = x.center, x.scale = x.scale,
                                   y.center = y.center, y.scale = y.scale,
                                   remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
-                                  remove_non_significant = remove_non_significant, tol = tol,
-                                  total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
+                                  alpha = alpha, MIN_EPV = MIN_EPV,
+                                  remove_non_significant = remove_non_significant, tol = tol, max.iter = NULL,
+                                  returnData = returnData, total_models = total_models,
+                                  PARALLEL = PARALLEL, verbose = verbose)
 
   comp_model_lst = lst_model$comp_model_lst
   info = lst_model$info
@@ -738,6 +742,7 @@ cv.splsdrcox <- function (X, Y,
 
     #As we are measuring just one evaluator and one method - PARALLEL=F
     lst_df <- get_COX_evaluation_BRIER_sPLS(comp_model_lst = comp_model_lst,
+                                            fast_mode = fast_mode,
                                             lst_X_test = lst_X_test, lst_Y_test = lst_Y_test,
                                             df_results_evals = df_results_evals, times = times,
                                             pred.method = pred.method, pred.attr = pred.attr,

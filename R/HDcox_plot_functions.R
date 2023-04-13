@@ -2647,8 +2647,8 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
       sd <- df.aux[rn,"se(coef)",drop=F]
       W.star <- list()
       if(attr(model, "model") %in% pkg.env$sb.splsicox){
-        for(b in names(model$list_pls_models)){
-          W.star[[b]] <- model$list_pls_models[[b]]$X$W.star
+        for(b in names(model$list_spls_models)){
+          W.star[[b]] <- model$list_spls_models[[b]]$X$W.star
         }
       }else if(attr(model, "model") %in% pkg.env$sb.splsdrcox){
         for(b in names(model$list_spls_models)){
@@ -2663,8 +2663,8 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
       sd <- df.aux[,"se(coef)",drop=F]
       W.star <- list()
       if(attr(model, "model") %in% pkg.env$sb.splsicox){
-        for(b in names(model$list_pls_models)){
-          W.star[[b]] <- model$list_pls_models[[b]]$X$W.star
+        for(b in names(model$list_spls_models)){
+          W.star[[b]] <- model$list_spls_models[[b]]$X$W.star
         }
       }else if(attr(model, "model") %in% pkg.env$sb.splsdrcox){
         for(b in names(model$list_spls_models)){
@@ -3532,7 +3532,7 @@ getLPVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NU
       vars <- list()
 
       if(attr(model, "model") %in% pkg.env$sb.splsicox){
-        aux <- model$list_pls_models[[b]]
+        aux <- model$list_spls_models[[b]]
       }else if(attr(model, "model") %in% pkg.env$sb.splsdrcox){
         aux <- model$list_spls_models[[b]]
       }
@@ -3780,7 +3780,7 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
       vars_data <- list()
 
       if(attr(model, "model") %in% pkg.env$sb.splsicox){
-        aux <- model$list_pls_models[[b]]
+        aux <- model$list_spls_models[[b]]
       }else if(attr(model, "model") %in% pkg.env$sb.splsdrcox){
         aux <- model$list_spls_models[[b]]
       }
@@ -4548,10 +4548,10 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
       lst_ggp <- NULL
       ## SB.PLSICOX
       if(attr(model, "model") %in% c(pkg.env$sb.splsicox)){
-        for(b in names(model$list_pls_models)){
+        for(b in names(model$list_spls_models)){
           new_cutoff <- cutoff[endsWith(names(cutoff), paste0("_",b))]
           names(new_cutoff) <- unlist(lapply(names(new_cutoff), function(x){substr(x, start = 1, stop = nchar(x)-nchar(paste0("_",b)))}))
-          lst_ggp[[b]] <- getTestKM(model = model$list_pls_models[[b]], X_test = X_test[[b]], Y_test, new_cutoff, type, ori_data, BREAKTIME, n.breaks, title)
+          lst_ggp[[b]] <- getTestKM(model = model$list_spls_models[[b]], X_test = X_test[[b]], Y_test, new_cutoff, type, ori_data, BREAKTIME, n.breaks, title)
         }
         return(lst_ggp)
       }else{

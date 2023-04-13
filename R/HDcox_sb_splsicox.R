@@ -53,7 +53,7 @@
 #'  \item \code{Yresidus}: Y residuals.
 #' }
 #'
-#' \code{list_pls_models}: List of sPLS-ICOX models computed for each block.
+#' \code{list_spls_models}: List of sPLS-ICOX models computed for each block.
 #'
 #' \code{n.comp}: Number of components selected.
 #'
@@ -147,6 +147,7 @@ sb.splsicox <- function(X, Y,
                                                 toKeep.zv = NULL, #zero_var already checked
                                                 remove_non_significant = remove_non_significant, alpha = alpha, tol = tol,
                                                 returnData = F, verbose = verbose))
+  names(lst_sb.pls) <- names(Xh)
 
   # CHECK ALL MODELS SAME COMPONENTS
   aux_ncomp <- purrr::map(lst_sb.pls, ~.$n.comp)
@@ -182,7 +183,7 @@ sb.splsicox <- function(X, Y,
   return(sb.splsicox_class(list(X = list("data" = if(returnData) X_norm else NA, "x.mean" = xmeans, "x.sd" = xsds),
                                 Y = list("data" = lst_sb.pls[[1]]$Y$data, "y.mean" = ymeans, "y.sd" = ysds),
                                 survival_model = cox_model$survival_model,
-                                list_pls_models = lst_sb.pls,
+                                list_spls_models = lst_sb.pls,
                                 n.comp = n.comp, #number of components used, but could be lesser than expected because not computed models
                                 spv_penalty = spv_penalty,
                                 call = func_call,
@@ -374,32 +375,37 @@ cv.sb.splsicox <- function(X, Y,
 
   lst_model <- get_HDCOX_models2.0(method = pkg.env$sb.splsicox,
                                    lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
-                                   max.ncomp = max.ncomp, eta.list = spv_penalty.list, EN.alpha.list = NULL,
+                                   max.ncomp = max.ncomp, eta.list = spv_penalty.list, EN.alpha.list = NULL, max.variables = NULL, vector = NULL,
                                    n_run = n_run, k_folds = k_folds,
-                                   remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
-                                   remove_non_significant = remove_non_significant, alpha = alpha, MIN_EPV = MIN_EPV, tol = tol,
+                                   MIN_NVAR = NULL, MAX_NVAR = NULL, MIN_AUC_INCREASE = NULL, EVAL_METHOD = NULL,
+                                   n.cut_points = NULL,
                                    x.center = x.center, x.scale = x.scale,
                                    y.center = y.center, y.scale = y.scale,
-                                   total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
+                                   remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
+                                   alpha = alpha, MIN_EPV = MIN_EPV,
+                                   remove_non_significant = remove_non_significant, tol = tol, max.iter = NULL,
+                                   returnData = returnData, total_models = total_models,
+                                   PARALLEL = PARALLEL, verbose = verbose)
 
-  if(all(is.na(unlist(lst_model)))){
-    message(paste0("Best model could NOT be obtained. All models computed present problems. Try to remove variance at fold level. If problem persists, try to delete manually some problematic variables."))
-
-    t2 <- Sys.time()
-    time <- difftime(t2,t1,units = "mins")
-    if(return_models){
-      return(cv.sb.splsicox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = lst_model, pred.method = pred.method, opt.comp = NULL, opt.spv_penalty = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.sb.splsicox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
-    }else{
-      return(cv.sb.splsicox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.spv_penalty = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class= pkg.env$cv.sb.splsicox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
-    }
-  }
+  # already check in HDCOX_models
+  # if(all(is.na(unlist(comp_model_lst)))){
+  #   message(paste0("Best model could NOT be obtained. All models computed present problems. Try to remove variance at fold level. If problem persists, try to delete manually some problematic variables."))
+  #
+  #   t2 <- Sys.time()
+  #   time <- difftime(t2,t1,units = "mins")
+  #   if(return_models){
+  #     return(cv.sb.splsicox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = lst_model, pred.method = pred.method, opt.comp = NULL, opt.spv_penalty = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.sb.splsicox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+  #   }else{
+  #     return(cv.sb.splsicox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.spv_penalty = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class= pkg.env$cv.sb.splsicox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+  #   }
+  # }
 
   #### ### ### ### ### ### #
   # BEST MODEL FOR CV DATA #
   #### ### ### ### ### ### #
-  total_models <- max.ncomp * k_folds * n_run
-  df_results_evals <- get_COX_evaluation_AIC_CINDEX(comp_model_lst = lst_model, alpha = alpha,
-                                                    max.ncomp = max.ncomp, eta.list = NULL, n_run = n_run, k_folds = k_folds,
+  total_models <- max.ncomp * k_folds * n_run * length(spv_penalty.list)
+  df_results_evals <- get_COX_evaluation_AIC_CINDEX(comp_model_lst = lst_model$comp_model_lst, alpha = alpha,
+                                                    max.ncomp = max.ncomp, eta.list = spv_penalty.list, n_run = n_run, k_folds = k_folds,
                                                     total_models = total_models, remove_non_significant_models = remove_non_significant_models, verbose = verbose)
 
   if(all(is.null(df_results_evals))){
@@ -432,7 +438,8 @@ cv.sb.splsicox <- function(X, Y,
     }
 
     #As we are measuring just one evaluator and one method - PARALLEL=F
-    lst_df <- get_COX_evaluation_BRIER_sPLS(comp_model_lst = lst_model,
+    lst_df <- get_COX_evaluation_BRIER_sPLS(comp_model_lst = lst_model$comp_model_lst,
+                                            fast_mode = fast_mode,
                                             lst_X_test = lst_X_test, lst_Y_test = lst_Y_test,
                                             df_results_evals = df_results_evals, times = times,
                                             pred.method = pred.method, pred.attr = pred.attr,
@@ -458,7 +465,7 @@ cv.sb.splsicox <- function(X, Y,
       times <- getTimesVector(Y, max_time_points = max_time_points)
     }
 
-    lst_df <- get_COX_evaluation_AUC_sPLS(comp_model_lst = lst_model,
+    lst_df <- get_COX_evaluation_AUC_sPLS(comp_model_lst = lst_model$comp_model_lst,
                                           lst_X_test = lst_X_test, lst_Y_test = lst_Y_test,
                                           df_results_evals = df_results_evals, times = times,
                                           fast_mode = fast_mode, pred.method = pred.method, pred.attr = pred.attr,
@@ -508,7 +515,7 @@ cv.sb.splsicox <- function(X, Y,
   #### ###
   # PLOT #
   #### ###
-  lst_EVAL_PLOTS <- get_EVAL_PLOTS(fast_mode = fast_mode, best_model_info = best_model_info, w_AUC = w_AUC, w_BRIER = w_BRIER, max.ncomp = max.ncomp, eta.list = NULL,
+  lst_EVAL_PLOTS <- get_EVAL_PLOTS(fast_mode = fast_mode, best_model_info = best_model_info, w_AUC = w_AUC, w_BRIER = w_BRIER, max.ncomp = max.ncomp, eta.list = spv_penalty.list,
                                    df_results_evals_fold = df_results_evals_fold, df_results_evals_run = df_results_evals_run, df_results_evals_comp = df_results_evals_comp,
                                    colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC", colname_BRIER = "BRIER", x.text = "Component")
 
@@ -605,7 +612,7 @@ cv.sb.splsicox <- function(X, Y,
 #'  \item \code{Yresidus}: Y residuals.
 #' }
 #'
-#' \code{list_pls_models}: List of sPLS-ICOX models computed for each block.
+#' \code{list_spls_models}: List of sPLS-ICOX models computed for each block.
 #'
 #' \code{n.comp}: Number of components selected.
 #'
@@ -748,17 +755,18 @@ fast.cv.sb.splsicox <- function(X, Y,
     message(paste0("\nRunning cross validation ", pkg.env$sb.splsicox, " for block: ", b, "\n"))
 
     cv.splsdrcox_res <- cv.splsicox(X = Xh[[b]], Y = Yh,
-                                   max.ncomp = max.ncomp,
+                                   max.ncomp = max.ncomp, spv_penalty.list = spv_penalty.list,
                                    n_run = n_run, k_folds = k_folds, alpha = alpha, remove_non_significant_models = remove_non_significant_models,
-                                   w_AIC = w_AIC, w_c.index = w_c.index, w_AUC = w_AUC, times = times, max_time_points = max_time_points,
+                                   w_AIC = w_AIC, w_c.index = w_c.index, w_BRIER = w_BRIER, w_AUC = w_AUC, times = times, max_time_points = max_time_points,
                                    MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
                                    x.scale = x.scale[[b]], x.center = x.center[[b]],
                                    #y.scale = y.scale, y.center = y.center,
-                                   remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
+                                   remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = F, toKeep.zv = NULL,
+                                   remove_variance_at_fold_level = remove_variance_at_fold_level,
                                    remove_non_significant = remove_non_significant,
                                    fast_mode = fast_mode, return_models = return_models, tol = tol,
                                    MIN_EPV = MIN_EPV, verbose = verbose,
-                                   pred.attr = pred.attr, pred.method = pred.method, seed = seed, PARALLEL = PARALLEL)
+                                   pred.attr = pred.attr, pred.method = pred.method, seed = seed, PARALLEL = PARALLEL, returnData = F)
 
     lst_sb.pls[[b]] <- splsicox(X = Xh[[b]],
                                Y = Yh,
@@ -825,7 +833,7 @@ fast.cv.sb.splsicox <- function(X, Y,
   return(sb.splsicox_class(list(X = list("data" = if(returnData) X_norm else NA, "x.mean" = xmeans, "x.sd" = xsds),
                                 Y = list("data" = lst_sb.pls[[1]]$Y$data, "y.mean" = ymeans, "y.sd" = ysds),
                                 survival_model = cox_model$survival_model,
-                                list_pls_models = lst_sb.pls,
+                                list_spls_models = lst_sb.pls,
                                 n.comp = aux_ncomp, #number of components used, but could be lesser than expected because not computed models
                                 call = func_call,
                                 X_input = if(returnData) X_original else NA,

@@ -250,7 +250,9 @@ splsicox <- function(X, Y,
     index2keep <- which(wh[,2,drop=T]<=spv_penalty)
 
     if(length(index2keep)==0){
-      message(paste0("Stopping at component ", h-1, ": No significant variables found in component ", h))
+      if(verbose){
+        message(paste0("Stopping at component ", h-1, ": No significant variables found in component ", h))
+      }
       h = h-1
       break
     }
@@ -366,7 +368,6 @@ splsicox <- function(X, Y,
 
     return(splsicox_class(list(X = list("data" = if(returnData) X_norm else NA, "weightings" = NULL, "weightings_norm" = NULL, "W.star" = NULL, "loadings" = NULL, "scores" = NULL, "E" = NULL, "x.mean" = xmeans, "x.sd" = xsds),
                               Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
-                              beta_matrix = NULL, #NEED TO BE COMPUTED
                               survival_model = NULL,
                               n.comp = h,
                               var_by_component = var_by_component, #variables selected for each component
@@ -702,12 +703,17 @@ cv.splsicox <- function (X, Y,
   #we use spv_penalty.list as penalty parameter (sPLS-DRCOX and sPLS-ICOX)
   lst_model <- get_HDCOX_models2.0(method = pkg.env$splsicox,
                                    lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
-                                   max.ncomp = max.ncomp, eta.list = spv_penalty.list, EN.alpha.list = NULL, n_run = n_run, k_folds = k_folds,
+                                   max.ncomp = max.ncomp, eta.list = spv_penalty.list, EN.alpha.list = NULL, max.variables = NULL, vector = NULL,
+                                   n_run = n_run, k_folds = k_folds,
+                                   MIN_NVAR = NULL, MAX_NVAR = NULL, MIN_AUC_INCREASE = NULL, EVAL_METHOD = NULL,
+                                   n.cut_points = NULL,
                                    x.center = x.center, x.scale = x.scale,
                                    y.center = y.center, y.scale = y.scale,
                                    remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
-                                   remove_non_significant = remove_non_significant,
-                                   total_models = total_models, tol = tol, PARALLEL = PARALLEL, verbose = verbose)
+                                   alpha = alpha, MIN_EPV = MIN_EPV,
+                                   remove_non_significant = remove_non_significant, tol = tol, max.iter = NULL,
+                                   returnData = returnData, total_models = total_models,
+                                   PARALLEL = PARALLEL, verbose = verbose)
 
   comp_model_lst = lst_model$comp_model_lst
   info = lst_model$info
@@ -765,6 +771,7 @@ cv.splsicox <- function (X, Y,
 
     #As we are measuring just one evaluator and one method - PARALLEL=F
     lst_df <- get_COX_evaluation_BRIER_sPLS(comp_model_lst = comp_model_lst,
+                                            fast_mode = fast_mode,
                                             lst_X_test = lst_X_test, lst_Y_test = lst_Y_test,
                                             df_results_evals = df_results_evals, times = times,
                                             pred.method = pred.method, pred.attr = pred.attr,

@@ -513,14 +513,16 @@ cv.coxEN <- function(X, Y,
   total_models <- k_folds * n_run * length(EN.alpha.list)
   comp_model_lst <- get_HDCOX_models2.0(method = pkg.env$coxEN,
                                         lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
-                                        eta.list = NULL, max.ncomp = NULL, max.variables = max.variables,
-                                        EN.alpha.list = EN.alpha.list, n_run = n_run, k_folds = k_folds,
+                                        max.ncomp = NULL, eta.list = NULL, EN.alpha.list = EN.alpha.list, max.variables = max.variables, vector = NULL,
+                                        n_run = n_run, k_folds = k_folds,
+                                        MIN_NVAR = NULL, MAX_NVAR = NULL, MIN_AUC_INCREASE = NULL, EVAL_METHOD = NULL,
+                                        n.cut_points = NULL,
                                         x.center = x.center, x.scale = x.scale,
                                         y.center = y.center, y.scale = y.scale,
-                                        remove_non_significant = remove_non_significant,
                                         remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
-                                        alpha = alpha, returnData = returnData,
-                                        total_models = total_models, MIN_EPV = MIN_EPV,
+                                        alpha = alpha, MIN_EPV = MIN_EPV,
+                                        remove_non_significant = remove_non_significant, tol = NULL, max.iter = NULL,
+                                        returnData = returnData, total_models = total_models,
                                         PARALLEL = PARALLEL, verbose = verbose)
 
   count_problems = 0
@@ -579,7 +581,8 @@ cv.coxEN <- function(X, Y,
     }
 
     #As we are measuring just one evaluator and one method - PARALLEL=F
-    lst_df <- get_COX_evaluation_BRIER(comp_model_lst = comp_model_lst, fast_mode = fast_mode,
+    lst_df <- get_COX_evaluation_BRIER(comp_model_lst = comp_model_lst,
+                                       fast_mode = fast_mode,
                                        lst_X_test = lst_X_test, lst_Y_test = lst_Y_test,
                                        df_results_evals = df_results_evals, times = times,
                                        pred.method = pred.method, pred.attr = pred.attr,

@@ -392,25 +392,30 @@ cv.sb.splsdrcox <- function(X, Y,
 
   lst_model <- get_HDCOX_models2.0(method = pkg.env$sb.splsdrcox,
                                   lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
-                                  max.ncomp = max.ncomp, eta.list = eta.list, EN.alpha.list = NULL,
+                                  max.ncomp = max.ncomp, eta.list = eta.list, EN.alpha.list = NULL, max.variables = NULL, vector = NULL,
                                   n_run = n_run, k_folds = k_folds,
-                                  remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
-                                  remove_non_significant = remove_non_significant, alpha = alpha, tol = tol,
+                                  MIN_NVAR = NULL, MAX_NVAR = NULL, MIN_AUC_INCREASE = NULL, EVAL_METHOD = NULL,
+                                  n.cut_points = NULL,
                                   x.center = x.center, x.scale = x.scale,
                                   y.center = y.center, y.scale = y.scale,
-                                  total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
+                                  remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
+                                  alpha = alpha, MIN_EPV = MIN_EPV,
+                                  remove_non_significant = remove_non_significant, tol = tol, max.iter = NULL,
+                                  returnData = returnData, total_models = total_models,
+                                  PARALLEL = PARALLEL, verbose = verbose)
 
-  if(all(is.na(unlist(lst_model)))){
-    message(paste0("Best model could NOT be obtained. All models computed present problems. Try to remove variance at fold level. If problem persists, try to delete manually some problematic variables."))
-
-    t2 <- Sys.time()
-    time <- difftime(t2,t1,units = "mins")
-    if(return_models){
-      return(cv.sb.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = lst_model, pred.method = pred.method, opt.comp = NULL, opt.eta = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.sb.splsdrcox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
-    }else{
-      return(cv.sb.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.eta = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.sb.splsdrcox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
-    }
-  }
+  # already check in HDCOX_models
+  # if(all(is.na(unlist(lst_model)))){
+  #   message(paste0("Best model could NOT be obtained. All models computed present problems. Try to remove variance at fold level. If problem persists, try to delete manually some problematic variables."))
+  #
+  #   t2 <- Sys.time()
+  #   time <- difftime(t2,t1,units = "mins")
+  #   if(return_models){
+  #     return(cv.sb.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = lst_model, pred.method = pred.method, opt.comp = NULL, opt.eta = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.sb.splsdrcox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+  #   }else{
+  #     return(cv.sb.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.eta = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.sb.splsdrcox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+  #   }
+  # }
 
   #### ### ### ### ### ### #
   # BEST MODEL FOR CV DATA #
@@ -450,7 +455,8 @@ cv.sb.splsdrcox <- function(X, Y,
     }
 
     #As we are measuring just one evaluator and one method - PARALLEL=F
-    lst_df <- get_COX_evaluation_BRIER_sPLS(comp_model_lst = lst_model,
+    lst_df <- get_COX_evaluation_BRIER_sPLS(comp_model_lst = lst_model$comp_model_lst,
+                                            fast_mode = fast_mode,
                                             lst_X_test = lst_X_test, lst_Y_test = lst_Y_test,
                                             df_results_evals = df_results_evals, times = times,
                                             pred.method = pred.method, pred.attr = pred.attr,
@@ -775,14 +781,15 @@ fast.cv.sb.splsdrcox <- function(X, Y,
                                      max.ncomp = max.ncomp, eta.list = eta.list,
                                      n_run = n_run, k_folds = k_folds, alpha = alpha, remove_non_significant_models = remove_non_significant_models,
                                      remove_non_significant = remove_non_significant,
-                                     w_AIC = w_AIC, w_c.index = w_c.index, w_AUC = w_AUC, times = times, max_time_points = max_time_points,
+                                     w_AIC = w_AIC, w_c.index = w_c.index, w_BRIER = w_BRIER, w_AUC = w_AUC, times = times, max_time_points = max_time_points,
                                      MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
                                      x.scale = x.scale[[b]], x.center = x.center[[b]],
                                      #y.scale = y.scale, y.center = y.center,
                                      remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
+                                     remove_variance_at_fold_level = remove_variance_at_fold_level,
                                      fast_mode = fast_mode, return_models = return_models, tol = tol,
                                      MIN_EPV = MIN_EPV, verbose = verbose,
-                                     pred.attr = pred.attr, pred.method = pred.method, seed = seed, PARALLEL = PARALLEL)
+                                     pred.attr = pred.attr, pred.method = pred.method, seed = seed, PARALLEL = PARALLEL, returnData = F)
 
     lst_sb.spls[[b]] <- splsdrcox(X = Xh[[b]],
                                  Y = Yh,

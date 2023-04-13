@@ -142,7 +142,7 @@ Instance of class "HDcox" and model "sb.splsicox". The class contains the follow
 \item \code{Yresidus}: Y residuals.
 }
 
-\code{list_pls_models}: List of sPLS-ICOX models computed for each block.
+\code{list_spls_models}: List of sPLS-ICOX models computed for each block.
 
 \code{n.comp}: Number of components selected.
 

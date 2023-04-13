@@ -9,6 +9,10 @@ mb.splsdacox(
   Y,
   n.comp = 4,
   vector = NULL,
+  MIN_NVAR = 10,
+  MAX_NVAR = 10000,
+  n.cut_points = 5,
+  EVAL_METHOD = "AUC",
   x.center = TRUE,
   x.scale = FALSE,
   remove_near_zero_variance = T,
@@ -17,11 +21,7 @@ mb.splsdacox(
   remove_non_significant = T,
   alpha = 0.05,
   tol = 1e-10,
-  MIN_NVAR = 10,
-  MAX_NVAR = 10000,
-  n.cut_points = 5,
   MIN_AUC_INCREASE = 0.01,
-  EVAL_METHOD = "AUC",
   pred.method = "cenROC",
   max.iter = 200,
   times = NULL,
@@ -40,6 +40,14 @@ mb.splsdacox(
 
 \item{vector}{Numeric vector. Used for computing best number of variables. As many values as components have to be provided. If vector = NULL, an automatic detection is perform (default: NULL).}
 
+\item{MIN_NVAR}{Numeric. Minimum range size for computing cut points to select the best number of variables to use (default: 10).}
+
+\item{MAX_NVAR}{Numeric. Maximum range size for computing cut points to select the best number of variables to use (default: 1000).}
+
+\item{n.cut_points}{Numeric. Number of cut points for searching the optimal number of variables. If only two cut points are selected, minimum and maximum size are used (default: 5)}
+
+\item{EVAL_METHOD}{Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best number of variables. In other case, c-index metrix will be used (default: "AUC").}
+
 \item{x.center}{Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).}
 
 \item{x.scale}{Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).}
@@ -56,15 +64,7 @@ mb.splsdacox(
 
 \item{tol}{Numeric. Tolerance for solving: solve(t(P) \%*\% W) (default: 1e-15).}
 
-\item{MIN_NVAR}{Numeric. Minimum range size for computing cut points to select the best number of variables to use (default: 10).}
-
-\item{MAX_NVAR}{Numeric. Maximum range size for computing cut points to select the best number of variables to use (default: 1000).}
-
-\item{n.cut_points}{Numeric. Number of cut points for searching the optimal number of variables. If only two cut points are selected, minimum and maximum size are used (default: 5)}
-
 \item{MIN_AUC_INCREASE}{Numeric. Minimum improvement between different cross validation models to continue evaluating higher values in the multiple tested parameters. If it is not reached for next 'MIN_COMP_TO_CHECK' models and the minimum 'MIN_AUC' value is reached, the evaluation stops (default: 0.01).}
-
-\item{EVAL_METHOD}{Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best number of variables. In other case, c-index metrix will be used (default: "AUC").}
 
 \item{pred.method}{Character. AUC evaluation algorithm method for evaluate the model performance. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC").}
 

@@ -10,6 +10,10 @@
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
 #' @param n.comp Numeric. Number of latent components to compute for the (s)PLS model (default: 10).
 #' @param vector Numeric vector. Used for computing best number of variables. As many values as components have to be provided. If vector = NULL, an automatic detection is perform (default: NULL).
+#' @param MIN_NVAR Numeric. Minimum range size for computing cut points to select the best number of variables to use (default: 10).
+#' @param MAX_NVAR Numeric. Maximum range size for computing cut points to select the best number of variables to use (default: 1000).
+#' @param n.cut_points Numeric. Number of cut points for searching the optimal number of variables. If only two cut points are selected, minimum and maximum size are used (default: 5)
+#' @param EVAL_METHOD Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best number of variables. In other case, c-index metrix will be used (default: "AUC").
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
 #' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
@@ -18,11 +22,7 @@
 #' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).
 #' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
 #' @param tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
-#' @param MIN_NVAR Numeric. Minimum range size for computing cut points to select the best number of variables to use (default: 10).
-#' @param MAX_NVAR Numeric. Maximum range size for computing cut points to select the best number of variables to use (default: 1000).
-#' @param n.cut_points Numeric. Number of cut points for searching the optimal number of variables. If only two cut points are selected, minimum and maximum size are used (default: 5)
 #' @param MIN_AUC_INCREASE Numeric. Minimum improvement between different cross validation models to continue evaluating higher values in the multiple tested parameters. If it is not reached for next 'MIN_COMP_TO_CHECK' models and the minimum 'MIN_AUC' value is reached, the evaluation stops (default: 0.01).
-#' @param EVAL_METHOD Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best number of variables. In other case, c-index metrix will be used (default: "AUC").
 #' @param pred.method Character. AUC evaluation algorithm method for evaluate the model performance. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC").
 #' @param max.iter Numeric. Maximum number of iterations for PLS convergence (default: 200).
 #' @param times Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 'max_time_points' points will be selected equally distributed (default: NULL).
@@ -101,12 +101,11 @@
 
 mb.splsdacox <- function (X, Y,
                           n.comp = 4, vector = NULL,
+                          MIN_NVAR = 10, MAX_NVAR = 10000, n.cut_points = 5, EVAL_METHOD = "AUC",
                           x.center = TRUE, x.scale = FALSE,
                           remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
                           remove_non_significant = T, alpha = 0.05, tol = 1e-10,
-                          MIN_NVAR = 10, MAX_NVAR = 10000, n.cut_points = 5,
-                          MIN_AUC_INCREASE = 0.01,
-                          EVAL_METHOD = "AUC", pred.method = "cenROC", max.iter = 200,
+                          MIN_AUC_INCREASE = 0.01, pred.method = "cenROC", max.iter = 200,
                           times = NULL, max_time_points = 15,
                           MIN_EPV = 5, returnData = T, verbose = F){
 
@@ -197,8 +196,10 @@ mb.splsdacox <- function (X, Y,
   DR_coxph = NULL #not used in plsda
 
   if(is.null(vector)){
-    lst_BV <- getBestVectorMB(Xh, DR_coxph, Yh, n.comp, max.iter, vector, MIN_AUC_INCREASE, MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, cut_points = n.cut_points,
-                             EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = F, mode = "splsda", times = times, max_time_points = max_time_points, verbose = verbose)
+    lst_BV <- getBestVectorMB(Xh = Xh, DR_coxph = DR_coxph, Yh = Yh, n.comp = n.comp, max.iter = max.iter, vector = vector,
+                              MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, cut_points = n.cut_points,
+                              EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = F, mode = "splsda", times = times,
+                              max_time_points = max_time_points, verbose = verbose)
     keepX <- lst_BV$best.keepX
     plotVAR <- plot_VAR_eval(lst_BV, EVAL_METHOD = EVAL_METHOD)
   }else{
@@ -221,8 +222,10 @@ mb.splsdacox <- function (X, Y,
         names(keepX) <- names(X)
       }else{
         message("Vector does not has the proper structure. Optimizing best n.variables by using your vector as start vector.")
-        lst_BV <- getBestVectorMB(Xh, DR_coxph, Yh, n.comp, max.iter, vector, MIN_AUC_INCREASE, MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, cut_points = n.cut_points,
-                                 EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = F, mode = "splsda", times = times, max_time_points = max_time_points, verbose = verbose)
+        lst_BV <- getBestVectorMB(Xh = Xh, DR_coxph = DR_coxph, Yh = Yh, n.comp = n.comp, max.iter = max.iter, vector = vector,
+                                  MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, cut_points = n.cut_points,
+                                  EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = F, mode = "splsda", times = times,
+                                  max_time_points = max_time_points, verbose = verbose)
         keepX <- lst_BV$best.keepX
         plotVAR <- plot_VAR_eval(lst_BV, EVAL_METHOD = EVAL_METHOD)
       }
@@ -464,6 +467,10 @@ mb.splsdacox <- function (X, Y,
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
 #' @param max.ncomp Numeric. Maximum number of PLS components to compute for the cross validation (default: 10).
 #' @param vector Numeric vector. Used for computing best number of variables. As many values as components have to be provided. If vector = NULL, an automatic detection is perform (default: NULL).
+#' @param MIN_NVAR Numeric. Minimum range size for computing cut points to select the best number of variables to use (default: 10).
+#' @param MAX_NVAR Numeric. Maximum range size for computing cut points to select the best number of variables to use (default: 1000).
+#' @param n.cut_points Numeric. Number of cut points for searching the optimal number of variables. If only two cut points are selected, minimum and maximum size are used (default: 5)
+#' @param EVAL_METHOD Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best number of variables. In other case, c-index metrix will be used (default: "AUC").
 #' @param n_run Numeric. Number of runs for cross validation (default: 5).
 #' @param k_folds Numeric. Number of folds for cross validation (default: 10).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
@@ -475,10 +482,6 @@ mb.splsdacox <- function (X, Y,
 #' @param remove_non_significant_models Logical. If remove_non_significant_models = TRUE, non-significant models are removed before computing the evaluation. A non-significant model is a model with at least one component/variable with a P-Value higher than the alpha cutoff. @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
 #' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).
 #' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
-#' @param MIN_NVAR Numeric. Minimum range size for computing cut points to select the best number of variables to use (default: 10).
-#' @param MAX_NVAR Numeric. Maximum range size for computing cut points to select the best number of variables to use (default: 1000).
-#' @param n.cut_points Numeric. Number of cut points for searching the optimal number of variables. If only two cut points are selected, minimum and maximum size are used (default: 5)
-#' @param EVAL_METHOD Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best number of variables. In other case, c-index metrix will be used (default: "AUC").
 #' @param w_AIC Numeric. Weight for AIC evaluator. All weights must sum 1 (default: 0).
 #' @param w_c.index Numeric. Weight for C-Index evaluator. All weights must sum 1 (default: 0).
 #' @param w_AUC Numeric. Weight for AUC evaluator. All weights must sum 1 (default: 1).
@@ -490,6 +493,7 @@ mb.splsdacox <- function (X, Y,
 #' @param MIN_COMP_TO_CHECK Numeric. Number of penalties/components to evaluate to check if the AUC improves. If for the next 'MIN_COMP_TO_CHECK' the AUC is not better and the 'MIN_AUC' is meet, the evaluation could stop (default: 3).
 #' @param pred.attr Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").
 #' @param pred.method Character. AUC evaluation algorithm method for evaluate the model performance. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC").
+#' @param max.iter Numeric. Maximum number of iterations for PLS convergence (default: 200).
 #' @param fast_mode Logical. If fast_mode = TRUE, for each run, only one fold is evaluated simultaneously. If fast_mode = FALSE, for each run, all linear predictors are computed for test observations. Once all have their linear predictors, the evaluation is perform across all the observations together (default: FALSE).
 #' @param MIN_EPV Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).
 #' @param return_models Logical. Return all models computed in cross validation (default: FALSE).
@@ -534,14 +538,14 @@ mb.splsdacox <- function (X, Y,
 
 cv.mb.splsdacox <- function(X, Y,
                             max.ncomp = 10, vector = NULL,
+                            MIN_NVAR = 10, MAX_NVAR = 10000, n.cut_points = 5, EVAL_METHOD = "AUC",
                             n_run = 5, k_folds = 10,
                             x.center = TRUE, x.scale = FALSE,
                             remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL, remove_variance_at_fold_level = F,
                             remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,
-                            MIN_NVAR = 10, MAX_NVAR = 10000, n.cut_points = 5, EVAL_METHOD = "AUC",
                             w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL, max_time_points = 15,
                             MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
-                            pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
+                            pred.attr = "mean", pred.method = "cenROC", max.iter= 200, fast_mode = F,
                             MIN_EPV = 5, return_models = F, returnData = F, tol = 1e-10,
                             PARALLEL = F, verbose = F, seed = 123){
 
@@ -637,34 +641,38 @@ cv.mb.splsdacox <- function(X, Y,
   total_models <- 1 * k_folds * n_run
   #total_models <- max.ncomp * k_folds * n_run
 
-  lst_model <- get_HDCOX_models2.0(method = pkg.env$mb.splsdacox, vector = vector,
-                                lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
-                                max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL,
-                                n_run = n_run, k_folds = k_folds, MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, MIN_AUC_INCREASE = MIN_AUC_INCREASE,
-                                x.center = x.center, x.scale = x.scale,
-                                y.center = y.center, y.scale = y.scale,
-                                remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
-                                alpha = alpha, MIN_EPV = MIN_EPV,
-                                remove_non_significant = remove_non_significant, tol = tol,
-                                total_models = total_models, PARALLEL = PARALLEL, verbose = verbose)
+  comp_model_lst <- get_HDCOX_models2.0(method = pkg.env$mb.splsdacox,
+                                       lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
+                                       max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL, max.variables = NULL, vector = vector,
+                                       n_run = n_run, k_folds = k_folds,
+                                       MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, MIN_AUC_INCREASE = MIN_AUC_INCREASE, EVAL_METHOD = EVAL_METHOD,
+                                       n.cut_points = n.cut_points,
+                                       x.center = x.center, x.scale = x.scale,
+                                       y.center = y.center, y.scale = y.scale,
+                                       remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
+                                       alpha = alpha, MIN_EPV = MIN_EPV,
+                                       remove_non_significant = remove_non_significant, tol = tol, max.iter = max.iter,
+                                       returnData = returnData, total_models = total_models,
+                                       PARALLEL = PARALLEL, verbose = verbose)
 
-  if(all(is.na(unlist(lst_model)))){
-    message(paste0("Best model could NOT be obtained. All models computed present problems. Try to remove variance at fold level. If problem persists, try to delete manually some problematic variables."))
-
-    t2 <- Sys.time()
-    time <- difftime(t2,t1,units = "mins")
-    if(return_models){
-      return(cv.mb.splsdacox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = lst_model, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.mb.splsdacox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
-    }else{
-      return(cv.mb.splsdacox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.mb.splsdacox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
-    }
-  }
+  # already check in HDCOX_models
+  # if(all(is.na(unlist(lst_model)))){
+  #   message(paste0("Best model could NOT be obtained. All models computed present problems. Try to remove variance at fold level. If problem persists, try to delete manually some problematic variables."))
+  #
+  #   t2 <- Sys.time()
+  #   time <- difftime(t2,t1,units = "mins")
+  #   if(return_models){
+  #     return(cv.mb.splsdacox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = lst_model, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.mb.splsdacox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+  #   }else{
+  #     return(cv.mb.splsdacox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.mb.splsdacox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+  #   }
+  # }
 
   #### ### ### ### ### ### #
   # BEST MODEL FOR CV DATA #
   #### ### ### ### ### ### #
   total_models <- max.ncomp * k_folds * n_run
-  df_results_evals <- get_COX_evaluation_AIC_CINDEX(comp_model_lst = lst_model, alpha = alpha,
+  df_results_evals <- get_COX_evaluation_AIC_CINDEX(comp_model_lst = comp_model_lst, alpha = alpha,
                                                     max.ncomp = max.ncomp, eta.list = NULL, n_run = n_run, k_folds = k_folds,
                                                     total_models = total_models, remove_non_significant_models = remove_non_significant_models, verbose = verbose)
 
@@ -674,7 +682,7 @@ cv.mb.splsdacox <- function(X, Y,
     t2 <- Sys.time()
     time <- difftime(t2,t1,units = "mins")
     if(return_models){
-      return(cv.mb.splsdacox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = lst_model, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.mb.splsdacox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+      return(cv.mb.splsdacox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.mb.splsdacox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
     }else{
       return(cv.mb.splsdacox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.mb.splsdacox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
     }
@@ -698,7 +706,8 @@ cv.mb.splsdacox <- function(X, Y,
     }
 
     #As we are measuring just one evaluator and one method - PARALLEL=F
-    lst_df <- get_COX_evaluation_BRIER(comp_model_lst = lst_model,
+    lst_df <- get_COX_evaluation_BRIER(comp_model_lst = comp_model_lst,
+                                       fast_mode = fast_mode,
                                        lst_X_test = lst_X_test, lst_Y_test = lst_Y_test,
                                        df_results_evals = df_results_evals, times = times,
                                        pred.method = pred.method, pred.attr = pred.attr,
@@ -724,7 +733,7 @@ cv.mb.splsdacox <- function(X, Y,
       times <- getTimesVector(Y, max_time_points = max_time_points)
     }
 
-    lst_df <- get_COX_evaluation_AUC(comp_model_lst = lst_model,
+    lst_df <- get_COX_evaluation_AUC(comp_model_lst = comp_model_lst,
                                      lst_X_test = lst_X_test, lst_Y_test = lst_Y_test,
                                      df_results_evals = df_results_evals, times = times,
                                      fast_mode = fast_mode, pred.method = pred.method, pred.attr = pred.attr,
@@ -803,7 +812,7 @@ cv.mb.splsdacox <- function(X, Y,
 
   invisible(gc())
   if(return_models){
-    return(cv.mb.splsdacox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = lst_model, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.nvar = best_n_var, plot_AIC = ggp_AIC, plot_c_index = ggp_c_index, plot_BRIER = ggp_BRIER, plot_AUC = ggp_AUC, class = pkg.env$cv.mb.splsdacox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+    return(cv.mb.splsdacox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.nvar = best_n_var, plot_AIC = ggp_AIC, plot_c_index = ggp_c_index, plot_BRIER = ggp_BRIER, plot_AUC = ggp_AUC, class = pkg.env$cv.mb.splsdacox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
   }else{
     return(cv.mb.splsdacox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = NULL, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.nvar = best_n_var, plot_AIC = ggp_AIC, plot_c_index = ggp_c_index, plot_BRIER = ggp_BRIER, plot_AUC = ggp_AUC, class = pkg.env$cv.mb.splsdacox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
   }
