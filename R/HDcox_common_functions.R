@@ -260,7 +260,11 @@ deleteZeroVarianceVariables <- function(data, mustKeep = NULL, names = NULL, inf
   #df deleted
   df_cn_deleted <- NULL
   if(info && length(td) > 0){
-    df_cn_deleted <- as.data.frame(t(data.frame(td)))
+    if(isa(td, "character")){
+      df_cn_deleted <- as.data.frame(data.frame(td))
+    }else{
+      df_cn_deleted <- as.data.frame(t(data.frame(td)))
+    }
     colnames(df_cn_deleted) <- c("Variables")
     rownames(df_cn_deleted) <- NULL
   }
@@ -394,11 +398,20 @@ deleteIllegalChars <- function(chr.vector){
 
 #only for FORMULAS
 transformIllegalChars <- function(cn) {
-  illegal_chars <- c("-", "+", "*")
-  replacement <- c("_", ".", ".star.")
+  illegal_chars <- c("-", "+", "*", ">", "<", ">=", "<=", "^", "/")
+  replacement <- c(".minus.", ".plus.", ".star.", ".over.", ".under.", ".over.equal.", ".under.equal.", ".power.", ".divided.")
   v = vapply(cn, function(x){gsub(pattern = illegal_chars[1], replacement = replacement[1],
                              gsub(pattern = illegal_chars[2], replacement = replacement[2],
-                             gsub(pattern = illegal_chars[3], replacement = replacement[3], x, fixed = T), fixed = T), fixed = T)}, character(1))
+                             gsub(pattern = illegal_chars[3], replacement = replacement[3],
+                             gsub(pattern = illegal_chars[4], replacement = replacement[4],
+                             gsub(pattern = illegal_chars[5], replacement = replacement[5],
+                             gsub(pattern = illegal_chars[6], replacement = replacement[6],
+                             gsub(pattern = illegal_chars[7], replacement = replacement[7],
+                             gsub(pattern = illegal_chars[8], replacement = replacement[8],
+                             gsub(pattern = illegal_chars[9], replacement = replacement[9], x,
+                             fixed = T), fixed = T), fixed = T), fixed = T), fixed = T), fixed = T), fixed = T), fixed = T), fixed = T)}, character(1))
+
+  return(v)
 }
 
 checkColnamesIllegalChars <- function(X){
@@ -1113,6 +1126,7 @@ predict.HDcox <- function(object, ..., newdata = NULL){
   }else{
     #Update test data
     if(!is.null(x.mean) | !is.null(x.sd)){
+      #if MB
       if(attr(model, "model") %in% c(pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
         X_test <- list()
         for(b in names(model$X$loadings)){

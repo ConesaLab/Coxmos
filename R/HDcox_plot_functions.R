@@ -686,7 +686,7 @@ plot_evaluation <- function(eval_results, evaluation = "AUC", pred.attr = "mean"
   lst_plots <- comboplot.performance2.0(df = eval_results$df,
                                         x.var = ifelse(evaluation=="AUC", "time", "brier_time"),
                                         y.var = evaluation,
-                                        y.lab = ifelse(evaluation=="AUC", "AUC", "Brier Score"),
+                                        y.lab = ifelse(evaluation=="AUC", "AUC", "Brier"),
                                         x.color = "method",
                                         y.limit = c(y.min, 1), pred.attr = pred.attr)
   if(type == "both"){
@@ -1159,7 +1159,7 @@ point.sd.mean_performace2.0 <- function(df, x.var = "method", y.var = "AUC", x.c
     }else if(pred.attr %in% "median"){
       mean_vector <- c(mean_vector, apply(df[df$method==m,y.var,drop=F], 2, function(x){median(x, na.rm = T)}))
     }
-    sd_vector <- c(sd_vector, sd(df[df$method==m,y.var,drop=F]$AUC, na.rm = T))
+    sd_vector <- c(sd_vector, sd(df[df$method==m,y.var,drop=F][[y.var]], na.rm = T))
   }
   sd_vector[is.na(sd_vector)] <- 0 #if NA is because we do not have sd for that vector of AUC
   names(mean_vector) <- unique(df$method)
@@ -1230,7 +1230,7 @@ point.sd.mean_performace2.0 <- function(df, x.var = "method", y.var = "AUC", x.c
 
 comboplot.performance2.0 <- function(df, x.var = "time", y.var = "AUC", x.color = "method", x.lab = NULL, y.lab = NULL, y.limit = NULL, pred.attr = "mean", point = T, mean = F, hide_labels = T){
   a <- lineplot.performace2.0(df = df, x.var = x.var, y.var = y.var, x.color = x.color, x.lab = x.lab, y.lab = y.lab, y.limit = y.limit, point = point, mean = F, legend_rm = T)
-  b <- point.sd.mean_performace2.0(df = df, x.var = x.color, x.color = x.color, x.lab = NULL, y.lab = NULL, y.limit = y.limit, pred.attr = pred.attr, hide_labels = T, legend_rm = F)
+  b <- point.sd.mean_performace2.0(df = df, x.var = x.var, y.var = y.var, x.color = x.color, x.lab = NULL, y.lab = NULL, y.limit = y.limit, pred.attr = pred.attr, hide_labels = T, legend_rm = F)
 
   pp <- ggpubr::ggarrange(a, b, ncol = 2, widths = c(0.8, 0.2), align = "h")
 
@@ -2771,12 +2771,12 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
 plot_pseudobeta_newPatient.list <- function(lst_models, new_observation, error.bar = T, onlySig = T, alpha = 0.05, zero.rm = T,
                                             top = NULL, auto.limits = T, show.betas = F, verbose = F){
 
-  if(all(unlist(purrr::map(lst_models, function(x){x$class})) %in% pkg.env$pls_methods)){
+  if(all(unlist(purrr::map(lst_models, function(x){x$class})) %in% c(pkg.env$pls_methods, pkg.env$multiblock_methods))){
     sub_lst_models <- lst_models
   }else{
-    sub_lst_models <- lst_models[unlist(purrr::map(lst_models, function(x){x$class})) %in% pkg.env$pls_methods]
+    sub_lst_models <- lst_models[unlist(purrr::map(lst_models, function(x){x$class})) %in% c(pkg.env$pls_methods, pkg.env$multiblock_methods)]
     if(verbose){
-      message(paste0("Model ", paste0(names(lst_models[!unlist(purrr::map(lst_models, function(x){x$class})) %in% pkg.env$pls_methods]), collapse = ", "), " are not based in PLS methodology. Other models computed."))
+      message(paste0("Model ", paste0(names(lst_models[!unlist(purrr::map(lst_models, function(x){x$class})) %in% c(pkg.env$pls_methods, pkg.env$multiblock_methods)]), collapse = ", "), " are not based in PLS methodology. Other models computed."))
     }
   }
 

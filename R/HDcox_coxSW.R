@@ -96,10 +96,20 @@ coxSW <- function(X, Y,
 
   logical_params <- list("x.center" = x.center, "x.scale" = x.scale,
                          #"y.center" = y.center, "y.scale" = y.scale,
-                      "remove_near_zero_variance" = remove_near_zero_variance, "remove_zero_variance" = remove_zero_variance,
-                      "remove_non_significant" = remove_non_significant, "returnData" = returnData, "verbose" = verbose,
-                      "BACKWARDS" = BACKWARDS)
+                          "remove_near_zero_variance" = remove_near_zero_variance, "remove_zero_variance" = remove_zero_variance,
+                          "remove_non_significant" = remove_non_significant, "returnData" = returnData, "verbose" = verbose,
+                          "BACKWARDS" = BACKWARDS)
   check_class(logical_params, class = "logical")
+
+  #### Check colnames in X for Illegal Chars (affect cox formulas)
+  old_colnames <- colnames(X)
+  colnames(X) <- transformIllegalChars(old_colnames)
+  if(all(old_colnames %in% colnames(X))){
+    #colnames changed
+    FLAG_COLNAMES = T
+  }else{
+    FLAG_COLNAMES = F
+  }
 
   #### REQUIREMENTS
   lst_check <- checkXY.class(X, Y, verbose = verbose)
@@ -288,15 +298,24 @@ stepwise.coxph <- function(Time = NULL, Status = NULL, variable.list,
       # we should run a Individual COX model for starting
 
       aux_data <- as.data.frame(data[,colnames(data) %in% c(in.variable, "time", "event", "status"),drop=F])
-      initial.model <- survival::coxph(as.formula(paste("Surv(", Time, ", ", Status, ") ~ .")), data = aux_data,
+
+      f <- as.formula(paste0("survival::Surv(", Time, ", ", Status, ") ~ ", paste0(in.variable, collapse = " + ")))
+      initial.model <- survival::coxph(formula = f, data = aux_data,
                                        method = "efron", model = T, singular.ok = T, x = T)
+
+      #initial.model <- survival::coxph(as.formula(paste("Surv(", Time, ", ", Status, ") ~ .")), data = aux_data,
+                                       #method = "efron", model = T, singular.ok = T, x = T)
+
       lst_model <- removeNAcoxmodel(model = initial.model, data = aux_data)
       initial.model <- lst_model$model
 
     }else{
       # we CAN compute a standard cox bc te data has lesser variables than observations
       aux_data <- as.data.frame(data[,colnames(data) %in% c(in.variable, "time", "event", "status"),drop=F])
-      initial.model <- survival::coxph(as.formula(paste("Surv(", Time, ", ", Status, ") ~ .")), data = aux_data,
+      #initial.model <- survival::coxph(as.formula(paste("Surv(", Time, ", ", Status, ") ~ .")), data = aux_data,
+      #                                 method = "efron", model = T, singular.ok = T, x = T)
+      f <- as.formula(paste0("survival::Surv(", Time, ", ", Status, ") ~ ", paste0(in.variable, collapse = " + ")))
+      initial.model <- survival::coxph(formula = f, data = aux_data,
                                        method = "efron", model = T, singular.ok = T, x = T)
 
       lst_model <- removeNAcoxmodel(initial.model, aux_data)

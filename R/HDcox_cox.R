@@ -95,6 +95,16 @@ cox <- function (X, Y,
                       "remove_non_significant" = remove_non_significant, "returnData" = returnData, "verbose" = verbose)
   check_class(logical_params, class = "logical")
 
+  #### Check colnames in X for Illegal Chars (affect cox formulas)
+  old_colnames <- colnames(X)
+  colnames(X) <- transformIllegalChars(old_colnames)
+  if(all(old_colnames %in% colnames(X))){
+    #colnames changed
+    FLAG_COLNAMES = T
+  }else{
+    FLAG_COLNAMES = F
+  }
+
   #### REQUIREMENTS
   lst_check <- checkXY.class(X, Y, verbose = verbose)
   X <- lst_check$X
