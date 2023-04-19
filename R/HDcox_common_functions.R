@@ -2528,6 +2528,10 @@ get_COX_evaluation_BRIER_sPLS <- function(comp_model_lst,
             #model is not compute bc any variable was selected
             }else if(is.null(comp_model_lst[[l.index]][[e]][[r]][[f]]$survival_model)){
               next
+            #model is NA
+            }else if(is.null(model <- comp_model_lst[[l.index]][[e]][[r]][[f]]$survival_model$fit) ||
+                     is.na(model <- comp_model_lst[[l.index]][[e]][[r]][[f]]$survival_model$fit)){
+              next
             }
 
             model <- comp_model_lst[[l.index]][[e]][[r]][[f]]$survival_model$fit
