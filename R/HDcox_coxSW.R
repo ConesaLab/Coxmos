@@ -55,7 +55,11 @@
 #'
 #' \code{Y_input}: Y input matrix
 #'
+#' \code{nsv}: Variables removed by remove_non_significant if any.
+#'
 #' \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
+#'
+#' \code{removed_variables_correlation}: Variables removed by being high correlated with other variables.
 #'
 #' \code{class}: Model class.
 #'
@@ -153,6 +157,7 @@ coxSW <- function(X, Y,
   oneToDelete <- c("")
   lstMeetAssumption = NULL
   problem_flag = F
+  removed_variables = NULL
   removed_variables_cor = NULL
 
   in.variable = initialModel
@@ -188,9 +193,9 @@ coxSW <- function(X, Y,
                             X_input = if(returnData) X_original else NA,
                             Y_input = if(returnData) Y_original else NA,
                             alpha = alpha,
-                            removed_variables_cox = removed_variables,
-                            removed_variables_correlation = removed_variables_cor,
+                            nsv = NULL,
                             nzv = variablesDeleted,
+                            removed_variables_correlation = NULL,
                             class = pkg.env$coxSW,
                             time = time)))
   }
@@ -256,9 +261,9 @@ coxSW <- function(X, Y,
                         X_input = if(returnData) X_original else NA,
                         Y_input = if(returnData) Y_original else NA,
                         alpha = alpha,
-                        removed_variables_cox = removed_variables,
-                        removed_variables_correlation = removed_variables_cor,
+                        nsv = removed_variables,
                         nzv = variablesDeleted,
+                        removed_variables_correlation = removed_variables_cor,
                         class = pkg.env$coxSW,
                         time = time)))
 }
@@ -290,7 +295,7 @@ stepwise.coxph <- function(Time = NULL, Status = NULL, variable.list,
 
     if(!is.null(max.variables) & length(in.variable) > max.variables){
 
-      icox <- getIndividualCox(data[,colnames(data) %in% c(in.variable, "time", "event", "status")])
+      icox <- getIndividualCox(data = data[,colnames(data) %in% c(in.variable, "time", "event", "status")], time_var = "time", event_var = "event")
       in.variable <- rownames(icox[1:min(max.variables, length(rownames(icox))),])
 
       # we cannot compute a standard cox bc the p.val and coefficients are not well computed for HD models
@@ -451,6 +456,7 @@ stepwise.coxph <- function(Time = NULL, Status = NULL, variable.list,
     # CHECK LEAVE #
     #### ### ### ##
 
+    out.x  <- NULL
     # at least one variable can leave the model
     if(length(names(temp.model$coefficients)) > 1){
       variable.list3 <- setdiff(rownames(summary(temp.model)$coefficients),

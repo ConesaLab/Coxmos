@@ -82,6 +82,8 @@ Instance of class "HDcox" and model "cox". The class contains the following elem
 
 \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
 
+\code{removed_variables_correlation}: Variables removed by being high correlated with other variables.
+
 \code{class}: Model class.
 
 \code{time}: time consumed for running the cox analysis.

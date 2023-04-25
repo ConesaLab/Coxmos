@@ -60,6 +60,8 @@
 #'
 #' \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
 #'
+#' \code{removed_variables_correlation}: Variables removed by being high correlated with other variables.
+#'
 #' \code{class}: Model class.
 #'
 #' \code{time}: time consumed for running the cox analysis.
@@ -206,46 +208,22 @@ cox <- function (X, Y,
                           Y_input = if(returnData) Y_original else NA,
                           nsv = NULL,
                           nzv = variablesDeleted,
+                          removed_variables_correlation = NULL,
                           class = pkg.env$cox,
                           time = time)))
   }
 
   # RETURN a MODEL with ALL significant Variables from complete, deleting one by one
   removed_variables <- NULL
-
+  removed_variables_cor <- NULL
   # REMOVE NA-PVAL VARIABLES
   # p_val could be NA for some variables (if NA change to P-VAL=1)
   # DO IT ALWAYS, we do not want problems in COX models
-  p_val <- summary(best_cox)[[7]][,"Pr(>|z|)"]
-  while(sum(is.na(p_val))>0){
-    to_remove <- names(p_val)[is.na(p_val)]
-    to_remove <- deleteIllegalChars(to_remove)
-    d <- d[,!colnames(d) %in% c(to_remove)]
-    best_cox <- tryCatch(
-      # Specifying expression
-      expr = {
-        survival::coxph(formula = survival::Surv(time,event) ~ .,
-                        data = d,
-                        ties = "efron",
-                        singular.ok = T,
-                        robust = T,
-                        nocenter = rep(1, ncol(d)-ncol(Yh)),
-                        model=T, x = T)
-      },
-      # Specifying error message
-      error = function(e){
-        message(paste0("COX: ", e))
-        invisible(gc())
-        return(NA)
-      }
-    )
-
-    removed_variables <- c(removed_variables, to_remove)
-    p_val <- summary(best_cox)[[7]][,"Pr(>|z|)"]
-  }
+  lst_model <- removeNAcoxmodel(model = best_cox, data = d)
+  coxph.sw <- lst_model$model
+  removed_variables_cor <- c(removed_variables_cor, lst_model$removed_variables)
 
   #RETURN a MODEL with ALL significant Variables from complete, deleting one by one in backward method
-  removed_variables <- NULL
   if(remove_non_significant){
     if(all(c("time", "event") %in% colnames(d))){
       lst_rnsc <- removeNonSignificativeCox(cox = best_cox, alpha = alpha, cox_input = d, time.value = NULL, event.value = NULL)
@@ -257,29 +235,12 @@ cox <- function (X, Y,
     removed_variables <- lst_rnsc$removed_variables
   }
 
-  while(any(is.na(best_cox$coefficients))){ #if any NA
-    to_remove <- names(best_cox$coefficients)[is.na(best_cox$coefficients)]
-    d <- d[,!colnames(d) %in% c(to_remove)]
-    best_cox <- tryCatch(
-      # Specifying expression
-      expr = {
-        survival::coxph(formula = survival::Surv(time,event) ~ .,
-                        data = d,
-                        ties = "efron",
-                        singular.ok = T,
-                        robust = T,
-                        nocenter = rep(1, ncol(d)-ncol(Yh)),
-                        model=T, x = T)
-      },
-      # Specifying error message
-      error = function(e){
-        message(paste0("COX: ", e))
-        invisible(gc())
-        return(NA)
-      }
-    )
-    removed_variables <- c(removed_variables, to_remove)
-  }
+  # REMOVE NA-PVAL VARIABLES
+  # p_val could be NA for some variables (if NA change to P-VAL=1)
+  # DO IT ALWAYS, we do not want problems in COX models
+  lst_model <- removeNAcoxmodel(model = best_cox, data = d)
+  coxph.sw <- lst_model$model
+  removed_variables_cor <- c(removed_variables_cor, lst_model$removed_variables)
 
   if(isa(best_cox,"coxph")){
     survival_model <- getInfoCoxModel(best_cox)
@@ -301,6 +262,7 @@ cox <- function (X, Y,
                         Y_input = if(returnData) Y_original else NA,
                         nsv = removed_variables,
                         nzv = variablesDeleted,
+                        removed_variables_correlation = removed_variables_cor,
                         class = pkg.env$cox,
                         time = time)))
 }

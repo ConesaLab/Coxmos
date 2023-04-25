@@ -70,10 +70,59 @@ assign(x = 'Brier', value = c("Brier_score"), pkg.env)
 #assign(x = 'IllegalChars', value = c("`", "*"), pkg.env)
 assign(x = 'IllegalChars', value = c("`"), pkg.env)
 
+#' factorToBinary
+#' @description Returns a new X matrix where the factor variables have been change to dummy variables.
+#' The function allows the user to generate k-1 or k dummy variables per where k is the quantity of levels for a specific variable.
+#' @param X Numeric matrix or data.frame. Explanatory variables. Only qualitative variables will be transformed into binary variables.
+#' @param all Logical. If all = TRUE, as many variables as levels will be returned in the new matrix. Otherwise, k-1 variables will be used where the first one will be use as "default" state (default: TRUE).
+#' @param sep Character. Character symbol to generate new colnames. Ex. If variable name is "sex" and sep = "_". Dummy variables will be "sex_male" and "sex_female".
+factorToBinary <- function(X, all = T, sep = "_"){
+
+  if(nrow(X)==0 | is.null(X)){
+    return(X)
+  }
+
+  binaryMatrix <- NULL
+  options(na.action='na.pass')
+  for(cn in colnames(X)){
+    variable <- X[, cn, drop=F]
+    colnames(variable) <- cn
+    if(isa(variable[,cn], "factor")){
+      if(all){
+        form <- as.formula(paste0("~ ", cn, " + 0"))
+        binaryVariable <- model.matrix(form, data=variable)[,1:length(levels(variable[,1])), drop=F]
+        colnames(binaryVariable) <- paste0(cn, sep, levels(variable[,1]))
+      }else{
+        form <- as.formula(paste0("~ ", cn))
+        binaryVariable <- model.matrix(form, data=variable)[,2:length(levels(variable[,1])), drop=F]
+        colnames(binaryVariable) <- paste0(cn, sep, levels(variable[,1])[2:length(levels(variable[,1]))])
+      }
+      if(is.null(binaryMatrix)){
+        binaryMatrix <- binaryVariable
+      }else{
+        binaryMatrix <- cbind(binaryMatrix, binaryVariable)
+      }
+    }else{
+      if(is.null(binaryMatrix)){
+        binaryMatrix <- variable
+      }else{
+        binaryMatrix <- cbind(binaryMatrix, variable)
+      }
+    }
+  }
+
+  for(cn in colnames(binaryMatrix)){
+    binaryMatrix[,cn] <- as.numeric(binaryMatrix[,cn])
+  }
+
+  binaryMatrix <- as.data.frame(binaryMatrix)
+  rownames(binaryMatrix) <- rownames(X)
+  return(binaryMatrix)
+}
 
 #' norm01
 #' @description Normalize all values into 0-1 range.
-#' @param x matrix or data.frame
+#' @param x Numeric matrix or data.frame. Explanatory variables. Only qualitative variables will be transformed into binary variables.
 norm01 <- function(x){
   if(max(x)-min(x) != 0){
     return((x-min(x))/(max(x)-min(x)))
@@ -302,7 +351,7 @@ getIndividualCox <- function(data, time_var = "time", event_var = "event"){
                                            iter.max = 220, toler.inf = sqrt(eps), outer.max = 100, timefix = TRUE)
         fit <- survival::coxph(survival::Surv(time = time,
                                               event = event,
-                                              type = "right") ~ aux_data[[x_col]],
+                                              type = "right") ~ aux_data[,x_col,drop=T],
                                control = control,
                                singular.ok = T)
         if (length(getPvalFromCox(fit)) == 1) {
@@ -336,6 +385,7 @@ getIndividualCox <- function(data, time_var = "time", event_var = "event"){
     wh[which(is.na(wh[,1])),] <- c(rep(0, length(rownames(wh)[is.na(wh[,1])])), rep(1, length(rownames(wh)[is.na(wh[,1])])))
   }
 
+  wh <- as.data.frame(wh)
   wh <- wh[order(wh$p.val, decreasing = F),]
   return(wh)
 }
@@ -2523,7 +2573,7 @@ get_COX_evaluation_BRIER_sPLS <- function(comp_model_lst,
           for(f in unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$runs==r,]$fold)){
 
             # non-significant models could be filtered, check if the model exist in df_results_evals
-            if(nrow(df_results_evals[df_results_evals$n.comps==l & df_results_evals$runs==r & df_results_evals$fold==f,])==0){
+            if(nrow(df_results_evals[df_results_evals$n.comps==l & df_results_evals$eta==eta.list[[e]] & df_results_evals$runs==r & df_results_evals$fold==f,])==0){
               next
             #model is not compute bc any variable was selected
             }else if(is.null(comp_model_lst[[l.index]][[e]][[r]][[f]]$survival_model)){

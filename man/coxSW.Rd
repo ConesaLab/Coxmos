@@ -93,7 +93,11 @@ Instance of class "HDcox" and model "coxSW". The class contains the following el
 
 \code{Y_input}: Y input matrix
 
+\code{nsv}: Variables removed by remove_non_significant if any.
+
 \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
+
+\code{removed_variables_correlation}: Variables removed by being high correlated with other variables.
 
 \code{class}: Model class.
 
