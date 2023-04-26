@@ -73,9 +73,17 @@ assign(x = 'IllegalChars', value = c("`"), pkg.env)
 #' factorToBinary
 #' @description Returns a new X matrix where the factor variables have been change to dummy variables.
 #' The function allows the user to generate k-1 or k dummy variables per where k is the quantity of levels for a specific variable.
-#' @param X Numeric matrix or data.frame. Explanatory variables. Only qualitative variables will be transformed into binary variables.
-#' @param all Logical. If all = TRUE, as many variables as levels will be returned in the new matrix. Otherwise, k-1 variables will be used where the first one will be use as "default" state (default: TRUE).
+#' @param X Numeric matrix or data.frame. Only qualitative variables (factor class) will be transformed into binary variables.
+#' @param all Logical. If all = TRUE, as many variables as levels will be returned in the new matrix. Otherwise, k-1 variables will be used where the first level will be use as "default" state (default: TRUE).
 #' @param sep Character. Character symbol to generate new colnames. Ex. If variable name is "sex" and sep = "_". Dummy variables will be "sex_male" and "sex_female".
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' X.dummy <- factorToBinary(X, all = F, sep = "_")
+#' X.pls <- factorToBinary(X, all = T, sep = "_")
+#' }
 factorToBinary <- function(X, all = T, sep = "_"){
 
   if(nrow(X)==0 | is.null(X)){
@@ -91,11 +99,11 @@ factorToBinary <- function(X, all = T, sep = "_"){
       if(all){
         form <- as.formula(paste0("~ ", cn, " + 0"))
         binaryVariable <- model.matrix(form, data=variable)[,1:length(levels(variable[,1])), drop=F]
-        colnames(binaryVariable) <- paste0(cn, sep, levels(variable[,1]))
+        colnames(binaryVariable) <- paste0(cn, sep, gsub(" ", "", levels(variable[,1])))
       }else{
         form <- as.formula(paste0("~ ", cn))
         binaryVariable <- model.matrix(form, data=variable)[,2:length(levels(variable[,1])), drop=F]
-        colnames(binaryVariable) <- paste0(cn, sep, levels(variable[,1])[2:length(levels(variable[,1]))])
+        colnames(binaryVariable) <- paste0(cn, sep, gsub(" ", "", levels(variable[,1])[2:length(levels(variable[,1]))]))
       }
       if(is.null(binaryMatrix)){
         binaryMatrix <- binaryVariable
@@ -448,8 +456,8 @@ deleteIllegalChars <- function(chr.vector){
 
 #only for FORMULAS
 transformIllegalChars <- function(cn) {
-  illegal_chars <- c("-", "+", "*", ">", "<", ">=", "<=", "^", "/")
-  replacement <- c(".minus.", ".plus.", ".star.", ".over.", ".under.", ".over.equal.", ".under.equal.", ".power.", ".divided.")
+  illegal_chars <- c(" ", "-", "+", "*", ">", "<", ">=", "<=", "^", "/")
+  replacement <- c("", ".minus.", ".plus.", ".star.", ".over.", ".under.", ".over.equal.", ".under.equal.", ".power.", ".divided.")
   v = vapply(cn, function(x){gsub(pattern = illegal_chars[1], replacement = replacement[1],
                              gsub(pattern = illegal_chars[2], replacement = replacement[2],
                              gsub(pattern = illegal_chars[3], replacement = replacement[3],
@@ -458,8 +466,9 @@ transformIllegalChars <- function(cn) {
                              gsub(pattern = illegal_chars[6], replacement = replacement[6],
                              gsub(pattern = illegal_chars[7], replacement = replacement[7],
                              gsub(pattern = illegal_chars[8], replacement = replacement[8],
-                             gsub(pattern = illegal_chars[9], replacement = replacement[9], x,
-                             fixed = T), fixed = T), fixed = T), fixed = T), fixed = T), fixed = T), fixed = T), fixed = T), fixed = T)}, character(1))
+                             gsub(pattern = illegal_chars[8], replacement = replacement[9],
+                             gsub(pattern = illegal_chars[9], replacement = replacement[10], x,
+                             fixed = T), fixed = T), fixed = T), fixed = T), fixed = T), fixed = T), fixed = T), fixed = T), fixed = T), fixed = T)}, character(1))
 
   return(v)
 }
