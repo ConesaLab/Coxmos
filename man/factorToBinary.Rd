@@ -7,13 +7,19 @@
 factorToBinary(X, all = T, sep = "_")
 }
 \arguments{
-\item{X}{Numeric matrix or data.frame. Explanatory variables. Only qualitative variables will be transformed into binary variables.}
+\item{X}{Numeric matrix or data.frame. Only qualitative variables (factor class) will be transformed into binary variables.}
 
-\item{all}{Logical. If all = TRUE, as many variables as levels will be returned in the new matrix. Otherwise, k-1 variables will be used where the first one will be use as "default" state (default: TRUE).}
+\item{all}{Logical. If all = TRUE, as many variables as levels will be returned in the new matrix. Otherwise, k-1 variables will be used where the first level will be use as "default" state (default: TRUE).}
 
 \item{sep}{Character. Character symbol to generate new colnames. Ex. If variable name is "sex" and sep = "_". Dummy variables will be "sex_male" and "sex_female".}
 }
 \description{
 Returns a new X matrix where the factor variables have been change to dummy variables.
 The function allows the user to generate k-1 or k dummy variables per where k is the quantity of levels for a specific variable.
+}
+\examples{
+\dontrun{
+X.dummy <- factorToBinary(X, all = F, sep = "_")
+X.pls <- factorToBinary(X, all = T, sep = "_")
+}
 }
