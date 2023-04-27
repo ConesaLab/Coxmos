@@ -2972,7 +2972,7 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
 
       for(e in 1:length(eta.list)){
 
-        if(!eta.list[[e]] %in% unique(df_results_evals$eta)){
+        if(!eta.list[[e]] %in% unique(df_results_evals[df_results_evals$n.comps==l,]$eta)){
           df_results_evals_AUC <- c(df_results_evals_AUC, rep(NA, n_run*k_folds))
           next
         }
@@ -2981,7 +2981,7 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
 
         for(r in 1:n_run){
 
-          if(!r %in% unique(df_results_evals$runs)){
+          if(!r %in% unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$eta==eta.list[[e]],]$runs)){
             df_results_evals_AUC <- c(df_results_evals_AUC, rep(NA, k_folds))
             next
           }
@@ -2989,7 +2989,7 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
 
           for(f in 1:k_folds){
 
-            if(!f %in% unique(df_results_evals$fold)){
+            if(!f %in% unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$eta==eta.list[[e]] & df_results_evals$runs==r,]$fold)){
               df_results_evals_AUC <- c(df_results_evals_AUC, NA)
               next
             }
@@ -3052,7 +3052,7 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
 
       for(e in 1:length(eta.list)){
 
-        if(!eta.list[[e]] %in% unique(df_results_evals$eta)){
+        if(!eta.list[[e]] %in% unique(df_results_evals[df_results_evals$n.comps==l,]$eta)){
           df_results_evals_AUC <- c(df_results_evals_AUC, rep(NA, n_run))
           next
         }
@@ -3061,7 +3061,7 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
 
         for(r in 1:n_run){
 
-          if(!r %in% unique(df_results_evals$runs)){
+          if(!r %in% unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$eta==eta.list[[e]],]$runs)){
             df_results_evals_AUC <- c(df_results_evals_AUC, NA)
             next
           }
@@ -3070,7 +3070,7 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
 
           for(f in 1:k_folds){
 
-            if(!f %in% unique(df_results_evals$fold)){
+            if(!f %in% unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$eta==eta.list[[e]] & df_results_evals$runs==r,]$fold)){
               next
             }
             lst_COMPLETE_LP <- getCOMPLETE_LP(comp_index = l, eta_index = e, run = r, fold = f,
