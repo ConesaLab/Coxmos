@@ -150,7 +150,7 @@ sb.splsicox <- function(X, Y,
   names(lst_sb.pls) <- names(Xh)
 
   # CHECK ALL MODELS SAME COMPONENTS
-  aux_ncomp <- purrr::map(lst_sb.pls, ~.$n.comp)
+  aux_ncomp <- purrr::map(lst_sb.pls, ~ifelse("n.comp" %in% names(.),.$n.comp, NA))
 
   # CREATE COMBINE MODEL
   data <- NULL
@@ -184,7 +184,7 @@ sb.splsicox <- function(X, Y,
                                 Y = list("data" = lst_sb.pls[[1]]$Y$data, "y.mean" = ymeans, "y.sd" = ysds),
                                 survival_model = cox_model$survival_model,
                                 list_spls_models = lst_sb.pls,
-                                n.comp = n.comp, #number of components used, but could be lesser than expected because not computed models
+                                n.comp = aux_ncomp, #number of components used, but could be lesser than expected because not computed models
                                 spv_penalty = spv_penalty,
                                 call = func_call,
                                 X_input = if(returnData) X_original else NA,
@@ -780,7 +780,7 @@ fast.cv.sb.splsicox <- function(X, Y,
   }
 
   # CHECK ALL MODELS SAME COMPONENTS
-  aux_ncomp <- purrr::map(lst_sb.pls, ~.$n.comp)
+  aux_ncomp <- purrr::map(lst_sb.pls, ~ifelse("n.comp" %in% names(.),.$n.comp, NA))
 
   # CREATE COMBINE MODEL
   data <- NULL
