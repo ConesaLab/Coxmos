@@ -155,7 +155,13 @@ sb.splsicox <- function(X, Y,
   # CREATE COMBINE MODEL
   data <- NULL
   cn.merge <- NULL
-  for(b in names(Xh)){
+  for(b in names(lst_sb.pls)){
+
+    # NA or NULL
+    if(!isa(lst_sb.pls, "HDcox")){
+      next
+    }
+
     if(!is.null(lst_sb.pls[[b]]$survival_model)){
       data <- cbind(data, lst_sb.pls[[b]]$X$scores)
       cn.merge <- c(cn.merge, paste0(colnames(lst_sb.pls[[b]]$X$scores), "_", b))
@@ -181,7 +187,7 @@ sb.splsicox <- function(X, Y,
 
   invisible(gc())
   return(sb.splsicox_class(list(X = list("data" = if(returnData) X_norm else NA, "x.mean" = xmeans, "x.sd" = xsds),
-                                Y = list("data" = lst_sb.pls[[1]]$Y$data, "y.mean" = ymeans, "y.sd" = ysds),
+                                Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
                                 survival_model = cox_model$survival_model,
                                 list_spls_models = lst_sb.pls,
                                 n.comp = aux_ncomp, #number of components used, but could be lesser than expected because not computed models
@@ -785,7 +791,13 @@ fast.cv.sb.splsicox <- function(X, Y,
   # CREATE COMBINE MODEL
   data <- NULL
   cn.merge <- NULL
-  for(b in names(Xh)){
+  for(b in names(lst_sb.pls)){
+
+    # NA or NULL
+    if(!isa(lst_sb.pls, "HDcox")){
+      next
+    }
+
     if(!is.null(lst_sb.pls[[b]]$survival_model)){
       data <- cbind(data, lst_sb.pls[[b]]$X$scores)
       cn.merge <- c(cn.merge, paste0(colnames(lst_sb.pls[[b]]$X$scores), "_", b))
@@ -831,7 +843,7 @@ fast.cv.sb.splsicox <- function(X, Y,
 
   invisible(gc())
   return(sb.splsicox_class(list(X = list("data" = if(returnData) X_norm else NA, "x.mean" = xmeans, "x.sd" = xsds),
-                                Y = list("data" = lst_sb.pls[[1]]$Y$data, "y.mean" = ymeans, "y.sd" = ysds),
+                                Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
                                 survival_model = cox_model$survival_model,
                                 list_spls_models = lst_sb.pls,
                                 n.comp = aux_ncomp, #number of components used, but could be lesser than expected because not computed models

@@ -1375,7 +1375,7 @@ check_AUC_improvement_spls2 <- function(fast_mode, pred.attr, df_results_evals_A
       for(e in 1:length(eta.list)){
         ind <- as.character(eta.list[e])
         #Check if the difference between newest components is lesser than the AUC
-        for(c in (comp_index-MIN_COMP_TO_CHECK+1):comp_index){
+        for(c in min(comp_index, (comp_index-MIN_COMP_TO_CHECK+1)):comp_index){
           diff_vector[[ind]] <- c(diff_vector[[ind]], abs(lst_comp_AUC[[ind]][[c]] - lst_comp_AUC[[ind]][[comp_index-MIN_COMP_TO_CHECK]]))
         }
       }
@@ -1980,19 +1980,22 @@ get_EVAL_PLOTS <- function(fast_mode, best_model_info, w_AUC, w_BRIER, max.ncomp
   if(!is.null(eta.list)){
     for(l in 1:length(max.ncomp)){
       for(e in 1:length(eta.list)){
-        vector <- c("AIC.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]] & df_results_evals_fold$eta==eta.list[[e]],colname_AIC]),
-                    "c_index.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]] & df_results_evals_fold$eta==eta.list[[e]],colname_c_index]))
+        if(l %in% df_results_evals_fold$n.comps & eta.list[[e]] %in% df_results_evals_fold$eta){
+          vector <- c("AIC.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]] & df_results_evals_fold$eta==eta.list[[e]],colname_AIC]),
+                      "c_index.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]] & df_results_evals_fold$eta==eta.list[[e]],colname_c_index]))
 
-        sd_vector <- rbind(sd_vector, vector)
-
+          sd_vector <- rbind(sd_vector, vector)
+        }
       }
     }
   }else{
     for(l in 1:length(max.ncomp)){
-      vector <- c("AIC.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]],colname_AIC]),
-                  "c_index.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]],colname_c_index]))
+      if(l %in% df_results_evals_fold$n.comps){
+        vector <- c("AIC.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]],colname_AIC]),
+                    "c_index.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]],colname_c_index]))
 
-      sd_vector <- rbind(sd_vector, vector)
+        sd_vector <- rbind(sd_vector, vector)
+      }
     }
   }
 
@@ -2005,28 +2008,36 @@ get_EVAL_PLOTS <- function(fast_mode, best_model_info, w_AUC, w_BRIER, max.ncomp
       if(fast_mode){
         for(l in 1:length(max.ncomp)){
           for(e in 1:length(eta.list)){
-            sd_vector_AUC <- rbind(sd_vector_AUC, "AUC.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]] & df_results_evals_fold$eta==eta.list[[e]],colname_AUC]))
-            sd_vector_BRIER <- rbind(sd_vector_BRIER, "BRIER.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]] & df_results_evals_fold$eta==eta.list[[e]],colname_BRIER]))
+            if(l %in% df_results_evals_fold$n.comps & eta.list[[e]] %in% df_results_evals_fold$eta){
+              sd_vector_AUC <- rbind(sd_vector_AUC, "AUC.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]] & df_results_evals_fold$eta==eta.list[[e]],colname_AUC]))
+              sd_vector_BRIER <- rbind(sd_vector_BRIER, "BRIER.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]] & df_results_evals_fold$eta==eta.list[[e]],colname_BRIER]))
+            }
           }
         }
       }else{
         for(l in 1:length(max.ncomp)){
           for(e in 1:length(eta.list)){
-            sd_vector_AUC <- rbind(sd_vector_AUC, "AUC.sd" = sd(df_results_evals_run[df_results_evals_run$n.comps==max.ncomp[[l]] & df_results_evals_run$eta==eta.list[[e]],colname_AUC]))
-            sd_vector_BRIER <- rbind(sd_vector_BRIER, "BRIER.sd" = sd(df_results_evals_run[df_results_evals_run$n.comps==max.ncomp[[l]] & df_results_evals_run$eta==eta.list[[e]],colname_BRIER]))
+            if(l %in% df_results_evals_run$n.comps & eta.list[[e]] %in% df_results_evals_run$eta){
+              sd_vector_AUC <- rbind(sd_vector_AUC, "AUC.sd" = sd(df_results_evals_run[df_results_evals_run$n.comps==max.ncomp[[l]] & df_results_evals_run$eta==eta.list[[e]],colname_AUC]))
+              sd_vector_BRIER <- rbind(sd_vector_BRIER, "BRIER.sd" = sd(df_results_evals_run[df_results_evals_run$n.comps==max.ncomp[[l]] & df_results_evals_run$eta==eta.list[[e]],colname_BRIER]))
+            }
           }
         }
       }
     }else{
       if(fast_mode){
         for(l in 1:length(max.ncomp)){
-          sd_vector_AUC <- rbind(sd_vector_AUC, "AUC.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]],colname_AUC]))
-          sd_vector_BRIER <- rbind(sd_vector_BRIER, "BRIER.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]],colname_BRIER]))
+          if(l %in% df_results_evals_fold$n.comps){
+            sd_vector_AUC <- rbind(sd_vector_AUC, "AUC.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]],colname_AUC]))
+            sd_vector_BRIER <- rbind(sd_vector_BRIER, "BRIER.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]],colname_BRIER]))
+          }
         }
       }else{
         for(l in 1:length(max.ncomp)){
-          sd_vector_AUC <- rbind(sd_vector_AUC, "AUC.sd" = sd(df_results_evals_run[df_results_evals_run$n.comps==max.ncomp[[l]],colname_AUC]))
-          sd_vector_BRIER <- rbind(sd_vector_BRIER, "BRIER.sd" = sd(df_results_evals_run[df_results_evals_run$n.comps==max.ncomp[[l]],colname_BRIER]))
+          if(l %in% df_results_evals_run$n.comps){
+            sd_vector_AUC <- rbind(sd_vector_AUC, "AUC.sd" = sd(df_results_evals_run[df_results_evals_run$n.comps==max.ncomp[[l]],colname_AUC]))
+            sd_vector_BRIER <- rbind(sd_vector_BRIER, "BRIER.sd" = sd(df_results_evals_run[df_results_evals_run$n.comps==max.ncomp[[l]],colname_BRIER]))
+          }
         }
       }
     }
@@ -3887,7 +3898,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
     }
 
     ## We need to fill models from 1:max.ncomp (it uses max.ncomp to fill the others, if it is NULL, method fail!!!)
-    for(comp in 1:(max.ncomp-1)){
+    for(comp in 1:(max(1,max.ncomp-1))){
       eta_model_lst <- list()
       for(e in 1:length(eta.list)){
         run_model_lst <- list()

@@ -196,7 +196,7 @@ sb.splsdrcox <- function (X, Y,
 
   invisible(gc())
   return(sb.splsdrcox_class(list(X = list("data" = if(returnData) X_norm else NA, "x.mean" = xmeans, "x.sd" = xsds),
-                                Y = list("data" = lst_sb.spls[[1]]$Y$data, "y.mean" = ymeans, "y.sd" = ysds),
+                                Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
                                 survival_model = cox_model$survival_model,
                                 list_spls_models = lst_sb.spls,
                                 n.comp = n.comp, #number of components used, but could be lesser than expected because not computed models
@@ -842,7 +842,7 @@ fast.cv.sb.splsdrcox <- function(X, Y,
 
   invisible(gc())
   return(sb.splsdrcox_class(list(X = list("data" = if(returnData) X_norm else NA, "x.mean" = xmeans, "x.sd" = xsds),
-                                Y = list("data" = lst_sb.spls[[1]]$Y$data, "y.mean" = ymeans, "y.sd" = ysds),
+                                Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
                                 survival_model = cox_model$survival_model,
                                 list_spls_models = lst_sb.spls,
                                 n.comp = aux_ncomp, #number of components used, but could be lesser than expected because not computed models
