@@ -158,7 +158,7 @@ sb.splsicox <- function(X, Y,
   for(b in names(lst_sb.pls)){
 
     # NA or NULL
-    if(!isa(lst_sb.pls, "HDcox")){
+    if(!isa(lst_sb.pls[[b]], "HDcox")){
       next
     }
 
@@ -794,7 +794,7 @@ fast.cv.sb.splsicox <- function(X, Y,
   for(b in names(lst_sb.pls)){
 
     # NA or NULL
-    if(!isa(lst_sb.pls, "HDcox")){
+    if(!isa(lst_sb.pls[[b]], "HDcox")){
       next
     }
 
