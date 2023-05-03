@@ -681,7 +681,7 @@ plotZPH <- function(fit_zph, oneToDelete, df=3){
   aux <- as.data.frame(cbind(fit_zph$time, fit_zph$y[,oneToDelete]))
   colnames(aux) <- c("x","y")
   ggp <- ggplot(aux, aes(x=x, y=y)) + geom_point() +
-    geom_smooth(method = "lm", formula = y ~ splines::ns(x, df = df, intercept = T), color = "red",
+    geom_smooth(method = "lm", formula = y ~ splines::ns(x, df = df, intercept = T), color = "red", #should be a base R package
                 se = TRUE, level = 0.95) +
     xlab(label = "Time") + ylab(label = paste0("Beta(t) for ", oneToDelete))
   return(ggp)

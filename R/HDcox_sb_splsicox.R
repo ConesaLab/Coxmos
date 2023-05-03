@@ -147,6 +147,16 @@ sb.splsicox <- function(X, Y,
                                                 toKeep.zv = NULL, #zero_var already checked
                                                 remove_non_significant = remove_non_significant, alpha = alpha, tol = tol,
                                                 returnData = F, verbose = verbose))
+
+  ## TEST ##
+  # aux <- splsicox(X = Xh$clinical, Y = Yh, n.comp = n.comp, spv_penalty = spv_penalty,
+  #          x.scale = F, x.center = F,
+  #          #y.scale = F, y.center = F,
+  #          remove_near_zero_variance = F, remove_zero_variance = F,
+  #          toKeep.zv = NULL, #zero_var already checked
+  #          remove_non_significant = remove_non_significant, alpha = alpha, tol = tol,
+  #          returnData = F, verbose = verbose)
+
   names(lst_sb.pls) <- names(Xh)
 
   # CHECK ALL MODELS SAME COMPONENTS

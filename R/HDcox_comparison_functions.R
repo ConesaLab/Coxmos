@@ -959,7 +959,7 @@ boxplot.performance <- function(df, x.var, y.var, x.fill = NULL, x.alpha = NULL,
 
       ggp <- ggp +
         scale_alpha_manual(values=alpha_values) +
-        guides(alpha=guide_legend(override.aes=list(fill=grDevices::hcl(c(177,177),74.7,32.5,alpha=alpha_values), colour=NA)))
+        guides(alpha=guide_legend(override.aes=list(fill=grDevices::hcl(c(177,177),74.7,32.5,alpha=alpha_values), colour=NA))) #should be a base R package
     }
   }
 

@@ -227,7 +227,8 @@ splsicox <- function(X, Y,
     )
 
     if(all(is.na(wh))){
-      message(paste0("Individual COX models cannot be computed for each variable. Stopped at component ", h, "."))
+      message(paste0("Stopping at component ", h-1, ": The weight vector could not be computed.."))
+      h = h-1
       stopped = T
       break
     }
@@ -251,7 +252,7 @@ splsicox <- function(X, Y,
 
     if(length(index2keep)==0){
       if(verbose){
-        message(paste0("Stopping at component ", h-1, ": No significant variables found in component ", h))
+        message(paste0("Stopping at component ", h-1, ": No significant variables found in component ", h,"."))
       }
       h = h-1
       break
@@ -313,7 +314,8 @@ splsicox <- function(X, Y,
 
   }
 
-  if(h==0){ #any significant individual cox model at first component
+  # Problems computing firts component
+  if(h==0){ #no significant individual cox model at first component
     func_call <- match.call()
     invisible(gc())
 
@@ -357,27 +359,6 @@ splsicox <- function(X, Y,
   #### ### ### ### ### ### ### ### ### ### ##
   ###              PLS-COX                 ##
   #### ### ### ### ### ### ### ### ### ### ##
-
-  if(stopped & h==1){ #if it is the first component, no cox model has been computed
-
-    func_call <- match.call()
-    invisible(gc())
-
-    t2 <- Sys.time()
-    time <- difftime(t2,t1,units = "mins")
-
-    return(splsicox_class(list(X = list("data" = if(returnData) X_norm else NA, "weightings" = NULL, "weightings_norm" = NULL, "W.star" = NULL, "loadings" = NULL, "scores" = NULL, "E" = NULL, "x.mean" = xmeans, "x.sd" = xsds),
-                              Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
-                              survival_model = NULL,
-                              n.comp = h,
-                              var_by_component = var_by_component, #variables selected for each component
-                              call = func_call,
-                              X_input = if(returnData) X_original else NA,
-                              Y_input = if(returnData) Y_original else NA,
-                              nzv = variablesDeleted,
-                              class = pkg.env$splsicox,
-                              time = time)))
-  }
 
   cox_model = NULL
 

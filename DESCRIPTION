@@ -35,11 +35,9 @@ Suggests:
     survivalROC,
     risksetROC,
     ggforce,
-    grDevices,
     knitr, 
     RColorConesa,
-    rmarkdown,
-    splines
+    rmarkdown
 Enhances:
 Depends: 
     R (>= 4.1.0),

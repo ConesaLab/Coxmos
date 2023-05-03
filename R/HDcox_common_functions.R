@@ -10,14 +10,16 @@
 #' @importFrom scattermore geom_scattermore
 #' @import stats
 #' @import survival
-#@importFrom survAUC predErr
 #' @importFrom survcomp sbrier.score2proba
 #' @import survminer
 #' @importFrom tidyr pivot_longer starts_with
 #' @import utils
-#'
 #' @importFrom mixOmics spls plsda block.spls block.splsda tune.spls
 #' @import furrr
+
+#@importFrom survAUC predErr
+#suggest #grDevices
+#suggest #splines
 
 pkg.env <- new.env(parent = emptyenv())
 assign(x = 'model_class', value = "HDcox", pkg.env)
