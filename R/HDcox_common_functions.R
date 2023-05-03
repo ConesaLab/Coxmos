@@ -346,7 +346,7 @@ deleteZeroVarianceVariables <- function(data, mustKeep = NULL, names = NULL, inf
 #### ### ### ### ### ### #
 # Individual Cox results #
 #### ### ### ### ### ### #
-getIndividualCox <- function(data, time_var = "time", event_var = "event"){
+getIndividualCox <- function(data, time_var = "time", event_var = "event", score_data = NULL){
   set.seed(123)
 
   time <- data[,time_var]
@@ -359,15 +359,24 @@ getIndividualCox <- function(data, time_var = "time", event_var = "event"){
         eps = 1e-14
         control <- survival::coxph.control(eps = eps, toler.chol = .Machine$double.eps^0.90,
                                            iter.max = 220, toler.inf = sqrt(eps), outer.max = 100, timefix = TRUE)
-        fit <- survival::coxph(survival::Surv(time = time,
-                                              event = event,
-                                              type = "right") ~ aux_data[,x_col,drop=T],
-                               control = control,
-                               singular.ok = T)
-        if (length(getPvalFromCox(fit)) == 1) {
+        if(is.null(score_data)){
+          fit <- survival::coxph(survival::Surv(time = time,
+                                                event = event,
+                                                type = "right") ~ aux_data[,x_col,drop=T],
+                                 control = control,
+                                 singular.ok = T)
+        }else{
+          fit <- survival::coxph(survival::Surv(time = time,
+                                                event = event,
+                                                type = "right") ~ cbind(aux_data[,x_col,drop=T], score_data),
+                                 control = control,
+                                 singular.ok = T)
+        }
+
+        if(length(getPvalFromCox(fit)) == 1){
           c(fit$coefficients, getPvalFromCox(fit))
-        } else {
-          c(fit$coefficients, getPvalFromCox(fit)["x"])
+        }else{
+          c(fit$coefficients[[1]], getPvalFromCox(fit)[1])
         }
       })
       wh <- do.call(rbind, result_list)
@@ -4450,7 +4459,10 @@ getBestVector <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN
   count = 1
   var_exp = NULL
 
-  #if n_col is minimum than MIN_NVAR, values could be the same, so delete duplicates
+  # if n_col is minimum than MIN_NVAR, values could be the same, so delete duplicates
+  # to use different number of variables per component,
+  # vector variable should be updated to a list of values per component and getCIndex_AUC_CoxModel_spls/da functions
+  # should manage vector variables different
   vector <- unique(vector)
 
   if(PARALLEL){

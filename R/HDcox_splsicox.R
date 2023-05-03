@@ -161,7 +161,9 @@ splsicox <- function(X, Y,
   #### ### ### ### ### ### ### ### ### ### ### ###
 
   #Update NAs by 0s
-  Xh[XXNA] <- 0
+  if(length(XXNA)>0){
+    Xh[XXNA] <- 0
+  }
 
   var_by_component <- list()
   stopped = F
@@ -191,57 +193,59 @@ splsicox <- function(X, Y,
     #### ### ### ##
 
     #2. wh <- individual cox regression vector
-    Xh[XXNA] <- NA
-    Xh[XXNA] <- 0
+    if(length(XXNA)>0){
+      Xh[XXNA] <- 0
+    }
 
     #Sometimes, fit can not be compute by NA at cox calculus, we cannot avoid printing the NAs matrix... !!!!
     # returning wh[,1] coefficients and wh[,2] p-values
-    wh <- tryCatch(
-      # Specifying expression
-      expr = {
-        as.data.frame(t(apply(Xh, 2, function(x){
-          eps = 1e-14
-          control <- survival::coxph.control(eps = eps, toler.chol = .Machine$double.eps^0.90,
-                                             iter.max = 220, toler.inf = sqrt(eps), outer.max = 100, timefix = TRUE)
-          fit <- survival::coxph(survival::Surv(time = time,
-                                                event = event,
-                                                type = "right") ~ ., as.data.frame(cbind(Ts,x)),
-                                 control = control,
-                                 singular.ok = T)
+    wh <- getIndividualCox(data = cbind(Xh, Yh), time_var = "time", event_var = "event", score_data = Ts)
+    # wh2 <- tryCatch(
+    #   # Specifying expression
+    #   expr = {
+    #     as.data.frame(t(apply(Xh, 2, function(x){
+    #       eps = 1e-14
+    #       control <- survival::coxph.control(eps = eps, toler.chol = .Machine$double.eps^0.90,
+    #                                          iter.max = 220, toler.inf = sqrt(eps), outer.max = 100, timefix = TRUE)
+    #       fit <- survival::coxph(survival::Surv(time = time,
+    #                                             event = event,
+    #                                             type = "right") ~ ., as.data.frame(cbind(Ts,x)),
+    #                              control = control,
+    #                              singular.ok = T)
+    #
+    #       if(length(getPvalFromCox(fit))==1){
+    #         aux <- c(fit$coefficients["x"], getPvalFromCox(fit))
+    #       }else{
+    #         aux <- c(fit$coefficients["x"], getPvalFromCox(fit)["x"]) #cause variable of study is called 'x' and we extract new coefficient taking into account components already computed
+    #       }
+    #       aux
+    #     })))
+    #   },
+    #   # Specifying error message
+    #   error = function(e){
+    #     message(paste0("splsicox: ", e))
+    #     invisible(gc())
+    #     return(NA)
+    #     #if error we could return beta=0 (no significant) instead a NA!!!
+    #   }
+    # )
 
-          if(length(getPvalFromCox(fit))==1){
-            aux <- c(fit$coefficients["x"], getPvalFromCox(fit))
-          }else{
-            aux <- c(fit$coefficients["x"], getPvalFromCox(fit)["x"]) #cause variable of study is called 'x' and we extract new coefficient taking into account components already computed
-          }
-          aux
-        })))
-      },
-      # Specifying error message
-      error = function(e){
-        message(paste0("splsicox: ", e))
-        invisible(gc())
-        return(NA)
-        #if error we could return beta=0 (no significant) instead a NA!!!
-      }
-    )
+    # if(any(is.na(wh))){
+    #   message(paste0(paste0("Individual COX model cannot be computed for variables (", paste0(rownames(wh)[is.na(wh[,1])], collapse = ", ") ,").")))
+    #
+    #   #wh <- wh[-which(is.na(wh[,1])),]
+    #   #replace for beta of 0, and p-value of 1
+    #   wh[which(is.na(wh[,1])),] <- c(rep(0, length(rownames(wh)[is.na(wh[,1])])), rep(1, length(rownames(wh)[is.na(wh[,1])])))
+    #
+    #   #stopped = T
+    #   #break
+    # }
 
     if(all(is.na(wh))){
       message(paste0("Stopping at component ", h-1, ": The weight vector could not be computed.."))
       h = h-1
       stopped = T
       break
-    }
-
-    if(any(is.na(wh))){
-      message(paste0(paste0("Individual COX model cannot be computed for variables (", paste0(rownames(wh)[is.na(wh[,1])], collapse = ", ") ,").")))
-
-      #wh <- wh[-which(is.na(wh[,1])),]
-      #replace for beta of 0, and p-value of 1
-      wh[which(is.na(wh[,1])),] <- c(rep(0, length(rownames(wh)[is.na(wh[,1])])), rep(1, length(rownames(wh)[is.na(wh[,1])])))
-
-      #stopped = T
-      #break
     }
 
     ### ## ## ##
@@ -278,8 +282,16 @@ splsicox <- function(X, Y,
     #4. t = Xh wh / wh'wh
     #4. t = Xh wh_norm (solo si wh ya normalizado)
     #normalization for NAs
-    Xh[XXNA[,nm_keep]] <- 0
-    th <- (Xh[,nm_keep,drop=F] %*% sub_wh_norm)/((!XXNA[,nm_keep,drop=F]) %*% sub_wh_norm^2)
+    if(length(XXNA)>0){
+      Xh[XXNA[,nm_keep]] <- 0
+    }
+
+    if(length(XXNA)>0){
+      # th <- (Xh[,nm_keep,drop=F] %*% sub_wh_norm)/((!XXNA[,nm_keep,drop=F]) %*% sub_wh_norm^2) # do not remember why
+      th <- (Xh[,nm_keep,drop=F] %*% sub_wh_norm)
+    }else{
+      th <- (Xh[,nm_keep,drop=F] %*% sub_wh_norm)
+    }
 
     #th <- t(lm(t(Xh)~0 + sub_wh_norm)$coefficients)/((!XXNA)%*%(sub_wh_norm^2))
 
@@ -293,7 +305,13 @@ splsicox <- function(X, Y,
 
     ph <- data.frame(wh)
     ph[,1] <- 0
-    sub_ph <- t(t(th) %*% Xh[,nm_keep,drop=F]) / (t((!XXNA[,nm_keep,drop=F])) %*% th^2)
+
+    if(length(XXNA)>0){
+      # sub_ph <- t(t(th) %*% Xh[,nm_keep,drop=F]) / (t((!XXNA[,nm_keep,drop=F])) %*% th^2) # do not remember why
+      sub_ph <- t(t(th) %*% Xh[,nm_keep,drop=F]) / (as.vector(t(th) %*% th))
+    }else{
+      sub_ph <- t(t(th) %*% Xh[,nm_keep,drop=F]) / (as.vector(t(th) %*% th))
+    }
 
     ph[nm_keep,] <- sub_ph
     # temppp <- rep(0,res$nc)
@@ -488,6 +506,7 @@ splsicox <- function(X, Y,
                             Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
                             survival_model = survival_model,
                             n.comp = h,
+                            spv_penalty = spv_penalty,
                             var_by_component = var_by_component, #variables selected for each component
                             call = func_call,
                             X_input = if(returnData) X_original else NA,

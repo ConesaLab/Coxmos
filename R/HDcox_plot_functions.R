@@ -4071,7 +4071,11 @@ getLogRank_NumVariables <- function(data, sdata, VAR_EVENT, name_data = NULL, mi
       next
     }
 
-    cutpoint_value <- round(res.cut$cutpoint[1,1], ROUND_CP)
+    if(res.cut$cutpoint[1,1]<=0){
+      cutpoint_value <- round2any(res.cut$cutpoint[1,1], accuracy = 1/(10^ROUND_CP), f = ceiling)
+    }else{
+      cutpoint_value <- round(res.cut$cutpoint[1,1], ROUND_CP)
+    }
     variable <- ifelse(variable>cutpoint_value, paste0("greater than ", cutpoint_value), paste0("lesser/equal than ", cutpoint_value))
     variable <- data.frame(factor(variable))
     colnames(variable) = cn
