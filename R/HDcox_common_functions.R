@@ -765,7 +765,7 @@ removeNonSignificativeCox <- function(cox, alpha, cox_input, time.value = NULL, 
   p_val <- getPvalFromCox(cox)
   removed_variables <- NULL
 
-  if(is.na(p_val) || is.nan(p_val) || is.null(p_val)){
+  if(any(is.na(p_val)) || any(is.nan(p_val)) || any(is.null(p_val))){
     message("Problem to get P.Values in model:")
     print(cox)
     return(list(cox = cox, removed_variables = removed_variables))
@@ -776,6 +776,11 @@ removeNonSignificativeCox <- function(cox, alpha, cox_input, time.value = NULL, 
     print(cox)
     return(list(cox = cox, removed_variables = removed_variables))
   }
+
+  # !!!!
+  message("\n\n")
+  message(p_val)
+  print(p_val)
 
   while(any(p_val>alpha) && length(p_val)>1){
     to_remove <- names(which.max(p_val))
