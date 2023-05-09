@@ -535,6 +535,16 @@ checkXY.class <- function(X, Y, verbose = F){
     stop("Y data has one or more NA values. Remove those patients in Y and X matrices.")
   }
 
+  if("status" %in% colnames(Y)){
+    if(!all(Y[,"status"] %in% c(FALSE, TRUE, 0, 1))){
+      stop("Y data (status column) has values that HDcox cannot manage. The values accepted are '0' or 'FALSE' for censored observations and '1' or 'TRUE' for event observations.")
+    }
+  }else if("event" %in% colnames(Y)){
+    if(!all(Y[,"event"] %in% c(FALSE, TRUE, 0, 1))){
+      stop("Y data (event column) has values that HDcox cannot manage. The values accepted are '0' or 'FALSE' for censored observations and '1' or 'TRUE' for event observations.")
+    }
+  }
+
   return(list(X = X, Y = Y))
 }
 

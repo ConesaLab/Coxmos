@@ -105,6 +105,7 @@ coxEN <- function(X, Y,
   check_class(logical_params, class = "logical")
 
   #### REQUIREMENTS
+  checkY.colnames(Y)
   lst_check <- checkXY.class(X, Y, verbose = verbose)
   X <- lst_check$X
   Y <- lst_check$Y
@@ -124,8 +125,6 @@ coxEN <- function(X, Y,
                                           freqCut = FREQ_CUT)
   X <- lst_dnz$X
   variablesDeleted <- lst_dnz$variablesDeleted
-
-  checkY.colnames(Y)
 
   #### SCALING
   lst_scale <- XY.scale(X, Y, x.center, x.scale, y.center, y.scale)
@@ -470,6 +469,10 @@ cv.coxEN <- function(X, Y,
 
   #### REQUIREMENTS
   checkY.colnames(Y)
+  lst_check <- checkXY.class(X, Y, verbose = verbose)
+  X <- lst_check$X
+  Y <- lst_check$Y
+
   check.cv.weights(c(w_AIC, w_c.index, w_BRIER, w_AUC))
 
   if(!pred.method %in% pkg.env$AUC_evaluators){

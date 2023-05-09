@@ -103,11 +103,10 @@ sb.splsicox <- function(X, Y,
   check_class(logical_params, class = "logical")
 
   #### REQUIREMENTS
+  checkY.colnames(Y)
   lst_check <- checkXY.mb.class(X, Y, verbose = verbose)
   X <- lst_check$X
   Y <- lst_check$Y
-
-  checkY.colnames(Y)
 
   #### Original data
   X_original <- X
@@ -341,6 +340,10 @@ cv.sb.splsicox <- function(X, Y,
 
   #### REQUIREMENTS
   checkY.colnames(Y)
+  lst_check <- checkXY.mb.class(X, Y, verbose = verbose)
+  X <- lst_check$X
+  Y <- lst_check$Y
+
   check.cv.weights(c(w_AIC, w_c.index, w_BRIER, w_AUC))
   # if(!pred.method %in% c("risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I")){
   #   stop_quietly(paste0("pred.method must be one of the following: ", paste0(c("risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I"), collapse = ", ")))
@@ -703,6 +706,10 @@ fast.cv.sb.splsicox <- function(X, Y,
 
   #### REQUIREMENTS
   checkY.colnames(Y)
+  lst_check <- checkXY.mb.class(X, Y, verbose = verbose)
+  X <- lst_check$X
+  Y <- lst_check$Y
+
   check.cv.weights(c(w_AIC, w_c.index, w_BRIER, w_AUC))
   max.ncomp <- check.mb.ncomp(X, max.ncomp)
 
@@ -716,13 +723,6 @@ fast.cv.sb.splsicox <- function(X, Y,
 
   time <- Y[,"time"]
   event <- Y[,"event"]
-
-  #### REQUIREMENTS
-  lst_check <- checkXY.mb.class(X, Y, verbose = verbose)
-  X <- lst_check$X
-  Y <- lst_check$Y
-
-  checkY.colnames(Y)
 
   #### SCALE
   if(length(x.center)==1){

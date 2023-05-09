@@ -108,6 +108,7 @@ cox <- function (X, Y,
   }
 
   #### REQUIREMENTS
+  checkY.colnames(Y)
   lst_check <- checkXY.class(X, Y, verbose = verbose)
   X <- lst_check$X
   Y <- lst_check$Y
@@ -127,9 +128,6 @@ cox <- function (X, Y,
                                           freqCut = FREQ_CUT)
   X <- lst_dnz$X
   variablesDeleted <- lst_dnz$variablesDeleted
-
-  #colnames Y
-  checkY.colnames(Y)
 
   #### MAX PREDICTORS
   if(!check.maxPredictors.cox(X, Y, MIN_EPV, FORCE)){
