@@ -3281,43 +3281,55 @@ getSubModel.mb <- function(model, comp, remove_non_significant){
 
   #X
   if(attr(model, "model") %in% pkg.env$sb.splsdrcox){
+
     t1 <- Sys.time()
     data <- NULL
     col_names <- NULL
     for(b in names(model$list_spls_models)){
-      res$list_spls_models[[b]]$X$loadings <- res$list_spls_models[[b]]$X$loadings[,1:min(ncol(res$list_spls_models[[b]]$X$loadings),comp), drop=F]
-      res$list_spls_models[[b]]$X$weightings <- res$list_spls_models[[b]]$X$weightings[,1:min(ncol(res$list_spls_models[[b]]$X$weightings),comp), drop=F]
-      res$list_spls_models[[b]]$X$W.star <- res$list_spls_models[[b]]$X$W.star[,1:min(ncol(res$list_spls_models[[b]]$X$W.star),comp),drop=F]
-      res$list_spls_models[[b]]$X$scores <- res$list_spls_models[[b]]$X$scores[,1:min(ncol(res$list_spls_models[[b]]$X$scores),comp), drop=F]
 
-      res$list_spls_models[[b]]$var_by_component <- res$list_spls_models[[b]]$var_by_component[1:min(ncol(res$list_spls_models[[b]]$X$scores),comp)]
-      res$list_spls_models[[b]]$n.comp <- comp
+      if(is.na(model$list_spls_models[[b]]) || is.null(model$list_spls_models[[b]])){
+        res$list_spls_models[[b]] <- NA
+      }else{
+        res$list_spls_models[[b]]$X$loadings <- res$list_spls_models[[b]]$X$loadings[,1:min(ncol(res$list_spls_models[[b]]$X$loadings),comp), drop=F]
+        res$list_spls_models[[b]]$X$weightings <- res$list_spls_models[[b]]$X$weightings[,1:min(ncol(res$list_spls_models[[b]]$X$weightings),comp), drop=F]
+        res$list_spls_models[[b]]$X$W.star <- res$list_spls_models[[b]]$X$W.star[,1:min(ncol(res$list_spls_models[[b]]$X$W.star),comp),drop=F]
+        res$list_spls_models[[b]]$X$scores <- res$list_spls_models[[b]]$X$scores[,1:min(ncol(res$list_spls_models[[b]]$X$scores),comp), drop=F]
 
-      #survival_model
-      data <- as.data.frame(cbind(data, res$list_spls_models[[b]]$X$scores[,,drop=F]))
-      col_names <- c(col_names, paste0(colnames(res$list_spls_models[[b]]$X$scores), "_", b))
+        res$list_spls_models[[b]]$var_by_component <- res$list_spls_models[[b]]$var_by_component[1:min(ncol(res$list_spls_models[[b]]$X$scores),comp)]
+        res$list_spls_models[[b]]$n.comp <- comp
+
+        #survival_model
+        data <- as.data.frame(cbind(data, res$list_spls_models[[b]]$X$scores[,,drop=F]))
+        col_names <- c(col_names, paste0(colnames(res$list_spls_models[[b]]$X$scores), "_", b))
+      }
+
     }
 
-    colnames(data) <- col_names
-    #survival_model
-    cox_model <- cox(X = data, Y = res$Y$data,
-                     x.center = F, x.scale = F,
-                     #y.center = F, y.scale = F,
-                     remove_non_significant = remove_non_significant, FORCE = T)
-    survival_model <- cox_model$survival_model
+    if(!is.null(data)){
+      colnames(data) <- col_names
+      #survival_model
+      cox_model <- cox(X = data, Y = res$Y$data,
+                       x.center = F, x.scale = F,
+                       #y.center = F, y.scale = F,
+                       remove_non_significant = remove_non_significant, FORCE = T)
+      survival_model <- cox_model$survival_model
 
-    res$survival_model <- survival_model
-    res$n.comp <- comp
-    t2 <- Sys.time()
-    res$time <- difftime(t2,t1,units = "mins")
+      res$survival_model <- survival_model
+      res$n.comp <- comp
+      t2 <- Sys.time()
+      res$time <- difftime(t2,t1,units = "mins")
+    }
 
   }else if(attr(model, "model") %in% pkg.env$sb.splsicox){
+
     t1 <- Sys.time()
     data <- NULL
     col_names <- NULL
     for(b in names(model$list_spls_models)){
       # a sb.model could not have a specific block if no relevant
-      if(!is.null(res$list_spls_models[[b]]$survival_model)){
+      if(is.na(model$list_spls_models[[b]]) || is.null(model$list_spls_models[[b]])){
+        res$list_spls_models[[b]] <- NA
+      }else{
         res$list_spls_models[[b]]$X$loadings <- res$list_spls_models[[b]]$X$loadings[,1:min(ncol(res$list_spls_models[[b]]$X$loadings),comp), drop=F]
         res$list_spls_models[[b]]$X$weightings <- res$list_spls_models[[b]]$X$weightings[,1:min(ncol(res$list_spls_models[[b]]$X$weightings),comp), drop=F]
         res$list_spls_models[[b]]$X$W.star <- res$list_spls_models[[b]]$X$W.star[,1:min(ncol(res$list_spls_models[[b]]$X$W.star),comp),drop=F]
@@ -3332,18 +3344,21 @@ getSubModel.mb <- function(model, comp, remove_non_significant){
       }
     }
 
-    colnames(data) <- col_names
-    #survival_model
-    cox_model <- cox(X = data, Y = res$Y$data,
-                     x.center = F, x.scale = F,
-                     #y.center = F, y.scale = F,
-                     remove_non_significant = remove_non_significant, FORCE = T)
-    survival_model <- cox_model$survival_model
+    if(!is.null(data)){
+      colnames(data) <- col_names
+      #survival_model
+      cox_model <- cox(X = data, Y = res$Y$data,
+                       x.center = F, x.scale = F,
+                       #y.center = F, y.scale = F,
+                       remove_non_significant = remove_non_significant, FORCE = T)
+      survival_model <- cox_model$survival_model
 
-    res$survival_model <- survival_model
-    res$n.comp <- comp
-    t2 <- Sys.time()
-    res$time <- difftime(t2,t1,units = "mins")
+      res$survival_model <- survival_model
+      res$n.comp <- comp
+      t2 <- Sys.time()
+      res$time <- difftime(t2,t1,units = "mins")
+    }
+
   }else if(attr(model, "model") %in% c(pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){ #revisar!!!
     t1 <- Sys.time()
     for(b in names(model$mb.model$X)){
