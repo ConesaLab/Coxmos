@@ -317,7 +317,7 @@ stepwise.coxph <- function(Time = NULL, Status = NULL, variable.list,
       if(all(c("time", "event") %in% colnames(aux_data))){
         lst_model <- removeNAcoxmodel(model = initial.model, data = aux_data, time.value = NULL, event.value = NULL)
       }else{
-        lst_model <- removeNAcoxmodel(model = initial.model, data = cbind(bind(d, Time), Status), time.value = NULL, event.value = NULL)
+        lst_model <- removeNAcoxmodel(model = initial.model, data = cbind(cbind(aux_data, Time), Status), time.value = NULL, event.value = NULL)
       }
       initial.model <- lst_model$model
 

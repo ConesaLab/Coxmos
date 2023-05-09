@@ -95,6 +95,8 @@ Instance of class "HDcox" and model "coxEN". The class contains the following el
 
 \code{removed_variables_cox}: Variables removed by EN penalty.
 
+\code{removed_variables_correlation}: Variables removed by being high correlated with other variables.
+
 \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
 
 \code{class}: Model class.

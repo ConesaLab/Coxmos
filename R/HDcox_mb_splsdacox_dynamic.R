@@ -292,10 +292,10 @@ mb.splsdacox <- function (X, Y,
   # REMOVE NA-PVAL VARIABLES
   # p_val could be NA for some variables (if NA change to P-VAL=1)
   # DO IT ALWAYS, we do not want problems in COX models
-  if(all(c("time", "event") %in% colnames(d))){
-    lst_model <- removeNAcoxmodel(model = cox_model$survival_model$fit, data = d, time.value = NULL, event.value = NULL)
+  if(all(c("time", "event") %in% colnames(data))){
+    lst_model <- removeNAcoxmodel(model = cox_model$survival_model$fit, data = data, time.value = NULL, event.value = NULL)
   }else{
-    lst_model <- removeNAcoxmodel(model = cox_model$survival_model$fit, data = cbind(d, Yh), time.value = NULL, event.value = NULL)
+    lst_model <- removeNAcoxmodel(model = cox_model$survival_model$fit, data = cbind(data, Yh), time.value = NULL, event.value = NULL)
   }
   cox_model$survival_model$fit <- lst_model$model
   removed_variables_cor <- c(removed_variables_cor, lst_model$removed_variables)

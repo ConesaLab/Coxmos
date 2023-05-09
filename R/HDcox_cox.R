@@ -220,7 +220,7 @@ cox <- function (X, Y,
   if(all(c("time", "event") %in% colnames(d))){
     lst_model <- removeNAcoxmodel(model = best_cox, data = d, time.value = NULL, event.value = NULL)
   }else{
-    lst_model <- removeNAcoxmodel(model = aux, data = cbind(d, Yh), time.value = NULL, event.value = NULL)
+    lst_model <- removeNAcoxmodel(model = best_cox, data = cbind(d, Yh), time.value = NULL, event.value = NULL)
   }
 
   best_cox <- lst_model$model
@@ -244,7 +244,7 @@ cox <- function (X, Y,
   if(all(c("time", "event") %in% colnames(d))){
     lst_model <- removeNAcoxmodel(model = best_cox, data = d, time.value = NULL, event.value = NULL)
   }else{
-    lst_model <- removeNAcoxmodel(model = aux, data = cbind(d, Yh), time.value = NULL, event.value = NULL)
+    lst_model <- removeNAcoxmodel(model = best_cox, data = cbind(d, Yh), time.value = NULL, event.value = NULL)
   }
   best_cox <- lst_model$model
   removed_variables_cor <- c(removed_variables_cor, lst_model$removed_variables)
