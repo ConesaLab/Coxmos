@@ -760,11 +760,32 @@ getMaxNPredictors <- function(n.var, Y, MIN_EPV){
 ### EVALUATE MODELS
 
 getPvalFromCox <- function(cox){
-  p_val <- summary(cox)[[7]][,"Pr(>|z|)"]
-  nm <- names(p_val)
+  # p_val <- summary(cox)[[7]][,"Pr(>|z|)"]
+  # nm <- names(p_val)
+  # p_val <- as.numeric(p_val)
+  # names(p_val) <- nm
 
-  p_val <- as.numeric(p_val)
-  names(p_val) <- nm
+  ### ### ###
+  #without summary - limit to e-10
+  ### ### ###
+  # coef <- cox$coef
+  # standard_errors <- sqrt(diag(cox$var))
+  # # Calculate the z-scores
+  # z_scores <- coef / standard_errors
+  # # Calculate the p-values using the chi-square distribution
+  # p_values <- 1 - pchisq(z_scores^2, df = 1)
+  # # Format the p-values with a higher number of significant digits
+  # p_values[which(p_values==0)] <- 2e-16
+  # p_val <- as.numeric(p_values)
+
+  # compute the same P-Value as Summary function
+  coefficients <- cox_model$coefficients
+  robust_se <- sqrt(diag(cox_model$var))
+  # Calculate the z-scores
+  z_scores <- coefficients / robust_se
+  # Calculate the p-values using the z-scores
+  p_values <- 2 * pnorm(-abs(z_scores))
+
   return(p_val)
 }
 
