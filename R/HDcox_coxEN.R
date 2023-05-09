@@ -171,7 +171,7 @@ coxEN <- function(X, Y,
   }
 
   # BEST lambda
-  #I cannot add the limit for maximum number of variables bc it fails
+  # I cannot add the limit for maximum number of variables bc it fails
   # cvfit <- cv.glmnet(x = Xh, y = survival::Surv(time = Yh[,"time"], event = Yh[,"event"]),
   #                    family = "cox", type.measure = "C",
   #                    alpha = EN.alpha, dfmax = max.variables,
