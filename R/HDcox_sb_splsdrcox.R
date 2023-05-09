@@ -172,17 +172,26 @@ sb.splsdrcox <- function (X, Y,
                    remove_near_zero_variance = F, remove_zero_variance = F,
                    remove_non_significant = remove_non_significant, FORCE = T)
 
-  #RETURN a MODEL with ALL significant Variables from complete, deleting one by one in backward method
+  # RETURN a MODEL with ALL significant Variables from complete, deleting one by one
   removed_variables <- NULL
-  if(remove_non_significant){
-    if(all(c("time", "event") %in% colnames(data))){
-      lst_rnsc <- removeNonSignificativeCox(cox = cox_model$survival_model$fit, alpha = alpha, cox_input = data, time.value = NULL, event.value = NULL)
-    }else{
-      lst_rnsc <- removeNonSignificativeCox(cox = cox_model$survival_model$fit, alpha = alpha, cox_input = cbind(data, Yh), time.value = NULL, event.value = NULL)
-    }
+  removed_variables_cor <- NULL
+  # REMOVE NA-PVAL VARIABLES
+  # p_val could be NA for some variables (if NA change to P-VAL=1)
+  # DO IT ALWAYS, we do not want problems in COX models
+  if(all(c("time", "event") %in% colnames(d))){
+    lst_model <- removeNAcoxmodel(model = cox_model$survival_model$fit, data = d, time.value = NULL, event.value = NULL)
+  }else{
+    lst_model <- removeNAcoxmodel(model = cox_model$survival_model$fit, data = cbind(d, Yh), time.value = NULL, event.value = NULL)
+  }
+  cox_model$survival_model$fit <- lst_model$model
+  removed_variables_cor <- c(removed_variables_cor, lst_model$removed_variables)
 
-    cox_model$survival_model$fit <- lst_rnsc$cox
-    removed_variables <- lst_rnsc$removed_variables
+  # RETURN a MODEL with ALL significant Variables from complete, deleting one by one in backward method
+  # already performed in cox() function
+  if(remove_non_significant){
+    removed_variables <- cox_model$nsv
+  }else{
+    removed_variables <- NULL
   }
 
   #### ### #

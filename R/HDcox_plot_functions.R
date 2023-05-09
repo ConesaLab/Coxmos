@@ -763,6 +763,12 @@ plot_evaluation <- function(eval_results, evaluation = "AUC", pred.attr = "mean"
 coxweightplot.fromVector.HDcox <- function(model, vector, sd.min = NULL, sd.max = NULL, zero.rm = F, top = NULL, auto.limits = T,
                                            block = NULL, show_percentage = T, size_percentage = 3){
 
+  if(!isa(model,pkg.env$model_class)){
+    message("Model must be an object of class HDcox.")
+    print(model)
+    return(NA)
+  }
+
   #DFCALLS
   variables <- pp <- NULL
 
@@ -1508,6 +1514,13 @@ plot_divergent.biplot <- function(X, Y, NAMEVAR1, NAMEVAR2, BREAKTIME, x.text = 
 #' }
 
 plot_PLS_HDcox <- function(model, comp = c(1,2), mode = "scores", factor = NULL, legend.title = NULL, top = NULL, only_top = F, radius = NULL, names = T, colorReverse = F, text.size = 2, overlaps = 10){
+
+  if(!isa(model,pkg.env$model_class)){
+    message("Model must be an object of class HDcox.")
+    print(model)
+    return(NA)
+  }
+
   if(attr(model, "model") %in% pkg.env$pls_methods){
     plot_HDcox.PLS.model(model = model,
                          comp = comp,
@@ -2171,6 +2184,12 @@ plot_proportionalHazard.list <- function(lst_models){
 
 plot_proportionalHazard <- function(model){
 
+  if(!isa(model,pkg.env$model_class)){
+    message("Model must be an object of class HDcox.")
+    print(model)
+    return(NULL)
+  }
+
   if(all(is.null(model$survival_model$fit)) || all(is.na(model$survival_model$fit))){
     message(paste0("Survival model not found for ", attr(model, "model")))
     return(NULL)
@@ -2292,6 +2311,12 @@ plot_forest <- function(model,
                         refLabel = "reference",
                         noDigits = 2){
 
+  if(!isa(model,pkg.env$model_class)){
+    message("Model must be an object of class HDcox.")
+    print(model)
+    return(NULL)
+  }
+
   if(!attr(model, "model") %in% pkg.env$all_methods){
     stop(paste0("Model must be one of the following HDcox models: ", paste0(pkg.env$all_methods, collapse = ", ")))
   }
@@ -2349,6 +2374,12 @@ plot_cox.event <- function(model, type = "lp", n.breaks = 20){
 
   #DFCALLS
   event <- NULL
+
+  if(!isa(model,pkg.env$model_class)){
+    message("Model must be an object of class HDcox.")
+    print(model)
+    return(NULL)
+  }
 
   #exits
   if(all(is.null(model$survival_model$fit)) || all(is.na(model$survival_model$fit))){
@@ -2585,6 +2616,12 @@ plot_pseudobeta.list <- function(lst_models, error.bar = T, onlySig = F, alpha =
 
 plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zero.rm = T, top = NULL, auto.limits = T, show_percentage = T, size_percentage = 3){
 
+  if(!isa(model,pkg.env$model_class)){
+    message("Model must be an object of class HDcox.")
+    print(model)
+    return(NULL)
+  }
+
   if(!attr(model, "model") %in% c(pkg.env$pls_methods, pkg.env$multiblock_methods)){
     stop("Model must be one of the follow models: 'sPLS-ICOX', 'sPLS-DRCOX', 'sPLS-DRCOX-Dynamic', 'sPLS-DACOX-Dynamic', 'SB.sPLS-ICOX', 'SB.sPLS-DRCOX', 'MB.sPLS-DRCOX', 'MB.sPLS-DACOX'")
   }
@@ -2814,6 +2851,12 @@ plot_pseudobeta_newPatient.list <- function(lst_models, new_observation, error.b
 plot_pseudobeta_newPatient <- function(model, new_observation, error.bar = T, onlySig = T, alpha = 0.05, zero.rm = T,
                                        top = NULL, auto.limits = T, show.betas = F){
 
+  if(!isa(model,pkg.env$model_class)){
+    message("Model must be an object of class HDcox.")
+    print(model)
+    return(NULL)
+  }
+
   if(attr(model, "model") %in% pkg.env$pls_methods){
     plot_pseudobeta.newPatient(model = model,
                                new_observation = new_observation,
@@ -2835,6 +2878,12 @@ plot_pseudobeta_newPatient <- function(model, new_observation, error.bar = T, on
 
 plot_pseudobeta.newPatient <- function(model, new_observation, error.bar = T, onlySig = T, alpha = 0.05, zero.rm = T,
                                        top = NULL, auto.limits = T, show.betas = F){
+
+  if(!isa(model,pkg.env$model_class)){
+    message("Model must be an object of class HDcox.")
+    print(model)
+    return(NULL)
+  }
 
   #DFCALLS
   lp <- lp.min <- lp.max <- NULL
@@ -3012,6 +3061,12 @@ plot_pseudobeta.newPatient <- function(model, new_observation, error.bar = T, on
 
 plot_MB.pseudobeta.newPatient <- function(model, new_observation, error.bar = T, onlySig = T, alpha = 0.05, zero.rm = T,
                                           top = NULL, auto.limits = T, show.betas = F){
+
+  if(!isa(model,pkg.env$model_class)){
+    message("Model must be an object of class HDcox.")
+    print(model)
+    return(NULL)
+  }
 
   #checks
   if(!all(names(new_observation) == names(model$X$data))){
@@ -3272,6 +3327,12 @@ getAutoKM.list <- function(type = "LP", lst_models, comp = 1:2, top = NULL, ori_
 getAutoKM <- function(type = "LP", model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, n.breaks = 20, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
   if(!type %in% c("LP", "COMP", "VAR")){
     stop("Type parameters must be one of the following: LP, COMP or VAR")
+  }
+
+  if(!isa(model,pkg.env$model_class)){
+    message("Model must be an object of class HDcox.")
+    print(model)
+    return(NULL)
   }
 
   if(type == "LP"){
@@ -4449,6 +4510,12 @@ getTestKM.list <- function(lst_models, X_test, Y_test, lst_cutoff, type = "LP", 
 
 getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, BREAKTIME = NULL, n.breaks = 20, title = NULL){
 
+  if(!isa(model,pkg.env$model_class)){
+    message("Model must be an object of class HDcox.")
+    print(model)
+    return(NULL)
+  }
+
   if(!type %in% c("LP", "COMP", "VAR")){
     stop("Type parameters must be one of the following: LP, COMP or VAR")
   }
@@ -4666,6 +4733,13 @@ plot_LP.multiplePatients.list <- function(lst_models, new_data, error.bar = F, o
 
 plot_LP.multiplePatients <- function(model, new_data, error.bar = F, onlySig = T, alpha = 0.05, zero.rm = T,
                                      auto.limits = T, top = NULL){
+
+  if(!isa(model,pkg.env$model_class)){
+    message("Model must be an object of class HDcox.")
+    print(model)
+    return(NULL)
+  }
+
   if(attr(model, "model") %in% pkg.env$pls_methods){
     plot_cox.comparePatients(model = model,
                              new_data = new_data,

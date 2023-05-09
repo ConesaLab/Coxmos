@@ -311,7 +311,14 @@ stepwise.coxph <- function(Time = NULL, Status = NULL, variable.list,
       #initial.model <- survival::coxph(as.formula(paste("Surv(", Time, ", ", Status, ") ~ .")), data = aux_data,
                                        #method = "efron", model = T, singular.ok = T, x = T)
 
-      lst_model <- removeNAcoxmodel(model = initial.model, data = aux_data)
+      # REMOVE NA-PVAL VARIABLES
+      # p_val could be NA for some variables (if NA change to P-VAL=1)
+      # DO IT ALWAYS, we do not want problems in COX models
+      if(all(c("time", "event") %in% colnames(aux_data))){
+        lst_model <- removeNAcoxmodel(model = initial.model, data = aux_data, time.value = NULL, event.value = NULL)
+      }else{
+        lst_model <- removeNAcoxmodel(model = initial.model, data = cbind(bind(d, Time), Status), time.value = NULL, event.value = NULL)
+      }
       initial.model <- lst_model$model
 
     }else{

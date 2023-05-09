@@ -238,8 +238,21 @@ splsdacox_dynamic <- function (X, Y,
     }
   )
 
-  #RETURN a MODEL with ALL significant Variables from complete, deleting one by one in backward method
+  # RETURN a MODEL with ALL significant Variables from complete, deleting one by one
   removed_variables <- NULL
+  removed_variables_cor <- NULL
+  # REMOVE NA-PVAL VARIABLES
+  # p_val could be NA for some variables (if NA change to P-VAL=1)
+  # DO IT ALWAYS, we do not want problems in COX models
+  if(all(c("time", "event") %in% colnames(d))){
+    lst_model <- removeNAcoxmodel(model = cox_model$fit, data = d, time.value = NULL, event.value = NULL)
+  }else{
+    lst_model <- removeNAcoxmodel(model = cox_model$fit, data = cbind(d, Yh), time.value = NULL, event.value = NULL)
+  }
+  cox_model$fit <- lst_model$model
+  removed_variables_cor <- c(removed_variables_cor, lst_model$removed_variables)
+
+  #RETURN a MODEL with ALL significant Variables from complete, deleting one by one in backward method
   if(remove_non_significant){
     if(all(c("time", "event") %in% colnames(d))){
       lst_rnsc <- removeNonSignificativeCox(cox = cox_model$fit, alpha = alpha, cox_input = d, time.value = NULL, event.value = NULL)

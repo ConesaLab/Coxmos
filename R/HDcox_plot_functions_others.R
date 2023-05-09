@@ -9,6 +9,12 @@
 
 loadingplot.HDcox <- function(model, zero.rm = T, top = NULL, auto.limits = T){
 
+  if(!isa(model,pkg.env$model_class)){
+    message("Model must be an object of class HDcox.")
+    print(model)
+    return(NULL)
+  }
+
   #DFCALLS
   variables <- pp <- NULL
 
@@ -112,6 +118,12 @@ loadingplot.HDcox <- function(model, zero.rm = T, top = NULL, auto.limits = T){
 
 loadingplot.fromVector.HDcox <- function(model, vector, zero.rm = F, top = NULL, auto.limits = T){
 
+  if(!isa(model,pkg.env$model_class)){
+    message("Model must be an object of class HDcox.")
+    print(model)
+    return(NULL)
+  }
+
   #DFCALLS
   variables <- pp <- NULL
 
@@ -212,6 +224,12 @@ loadingplot.fromVector.HDcox <- function(model, vector, zero.rm = F, top = NULL,
 #' @export
 
 w.starplot.HDcox <- function(model, zero.rm = F, top = NULL, auto.limits = T){
+
+  if(!isa(model,pkg.env$model_class)){
+    message("Model must be an object of class HDcox.")
+    print(model)
+    return(NULL)
+  }
 
   #DFCALLS
   variables <- pp <- NULL

@@ -65,6 +65,8 @@
 #'
 #' \code{removed_variables_cox}: Variables removed by EN penalty.
 #'
+#' \code{removed_variables_correlation}: Variables removed by being high correlated with other variables.
+#'
 #' \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
 #'
 #' \code{class}: Model class.
@@ -233,40 +235,22 @@ coxEN <- function(X, Y,
         return(NA)
       }
     )
-
-    # REMOVE NA-PVAL VARIABLES
-    # p_val could be NA for some variables
-    # DO IT ALWAYS, we do not want problems in COX models
-    # if any NA is because "singular.ok" parameter in coxph -- correlated variables
-    removed_variables <- NULL
-    p_val <- summary(best_cox)[[7]][,"Pr(>|z|)"]
-    while(sum(is.na(p_val))>0){
-      to_remove <- names(p_val)[is.na(p_val)]
-      to_remove <- deleteIllegalChars(to_remove)
-      d <- d[,!colnames(d) %in% c(to_remove)]
-      best_cox <- tryCatch(
-        # Specifying expression
-        expr = {
-          survival::coxph(formula = survival::Surv(time,event) ~ .,
-                          data = d,
-                          ties = "efron",
-                          singular.ok = T,
-                          robust = T,
-                          nocenter = rep(1, ncol(d)-ncol(Yh)),
-                          model=T, x = T)
-        },
-        # Specifying error message
-        error = function(e){
-          message(paste0("COX: ", e))
-          invisible(gc())
-          return(NA)
-        }
-      )
-
-      removed_variables <- c(removed_variables, to_remove)
-      p_val <- summary(best_cox)[[7]][,"Pr(>|z|)"]
-    }
   }
+
+  # RETURN a MODEL with ALL significant Variables from complete, deleting one by one
+  removed_variables <- NULL
+  removed_variables_cor <- NULL
+
+  # REMOVE NA-PVAL VARIABLES
+  # p_val could be NA for some variables (if NA change to P-VAL=1)
+  # DO IT ALWAYS, we do not want problems in COX models
+  if(all(c("time", "event") %in% colnames(d))){
+    lst_model <- removeNAcoxmodel(model = best_cox, data = d, time.value = NULL, event.value = NULL)
+  }else{
+    lst_model <- removeNAcoxmodel(model = aux, data = cbind(d, Yh), time.value = NULL, event.value = NULL)
+  }
+  best_cox <- lst_model$model
+  removed_variables_cor <- c(removed_variables_cor, lst_model$removed_variables)
 
   if(all(is.na(best_cox)) || (problem & all(best_cox$linear.predictors==0))){
     best_cox = NA
@@ -293,6 +277,7 @@ coxEN <- function(X, Y,
                             nzv = variablesDeleted,
                             selected_variables = selected_variables,
                             removed_variables = removed_variables,
+                            removed_variables_correlation = removed_variables_cor,
                             opt.lambda = best_lambda,
                             convergence_issue = problem,
                             class = pkg.env$coxEN,

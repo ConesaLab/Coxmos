@@ -217,8 +217,13 @@ cox <- function (X, Y,
   # REMOVE NA-PVAL VARIABLES
   # p_val could be NA for some variables (if NA change to P-VAL=1)
   # DO IT ALWAYS, we do not want problems in COX models
-  lst_model <- removeNAcoxmodel(model = best_cox, data = d)
-  coxph.sw <- lst_model$model
+  if(all(c("time", "event") %in% colnames(d))){
+    lst_model <- removeNAcoxmodel(model = best_cox, data = d, time.value = NULL, event.value = NULL)
+  }else{
+    lst_model <- removeNAcoxmodel(model = aux, data = cbind(d, Yh), time.value = NULL, event.value = NULL)
+  }
+
+  best_cox <- lst_model$model
   removed_variables_cor <- c(removed_variables_cor, lst_model$removed_variables)
 
   #RETURN a MODEL with ALL significant Variables from complete, deleting one by one in backward method
@@ -236,8 +241,12 @@ cox <- function (X, Y,
   # REMOVE NA-PVAL VARIABLES
   # p_val could be NA for some variables (if NA change to P-VAL=1)
   # DO IT ALWAYS, we do not want problems in COX models
-  lst_model <- removeNAcoxmodel(model = best_cox, data = d)
-  coxph.sw <- lst_model$model
+  if(all(c("time", "event") %in% colnames(d))){
+    lst_model <- removeNAcoxmodel(model = best_cox, data = d, time.value = NULL, event.value = NULL)
+  }else{
+    lst_model <- removeNAcoxmodel(model = aux, data = cbind(d, Yh), time.value = NULL, event.value = NULL)
+  }
+  best_cox <- lst_model$model
   removed_variables_cor <- c(removed_variables_cor, lst_model$removed_variables)
 
   if(isa(best_cox,"coxph")){
