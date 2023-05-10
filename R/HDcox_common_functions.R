@@ -816,19 +816,19 @@ removeNonSignificativeCox <- function(cox, alpha, cox_input, time.value = NULL, 
     return(list(cox = cox, removed_variables = removed_variables))
   }
 
-  message("\n\np_val")
-  message(paste0(p_val, collapse = ", "))
-  message("alpha")
-  message(alpha)
-  message("c1")
-  message(any(p_val>alpha))
-  message("c2")
-  message(length(p_val)>1)
+  # message("\n\np_val")
+  # message(paste0(p_val, collapse = ", "))
+  # message("alpha")
+  # message(alpha)
+  # message("c1")
+  # message(any(p_val>alpha))
+  # message("c2")
+  # message(length(p_val)>1)
 
   while(any(p_val>alpha) && length(p_val)>1){
 
-    message("\n Inside while - cox model")
-    message(paste0(names(cox$coefficients), ": ", cox$coefficients, collapse = ", "))
+    # message("\n Inside while - cox model")
+    # message(paste0(names(cox$coefficients), ": ", cox$coefficients, collapse = ", "))
 
     to_remove <- names(which.max(p_val))
     to_remove <- deleteIllegalChars(to_remove)
@@ -859,9 +859,9 @@ removeNonSignificativeCox <- function(cox, alpha, cox_input, time.value = NULL, 
 
     removed_variables <- c(removed_variables, to_remove)
     p_val <- getPvalFromCox(cox)
-    message("Inside while")
-    message(paste0(p_val, collapse = ", "))
-    message("\n")
+    # message("Inside while")
+    # message(paste0(p_val, collapse = ", "))
+    # message("\n")
   }
 
   return(list(cox = cox, removed_variables = unique(removed_variables)))
