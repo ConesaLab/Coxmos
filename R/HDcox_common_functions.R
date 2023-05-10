@@ -785,7 +785,7 @@ getPvalFromCox <- function(cox){
   # Calculate the z-scores
   z_scores <- coefficients / robust_se
   # Calculate the p-values using the z-scores
-  p_values <- 2 * pnorm(-abs(z_scores))
+  p_val <- 2 * pnorm(-abs(z_scores))
 
   return(p_val)
 }
