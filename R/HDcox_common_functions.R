@@ -816,11 +816,8 @@ removeNonSignificativeCox <- function(cox, alpha, cox_input, time.value = NULL, 
     return(list(cox = cox, removed_variables = removed_variables))
   }
 
-  message("\n\n")
-  message(p_val)
+  message("\n\np_val")
   print(paste0(p_val, collapse = ", "))
-  message("\n\n")
-  message(p_val)
   print("alpha")
   print(alpha)
   print("c1")
@@ -853,6 +850,9 @@ removeNonSignificativeCox <- function(cox, alpha, cox_input, time.value = NULL, 
 
     removed_variables <- c(removed_variables, to_remove)
     p_val <- getPvalFromCox(cox)
+    print("Inside while")
+    print(paste0(p_val, collapse = ", "))
+    print("\n")
   }
 
   return(list(cox = cox, removed_variables = removed_variables))
