@@ -3937,7 +3937,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
 
     }else{
       if(method==pkg.env$splsicox){
-        lst_all_models <- purrr::map(lst_inputs[107], ~splsicox(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
+        lst_all_models <- purrr::map(lst_inputs, ~splsicox(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
                                                            Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
                                                            n.comp = .$comp, spv_penalty = eta.list[[.$eta_index]],
                                                            x.center = x.center, x.scale = x.scale,
