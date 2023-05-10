@@ -853,7 +853,7 @@ removeNonSignificativeCox <- function(cox, alpha, cox_input, time.value = NULL, 
     )
 
     #remove NA if any in new cox model
-    lst_model <- removeNAcoxmodel(model = cox, data = as.data.frame(d), time.value = time, event.value = event)
+    lst_model <- removeNAcoxmodel(model = cox, data = as.data.frame(d), time.value = NULL, event.value = NULL)
     cox <- lst_model$model
     removed_variables <- c(removed_variables, lst_model$removed_variables)
 
