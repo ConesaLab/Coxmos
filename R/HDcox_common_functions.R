@@ -816,9 +816,9 @@ removeNonSignificativeCox <- function(cox, alpha, cox_input, time.value = NULL, 
     return(list(cox = cox, removed_variables = removed_variables))
   }
 
-  # message("\n\n")
-  # message(p_val)
-  # print(p_val)
+  message("\n\n")
+  message(p_val)
+  print(p_val)
 
   while(any(p_val>alpha) && length(p_val)>1){
     to_remove <- names(which.max(p_val))
