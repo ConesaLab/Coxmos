@@ -778,9 +778,10 @@ getPvalFromCox <- function(cox){
   # p_values[which(p_values==0)] <- 2e-16
   # p_val <- as.numeric(p_values)
 
+  # using the coefficients and robust standard errors
   # compute the same P-Value as Summary function
-  coefficients <- cox_model$coefficients
-  robust_se <- sqrt(diag(cox_model$var))
+  coefficients <- cox$coefficients
+  robust_se <- sqrt(diag(cox$var))
   # Calculate the z-scores
   z_scores <- coefficients / robust_se
   # Calculate the p-values using the z-scores
