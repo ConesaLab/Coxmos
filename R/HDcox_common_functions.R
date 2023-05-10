@@ -818,7 +818,15 @@ removeNonSignificativeCox <- function(cox, alpha, cox_input, time.value = NULL, 
 
   message("\n\n")
   message(p_val)
-  print(p_val)
+  print(paste0(p_val, collapse = ", "))
+  message("\n\n")
+  message(p_val)
+  print("alpha")
+  print(alpha)
+  print("c1")
+  print(any(p_val>alpha))
+  print("c2")
+  print(length(p_val)>1)
 
   while(any(p_val>alpha) && length(p_val)>1){
     to_remove <- names(which.max(p_val))
@@ -2180,6 +2188,9 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
 
   message(paste0("Evaluating COX models (AIC and C-Index)..."))
   pb$tick(0)
+
+  aux_model = NULL #to check which method we applied
+
   if(is.null(eta.list)){
     for(comp in 1:length(max.ncomp)){
       for(r in 1:n_run){
@@ -2205,6 +2216,8 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
             print(model)
             next
           }
+
+          aux_model = model #to store a model with values
 
           if(attr(model, "model") %in% c(pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
             n_var <- unlist(purrr::map(model$n.varX, ~length(.[[1]])))
@@ -2274,6 +2287,14 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
               next
             }
 
+            if(!isa(model,pkg.env$model_class)){
+              message("Model must be an object of class HDcox.")
+              print(model)
+              next
+            }
+
+            aux_model = model #to store a model with values
+
             eta <- model$eta
             if(attr(model, "model") == pkg.env$sb.splsdrcox){
               n_var <- purrr::map(model$list_spls_models, ~length(unique(unlist(.$var_by_component))))
@@ -2310,10 +2331,9 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
       colnames(df_results_evals) <- c("n.comps", "eta","runs", "fold", "n.var", "AIC", "c_index")
       df_results_evals <- as.data.frame(df_results_evals)
     }
-
   }
 
-  if(attr(model, "model") %in% c(pkg.env$splsdrcox_dynamic, pkg.env$multiblock_methods) && !all(is.null(df_results_evals))){
+  if(attr(aux_model, "model") %in% c(pkg.env$splsdrcox_dynamic, pkg.env$multiblock_methods) && !all(is.null(df_results_evals))){
     df_results_evals <- as.data.frame(df_results_evals)
     for(cn in colnames(df_results_evals)){
       if(cn=="n.var"){
@@ -2323,6 +2343,7 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
       }
     }
   }
+
 
   return(df_results_evals)
 
