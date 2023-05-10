@@ -817,13 +817,13 @@ removeNonSignificativeCox <- function(cox, alpha, cox_input, time.value = NULL, 
   }
 
   message("\n\np_val")
-  print(paste0(p_val, collapse = ", "))
-  print("alpha")
-  print(alpha)
-  print("c1")
-  print(any(p_val>alpha))
-  print("c2")
-  print(length(p_val)>1)
+  message(paste0(p_val, collapse = ", "))
+  message("alpha")
+  message(alpha)
+  message("c1")
+  message(any(p_val>alpha))
+  message("c2")
+  message(length(p_val)>1)
 
   while(any(p_val>alpha) && length(p_val)>1){
     to_remove <- names(which.max(p_val))
@@ -850,9 +850,9 @@ removeNonSignificativeCox <- function(cox, alpha, cox_input, time.value = NULL, 
 
     removed_variables <- c(removed_variables, to_remove)
     p_val <- getPvalFromCox(cox)
-    print("Inside while")
-    print(paste0(p_val, collapse = ", "))
-    print("\n")
+    message("Inside while")
+    message(paste0(p_val, collapse = ", "))
+    message("\n")
   }
 
   return(list(cox = cox, removed_variables = removed_variables))
