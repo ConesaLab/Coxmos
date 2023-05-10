@@ -826,6 +826,10 @@ removeNonSignificativeCox <- function(cox, alpha, cox_input, time.value = NULL, 
   message(length(p_val)>1)
 
   while(any(p_val>alpha) && length(p_val)>1){
+
+    message("\n Inside while - cox model")
+    message(paste0(names(cox$coefficients), ": ", cox$coefficients, collapse = ", "))
+
     to_remove <- names(which.max(p_val))
     to_remove <- deleteIllegalChars(to_remove)
     d <- d[,!colnames(d) %in% c(to_remove),drop=F]
@@ -848,6 +852,11 @@ removeNonSignificativeCox <- function(cox, alpha, cox_input, time.value = NULL, 
       }
     )
 
+    #remove NA if any in new cox model
+    lst_model <- removeNAcoxmodel(model = cox, data = as.data.frame(d), time.value = time, event.value = event)
+    cox <- lst_model$model
+    removed_variables <- c(removed_variables, lst_model$removed_variables)
+
     removed_variables <- c(removed_variables, to_remove)
     p_val <- getPvalFromCox(cox)
     message("Inside while")
@@ -855,7 +864,7 @@ removeNonSignificativeCox <- function(cox, alpha, cox_input, time.value = NULL, 
     message("\n")
   }
 
-  return(list(cox = cox, removed_variables = removed_variables))
+  return(list(cox = cox, removed_variables = unique(removed_variables)))
 
 }
 
@@ -3928,7 +3937,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
 
     }else{
       if(method==pkg.env$splsicox){
-        lst_all_models <- purrr::map(lst_inputs, ~splsicox(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
+        lst_all_models <- purrr::map(lst_inputs[107], ~splsicox(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
                                                            Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
                                                            n.comp = .$comp, spv_penalty = eta.list[[.$eta_index]],
                                                            x.center = x.center, x.scale = x.scale,
