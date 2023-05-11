@@ -3919,7 +3919,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                                    #y.center = y.center, y.scale = y.scale,
                                                                    remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
                                                                    remove_non_significant = remove_non_significant,
-                                                                   verbose = verbose, alpha = alpha, tol = tol,
+                                                                   alpha = alpha, tol = tol,
                                                                    MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose), .options = furrr_options(seed = TRUE))
       }else if(method==pkg.env$sb.splsdrcox){
         lst_all_models <- furrr::future_map(lst_inputs, ~sb.splsdrcox(X = lst_X_train[[.$run]][[.$fold]],
@@ -3929,7 +3929,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                                       #y.center = y.center, y.scale = y.scale,
                                                                       remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
                                                                       remove_non_significant = remove_non_significant,
-                                                                      verbose = verbose, alpha = alpha, tol = tol,
+                                                                      alpha = alpha, tol = tol,
                                                                       MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose), .options = furrr_options(seed = TRUE))
       }
 
@@ -3963,7 +3963,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                            #y.center = y.center, y.scale = y.scale,
                                                            remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
                                                            remove_non_significant = remove_non_significant,
-                                                           verbose = verbose, alpha = alpha, tol = tol,
+                                                           alpha = alpha, tol = tol,
                                                            MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose))
       }else if(method==pkg.env$sb.splsdrcox){
         lst_all_models <- purrr::map(lst_inputs, ~sb.splsdrcox(X = lst_X_train[[.$run]][[.$fold]],
@@ -3973,7 +3973,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                               #y.center = y.center, y.scale = y.scale,
                                                               remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
                                                               remove_non_significant = remove_non_significant,
-                                                              verbose = verbose, alpha = alpha, tol = tol,
+                                                              alpha = alpha, tol = tol,
                                                               MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose))
       }
     }
