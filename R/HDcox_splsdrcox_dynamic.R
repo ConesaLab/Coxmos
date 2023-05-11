@@ -208,8 +208,9 @@ splsdrcox_dynamic <- function (X, Y,
   n_var <- ncol(Xh)
   n_dr <- ncol(DR_coxph)
 
-  if(is.null(n_dr))
+  if(is.null(n_dr)){
     n_dr=1
+  }
 
   #Norm Y
   mu <- mean(DR_coxph) #equivalent because Y it is not normalized

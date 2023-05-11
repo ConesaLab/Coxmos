@@ -4686,6 +4686,16 @@ getBestVector <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN
 
     new_vector <- new_vector[!new_vector %in% names(p_val)[!is.na(p_val)]]
 
+    # all the combinations have been alredy tested
+    # break the while loop
+    if(length(new_vector)==0){
+      if(verbose){
+        message(paste0("All combinations tested. \n"))
+        message(paste0(paste0("Value ", names(best_keepX), ": ", unlist(purrr::map(best_keepX, ~unique(.)))), "\n"), paste0("Pred. Value: ", round(best_c_index, 4), "\n"))
+        break
+      }
+    }
+
     if(verbose){
       message(paste0("Testing: \n"), paste0("Value ", names(best_keepX), ": ", new_vector, "\n"))
     }
