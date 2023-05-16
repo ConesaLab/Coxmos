@@ -480,8 +480,9 @@ transformIllegalChars <- function(cn) {
   illegal_chars <- c(" ", "-", "+", "*", ">", "<", ">=", "<=", "^", "/")
   replacement <- c(".space.", ".minus.", ".plus.", ".star.", ".over.", ".under.", ".over_equal.", ".under_equal.", ".power.", ".divided.")
 
+  v <- cn
   for(i in seq_along(illegal_chars)) {
-    v <- vapply(v, function(x) gsub(illegal_chars[i], replacement[i], x, fixed = TRUE), character(1))
+    v <- vapply(cn, function(x) gsub(illegal_chars[i], replacement[i], x, fixed = TRUE), character(1))
   }
 
   return(v)
