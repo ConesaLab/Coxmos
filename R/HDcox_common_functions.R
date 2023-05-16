@@ -1599,10 +1599,13 @@ getAUC_RUN_AND_COMP <- function(mode = "AUC", fast_mode, max.ncomp, n_run,
           message(mode) # !!!! mode printed!!!
 
           if(mode=="BRIER"){
-            message("entrando a BREIR") ## !!!!
             eval_aux.r[[mode]] <- lst_AUC_component[[l.index]][[r]]
           }else if(mode == "AUC"){
             message("entrando a AUC") ## !!!!
+            message(l.index)
+            message(r)
+            message(mode)
+            message(names(lst_AUC_component[[l.index]]))
             eval_aux.r[[mode]] <- lst_AUC_component[[l.index]][[r]][[mode]]
           }
         }
