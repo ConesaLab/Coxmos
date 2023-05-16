@@ -1608,6 +1608,8 @@ getAUC_RUN_AND_COMP <- function(mode = "AUC", fast_mode, max.ncomp, n_run,
             message(names(lst_AUC_component[[l.index]]))
             message(class(lst_AUC_component[[l.index]][[r]]))
             if(mode %in% names(lst_AUC_component[[l.index]][[r]])){
+              message(paste0(names(lst_AUC_component[[l.index]][[r]]), collapse = " "))
+              message(lst_AUC_component[[l.index]][[r]])
               eval_aux.r[[mode]] <- lst_AUC_component[[l.index]][[r]][[mode]]
             }else{
               eval_aux.r[[mode]] <- NA
