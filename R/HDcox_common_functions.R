@@ -1594,9 +1594,15 @@ getAUC_RUN_AND_COMP <- function(mode = "AUC", fast_mode, max.ncomp, n_run,
         if(optimal_comp_flag & l.index > (optimal_comp_index+MIN_COMP_TO_CHECK)){
           eval_aux.r[[mode]] <- NA
         }else{
+
+          message("\n\n")
+          message(mode) # !!!! mode printed!!!
+
           if(mode=="BRIER"){
+            message("entrando a BREIR") ## !!!!
             eval_aux.r[[mode]] <- lst_AUC_component[[l.index]][[r]]
           }else if(mode == "AUC"){
+            message("entrando a AUC") ## !!!!
             eval_aux.r[[mode]] <- lst_AUC_component[[l.index]][[r]][[mode]]
           }
         }

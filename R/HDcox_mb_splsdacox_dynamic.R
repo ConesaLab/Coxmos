@@ -369,7 +369,7 @@ mb.splsdacox <- function (X, Y,
                      })
 
       if(all(is.na(PW))){
-        message(paste0(pkg.env$mb.splsdacox," model cannot be computed due to solve(t(P) %*% W). Reduce 'tol' parameter to fix it. Returning NA."))
+        message(paste0(pkg.env$mb.splsdacox," model cannot be computed due to solve(t(P) %*% W). Multicollineality could be present in your data. Optional (not recommended): Reduce 'tol' parameter to fix it. Returning NA."))
         # invisible(gc())
         return(NA)
       }
