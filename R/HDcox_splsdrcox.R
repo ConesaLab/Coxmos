@@ -377,7 +377,7 @@ splsdrcox <- function (X, Y,
       if(verbose){
         message(e)
       }
-      invisible(gc())
+      # invisible(gc())
       return(NA)
     }
   )
@@ -401,7 +401,7 @@ splsdrcox <- function (X, Y,
         if(verbose){
           message(e)
         }
-        invisible(gc())
+        # invisible(gc())
         return(NA)
       }
     )
@@ -468,7 +468,7 @@ splsdrcox <- function (X, Y,
   t2 <- Sys.time()
   time <- difftime(t2,t1,units = "mins")
 
-  invisible(gc())
+  # invisible(gc())
   return(splsdrcox_class(list(X = list("data" = if(returnData) X_norm else NA,
                                       "weightings" = last.pls$X$weightings,
                                       "W.star" = last.pls$X$W.star,
@@ -858,7 +858,7 @@ cv.splsdrcox <- function (X, Y,
   t2 <- Sys.time()
   time <- difftime(t2,t1,units = "mins")
 
-  invisible(gc())
+  # invisible(gc())
   if(return_models){
     return(cv.splsdrcox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.eta = best_model_info$eta, plot_AIC = ggp_AIC, plot_c_index = ggp_c_index, plot_BRIER = ggp_BRIER, plot_AUC = ggp_AUC, class= pkg.env$cv.splsdrcox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
   }else{
@@ -1091,7 +1091,7 @@ pls2 <- function(X, Y, n.comp, x.center = T, x.scale = F, y.center = T, y.scale 
 
     if(is.null(P) | is.null(W)){
       message(paste0(pkg.env$splsdrcox, " model cannot be computed because P or W vectors are NULL. Returning NA."))
-      invisible(gc())
+      # invisible(gc())
       return(NA)
     }
 
@@ -1106,7 +1106,7 @@ pls2 <- function(X, Y, n.comp, x.center = T, x.scale = F, y.center = T, y.scale 
 
     if(all(is.na(PW))){
       message(paste0(pkg.env$splsdrcox, " model cannot be computed due to solve(t(P) %*% W). Reduce 'tol' parameter to fix it. Returning NA."))
-      invisible(gc())
+      # invisible(gc())
       return(NA)
     }
 

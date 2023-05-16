@@ -161,7 +161,7 @@ cox <- function (X, Y,
     # Specifying error message
     error = function(e){
       message(paste0("COX: ", e))
-      invisible(gc())
+      # invisible(gc())
       return(NA)
     }
   )
@@ -181,7 +181,7 @@ cox <- function (X, Y,
       # Specifying error message
       error = function(e){
         message(paste0("COX: ", e))
-        invisible(gc())
+        # invisible(gc())
         return(NA)
       }
     )
@@ -197,7 +197,7 @@ cox <- function (X, Y,
 
     func_call <- match.call()
 
-    invisible(gc())
+    # invisible(gc())
     return(cox_class(list(X = list("data" = if(returnData) Xh else NA, "x.mean" = xmeans, "x.sd" = xsds),
                           Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
                           survival_model = NULL,
@@ -260,7 +260,7 @@ cox <- function (X, Y,
   t2 <- Sys.time()
   time <- difftime(t2,t1,units = "mins")
 
-  invisible(gc())
+  # invisible(gc())
   return(cox_class(list(X = list("data" = if(returnData) Xh else NA, "x.mean" = xmeans, "x.sd" = xsds),
                         Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
                         survival_model = survival_model,

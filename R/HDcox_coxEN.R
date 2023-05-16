@@ -188,7 +188,7 @@ coxEN <- function(X, Y,
     # Specifying error message
     error = function(e){
       message(paste0("coxEN: ", e))
-      invisible(gc())
+      # invisible(gc())
       return(NA)
     },
     warning = function(e){
@@ -231,7 +231,7 @@ coxEN <- function(X, Y,
       # Specifying error message
       error = function(e){
         message(paste0("COX: ", e))
-        invisible(gc())
+        # invisible(gc())
         return(NA)
       }
     )
@@ -264,7 +264,7 @@ coxEN <- function(X, Y,
 
     survival_model <- NULL
 
-    invisible(gc())
+    # invisible(gc())
     return(coxEN_class(list(X = list("data" = if(returnData) Xh else NA, "x.mean" = xmeans, "x.sd" = xsds),
                             Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
                             survival_model = survival_model,
@@ -310,7 +310,7 @@ coxEN <- function(X, Y,
   t2 <- Sys.time()
   time <- difftime(t2,t1,units = "mins")
 
-  invisible(gc())
+  # invisible(gc())
   return(coxEN_class(list(X = list("data" = if(returnData) Xh else NA, "x.mean" = xmeans, "x.sd" = xsds),
                           Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
                           survival_model = survival_model,
@@ -681,7 +681,7 @@ cv.coxEN <- function(X, Y,
   t2 <- Sys.time()
   time <- difftime(t2,t1,units = "mins")
 
-  invisible(gc())
+  # invisible(gc())
   if(return_models){
     return(cv.coxEN_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = comp_model_lst, pred.method = pred.method, opt.EN.alpha = best_model_info$EN.alpha, opt.nvar = best_model_info$n.var, plot_AIC = ggp_AIC, plot_c_index = ggp_c_index, plot_BRIER = ggp_BRIER, plot_AUC = ggp_AUC, class = pkg.env$cv.coxEN, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
   }else{

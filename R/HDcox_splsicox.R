@@ -223,7 +223,7 @@ splsicox <- function(X, Y,
     #   # Specifying error message
     #   error = function(e){
     #     message(paste0("splsicox: ", e))
-    #     invisible(gc())
+    #     # invisible(gc())
     #     return(NA)
     #     #if error we could return beta=0 (no significant) instead a NA!!!
     #   }
@@ -334,7 +334,7 @@ splsicox <- function(X, Y,
   # Problems computing firts component
   if(h==0){ #no significant individual cox model at first component
     func_call <- match.call()
-    invisible(gc())
+    # invisible(gc())
 
     t2 <- Sys.time()
     time <- difftime(t2,t1,units = "mins")
@@ -395,7 +395,7 @@ splsicox <- function(X, Y,
     # Specifying error message
     error = function(e){
       message(e$message)
-      invisible(gc())
+      # invisible(gc())
       return(NA)
     }
   )
@@ -419,7 +419,7 @@ splsicox <- function(X, Y,
         if(verbose){
           message(e$message)
         }
-        invisible(gc())
+        # invisible(gc())
         return(NA)
       }
     )
@@ -475,7 +475,7 @@ splsicox <- function(X, Y,
 
   if(is.null(P) | is.null(W)){
     message(paste0(pkg.env$splsicox, " model cannot be computed because P or W vectors are NULL. Returning NA."))
-    invisible(gc())
+    # invisible(gc())
     return(NA)
   }
 
@@ -492,7 +492,7 @@ splsicox <- function(X, Y,
 
   if(all(is.na(PW))){
     message(paste0(pkg.env$splsicox, " model cannot be computed due to solve(t(P) %*% W). Reduce 'tol' parameter to fix it. Returning NA."))
-    invisible(gc())
+    # invisible(gc())
     return(NA)
   }
 
@@ -513,7 +513,7 @@ splsicox <- function(X, Y,
   t2 <- Sys.time()
   time <- difftime(t2,t1,units = "mins")
 
-  invisible(gc())
+  # invisible(gc())
   return(splsicox_class(list(X = list("data" = if(returnData) X_norm else NA, "weightings" = W, "weightings_norm" = W_norm, "W.star" = W.star, "loadings" = P, "scores" = Ts, "E" = E, "x.mean" = xmeans, "x.sd" = xsds),
                             Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
                             survival_model = survival_model,
@@ -900,7 +900,7 @@ cv.splsicox <- function (X, Y,
   t2 <- Sys.time()
   time <- difftime(t2,t1,units = "mins")
 
-  invisible(gc())
+  # invisible(gc())
   if(return_models){
     return(cv.splsicox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.spv_penalty = best_model_info$spv_penalty, plot_AIC = ggp_AIC, plot_c_index = ggp_c_index, plot_BRIER = ggp_BRIER, plot_AUC = ggp_AUC, class = pkg.env$cv.splsicox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
   }else{

@@ -352,7 +352,7 @@ mb.splsdacox <- function (X, Y,
 
       if(is.null(Pmat[[i]][names,c,drop=F]) | is.null(Wmat[[i]][names,c,drop=F])){
         message(paste0(pkg.env$mb.splsdacox, " model cannot be computed because P or W vectors are NULL. Returning NA."))
-        invisible(gc())
+        # invisible(gc())
         return(NA)
       }
 
@@ -370,7 +370,7 @@ mb.splsdacox <- function (X, Y,
 
       if(all(is.na(PW))){
         message(paste0(pkg.env$mb.splsdacox," model cannot be computed due to solve(t(P) %*% W). Reduce 'tol' parameter to fix it. Returning NA."))
-        invisible(gc())
+        # invisible(gc())
         return(NA)
       }
 
@@ -448,7 +448,7 @@ mb.splsdacox <- function (X, Y,
   t2 <- Sys.time()
   time <- difftime(t2,t1,units = "mins")
 
-  invisible(gc())
+  # invisible(gc())
   return(mb.splsdacox_class(list(X = list("data" = if(returnData) X_norm else NA, "loadings" = P, "weightings" = W, "W.star" = W.star, "scores" = Ts, "E" = E, "x.mean" = xmeans, "x.sd" = xsds),
                                  Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
                                  survival_model = survival_model,
@@ -825,7 +825,7 @@ cv.mb.splsdacox <- function(X, Y,
   t2 <- Sys.time()
   time <- difftime(t2,t1,units = "mins")
 
-  invisible(gc())
+  # invisible(gc())
   if(return_models){
     return(cv.mb.splsdacox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.nvar = best_n_var, plot_AIC = ggp_AIC, plot_c_index = ggp_c_index, plot_BRIER = ggp_BRIER, plot_AUC = ggp_AUC, class = pkg.env$cv.mb.splsdacox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
   }else{

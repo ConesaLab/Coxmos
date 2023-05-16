@@ -385,7 +385,7 @@ getIndividualCox <- function(data, time_var = "time", event_var = "event", score
     },
     error = function(e) {
       message(paste0("invidual_cox: ", e))
-      invisible(gc())
+      # invisible(gc())
       return(NA)
     }
   )
@@ -443,7 +443,7 @@ removeNAcoxmodel <- function(model, data, time.value = NULL, event.value = NULL)
       # Specifying error message
       error = function(e){
         message(paste0("COX: ", e))
-        invisible(gc())
+        # invisible(gc())
         return(NA)
       }
     )
@@ -466,8 +466,11 @@ deleteIllegalChars <- function(chr.vector){
   # }
   # return(v)
 
+  # Combine all illegal characters into one regex
+  illegal_chars_regex <- paste0(pkg.env$IllegalChars, collapse = "|")
+
   v <- vapply(chr.vector, function(x) {
-    gsub(paste0(pkg.env$IllegalChars, collapse = "|"), "", x)
+    gsub(illegal_chars_regex, "", x)
   }, character(1))
   return(v)
 }
@@ -475,18 +478,11 @@ deleteIllegalChars <- function(chr.vector){
 #only for FORMULAS
 transformIllegalChars <- function(cn) {
   illegal_chars <- c(" ", "-", "+", "*", ">", "<", ">=", "<=", "^", "/")
-  replacement <- c("", ".minus.", ".plus.", ".star.", ".over.", ".under.", ".over.equal.", ".under.equal.", ".power.", ".divided.")
-  v = vapply(cn, function(x){gsub(pattern = illegal_chars[1], replacement = replacement[1],
-                             gsub(pattern = illegal_chars[2], replacement = replacement[2],
-                             gsub(pattern = illegal_chars[3], replacement = replacement[3],
-                             gsub(pattern = illegal_chars[4], replacement = replacement[4],
-                             gsub(pattern = illegal_chars[5], replacement = replacement[5],
-                             gsub(pattern = illegal_chars[6], replacement = replacement[6],
-                             gsub(pattern = illegal_chars[7], replacement = replacement[7],
-                             gsub(pattern = illegal_chars[8], replacement = replacement[8],
-                             gsub(pattern = illegal_chars[8], replacement = replacement[9],
-                             gsub(pattern = illegal_chars[9], replacement = replacement[10], x,
-                             fixed = T), fixed = T), fixed = T), fixed = T), fixed = T), fixed = T), fixed = T), fixed = T), fixed = T), fixed = T)}, character(1))
+  replacement <- c(".space.", ".minus.", ".plus.", ".star.", ".over.", ".under.", ".over_equal.", ".under_equal.", ".power.", ".divided.")
+
+  for(i in seq_along(illegal_chars)) {
+    v <- vapply(v, function(x) gsub(illegal_chars[i], replacement[i], x, fixed = TRUE), character(1))
+  }
 
   return(v)
 }
@@ -494,7 +490,7 @@ transformIllegalChars <- function(cn) {
 checkColnamesIllegalChars <- function(X){
   new_cn_X <- deleteIllegalChars(colnames(X))
 
-  if(length(unique(new_cn_X)) == length(unique(colnames(X)))){
+  if(!any(duplicated(new_cn_X))){
     colnames(X) <- new_cn_X
   }else{
     stop(paste0("When deleting illegal chars, some colnames in X get the same name. Update manually the colnames to avoid the next chars: ", paste0(pkg.env$IllegalChars, collapse = " ")))
@@ -510,32 +506,25 @@ stop_quietly <- function(s = NULL) {
   }
 
   opt <- options(show.error.messages = FALSE)
-  on.exit(options(opt))
+  on.exit(options(opt), add = TRUE)
   stop()
 }
 
 checkXY.class <- function(X, Y, verbose = F){
-  # Check if X and Y are matrices
-  if(!is.matrix(X)){
-    if(is.data.frame(X)){
-      if(verbose){
-        message("X data is not a matrix, applying data.matrix\n")
-      }
-      X <- data.matrix(X)
-    }else{
-      stop("X data is not a matrix or a data.frame")
-    }
+  # Convert X to matrix if it's a data.frame
+  if(inherits(X, "data.frame")){
+    if(verbose) message("X data is not a matrix, applying data.matrix\n")
+    X <- data.matrix(X)
+  }else if(!inherits(X, "matrix")){
+    stop("X data is not a matrix or a data.frame")
   }
 
-  if(!is.matrix(Y)){
-    if(is.data.frame(Y)){
-      if(verbose){
-        message("Y data is not a matrix, applying data.matrix\n")
-      }
-      Y <- data.matrix(Y)
-    }else{
-      stop("Y data is not a matrix or a data.frame")
-    }
+  # Convert Y to matrix if it's a data.frame
+  if(inherits(Y, "data.frame")){
+    if(verbose) message("Y data is not a matrix, applying data.matrix\n")
+    Y <- data.matrix(Y)
+  } else if(!inherits(Y, "matrix")){
+    stop("Y data is not a matrix or a data.frame")
   }
 
   if(any(is.na(Y))){
@@ -570,25 +559,18 @@ checkFoldRuns <- function(Y, n_run, k_folds, fast_mode){
 }
 
 check_min0_max1_variables <- function(lst){
-  # Check if each element of lst is numeric and between 0-1
-  cont = 0
-  for(element in lst){
-    cont = cont + 1
-    name <- names(lst)[cont]
-    if(isa(element, "numeric")){
-      if(0 <= element & element <= 1){
-        next
-      }else{
-        stop(paste0("Variable: ", name, " must be in range [0,1] and ", element, " was detected."))
-      }
-    }else{
+  lapply(names(lst), function(name) {
+    element <- lst[[name]]
+    if(!is.numeric(element)){
       stop(paste0("Variable: ", name, " must be a numeric variable and ", class(element), " was detected."))
     }
-  }
+    if(!(element >= 0 && element <= 1)){
+      stop(paste0("Variable: ", name, " must be in range [0,1] and ", element, " was detected."))
+    }
+  })
 }
 
 check_class <- function(lst, class = "numeric"){
-
   if(class == "numeric"){
     for(n in names(lst)){
       if(isa(lst[[n]], "integer")){
@@ -615,30 +597,23 @@ checkY.colnames <- function(Y){
 }
 
 XY.scale <- function(X, Y, x.center, x.scale, y.center, y.scale){
-  xmeans <- NULL
-  xsds <- NULL
-  ymeans <- NULL
-  ysds <- NULL
   # Centering and/or scaling
   if(x.center | x.scale){
     Xh <- scale(X, center = x.center, scale = x.scale)
-    if(x.center) xmeans <- attr(Xh, "scaled:center")
-    if(x.scale) xsds <- attr(Xh, "scaled:scale")
   }else{
     Xh <- X
   }
-
+  # Centering and/or scaling
   if(y.center | y.scale){
     Yh_time <- scale(Y[,"time", drop=F], center = y.center, scale = y.scale)
-    if(y.center) ymeans <- attr(Y, "scaled:center")
-    if(y.scale) ysds <- attr(Y, "scaled:scale")
     Yh <- Y
     Yh[,"time"] <- Yh_time
   }else{
     Yh <- Y
   }
 
-  return(list(Xh = Xh, xmeans = xmeans, xsds = xsds, Yh = Yh, ymeans = ymeans, ysds = ysds))
+  return(list(Xh = Xh, xmeans = attr(Xh, "scaled:center"), xsds = attr(Xh, "scaled:scale"),
+              Yh = Yh, ymeans = attr(Y, "scaled:center"), ysds = attr(Y, "scaled:scale")))
 }
 
 check.cv.weights <- function(vector){
@@ -733,12 +708,7 @@ getInfoCoxModel <- function(cox){
 }
 
 getMaxNPredictors <- function(n.var, Y, MIN_EPV){
-  n_events <- NULL
-  if(is.numeric(Y[,"event"])){
-    n_events <- sum(Y[,"event"]==1)
-  }else if(is.logical(Y[,"event"])){
-    n_events <- sum(Y[,"event"]==T)
-  }
+  n_events <- sum(Y[,"event"])
 
   EPV <-  floor(n_events / 1:n.var) #EPV
 
@@ -751,7 +721,7 @@ getMaxNPredictors <- function(n.var, Y, MIN_EPV){
   }
 
   if(MIN_EPV==0){
-    max_n_predictors <-n.var
+    max_n_predictors <- n.var
   }
 
   return(max_n_predictors)
@@ -797,8 +767,7 @@ removeNonSignificativeCox <- function(cox, alpha, cox_input, time.value = NULL, 
   if(!is.null(time.value) & !is.null(event.value)){
     time <- time.value
     event <- event.value
-    d <- cbind(d, time)
-    d <- cbind(d, event)
+    d <- cbind(d, time, event)
   }
 
   p_val <- getPvalFromCox(cox)
@@ -833,11 +802,12 @@ removeNonSignificativeCox <- function(cox, alpha, cox_input, time.value = NULL, 
     to_remove <- names(which.max(p_val))
     to_remove <- deleteIllegalChars(to_remove)
     d <- d[,!colnames(d) %in% c(to_remove),drop=F]
+    d <- as.data.frame(d)
     cox <- tryCatch(
       # Specifying expression
       expr = {
         survival::coxph(formula = survival::Surv(time,event) ~ .,
-                        data = as.data.frame(d),
+                        data = d,
                         ties = "efron",
                         singular.ok = T,
                         robust = T,
@@ -847,13 +817,13 @@ removeNonSignificativeCox <- function(cox, alpha, cox_input, time.value = NULL, 
       # Specifying error message
       error = function(e){
         message(paste0("Updating cox model: ", e))
-        invisible(gc())
+        # invisible(gc())
         return(NA)
       }
     )
 
     #remove NA if any in new cox model
-    lst_model <- removeNAcoxmodel(model = cox, data = as.data.frame(d), time.value = NULL, event.value = NULL)
+    lst_model <- removeNAcoxmodel(model = cox, data = d, time.value = NULL, event.value = NULL)
     cox <- lst_model$model
     removed_variables <- c(removed_variables, lst_model$removed_variables)
 
@@ -1887,12 +1857,15 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
   }
 
   if(!fast_mode){ #AUC
-    for(l in 1:length(max.ncomp)){
-      for(e in 1:length(eta.list)){
+    for(l in unique(df_results_evals$n.comps)){
+      l.index <- which(l == unique(df_results_evals$n.comps))
+      for(e in unique(df_results_evals[df_results_evals$n.comps==l,]$eta)){
         # EVAL PER RUN
+        e.index <- which(e == unique(eta.list))
         eval_aux.run <- NULL
-        for(r in 1:n_run){
-          aux.run <- df_results_evals[which(df_results_evals$n.comps==max.ncomp[[l]] & df_results_evals$eta==eta.list[[e]] & df_results_evals$runs==r),!colnames(df_results_evals) %in% c("fold")]
+        for(r in unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$eta==e,]$runs)){
+          aux.run <- df_results_evals[which(df_results_evals$n.comps==l & df_results_evals$eta==e & df_results_evals$runs==r),!colnames(df_results_evals) %in% c("fold")]
+          #aux.run <- df_results_evals[which(df_results_evals$n.comps==max.ncomp[[l]] & df_results_evals$eta==eta.list[[e]] & df_results_evals$runs==r),!colnames(df_results_evals) %in% c("fold")]
 
           #could happen cause some times the models compute lesser number of components
           if(nrow(aux.run)==0){
@@ -1940,9 +1913,9 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
             eval_aux.r[[mode]] <- NA
           }else{
             if(mode %in% "BRIER"){
-              eval_aux.r[[mode]] <- lst_AUC_component[[l]][[e]][[r]]
+              eval_aux.r[[mode]] <- lst_AUC_component[[l.index]][[e.index]][[r]]
             }else{
-              eval_aux.r[[mode]] <- lst_AUC_component[[l]][[e]][[r]][[mode]]
+              eval_aux.r[[mode]] <- lst_AUC_component[[l.index]][[e.index]][[r]][[mode]]
             }
           }
           eval_aux.run <- rbind(eval_aux.run, eval_aux.r)
@@ -1955,7 +1928,7 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
         df_results_evals_run <- rbind(df_results_evals_run, eval_aux.run)
 
         # EVAL PER COMPONENT
-        aux.run <- df_results_evals[which(df_results_evals$n.comps==max.ncomp[[l]] & df_results_evals$eta==eta.list[[e]]),!colnames(df_results_evals) %in% c("fold", "runs")]
+        aux.run <- df_results_evals[which(df_results_evals$n.comps==l & df_results_evals$eta==e),!colnames(df_results_evals) %in% c("fold", "runs")]
 
         if(method.train %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox)){
           eval_aux.r <- apply(aux.run[,!colnames(aux.run) %in% c("n.var")], 2, function(x){mean(x, na.rm = T)})
@@ -2000,9 +1973,9 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
           AUC_v <- NULL
           for(r in 1:n_run){
             if(mode %in% "BRIER"){
-              AUC_v <- c(AUC_v, c(lst_AUC_component[[l]][[e]][[r]])) #MEAN FOR ALL COMPONENTS
+              AUC_v <- c(AUC_v, c(lst_AUC_component[[l.index]][[e.index]][[r]])) #MEAN FOR ALL COMPONENTS
             }else{
-              AUC_v <- c(AUC_v, c(lst_AUC_component[[l]][[e]][[r]][[mode]])) #MEAN FOR ALL COMPONENTS
+              AUC_v <- c(AUC_v, c(lst_AUC_component[[l.index]][[e.index]][[r]][[mode]])) #MEAN FOR ALL COMPONENTS
             }
           }
           AUC_mean <- mean(AUC_v, na.rm = T)
@@ -2013,18 +1986,19 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
       }
     }
   }else{ #AUC / BRIER
-    for(l in 1:length(max.ncomp)){
-      for(e in 1:length(eta.list)){
+    for(l in unique(df_results_evals$n.comps)){
+      for(e in unique(df_results_evals[df_results_evals$n.comps==l,]$eta)){
+        e.index <- which(e == unique(eta.list))
         if(method.train %in% c(pkg.env$splsicox, pkg.env$splsdrcox)){
           # EVAL PER COMPONENT
-          aux <- df_results_evals[which(df_results_evals$n.comps==max.ncomp[[l]] & df_results_evals$eta==eta.list[[e]]),!colnames(df_results_evals) %in% c("fold", "runs")]
+          aux <- df_results_evals[which(df_results_evals$n.comps==max.ncomp[[l]] & df_results_evals$eta==e),!colnames(df_results_evals) %in% c("fold", "runs")]
           eval_aux <- apply(aux, 2, function(x){mean(x, na.rm = T)})
           df_results_evals_comp <- rbind(df_results_evals_comp, eval_aux)
 
           # EVAL PER RUN
           eval_aux.r <- NULL
-          for(r in 1:n_run){
-            aux.run <- df_results_evals[which(df_results_evals$n.comps==max.ncomp[[l]] & df_results_evals$eta==eta.list[[e]] & df_results_evals$runs==r),!colnames(df_results_evals) %in% c("fold")]
+          for(r in unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$eta==e,]$runs)){
+            aux.run <- df_results_evals[which(df_results_evals$n.comps==max.ncomp[[l]] & df_results_evals$eta==e & df_results_evals$runs==r),!colnames(df_results_evals) %in% c("fold")]
             eval_aux.r <- apply(aux.run, 2, function(x){mean(x, na.rm = T)})
             df_results_evals_run <- rbind(df_results_evals_run, eval_aux.r)
           }
@@ -2306,10 +2280,10 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
 
             eta <- model$eta
             if(attr(model, "model") == pkg.env$sb.splsdrcox){
-              n_var <- purrr::map(model$list_spls_models, ~length(unique(unlist(.$var_by_component))))
+              n_var <- purrr::map(model$list_spls_models, ~ifelse("var_by_component" %in% names(.),length(unique(unlist(.$var_by_component))), NA))
               n_var <- paste0(n_var, collapse = "_") #VAR FOR SB.spls IS THE MAX NUMBER OF VARIABLES (PER BLOCK)
             }else if(attr(model, "model") == pkg.env$sb.splsicox){
-              n_var <- purrr::map(model$list_spls_models, ~length(unique(unlist(.$var_by_component))))
+              n_var <- purrr::map(model$list_spls_models, ~ifelse("var_by_component" %in% names(.),length(unique(unlist(.$var_by_component))), NA))
               n_var <- paste0(n_var, collapse = "_") #VAR FOR SB.spls IS THE MAX NUMBER OF VARIABLES (PER BLOCK)
             }else{
               n_var <- nrow(model$X$loadings)

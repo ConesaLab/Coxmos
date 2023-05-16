@@ -116,6 +116,7 @@ coxSW <- function(X, Y,
   }
 
   #### REQUIREMENTS
+  checkY.colnames(Y)
   lst_check <- checkXY.class(X, Y, verbose = verbose)
   X <- lst_check$X
   Y <- lst_check$Y
@@ -176,7 +177,7 @@ coxSW <- function(X, Y,
     # Specifying error message
     error = function(e){
       message(paste0("coxSW: ", e))
-      invisible(gc())
+      # invisible(gc())
       return(NA)
     }
   )
@@ -253,7 +254,7 @@ coxSW <- function(X, Y,
   t2 <- Sys.time()
   time <- difftime(t2,t1,units = "mins")
 
-  invisible(gc())
+  # invisible(gc())
   return(coxSW_class(list(X = list("data" = if(returnData) data.all else NA, "x.mean" = xmeans, "x.sd" = xsds),
                         Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
                         survival_model = survival_model,
