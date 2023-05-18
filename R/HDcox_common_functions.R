@@ -560,7 +560,8 @@ checkFoldRuns <- function(Y, n_run, k_folds, fast_mode){
 }
 
 check_min0_max1_variables <- function(lst){
-  lapply(names(lst), function(name) {
+  nm <- names(lst)
+  res <- lapply(nm, function(name){
     element <- lst[[name]]
     if(!is.numeric(element)){
       stop(paste0("Variable: ", name, " must be a numeric variable and ", class(element), " was detected."))
@@ -568,6 +569,7 @@ check_min0_max1_variables <- function(lst){
     if(!(element >= 0 && element <= 1)){
       stop(paste0("Variable: ", name, " must be in range [0,1] and ", element, " was detected."))
     }
+    return("Meet the values!")
   })
 }
 
@@ -4780,7 +4782,26 @@ getBestVector <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN
 }
 
 getCIndex_AUC_CoxModel_spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keepX, scale = F, near.zero.var = F, EVAL_EVALUATOR = "cenROC", max.iter = 200, verbose = F, times = NULL, max_time_points = 15){
-  model <- mixOmics::spls(X = Xh, Y = DR_coxph_ori, ncomp = n.comp, keepX = rep(keepX, n.comp), scale = scale, near.zero.var = near.zero.var, max.iter = max.iter)
+
+  FLAG_ERROR = FALSE
+  model <- tryCatch(
+    # Specifying expression
+    expr = {
+      mixOmics::spls(X = Xh, Y = DR_coxph_ori, ncomp = n.comp, keepX = rep(keepX, n.comp), scale = scale, near.zero.var = near.zero.var, max.iter = max.iter)
+    },
+    # Specifying error message
+    error = function(e){
+      FLAG_ERROR <<- TRUE
+      message(paste0("spls_dynamic in mixOmics::spls: ",conditionMessage(e)))
+      return(NA)
+    }
+  )
+
+  if(FLAG_ERROR){
+    FLAG_ERROR = F
+    return(list("c_index" = NA, "AUC" = NA, "BRIER" = NA))
+  }
+
   tt_mbsplsDR = model$variates
 
   d <- as.data.frame(tt_mbsplsDR[[1]][,,drop=F]) #X
@@ -4799,7 +4820,7 @@ getCIndex_AUC_CoxModel_spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keepX, sca
     },
     # Specifying error message
     error = function(e){
-      message(paste0("mb_splsdrcox_dynamic: ",conditionMessage(e)))
+      message(paste0("splsdrcox_dynamic: ",conditionMessage(e)))
       return(NA)
     }
   )
@@ -4821,7 +4842,26 @@ getCIndex_AUC_CoxModel_spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keepX, sca
 }
 
 getCIndex_AUC_CoxModel_splsda <- function(Xh, Yh, n.comp, keepX, scale = F, near.zero.var = F, EVAL_EVALUATOR = "cenROC", max.iter = 100, verbose = F, times = NULL, max_time_points = 15){
-  model <- mixOmics::splsda(X = Xh, Y = Yh[,"event"], ncomp = n.comp, keepX = rep(keepX, n.comp), scale = scale, near.zero.var = near.zero.var, max.iter = max.iter)
+
+  FLAG_ERROR = FALSE
+  model <- tryCatch(
+    # Specifying expression
+    expr = {
+      mixOmics::splsda(X = Xh, Y = Yh[,"event"], ncomp = n.comp, keepX = rep(keepX, n.comp), scale = scale, near.zero.var = near.zero.var, max.iter = max.iter)
+    },
+    # Specifying error message
+    error = function(e){
+      FLAG_ERROR <<- TRUE
+      message(paste0("splsda_dynamic in mixOmics::splsda: ",conditionMessage(e)))
+      return(NA)
+    }
+  )
+
+  if(FLAG_ERROR){
+    FLAG_ERROR = F
+    return(list("c_index" = NA, "AUC" = NA, "BRIER" = NA))
+  }
+
   tt_mbsplsDA = model$variates
 
   d <- as.data.frame(tt_mbsplsDA[[1]][,,drop=F]) #X
@@ -4840,7 +4880,7 @@ getCIndex_AUC_CoxModel_splsda <- function(Xh, Yh, n.comp, keepX, scale = F, near
     },
     # Specifying error message
     error = function(e){
-      message(paste0("mb_splsda_dynamic: ",conditionMessage(e)))
+      message(paste0("splsda_dynamic in coxph: ",conditionMessage(e)))
       return(NA)
     }
   )

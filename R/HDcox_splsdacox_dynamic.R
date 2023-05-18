@@ -169,8 +169,9 @@ splsdacox_dynamic <- function (X, Y,
   DR_coxph <- NULL
 
   if(is.null(vector)){
-    lst_BV <- getBestVector(Xh, DR_coxph, Yh, n.comp, max.iter, vector, MIN_AUC_INCREASE, MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, cut_points = n.cut_points,
-                           EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = F, mode = "splsda", times = times, max_time_points = max_time_points, verbose = verbose)
+    lst_BV <- getBestVector(Xh, DR_coxph, Yh, n.comp, max.iter, vector, MIN_AUC_INCREASE, MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR,
+                            cut_points = n.cut_points, EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = F,
+                            mode = "splsda", times = times, max_time_points = max_time_points, verbose = verbose)
     keepX <- lst_BV$best.keepX
     plotVAR <- plot_VAR_eval(lst_BV, EVAL_METHOD = EVAL_METHOD)
   }else{
@@ -527,18 +528,18 @@ cv.splsdacox_dynamic <- function(X, Y,
   total_models <- 1 * k_folds * n_run
 
   comp_model_lst <- get_HDCOX_models2.0(method = pkg.env$splsdacox_dynamic,
-                                       lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
-                                       max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL, max.variables = NULL, vector = vector,
-                                       n_run = n_run, k_folds = k_folds,
-                                       MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, MIN_AUC_INCREASE = MIN_AUC_INCREASE, EVAL_METHOD = EVAL_METHOD,
-                                       n.cut_points = n.cut_points,
-                                       x.center = x.center, x.scale = x.scale,
-                                       y.center = y.center, y.scale = y.scale,
-                                       remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
-                                       alpha = alpha, MIN_EPV = MIN_EPV,
-                                       remove_non_significant = remove_non_significant, tol = tol, max.iter = max.iter,
-                                       returnData = returnData, total_models = total_models,
-                                       PARALLEL = PARALLEL, verbose = verbose)
+                                        lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
+                                        max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL, max.variables = NULL, vector = vector,
+                                        n_run = n_run, k_folds = k_folds,
+                                        MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, MIN_AUC_INCREASE = MIN_AUC_INCREASE, EVAL_METHOD = EVAL_METHOD,
+                                        n.cut_points = n.cut_points,
+                                        x.center = x.center, x.scale = x.scale,
+                                        y.center = y.center, y.scale = y.scale,
+                                        remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
+                                        alpha = alpha, MIN_EPV = MIN_EPV,
+                                        remove_non_significant = remove_non_significant, tol = tol, max.iter = max.iter,
+                                        returnData = returnData, total_models = total_models,
+                                        PARALLEL = PARALLEL, verbose = verbose)
 
   if(all(is.null(comp_model_lst))){
     message(paste0("Best model could NOT be obtained. All models computed present problems. Try to remove variance at fold level. If problem persists, try to delete manually some problematic variables."))
