@@ -519,6 +519,7 @@ cv.splsdacox_dynamic <- function(X, Y,
   k_folds <- lst_data$k_folds
 
   lst_train_indexes <- lst_data$lst_train_index
+  message(print(lst_train_indexes)) #!!!
   lst_test_indexes <- lst_data$lst_test_index
 
   #### ### ### ###
