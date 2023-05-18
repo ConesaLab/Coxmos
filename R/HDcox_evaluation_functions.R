@@ -93,6 +93,8 @@ deleteColumn <- function(data, lst_cn){
   return(data)
 }
 
+#return a run/fold list where each fold is a full model to train - k-1 folds of train and 1 fold of test
+#difference between folds will be 1 fold of patients
 splitData_Iterations_Folds <- function(X, Y, n_run, k_folds, seed = 123){
 
   set.seed(seed)
@@ -125,10 +127,9 @@ splitData_Iterations_Folds <- function(X, Y, n_run, k_folds, seed = 123){
   lst_obs_index_test <- list()
 
   for(i in 1:n_run){
-    set.seed(seed+i)
-    testIndex <- caret::createFolds(Y[,"event"],
-                                     k = k_folds,
-                                     list = TRUE)
+    testIndex <- caret::createFolds(y = Y[,"event"],
+                                    k = k_folds,
+                                    list = TRUE)
 
     #for each fold, take the others as train
     lst_X_data_train <- lapply(testIndex, function(ind, dat) dat[-ind,], dat = X)

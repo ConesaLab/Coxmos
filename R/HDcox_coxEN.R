@@ -484,8 +484,7 @@ cv.coxEN <- function(X, Y,
   #### #
   # CV #
   #### #
-  set.seed(seed)
-  lst_data <- splitData_Iterations_Folds(X, Y, n_run = n_run, k_folds = k_folds) #FOR TEST
+  lst_data <- splitData_Iterations_Folds(X, Y, n_run = n_run, k_folds = k_folds, seed = seed) #FOR TEST
   lst_X_train <- lst_data$lst_X_train
   lst_Y_train <- lst_data$lst_Y_train
   lst_X_test <- lst_data$lst_X_test

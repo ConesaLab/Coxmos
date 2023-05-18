@@ -1599,6 +1599,7 @@ getAUC_RUN_AND_COMP <- function(mode = "AUC", fast_mode, max.ncomp, n_run,
           message(mode) # !!!! mode printed!!!
 
           if(mode=="BRIER"){
+            message("entrando a BRIER") ## !!!!
             eval_aux.r[[mode]] <- lst_AUC_component[[l.index]][[r]]
           }else if(mode == "AUC"){
             message("entrando a AUC") ## !!!!
@@ -1609,12 +1610,14 @@ getAUC_RUN_AND_COMP <- function(mode = "AUC", fast_mode, max.ncomp, n_run,
             message(class(lst_AUC_component[[l.index]][[r]]))
             if(mode %in% names(lst_AUC_component[[l.index]][[r]])){
               message(paste0(names(lst_AUC_component[[l.index]][[r]]), collapse = " "))
-              message(lst_AUC_component[[l.index]][[r]])
+              message(paste0(names(lst_AUC_component[[l.index]][[r]]$lp.used$fit), collapse = " "))
+              message(lst_AUC_component[[l.index]][[r]][[mode]])
               eval_aux.r[[mode]] <- lst_AUC_component[[l.index]][[r]][[mode]]
             }else{
               eval_aux.r[[mode]] <- NA
             }
           }
+          message("SALIMOS!")
         }
         eval_aux.run <- rbind(eval_aux.run, eval_aux.r)
       }
