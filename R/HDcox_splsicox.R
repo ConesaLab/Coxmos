@@ -524,6 +524,7 @@ splsicox <- function(X, Y,
   W.star <- W %*% PW
 
   rownames(Ts) <- rownames(X)
+  rownames(W.star) <- colnames(W)
   #rownames(P) <- rownames(W_norm) <- rownames(W) <-  rownames(W.star) <- colnames(Xh)
 
   # if(stopped){
