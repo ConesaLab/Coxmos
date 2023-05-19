@@ -3335,6 +3335,10 @@ getAutoKM <- function(type = "LP", model, comp = 1:2, top = 10, ori_data = T, BR
     return(NULL)
   }
 
+  if(length(comp)==1){
+    comp <- 1:comp
+  }
+
   if(type == "LP"){
     return(getLPKM(model, comp = comp, top = top, ori_data = ori_data, BREAKTIME = BREAKTIME, n.breaks = n.breaks, only_sig = only_sig, alpha = alpha, title = title, verbose = verbose))
   }else if(type == "COMP"){
@@ -3347,6 +3351,10 @@ getAutoKM <- function(type = "LP", model, comp = 1:2, top = 10, ori_data = T, BR
 }
 
 getLPKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, n.breaks = 20, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
+
+  if(length(comp)==1){
+    comp <- 1:comp
+  }
 
   if(attr(model, "model") %in% c(pkg.env$classical_methods, pkg.env$pls_methods, pkg.env$multiblock_methods)){
 
@@ -3398,6 +3406,10 @@ getLPKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL,
 }
 
 getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, n.breaks = 20, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
+
+  if(length(comp)==1){
+    comp <- 1:comp
+  }
 
   # DFCALLS
   vars <- lst_vars <- info_logrank_qual <- NULL
@@ -3543,6 +3555,10 @@ getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NUL
 }
 
 getLPVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, n.breaks = 20, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
+
+  if(length(comp)==1){
+    comp <- 1:comp
+  }
 
   message("LPVAR only implemented for PLS methods. Results are pretty similar to work with ORIGINAL variables.")
 
@@ -3791,6 +3807,10 @@ getLPVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NU
 }
 
 getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, n.breaks = 20, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
+
+  if(length(comp)==1){
+    comp <- 1:comp
+  }
 
   if(attr(model, "model") %in% pkg.env$pls_methods){
 
