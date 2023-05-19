@@ -1330,7 +1330,7 @@ plot_events <- function(Y, max.breaks = 20, roundTo = 0.1, categories = c("Censo
 
   breaks_size = round2any((max(Y$time) - min(Y$time)) / (max.breaks+1), roundTo, f = ceiling)
   breaks = seq(min(Y$time), max(Y$time)+breaks_size, by=breaks_size)
-  breaks = round2any(breaks, roundTo)
+  breaks = round2any(breaks, roundTo, f = floor)
   if(max(breaks)<max(Y[,"time"])){breaks=c(breaks, max(breaks)+breaks_size)}
   x.names <- cut(x = Y$time, breaks = breaks, include.lowest = T)
 
