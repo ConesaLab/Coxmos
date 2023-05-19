@@ -338,8 +338,6 @@ splsdacox_dynamic <- function (X, Y,
     W.star = W.star[,names(cox_model$fit$coefficients),drop=F]
     P = P[,names(cox_model$fit$coefficients),drop=F]
     Ts = Ts[,names(cox_model$fit$coefficients),drop=F]
-
-    E = E[which_to_keep]
     n.comp = ncol(max(which_to_keep))
   }
 
