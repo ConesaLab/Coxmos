@@ -478,7 +478,6 @@ splsicox <- function(X, Y,
 
     W <- W[,names(cox_model$fit$coefficients),drop=F]
     W_norm = W_norm[,names(cox_model$fit$coefficients),drop=F]
-    W.star = W.star[,names(cox_model$fit$coefficients),drop=F]
     P = P[,names(cox_model$fit$coefficients),drop=F]
     Ts = Ts[,names(cox_model$fit$coefficients),drop=F]
 
