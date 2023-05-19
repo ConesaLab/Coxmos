@@ -218,6 +218,9 @@ splsdacox_dynamic <- function (X, Y,
   #### ### ### ### ### ### ### ### ### ### ### #
   ##  ##              PLS-COX            ##  ##
   #### ### ### ### ### ### ### ### ### ### ### #
+  n.comp_used <- ncol(tt_splsDR) #can be lesser than expected because we have lesser variables to select because penalization
+  n.varX_used <- keepX
+
   d <- as.data.frame(cbind(tt_splsDR, Yh))
   cox_model <- NULL
   cox_model$fit <- tryCatch(
@@ -246,9 +249,9 @@ splsdacox_dynamic <- function (X, Y,
   # p_val could be NA for some variables (if NA change to P-VAL=1)
   # DO IT ALWAYS, we do not want problems in COX models
   if(all(c("time", "event") %in% colnames(d))){
-    lst_model <- removeNAcoxmodel(model = cox_model$fit, data = d, time.value = NULL, event.value = NULL)
+    lst_model <- removeNAorINFcoxmodel(model = cox_model$fit, data = d, time.value = NULL, event.value = NULL)
   }else{
-    lst_model <- removeNAcoxmodel(model = cox_model$fit, data = cbind(d, Yh), time.value = NULL, event.value = NULL)
+    lst_model <- removeNAorINFcoxmodel(model = cox_model$fit, data = cbind(d, Yh), time.value = NULL, event.value = NULL)
   }
   cox_model$fit <- lst_model$model
   removed_variables_cor <- c(removed_variables_cor, lst_model$removed_variables)
@@ -283,7 +286,15 @@ splsdacox_dynamic <- function (X, Y,
   #W.star
   #sometimes solve(t(P) %*% W)
   #system is computationally singular: reciprocal condition number = 6.24697e-18
-  PW <- tryCatch(expr = {solve(t(P) %*% W, tol = tol)},
+  # PW <- tryCatch(expr = {solve(t(P) %*% W, tol = tol)},
+  #                error = function(e){
+  #                  if(verbose){
+  #                    message(e$message)
+  #                  }
+  #                  NA
+  #                })
+
+  PW <- tryCatch(expr = {MASS::ginv(t(P) %*% W)},
                  error = function(e){
                    if(verbose){
                      message(e$message)
@@ -313,6 +324,23 @@ splsdacox_dynamic <- function (X, Y,
   var_by_component = list()
   for(cn in colnames(W)){
     var_by_component[[cn]] <- rownames(W)[W[,cn]!=0]
+  }
+
+  #if we filter some components
+  if(n.comp_used != length(names(cox_model$fit$coefficients))){
+    if(verbose){
+      message(paste0("Updating vectors. Final model select ", length(names(cox_model$fit$coefficients))," components instead of ", n.comp,"."))
+    }
+    #update all values
+    which_to_keep <- which(colnames(W) %in% names(cox_model$fit$coefficients))
+
+    W <- W[,names(cox_model$fit$coefficients),drop=F]
+    W.star = W.star[,names(cox_model$fit$coefficients),drop=F]
+    P = P[,names(cox_model$fit$coefficients),drop=F]
+    Ts = Ts[,names(cox_model$fit$coefficients),drop=F]
+
+    E = E[which_to_keep]
+    n.comp = ncol(max(which_to_keep))
   }
 
   t2 <- Sys.time()
@@ -519,7 +547,6 @@ cv.splsdacox_dynamic <- function(X, Y,
   k_folds <- lst_data$k_folds
 
   lst_train_indexes <- lst_data$lst_train_index
-  message(print(lst_train_indexes)) #!!!
   lst_test_indexes <- lst_data$lst_test_index
 
   #### ### ### ###

@@ -293,9 +293,9 @@ mb.splsdacox <- function (X, Y,
   # p_val could be NA for some variables (if NA change to P-VAL=1)
   # DO IT ALWAYS, we do not want problems in COX models
   if(all(c("time", "event") %in% colnames(data))){
-    lst_model <- removeNAcoxmodel(model = cox_model$survival_model$fit, data = data, time.value = NULL, event.value = NULL)
+    lst_model <- removeNAorINFcoxmodel(model = cox_model$survival_model$fit, data = data, time.value = NULL, event.value = NULL)
   }else{
-    lst_model <- removeNAcoxmodel(model = cox_model$survival_model$fit, data = cbind(data, Yh), time.value = NULL, event.value = NULL)
+    lst_model <- removeNAorINFcoxmodel(model = cox_model$survival_model$fit, data = cbind(data, Yh), time.value = NULL, event.value = NULL)
   }
   cox_model$survival_model$fit <- lst_model$model
   removed_variables_cor <- c(removed_variables_cor, lst_model$removed_variables)
@@ -360,7 +360,14 @@ mb.splsdacox <- function (X, Y,
       #W.star
       #sometimes solve(t(P) %*% W)
       #system is computationally singular: reciprocal condition number = 6.24697e-18
-      PW <- tryCatch(expr = {solve(t(Pmat[[i]][names,c,drop=F]) %*% Wmat[[i]][names,c,drop=F], tol = tol)},
+      # PW <- tryCatch(expr = {solve(t(Pmat[[i]][names,c,drop=F]) %*% Wmat[[i]][names,c,drop=F], tol = tol)},
+      #                error = function(e){
+      #                  if(verbose){
+      #                    message(e$message)
+      #                  }
+      #                  NA
+      #                })
+      PW <- tryCatch(expr = {MASS::ginv(t(Pmat[[i]][names,c,drop=F]) %*% Wmat[[i]][names,c,drop=F])},
                      error = function(e){
                        if(verbose){
                          message(e$message)

@@ -428,13 +428,13 @@ splsicox <- function(X, Y,
   # RETURN a MODEL with ALL significant Variables from complete, deleting one by one
   removed_variables <- NULL
   removed_variables_cor <- NULL
-  # REMOVE NA-PVAL VARIABLES
+  # REMOVE NA-PVAL or INF VARIABLES
   # p_val could be NA for some variables (if NA change to P-VAL=1)
   # DO IT ALWAYS, we do not want problems in COX models
   if(all(c("time", "event") %in% colnames(d))){
-    lst_model <- removeNAcoxmodel(model = aux, data = d, time.value = NULL, event.value = NULL)
+    lst_model <- removeNAorINFcoxmodel(model = aux, data = d, time.value = NULL, event.value = NULL)
   }else{
-    lst_model <- removeNAcoxmodel(model = aux, data = cbind(d, Yh), time.value = NULL, event.value = NULL)
+    lst_model <- removeNAorINFcoxmodel(model = aux, data = cbind(d, Yh), time.value = NULL, event.value = NULL)
   }
   aux <- lst_model$model
   removed_variables_cor <- c(removed_variables_cor, lst_model$removed_variables)
@@ -454,7 +454,7 @@ splsicox <- function(X, Y,
   cox_model <- NULL
   cox_model$fit <- aux
 
-  #we cannot compute all components
+  #if we cannot compute all components
   if(h != n.comp & !all(is.na(cox_model$fit))){
     if(verbose){
       message(paste0("Model cannot be computed for all components. Final model select ", h," components instead of ", n.comp,"."))
@@ -466,6 +466,24 @@ splsicox <- function(X, Y,
     Ts = Ts[,1:h,drop=F]
     E = E[1:h]
     n.comp = ncol(Ts)
+  }
+
+  #or if we filter some components
+  if(h != length(names(cox_model$fit$coefficients))){
+    if(verbose){
+      message(paste0("Updating vectors. Final model select ", length(names(cox_model$fit$coefficients))," components instead of ", n.comp,"."))
+    }
+    #update all values
+    which_to_keep <- which(colnames(W) %in% names(cox_model$fit$coefficients))
+
+    W <- W[,names(cox_model$fit$coefficients),drop=F]
+    W_norm = W_norm[,names(cox_model$fit$coefficients),drop=F]
+    W.star = W.star[,names(cox_model$fit$coefficients),drop=F]
+    P = P[,names(cox_model$fit$coefficients),drop=F]
+    Ts = Ts[,names(cox_model$fit$coefficients),drop=F]
+
+    E = E[which_to_keep]
+    n.comp = which_to_keep
   }
 
   survival_model = NULL
@@ -482,13 +500,20 @@ splsicox <- function(X, Y,
   #W.star
   #sometimes solve(t(P) %*% W)
   #system is computationally singular: reciprocal condition number = 6.24697e-18
-  PW <- tryCatch(expr = {solve(t(P) %*% W, tol = tol)},
+  # PW <- tryCatch(expr = {solve(t(P) %*% W, tol = tol)},
+  #                error = function(e){
+  #                  if(verbose){
+  #                    message(e$message)
+  #                  }
+  #                  NA
+  #               })
+  PW <- tryCatch(expr = {MASS::ginv(t(P) %*% W)},
                  error = function(e){
                    if(verbose){
                      message(e$message)
                    }
                    NA
-                })
+                 })
 
   if(all(is.na(PW))){
     message(paste0(pkg.env$splsicox, " model cannot be computed due to solve(t(P) %*% W). Multicollineality could be present in your data. Optional (not recommended): Reduce 'tol' parameter to fix it. Returning NA."))
@@ -502,11 +527,13 @@ splsicox <- function(X, Y,
   rownames(Ts) <- rownames(X)
   #rownames(P) <- rownames(W_norm) <- rownames(W) <-  rownames(W.star) <- colnames(Xh)
 
-  if(stopped){
-    colnames(Ts) <- colnames(P) <- colnames(W_norm) <- colnames(W) <-  colnames(W.star) <- paste0("comp_", 1:h)
-  }else{
-    colnames(Ts) <- colnames(P) <- colnames(W_norm) <- colnames(W) <-  colnames(W.star) <- paste0("comp_", 1:n.comp)
-  }
+  # if(stopped){
+  #   colnames(Ts) <- colnames(P) <- colnames(W_norm) <- colnames(W) <-  colnames(W.star) <- paste0("comp_", 1:h)
+  # }if(length(n.comp)>0){
+  #   colnames(Ts) <- colnames(P) <- colnames(W_norm) <- colnames(W) <-  colnames(W.star) <- paste0("comp_", n.comp)
+  # }else{
+  #   colnames(Ts) <- colnames(P) <- colnames(W_norm) <- colnames(W) <-  colnames(W.star) <- paste0("comp_", 1:n.comp)
+  # }
 
   func_call <- match.call()
 

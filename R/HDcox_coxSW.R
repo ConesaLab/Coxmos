@@ -204,7 +204,7 @@ coxSW <- function(X, Y,
   # REMOVE NA-PVAL VARIABLES
   # p_val could be NA for some variables (if NA change to P-VAL=1)
   # DO IT ALWAYS, we do not want problems in COX models
-  lst_model <- removeNAcoxmodel(model, data)
+  lst_model <- removeNAorINFcoxmodel(model, data)
   coxph.sw <- lst_model$model
   removed_variables_cor <- c(removed_variables_cor, lst_model$removed_variables)
 
@@ -316,9 +316,9 @@ stepwise.coxph <- function(Time = NULL, Status = NULL, variable.list,
       # p_val could be NA for some variables (if NA change to P-VAL=1)
       # DO IT ALWAYS, we do not want problems in COX models
       if(all(c("time", "event") %in% colnames(aux_data))){
-        lst_model <- removeNAcoxmodel(model = initial.model, data = aux_data, time.value = NULL, event.value = NULL)
+        lst_model <- removeNAorINFcoxmodel(model = initial.model, data = aux_data, time.value = NULL, event.value = NULL)
       }else{
-        lst_model <- removeNAcoxmodel(model = initial.model, data = cbind(cbind(aux_data, Time), Status), time.value = NULL, event.value = NULL)
+        lst_model <- removeNAorINFcoxmodel(model = initial.model, data = cbind(cbind(aux_data, Time), Status), time.value = NULL, event.value = NULL)
       }
       initial.model <- lst_model$model
 
@@ -331,7 +331,7 @@ stepwise.coxph <- function(Time = NULL, Status = NULL, variable.list,
       initial.model <- survival::coxph(formula = f, data = aux_data,
                                        method = "efron", model = T, singular.ok = T, x = T)
 
-      lst_model <- removeNAcoxmodel(initial.model, aux_data)
+      lst_model <- removeNAorINFcoxmodel(initial.model, aux_data)
       initial.model <- lst_model$model
     }
 
@@ -356,7 +356,7 @@ stepwise.coxph <- function(Time = NULL, Status = NULL, variable.list,
     aux_data <- as.data.frame(data[,colnames(data) %in% c(in.variable, "time", "event", "status"),drop=F])
     initial.model <- survival::coxph(as.formula(paste("Surv(", Time, ", ", Status, ") ~ .")), data = aux_data,
                                      method = "efron", model = T, singular.ok = T, x = T)
-    lst_model <- removeNAcoxmodel(initial.model, aux_data)
+    lst_model <- removeNAorINFcoxmodel(initial.model, aux_data)
     initial.model <- lst_model$model
   }
 

@@ -291,7 +291,7 @@ splsdrcox <- function (X, Y,
       expr = {
         pls2(X = Xa, Y = DR_coxph_ori, n.comp = min(h, ncol(Xa)),
              x.center = F, x.scale = F, y.center = F, y.scale = F,
-             it = 10, tol.W.star = tol, verbose = verbose)
+             it = 100, tol.W.star = tol, verbose = verbose)
       },
       # Specifying error message
       error = function(e){
@@ -414,9 +414,9 @@ splsdrcox <- function (X, Y,
   # p_val could be NA for some variables (if NA change to P-VAL=1)
   # DO IT ALWAYS, we do not want problems in COX models
   if(all(c("time", "event") %in% colnames(d))){
-    lst_model <- removeNAcoxmodel(model = aux, data = d, time.value = NULL, event.value = NULL)
+    lst_model <- removeNAorINFcoxmodel(model = aux, data = d, time.value = NULL, event.value = NULL)
   }else{
-    lst_model <- removeNAcoxmodel(model = aux, data = cbind(d, Yh), time.value = NULL, event.value = NULL)
+    lst_model <- removeNAorINFcoxmodel(model = aux, data = cbind(d, Yh), time.value = NULL, event.value = NULL)
   }
   aux <- lst_model$model
   removed_variables_cor <- c(removed_variables_cor, lst_model$removed_variables)
@@ -456,6 +456,29 @@ splsdrcox <- function (X, Y,
     last.pls$B = last.pls$B[,,drop=F] #only final coefficients
 
     n.comp_used <- h
+  }
+
+  #or if we filter some components
+  if(h != length(names(cox_model$fit$coefficients))){
+    if(verbose){
+      message(paste0("Updating vectors. Final model select ", length(names(cox_model$fit$coefficients))," components instead of ", n.comp,"."))
+    }
+    #update all values
+    which_to_keep <- which(colnames(last.pls$X$weightings) %in% names(cox_model$fit$coefficients))
+
+    last.pls$X$weightings <- last.pls$X$weightings[,names(cox_model$fit$coefficients),drop=F]
+    last.pls$X$W.star = last.pls$X$W.star[,names(cox_model$fit$coefficients),drop=F]
+    last.pls$X$loadings = last.pls$X$loadings[,names(cox_model$fit$coefficients),drop=F]
+    last.pls$X$scores = last.pls$X$scores[,names(cox_model$fit$coefficients),drop=F]
+    last.pls$Y$weightings = last.pls$Y$weightings[,names(cox_model$fit$coefficients),drop=F]
+    last.pls$Y$loadings = last.pls$Y$loadings[,names(cox_model$fit$coefficients),drop=F]
+    last.pls$Y$scores = last.pls$Y$scores[,names(cox_model$fit$coefficients),drop=F]
+    last.pls$Y$ratio = last.pls$Y$ratio[,names(cox_model$fit$coefficients),drop=F]
+    var_by_component_nzv = var_by_component_nzv[which_to_keep] #variables selected for each component
+    names(var_by_component_nzv) <- paste0("comp_", which_to_keep)
+    last.pls$B = last.pls$B[,,drop=F] #only final coefficients
+
+    n.comp_used <- ncol(max(which_to_keep))
   }
 
   survival_model <- NULL
@@ -913,12 +936,14 @@ predict.mixOmixs.pls <- function(object, newdata){
   B.hat = array(0, dim = c(p, q, n.comp)) #beta predictor for new data
   Y.hat = array(0, dim = c(nrow(newdata), q, n.comp))
 
-  Ww <- X_ww %*% solve(t(pp) %*% X_ww)
+  #Ww <- X_ww %*% solve(t(pp) %*% X_ww)
+  Ww <- X_ww %*% MASS::ginv(t(pp) %*% X_ww)
   B <- Ww %*% t(Y_ww)
 
   Q <- crossprod(Y, X_sco)
   P <- crossprod(X, X_sco)
-  Ww.mod <- X_ww %*% solve(t(P) %*% X_ww)
+  #Ww.mod <- X_ww %*% solve(t(P) %*% X_ww)
+  Ww.mod <- X_ww %*% MASS::ginv(t(P) %*% X_ww)
 
   Ypred = lapply(1 : n.comp, function(x){newdata %*% Ww.mod[,1:x] %*% t(Q)[1:x,]})
 
@@ -1095,7 +1120,15 @@ pls2 <- function(X, Y, n.comp, x.center = T, x.scale = F, y.center = T, y.scale 
     }
 
     #system is computationally singular: reciprocal condition number = 6.24697e-18
-    PW <- tryCatch(expr = {solve(t(P) %*% W, tol = tol.W.star)},
+    # PW <- tryCatch(expr = {solve(t(P) %*% W, tol = tol.W.star)},
+    #                error = function(e){
+    #                  if(verbose){
+    #                    message(e$message)
+    #                  }
+    #                  NA
+    #                })
+
+    PW <- tryCatch(expr = {MASS::ginv(t(P) %*% W)},
                    error = function(e){
                      if(verbose){
                        message(e$message)

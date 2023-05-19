@@ -245,9 +245,9 @@ coxEN <- function(X, Y,
   # p_val could be NA for some variables (if NA change to P-VAL=1)
   # DO IT ALWAYS, we do not want problems in COX models
   if(all(c("time", "event") %in% colnames(d))){
-    lst_model <- removeNAcoxmodel(model = best_cox, data = d, time.value = NULL, event.value = NULL)
+    lst_model <- removeNAorINFcoxmodel(model = best_cox, data = d, time.value = NULL, event.value = NULL)
   }else{
-    lst_model <- removeNAcoxmodel(model = best_cox, data = cbind(d, Yh), time.value = NULL, event.value = NULL)
+    lst_model <- removeNAorINFcoxmodel(model = best_cox, data = cbind(d, Yh), time.value = NULL, event.value = NULL)
   }
   best_cox <- lst_model$model
   removed_variables_cor <- c(removed_variables_cor, lst_model$removed_variables)

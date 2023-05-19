@@ -5,6 +5,7 @@
 #' @import ggplot2
 #' @importFrom ggpubr ggarrange annotate_figure
 #' @import glmnet
+#' @importFrom MASS ginv
 #' @import progress
 #' @import purrr
 #' @importFrom scattermore geom_scattermore
@@ -409,7 +410,7 @@ getIndividualCox <- function(data, time_var = "time", event_var = "event", score
   return(wh)
 }
 
-removeNAcoxmodel <- function(model, data, time.value = NULL, event.value = NULL){
+removeNAorINFcoxmodel <- function(model, data, time.value = NULL, event.value = NULL){
   # REMOVE NA-PVAL VARIABLES
   # p_val could be NA for some variables (if NA change to P-VAL=1)
   # DO IT ALWAYS, we do not want problems in COX models
@@ -423,9 +424,21 @@ removeNAcoxmodel <- function(model, data, time.value = NULL, event.value = NULL)
     data <- cbind(data, event)
   }
 
-  while(sum(is.na(p_val))>0){
-    to_remove <- names(p_val)[is.na(p_val)]
-    to_remove <- deleteIllegalChars(to_remove)
+  while(sum(is.na(p_val))>0 || any(exp(model$coefficients)==Inf) || any(exp(model$coefficients)==0)){
+    #first check Inf value
+    to_remove <- names(which(exp(model$coefficients)==Inf))
+    if(length(to_remove)>1){to_remove <- to_remove[[1]]}
+
+    #first check 0 value in exp(coef) [coef << 0]
+    if(length(to_remove)==0){
+      to_remove <- names(which(exp(model$coefficients)==0))
+    }
+
+    #if no Inf or no 0, then look for NA
+    if(length(to_remove)==0){
+      to_remove <- names(p_val)[is.na(p_val)]
+      to_remove <- deleteIllegalChars(to_remove)
+    }
     #data <- data[,!colnames(data) %in% c(to_remove)]
     vars_to_include <- names(p_val)[!names(p_val) %in% to_remove]
     model <- tryCatch(
@@ -826,7 +839,7 @@ removeNonSignificativeCox <- function(cox, alpha, cox_input, time.value = NULL, 
     )
 
     #remove NA if any in new cox model
-    lst_model <- removeNAcoxmodel(model = cox, data = d, time.value = NULL, event.value = NULL)
+    lst_model <- removeNAorINFcoxmodel(model = cox, data = d, time.value = NULL, event.value = NULL)
     cox <- lst_model$model
     removed_variables <- c(removed_variables, lst_model$removed_variables)
 
@@ -1597,29 +1610,29 @@ getAUC_RUN_AND_COMP <- function(mode = "AUC", fast_mode, max.ncomp, n_run,
           eval_aux.r[[mode]] <- NA
         }else{
 
-          message("\n\n")
-          message(mode) # !!!! mode printed!!!
+          # message("\n\n")
+          # message(mode) # !!!! mode printed!!!
 
           if(mode=="BRIER"){
-            message("entrando a BRIER") ## !!!!
+            # message("entrando a BRIER") ## !!!!
             eval_aux.r[[mode]] <- lst_AUC_component[[l.index]][[r]]
           }else if(mode == "AUC"){
-            message("entrando a AUC") ## !!!!
-            message(l.index)
-            message(r)
-            message(mode)
-            message(names(lst_AUC_component[[l.index]]))
-            message(class(lst_AUC_component[[l.index]][[r]]))
+            # message("entrando a AUC") ## !!!!
+            # message(l.index)
+            # message(r)
+            # message(mode)
+            # message(names(lst_AUC_component[[l.index]]))
+            # message(class(lst_AUC_component[[l.index]][[r]]))
             if(mode %in% names(lst_AUC_component[[l.index]][[r]])){
-              message(paste0(names(lst_AUC_component[[l.index]][[r]]), collapse = " "))
-              message(paste0(names(lst_AUC_component[[l.index]][[r]]$lp.used$fit), collapse = " "))
-              message(lst_AUC_component[[l.index]][[r]][[mode]])
+              # message(paste0(names(lst_AUC_component[[l.index]][[r]]), collapse = " "))
+              # message(paste0(names(lst_AUC_component[[l.index]][[r]]$lp.used$fit), collapse = " "))
+              # message(lst_AUC_component[[l.index]][[r]][[mode]])
               eval_aux.r[[mode]] <- lst_AUC_component[[l.index]][[r]][[mode]]
             }else{
               eval_aux.r[[mode]] <- NA
             }
           }
-          message("SALIMOS!")
+          # message("SALIMOS!")
         }
         eval_aux.run <- rbind(eval_aux.run, eval_aux.r)
       }
@@ -3609,17 +3622,17 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
 
       if(method==pkg.env$splsdacox_dynamic){
         lst_all_models <- purrr::map(lst_inputs, ~splsdacox_dynamic(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
-                                                                     Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
-                                                                     n.comp = .$comp,
-                                                                     x.center = x.center, x.scale = x.scale,
+                                                                    Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
+                                                                    n.comp = .$comp,
+                                                                    x.center = x.center, x.scale = x.scale,
                                                                     #y.center = y.center, y.scale = y.scale,
-                                                                     MIN_EPV = MIN_EPV, remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
-                                                                     remove_non_significant = remove_non_significant,
-                                                                     vector = vector,
-                                                                     MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
-                                                                     MIN_AUC_INCREASE = MIN_AUC_INCREASE,
-                                                                     EVAL_METHOD = EVAL_METHOD, tol = tol, alpha = alpha,
-                                                                     returnData = returnData, verbose = verbose))
+                                                                    MIN_EPV = MIN_EPV, remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
+                                                                    remove_non_significant = remove_non_significant,
+                                                                    vector = vector,
+                                                                    MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
+                                                                    MIN_AUC_INCREASE = MIN_AUC_INCREASE,
+                                                                    EVAL_METHOD = EVAL_METHOD, tol = tol, alpha = alpha,
+                                                                    returnData = returnData, verbose = verbose))
 
       }else if(method==pkg.env$splsdrcox_dynamic){
         lst_all_models <- purrr::map(lst_inputs, ~splsdrcox_dynamic(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
