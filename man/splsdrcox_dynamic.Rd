@@ -20,7 +20,6 @@ splsdrcox_dynamic(
   toKeep.zv = NULL,
   remove_non_significant = F,
   alpha = 0.05,
-  tol = 1e-10,
   EVAL_METHOD = "AUC",
   pred.method = "cenROC",
   max.iter = 200,
@@ -61,8 +60,6 @@ splsdrcox_dynamic(
 \item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).}
 
 \item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
-
-\item{tol}{Numeric. Tolerance for solving: solve(t(P) \%*\% W) (default: 1e-15).}
 
 \item{EVAL_METHOD}{Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best number of variables. In other case, c-index metrix will be used (default: "AUC").}
 

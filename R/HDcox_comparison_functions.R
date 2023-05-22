@@ -645,14 +645,14 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
 
     if(auto){
       cv.splsicox_res <- cv.splsicox(X = X_train, Y = data.matrix(Y_train),
-                                   max.ncomp = max.ncomp,
-                                   n_run = n_run, k_folds = k_folds, alpha = alpha, remove_non_significant_models = remove_non_significant_models,
-                                   w_AIC = w_AIC, w_c.index = w_c.index, w_AUC = w_AUC, times = times,
-                                   MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                   x.scale = x.scale, x.center = x.center,
-                                   #y.scale = y.scale, y.center = y.center,
-                                   fast_mode = fast_mode, return_models = return_models, MIN_EPV = MIN_EPV,
-                                   pred.attr = pred.attr, pred.method = pred.method, seed = seed)
+                                     max.ncomp = max.ncomp,
+                                     n_run = n_run, k_folds = k_folds, alpha = alpha, remove_non_significant_models = remove_non_significant_models,
+                                     w_AIC = w_AIC, w_c.index = w_c.index, w_AUC = w_AUC, times = times,
+                                     MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
+                                     x.scale = x.scale, x.center = x.center,
+                                     #y.scale = y.scale, y.center = y.center,
+                                     fast_mode = fast_mode, return_models = return_models, MIN_EPV = MIN_EPV,
+                                     pred.attr = pred.attr, pred.method = pred.method, seed = seed)
 
       ### Optimal number of components
       res_splsicox <- splsicox(X = X_train, Y = data.matrix(Y_train),

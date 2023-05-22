@@ -16,7 +16,6 @@ sb.splsdrcox(
   toKeep.zv = NULL,
   remove_non_significant = F,
   alpha = 0.05,
-  tol = 1e-10,
   MIN_EPV = 5,
   returnData = T,
   verbose = F
@@ -44,8 +43,6 @@ sb.splsdrcox(
 \item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).}
 
 \item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
-
-\item{tol}{Numeric. Tolerance for solving: solve(t(P) \%*\% W) (default: 1e-15).}
 
 \item{MIN_EPV}{Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).}
 

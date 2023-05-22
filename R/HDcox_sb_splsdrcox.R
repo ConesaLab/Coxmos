@@ -17,7 +17,6 @@
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
 #' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).
 #' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
-#' @param tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
 #' @param MIN_EPV Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).
 #' @param returnData Logical. Return original and normalized X and Y matrices (default: TRUE).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
@@ -81,8 +80,10 @@ sb.splsdrcox <- function (X, Y,
                          n.comp = 4, eta = 0.5,
                          x.center = TRUE, x.scale = FALSE,
                          remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
-                         remove_non_significant = F, alpha = 0.05, tol = 1e-10,
+                         remove_non_significant = F, alpha = 0.05,
                          MIN_EPV = 5, returnData = T, verbose = F){
+  # tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
+  tol = 1e-10
 
   t1 <- Sys.time()
   y.center = y.scale = FALSE
@@ -145,7 +146,7 @@ sb.splsdrcox <- function (X, Y,
                                  x.scale = F, x.center = F,
                                  #y.scale = F, y.center = F,
                                  remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL, #zero_var already checked
-                                 remove_non_significant = remove_non_significant, alpha = alpha, tol = tol,
+                                 remove_non_significant = remove_non_significant, alpha = alpha,
                                  returnData = F, verbose = verbose)
   }
 
@@ -256,7 +257,6 @@ sb.splsdrcox <- function (X, Y,
 #' @param MIN_EPV Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).
 #' @param return_models Logical. Return all models computed in cross validation (default: FALSE).
 #' @param returnData Logical. Return original and normalized X and Y matrices (default: TRUE).
-#' @param tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
 #' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #' @param seed Number. Seed value for performing runs/folds divisions (default: 123).
@@ -304,8 +304,10 @@ cv.sb.splsdrcox <- function(X, Y,
                            w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL, max_time_points = 15,
                            MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                            pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
-                           MIN_EPV = 5, return_models = F, returnData = F, tol = 1e-10,
+                           MIN_EPV = 5, return_models = F, returnData = F,
                            PARALLEL = F, verbose = F, seed = 123){
+  # tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
+  tol = 1e-10
 
   t1 <- Sys.time()
   y.center = y.scale = FALSE
@@ -608,7 +610,6 @@ cv.sb.splsdrcox <- function(X, Y,
 #' @param MIN_EPV Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).
 #' @param returnData Logical. Return original and normalized X and Y matrices (default: TRUE).
 #' @param return_models Logical. Return all models computed in cross validation (default: FALSE).
-#' @param tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
 #' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #' @param seed Number. Seed value for performing runs/folds divisions (default: 123).
@@ -677,8 +678,10 @@ fast.cv.sb.splsdrcox <- function(X, Y,
                                 w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL, max_time_points = 15,
                                 MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                                 pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
-                                MIN_EPV = 5, returnData = T, return_models = F, tol = 1e-10,
+                                MIN_EPV = 5, returnData = T, return_models = F,
                                 PARALLEL = F, verbose = F, seed = 123){
+  # tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
+  tol = 1e-10
 
   t1 <- Sys.time()
   y.center = y.scale = FALSE
@@ -795,7 +798,7 @@ fast.cv.sb.splsdrcox <- function(X, Y,
                                      #y.scale = y.scale, y.center = y.center,
                                      remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
                                      remove_variance_at_fold_level = remove_variance_at_fold_level,
-                                     fast_mode = fast_mode, return_models = return_models, tol = tol,
+                                     fast_mode = fast_mode, return_models = return_models,
                                      MIN_EPV = MIN_EPV, verbose = verbose,
                                      pred.attr = pred.attr, pred.method = pred.method, seed = seed, PARALLEL = PARALLEL, returnData = F)
 
@@ -804,7 +807,7 @@ fast.cv.sb.splsdrcox <- function(X, Y,
                                  n.comp = cv.splsdrcox_res$opt.comp,
                                  eta = cv.splsdrcox_res$opt.eta,
                                  remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
-                                 remove_non_significant = remove_non_significant, alpha = alpha, tol = tol,
+                                 remove_non_significant = remove_non_significant, alpha = alpha,
                                  returnData = F,
                                  x.center = x.center[[b]], x.scale = x.scale[[b]],
                                  #y.scale = y.scale, y.center = y.center,

@@ -20,7 +20,6 @@ mb.splsdrcox(
   toKeep.zv = NULL,
   remove_non_significant = T,
   alpha = 0.05,
-  tol = 1e-10,
   MIN_AUC_INCREASE = 0.01,
   pred.method = "cenROC",
   max.iter = 200,
@@ -61,8 +60,6 @@ mb.splsdrcox(
 \item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).}
 
 \item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
-
-\item{tol}{Numeric. Tolerance for solving: solve(t(P) \%*\% W) (default: 1e-15).}
 
 \item{MIN_AUC_INCREASE}{Numeric. Minimum improvement between different cross validation models to continue evaluating higher values in the multiple tested parameters. If it is not reached for next 'MIN_COMP_TO_CHECK' models and the minimum 'MIN_AUC' value is reached, the evaluation stops (default: 0.01).}
 

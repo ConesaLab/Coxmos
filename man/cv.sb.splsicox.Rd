@@ -35,7 +35,6 @@ cv.sb.splsicox(
   MIN_EPV = 5,
   return_models = F,
   returnData = F,
-  tol = 1e-10,
   PARALLEL = F,
   verbose = F,
   seed = 123
@@ -101,8 +100,6 @@ cv.sb.splsicox(
 \item{return_models}{Logical. Return all models computed in cross validation (default: FALSE).}
 
 \item{returnData}{Logical. Return original and normalized X and Y matrices (default: TRUE).}
-
-\item{tol}{Numeric. Tolerance for solving: solve(t(P) \%*\% W) (default: 1e-15).}
 
 \item{PARALLEL}{Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).}
 

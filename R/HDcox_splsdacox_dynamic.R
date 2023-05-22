@@ -21,7 +21,6 @@
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
 #' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).
 #' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
-#' @param tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
 #' @param EVAL_METHOD Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best number of variables. In other case, c-index metrix will be used (default: "AUC").
 #' @param pred.method Character. AUC evaluation algorithm method for evaluate the model performance. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC").
 #' @param max.iter Numeric. Maximum number of iterations for PLS convergence (default: 200).
@@ -99,10 +98,12 @@ splsdacox_dynamic <- function (X, Y,
                                MIN_AUC_INCREASE = 0.01,
                                x.center = TRUE, x.scale = FALSE,
                                remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
-                               remove_non_significant = F, alpha = 0.05, tol = 1e-10,
+                               remove_non_significant = F, alpha = 0.05,
                                EVAL_METHOD = "AUC", pred.method = "cenROC", max.iter = 200,
                                times = NULL, max_time_points = 15,
                                MIN_EPV = 5, returnData = T, verbose = F){
+  # tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
+  tol = 1e-10
 
   t1 <- Sys.time()
   y.center = y.scale = FALSE
@@ -303,7 +304,7 @@ splsdacox_dynamic <- function (X, Y,
                  })
 
   if(all(is.na(PW))){
-    message(paste0(pkg.env$splsdacox_dynamic, " model cannot be computed due to solve(t(P) %*% W). Multicollineality could be present in your data. Optional (not recommended): Reduce 'tol' parameter to fix it. Returning NA."))
+    message(paste0(pkg.env$splsdacox_dynamic, " model cannot be computed due to ginv(t(P) %*% W). Multicollineality could be present in your data. Returning NA."))
     # invisible(gc())
     return(NA)
   }
@@ -405,7 +406,6 @@ splsdacox_dynamic <- function (X, Y,
 #' @param MIN_EPV Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).
 #' @param return_models Logical. Return all models computed in cross validation (default: FALSE).
 #' @param returnData Logical. Return original and normalized X and Y matrices (default: TRUE).
-#' @param tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
 #' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #' @param seed Number. Seed value for performing runs/folds divisions (default: 123).
@@ -456,8 +456,10 @@ cv.splsdacox_dynamic <- function(X, Y,
                         MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                         pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                         max.iter = 500,
-                        MIN_EPV = 5, return_models = F, returnData = F, tol = 1e-10,
+                        MIN_EPV = 5, return_models = F, returnData = F,
                         PARALLEL = F, verbose = F, seed = 123){
+  # tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
+  tol = 1e-10
 
   t1 <- Sys.time()
   y.center = y.scale = FALSE
