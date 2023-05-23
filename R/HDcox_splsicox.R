@@ -200,7 +200,9 @@ splsicox <- function(X, Y,
 
     #Sometimes, fit can not be compute by NA at cox calculus, we cannot avoid printing the NAs matrix... !!!!
     # returning wh[,1] coefficients and wh[,2] p-values
-    wh <- getIndividualCox(data = cbind(Xh, Yh), time_var = "time", event_var = "event", score_data = Ts)
+    # wh does not have NA, already removed
+
+    wh <- getIndividualCox(data = cbind(Xh, Yh), time_var = "time", event_var = "event", score_data = Ts, verbose = verbose)
     # wh2 <- tryCatch(
     #   # Specifying expression
     #   expr = {

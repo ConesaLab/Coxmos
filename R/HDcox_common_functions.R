@@ -347,7 +347,7 @@ deleteZeroVarianceVariables <- function(data, mustKeep = NULL, names = NULL, inf
 #### ### ### ### ### ### #
 # Individual Cox results #
 #### ### ### ### ### ### #
-getIndividualCox <- function(data, time_var = "time", event_var = "event", score_data = NULL){
+getIndividualCox <- function(data, time_var = "time", event_var = "event", score_data = NULL, verbose = FALSE){
   set.seed(123)
 
   time <- data[,time_var]
@@ -357,24 +357,40 @@ getIndividualCox <- function(data, time_var = "time", event_var = "event", score
   wh <- tryCatch(
     expr = {
       result_list <- lapply(colnames(aux_data), function(x_col) {
-        eps = 1e-14
+
+        eps = 1e-10
         control <- survival::coxph.control(eps = eps, toler.chol = .Machine$double.eps^0.90,
-                                           iter.max = 220, toler.inf = sqrt(eps), outer.max = 100, timefix = TRUE)
+                                           iter.max = 300, toler.inf = sqrt(eps), outer.max = 100, timefix = TRUE)
+
         if(is.null(score_data)){
-          fit <- survival::coxph(survival::Surv(time = time,
+          fit <- tryCatch(expr = {survival::coxph(survival::Surv(time = time,
                                                 event = event,
                                                 type = "right") ~ aux_data[,x_col,drop=T],
                                  control = control,
-                                 singular.ok = T)
+                                 singular.ok = T)},
+                          error = function(e){
+                            if(verbose){
+                            message(paste0("invidual_cox survival::coxph: ", e, " for variable: ", x_col))
+                            }
+                            return(NA)
+                          })
         }else{
-          fit <- survival::coxph(survival::Surv(time = time,
+          fit <- tryCatch(expr = {survival::coxph(survival::Surv(time = time,
                                                 event = event,
                                                 type = "right") ~ cbind(aux_data[,x_col,drop=T], score_data),
                                  control = control,
-                                 singular.ok = T)
+                                 singular.ok = T)},
+                          error = function(e){
+                            if(verbose){
+                              message(paste0("invidual_cox survival::coxph: ", e, " for variable: ", x_col))
+                            }
+                            return(NA)
+                            })
         }
 
-        if(length(getPvalFromCox(fit)) == 1){
+        if(all(is.na(fit))){
+          c(NA,NA)
+        }else if(length(getPvalFromCox(fit)) == 1){
           c(fit$coefficients, getPvalFromCox(fit))
         }else{
           c(fit$coefficients[[1]], getPvalFromCox(fit)[1])
@@ -400,7 +416,7 @@ getIndividualCox <- function(data, time_var = "time", event_var = "event", score
   }
 
   if(any(is.na(wh))){
-    message(paste0(paste0("Individual COX model cannot be computed for variables (", paste0(rownames(wh)[is.na(wh[,1])], collapse = ", ") ,").")))
+    message(paste0(paste0("Individual COX model cannot be computed for a total of ", sum(is.na(wh[,1]))," variables (", paste0(rownames(wh)[is.na(wh[,1])], collapse = ", ") ,").")))
     #replace for beta of 0, and p-value of 1
     wh[which(is.na(wh[,1])),] <- c(rep(0, length(rownames(wh)[is.na(wh[,1])])), rep(1, length(rownames(wh)[is.na(wh[,1])])))
   }
@@ -490,8 +506,8 @@ deleteIllegalChars <- function(chr.vector){
 
 #only for FORMULAS
 transformIllegalChars <- function(cn) {
-  illegal_chars <- c(" ", "-", "+", "*", ">", "<", ">=", "<=", "^", "/")
-  replacement <- c(".space.", ".minus.", ".plus.", ".star.", ".over.", ".under.", ".over_equal.", ".under_equal.", ".power.", ".divided.")
+  illegal_chars <- c(","," ", "-", "+", "*", ">", "<", ">=", "<=", "^", "/")
+  replacement <- c(".comma.",".space.", ".minus.", ".plus.", ".star.", ".over.", ".under.", ".over_equal.", ".under_equal.", ".power.", ".divided.")
 
   v <- cn
   for(i in seq_along(illegal_chars)) {
