@@ -85,6 +85,9 @@ save_ggplot <- function(plot, folder = NULL, name = NULL, wide = T, quality = "4
     name <- paste0(name, ".tiff")
   }
 
+  #remove illegal characters
+  name <- transformIllegalChars(name, except = c("-"))
+
   if(class(plot)[1] %in% "ggsurvplot"){
     plot_surv = plot$plot
     if("table" %in% names(plot)){
@@ -179,6 +182,9 @@ save_ggplot.svg <- function(plot, folder = NULL, name = NULL, wide = T, quality 
   if(!endsWith(name,".svg")){
     name <- paste0(name, ".svg")
   }
+
+  #remove illegal characters
+  name <- transformIllegalChars(name, except = c("-"))
 
   if(class(plot)[1] %in% "ggsurvplot"){
     plot_surv = plot$plot
@@ -276,7 +282,11 @@ save_ggplot_lst <- function(lst_plots, folder = NULL, prefix = NULL, suffix = NU
   if(!is.null(names(lst_plots))){
     for(cn in names(lst_plots)){
 
-      name <- paste0(folder,prefix,cn,suffix)
+      name <- paste0(prefix,cn,suffix)
+      #remove illegal characters
+      name <- transformIllegalChars(name, except = c("-"))
+
+      name <- paste0(folder,name)
       if(!endsWith(name,".tiff")){
         name <- paste0(name, ".tiff")
       }
@@ -308,7 +318,11 @@ save_ggplot_lst <- function(lst_plots, folder = NULL, prefix = NULL, suffix = NU
   }else{
     for(cn in 1:length(lst_plots)){
 
-      name <- paste0(folder,prefix,cn,suffix)
+      name <- paste0(prefix,cn,suffix)
+      #remove illegal characters
+      name <- transformIllegalChars(name, except = c("-"))
+
+      name <- paste0(folder,name)
       if(!endsWith(name,".tiff")){
         name <- paste0(name, ".tiff")
       }
@@ -406,7 +420,11 @@ save_ggplot_lst.svg <- function(lst_plots, folder = NULL, prefix = NULL, suffix 
   if(!is.null(names(lst_plots))){
     for(cn in names(lst_plots)){
 
-      name <- paste0(folder,prefix,cn,suffix)
+      name <- paste0(prefix,cn,suffix)
+      #remove illegal characters
+      name <- transformIllegalChars(name, except = c("-"))
+
+      name <- paste0(folder,name)
       if(!endsWith(name,".svg")){
         name <- paste0(name, ".svg")
       }
@@ -440,7 +458,11 @@ save_ggplot_lst.svg <- function(lst_plots, folder = NULL, prefix = NULL, suffix 
   }else{
     for(cn in 1:length(lst_plots)){
 
-      name <- paste0(folder,prefix,cn,suffix)
+      name <- paste0(prefix,cn,suffix)
+      #remove illegal characters
+      name <- transformIllegalChars(name, except = c("-"))
+
+      name <- paste0(folder,name)
       if(!endsWith(name,".svg")){
         name <- paste0(name, ".svg")
       }
@@ -3389,6 +3411,7 @@ getLPKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL,
   }
 
   d <- info_logrank_num$df_numASqual
+  rownames(d) <- rownames(model$X$data)
   v_names <- info_logrank_num$df_nvar_lrtest[,1:2]
 
   if(all(is.null(d) & is.null(v_names))){
@@ -3396,10 +3419,10 @@ getLPKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL,
   }
 
   LST_SPLOT <- plot_survivalplot.qual(data = d,
-                                       sdata = data.frame(model$Y$data),
-                                       BREAKTIME = BREAKTIME,
-                                       cn_variables = v_names$Variable,
-                                       name_data = NULL, title = title)
+                                      sdata = data.frame(model$Y$data),
+                                      BREAKTIME = BREAKTIME,
+                                      cn_variables = v_names$Variable,
+                                      name_data = NULL, title = title)
 
   return(list(info_logrank_num = info_logrank_num, LST_PLOTS = LST_SPLOT))
 
@@ -3929,7 +3952,8 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
     }
 
     if(all(dim(vars_num)>0)){
-      info_logrank_num <- getLogRank_NumVariables(data = vars_num, sdata = data.frame(model$Y$data), VAR_EVENT = "event", name_data = NULL, minProp = 0.1, ROUND_CP = 4)
+      info_logrank_num <- getLogRank_NumVariables(data = vars_num, sdata = data.frame(model$Y$data),
+                                                  VAR_EVENT = "event", name_data = NULL, minProp = 0.1, ROUND_CP = 4)
     }else{
       info_logrank_num <- NULL
     }
@@ -4007,16 +4031,16 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
       }
 
       LST_SPLOT <- plot_survivalplot.qual(data = d,
-                                           sdata = data.frame(model$Y$data),
-                                           BREAKTIME = BREAKTIME,
-                                           cn_variables = v_names[v_names$`P-Val (Log Rank)` <= alpha,]$Variable,
-                                           name_data = NULL, title = title)
+                                          sdata = data.frame(model$Y$data),
+                                          BREAKTIME = BREAKTIME,
+                                          cn_variables = v_names[v_names$`P-Val (Log Rank)` <= alpha,]$Variable,
+                                          name_data = NULL, title = title)
     }else{
       LST_SPLOT <- plot_survivalplot.qual(data = d,
-                                           sdata = data.frame(model$Y$data),
-                                           BREAKTIME = BREAKTIME,
-                                           cn_variables = v_names$Variable,
-                                           name_data = NULL, title = title)
+                                          sdata = data.frame(model$Y$data),
+                                          BREAKTIME = BREAKTIME,
+                                          cn_variables = v_names$Variable,
+                                          name_data = NULL, title = title)
     }
   }else{
     LST_SPLOT <- list()
@@ -4157,9 +4181,10 @@ getLogRank_NumVariables <- function(data, sdata, VAR_EVENT, name_data = NULL, mi
     }else{
       cutpoint_value <- round(res.cut$cutpoint[1,1], ROUND_CP)
     }
+
     variable <- ifelse(variable>cutpoint_value, paste0("greater than ", cutpoint_value), paste0("lesser/equal than ", cutpoint_value))
     variable <- data.frame(factor(variable))
-    colnames(variable) = cn
+    colnames(variable) = cn_ori
 
     if(is.null(df_qualnumvars)){
       #colnames(variable) = cn_ori
@@ -4195,11 +4220,11 @@ getLogRank_NumVariables <- function(data, sdata, VAR_EVENT, name_data = NULL, mi
     )
 
     if(all(is.na(kmsurvival))){
-      LST_NVAR_SIG <- rbind(LST_NVAR_SIG, c(cn, NA, NA))
+      LST_NVAR_SIG <- rbind(LST_NVAR_SIG, c(cn_ori, NA, NA))
       next
     }else{
       pval <- surv_pvalue(kmsurvival)
-      LST_NVAR_SIG <- rbind(LST_NVAR_SIG, c(cn, round(pval$pval,4), cutpoint_value))
+      LST_NVAR_SIG <- rbind(LST_NVAR_SIG, c(cn_ori, round(pval$pval,4), cutpoint_value))
     }
 
   }
@@ -4250,6 +4275,10 @@ plot_survivalplot.qual <- function(data, sdata, cn_variables, name_data = NULL, 
       #delete NAs
       aux <- aux[!is.na(aux[,3]),]
 
+      cn_ori <- cn
+      #### Formula cannot manage -,+,* symbols in cn
+      cn <- transformIllegalChars(cn)
+
       colnames(aux)[3] <- cn
 
       f = as.formula(paste0("Surv(time = time, event = event) ~ `", cn, "`"))
@@ -4270,15 +4299,26 @@ plot_survivalplot.qual <- function(data, sdata, cn_variables, name_data = NULL, 
         next
       }
 
+      ## change name kmsurvival to original
+      # if(cn != cn_ori){
+      #   #kmsurvival$strata
+      #   aux_strata <- names(kmsurvival$strata)
+      #   names_strata <- vapply(aux_strata, function(x) strsplit(x, "=")[[1]], FUN.VALUE = character(2))
+      #   names_strata[names_strata==cn] <- cn_ori
+      #   new_names <- apply(names_strata, 2, function(x){paste0(x, collapse = "=")})
+      #   names(kmsurvival$strata) <- new_names
+      #   #kmsurvival$call
+      # }
+
       if(requireNamespace("RColorConesa", quietly = TRUE)){
-        colors <- RColorConesa::colorConesa(length(levels(data[,cn])))
+        colors <- RColorConesa::colorConesa(length(levels(data[,cn_ori])))
         names(colors) <- NULL
       }else{
         colors <- NULL
       }
 
-      #GGSURVPLOT DOES NOT PRINT INTERVALS IF ALL DATA IS NOT SELECTED FOR RIBBON STYLE
-      #IF PROBLEMS CHANGE TO STEP STYLE
+      # GGSURVPLOT DOES NOT PRINT INTERVALS IF ALL DATA IS NOT SELECTED FOR RIBBON STYLE
+      # IF PROBLEMS CHANGE TO STEP STYLE
       kmplot <- survminer::ggsurvplot(fit = kmsurvival, censor.shape = "|", palette = colors,
                                       conf.int = TRUE, ggtheme = theme_bw(), legend.labs = levels(aux[,cn]),
                                       conf.int.style = "ribbon",
@@ -4287,7 +4327,7 @@ plot_survivalplot.qual <- function(data, sdata, cn_variables, name_data = NULL, 
                                       pval = T,
                                       surv.median.line = "hv", # Add medians survival
                                       risk.table = TRUE,
-                                      legend.title = cn,
+                                      legend.title = cn_ori,
                                       break.time.by = BREAKTIME,
                                       font.caption = 8,
                                       font.x = 10,
@@ -4299,7 +4339,7 @@ plot_survivalplot.qual <- function(data, sdata, cn_variables, name_data = NULL, 
       kmplot$table <- kmplot$table + labs(title = "Patients at risk") +
         theme(axis.text = element_text(size = 8)) + theme(axis.title = element_text(size = 10))
 
-      lst_splots[[cn]] <- kmplot
+      lst_splots[[cn_ori]] <- kmplot
     }
   }else{
     f = as.formula("Surv(time = time, event = event) ~ 1")
