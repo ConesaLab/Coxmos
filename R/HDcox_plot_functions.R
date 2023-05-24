@@ -4664,13 +4664,10 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
     #As deleteIllegalChars() is performed in KM_VAR, run it always for VAR in TEST
     if(!attr(model, "model") %in% pkg.env$multiblock_methods){
       new_cn <- deleteIllegalChars(colnames(X_test))
-      #### Formula cannot manage -,+,* symbols in cn
-      new_cn <- transformIllegalChars(new_cn)
       colnames(X_test) <- new_cn
     }else{
       for(b in names(X_test)){
         new_cn <- deleteIllegalChars(colnames(X_test[[b]]))
-        new_cn <- transformIllegalChars(new_cn)
         colnames(X_test[[b]]) <- new_cn
       }
     }
@@ -4706,8 +4703,19 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
 
     X_test <- X_test[,names(cutoff),drop=F]
     lst_ggp <- NULL
+
     if(!ori_data){
-      X_test <- scale(X_test, center = model$X$x.mean[colnames(X_test)], scale = model$X$x.sd[colnames(X_test)])
+      ori_names <- colnames(X_test)
+      c <- F
+      if(!all(is.null(model$X$x.mean))){
+        c <- model$X$x.mean[ori_names]
+      }
+      s <- F
+      if(!all(is.null(model$X$x.sd))){
+        s <- model$X$x.sd[ori_names]
+      }
+
+      X_test <- scale(x = X_test, center = c, scale = s)
     }
 
     for(cn in colnames(X_test)){
@@ -4720,7 +4728,7 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
         txt_greater <- paste0("greater than ", cutoff[[cn]])
         txt_lower <- paste0("lesser/equal than ", cutoff[[cn]])
 
-        LP <- ifelse(X_test[[cn]]>cutoff[[cn]], txt_greater, txt_lower)
+        LP <- ifelse(X_test[,cn]>cutoff[[cn]], txt_greater, txt_lower)
         LP <- factor(LP)
 
         d <- as.data.frame(LP)

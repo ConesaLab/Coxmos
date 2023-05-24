@@ -505,15 +505,20 @@ deleteIllegalChars <- function(chr.vector){
 }
 
 #only for FORMULAS
-transformIllegalChars <- function(cn, except = NULL){
+transformIllegalChars <- function(cn, except = NULL, recover = F){
   illegal_chars <- c(","," ", "-", "+", "*", ">", "<", ">=", "<=", "^", "/", "\\", ":", "|", "?")
   replacement <- c(".comma.",".space.", ".minus.", ".plus.", ".star.", ".over.", ".under.", ".over_equal.", ".under_equal.", ".power.", ".divided.", ".backslash.", ".twocolons.", ".verticalLine.", ".questionmark.")
 
   v <- cn
 
   for(i in seq_along(illegal_chars)){
-    if(illegal_chars[[i]] %in% except){next}
-    v <- vapply(v, function(x) gsub(illegal_chars[i], replacement[i], x, fixed = TRUE), character(1))
+    if(recover){
+      if(replacement[[i]] %in% except){next}
+      v <- vapply(v, function(x) gsub(replacement[i], illegal_chars[i], x, fixed = TRUE), character(1))
+    }else{
+      if(illegal_chars[[i]] %in% except){next}
+      v <- vapply(v, function(x) gsub(illegal_chars[i], replacement[i], x, fixed = TRUE), character(1))
+    }
   }
 
   return(v)
