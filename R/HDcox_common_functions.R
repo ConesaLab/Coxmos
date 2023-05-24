@@ -547,6 +547,25 @@ stop_quietly <- function(s = NULL) {
   stop()
 }
 
+checkXY.rownames <- function(X, Y, verbose = F){
+  if(!nrow(X)==nrow(Y)){
+    stop("X and Y have different number of observations.")
+  }
+
+  if(is.null(rownames(X)) & is.null(rownames(Y))){
+    if(verbose){
+      message(paste0("Rownames of X and Y are NULL. Named from 1 to ", nrow(X), "."))
+    }
+    rownames(Y) <- rownames(X) <- 1:nrow(X)
+  }else if(is.null(rownames(X))){
+    rownames(X) <- rownames(Y)
+  }else{
+    rownames(Y) <- rownames(X)
+  }
+
+  return(list(X = X, Y = Y))
+}
+
 checkXY.class <- function(X, Y, verbose = F){
   # Convert X to matrix if it's a data.frame
   if(inherits(X, "data.frame")){
@@ -2171,6 +2190,8 @@ get_EVAL_PLOTS <- function(fast_mode, best_model_info, w_AUC, w_BRIER, max.ncomp
     colnames(sd_vector_AUC) <- "AUC.sd"
     sd_vector <- cbind(sd_vector, sd_vector_AUC)
   }
+
+  rownames(sd_vector) <- NULL
 
   df_results_evals_comp_aux <- cbind(df_results_evals_comp, sd_vector)
   df_results_evals_comp_aux$n.comps <- factor(df_results_evals_comp_aux$n.comps, levels = unique(df_results_evals_comp_aux$n.comps))

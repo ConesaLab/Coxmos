@@ -137,6 +137,11 @@ splsdrcox_dynamic <- function (X, Y,
   character_params <- list("EVAL_METHOD" = EVAL_METHOD, "pred.method" = pred.method)
   check_class(character_params, class = "character")
 
+  #### Check rownames
+  lst_check <- checkXY.rownames(X, Y, verbose = verbose)
+  X <- lst_check$X
+  Y <- lst_check$Y
+
   #### REQUIREMENTS
   checkY.colnames(Y)
   lst_check <- checkXY.class(X, Y, verbose = verbose)
@@ -590,6 +595,11 @@ cv.splsdrcox_dynamic <- function (X, Y,
   lst_checkFR <- checkFoldRuns(Y, n_run, k_folds, fast_mode)
   n_run <- lst_checkFR$n_run
   fast_mode <- lst_checkFR$fast_mode
+
+  #### Check rownames
+  lst_check <- checkXY.rownames(X, Y, verbose = verbose)
+  X <- lst_check$X
+  Y <- lst_check$Y
 
   #### Illegal chars in colnames
   X <- checkColnamesIllegalChars(X)

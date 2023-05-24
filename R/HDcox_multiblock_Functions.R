@@ -86,6 +86,35 @@ deleteZeroOrNearZeroVariance.mb <- function(X, remove_near_zero_variance = F, re
 
 }
 
+checkXY.rownames.class <- function(X, Y, verbose = T){
+  # Check if X and Y are matrices
+  if (!isa(X, "list")){
+    if(verbose){
+      stop("X data is not a list\n")
+    }
+    X <- data.matrix(X)
+  }else{
+    for(b in names(X)){
+      if(!nrow(X[[b]])==nrow(Y)){
+        stop(paste0("X[",b,"]", " and Y have different number of observations."))
+      }
+
+      if(is.null(rownames(X[[b]])) & is.null(rownames(Y))){
+        if(verbose){
+          message(paste0("Rownames of X[",b,"] and Y are NULL. Named from 1 to ", nrow(X[[b]]), "."))
+        }
+        rownames(Y) <- rownames(X[[b]]) <- 1:nrow(X[[b]])
+      }else if(is.null(rownames(X[[b]]))){
+        rownames(X[[b]]) <- rownames(Y)
+      }else{
+        rownames(Y) <- rownames(X[[b]])
+      }
+    }
+  }
+
+  return(list(X = X, Y = Y))
+}
+
 checkXY.mb.class <- function(X, Y, verbose = T){
   # Check if X and Y are matrices
   if (!isa(X, "list")){

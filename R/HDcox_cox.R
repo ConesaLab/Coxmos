@@ -97,6 +97,11 @@ cox <- function (X, Y,
                       "remove_non_significant" = remove_non_significant, "returnData" = returnData, "verbose" = verbose)
   check_class(logical_params, class = "logical")
 
+  #### Check rownames
+  lst_check <- checkXY.rownames(X, Y, verbose = verbose)
+  X <- lst_check$X
+  Y <- lst_check$Y
+
   #### Check colnames in X for Illegal Chars (affect cox formulas)
   old_colnames <- colnames(X)
   colnames(X) <- transformIllegalChars(old_colnames)

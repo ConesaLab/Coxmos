@@ -132,12 +132,12 @@ splitData_Iterations_Folds <- function(X, Y, n_run, k_folds, seed = 123){
                                     list = TRUE)
 
     #for each fold, take the others as train
-    lst_X_data_train <- lapply(testIndex, function(ind, dat) dat[-ind,], dat = X)
-    lst_Y_data_train <- lapply(testIndex, function(ind, dat) dat[-ind,], dat = Y)
+    lst_X_data_train <- lapply(testIndex, function(ind, dat) dat[-ind,,drop=F], dat = X)
+    lst_Y_data_train <- lapply(testIndex, function(ind, dat) dat[-ind,,drop=F], dat = Y)
 
     #for each fold, take just one as test
-    lst_X_data_test <- lapply(testIndex, function(ind, dat) dat[ind,], dat = X)
-    lst_Y_data_test <- lapply(testIndex, function(ind, dat) dat[ind,], dat = Y)
+    lst_X_data_test <- lapply(testIndex, function(ind, dat) dat[ind,,drop=F], dat = X)
+    lst_Y_data_test <- lapply(testIndex, function(ind, dat) dat[ind,,drop=F], dat = Y)
 
     lst_X_train[[i]] <- lst_X_data_train
     lst_Y_train[[i]] <- lst_Y_data_train
