@@ -1333,7 +1333,7 @@ plot_events <- function(Y, max.breaks = 20, roundTo = 0.1, categories = c("Censo
   if(roundTo == 0){
     #select the decimals of Y
     if(length(grep("\\.", Y$time))>0){
-      roundTo = 1*10^-(nchar(gsub("\\.", "", as.character(Y$time[[1]])))-1)
+      roundTo = 1*10^-(nchar(gsub("\\.", "", as.character(Y[,"time"][[1]])))-1)
     }else{
       roundTo = 0.1
     }
@@ -1341,6 +1341,7 @@ plot_events <- function(Y, max.breaks = 20, roundTo = 0.1, categories = c("Censo
   }
 
   #DFCALLS
+  Y <- as.data.frame(Y)
   Category <- Time <- Values <- x.names <- breaks<- NULL
 
   if(!is.logical(Y[,"event"])){
@@ -1350,13 +1351,13 @@ plot_events <- function(Y, max.breaks = 20, roundTo = 0.1, categories = c("Censo
     Y[,"event"] <- as.logical(Y[,"event"])
   }
 
-  breaks_size = round2any((max(Y$time) - min(Y$time)) / (max.breaks+1), roundTo, f = ceiling)
-  breaks = seq(min(Y$time), max(Y$time)+breaks_size, by=breaks_size)
+  breaks_size = round2any((max(Y[,"time"]) - min(Y[,"time"])) / (max.breaks+1), roundTo, f = ceiling)
+  breaks = seq(min(Y[,"time"]), max(Y[,"time"])+breaks_size, by=breaks_size)
   breaks = round2any(breaks, roundTo, f = floor)
   if(max(breaks)<max(Y[,"time"])){breaks=c(breaks, max(breaks)+breaks_size)}
-  x.names <- cut(x = Y$time, breaks = breaks, include.lowest = T)
+  x.names <- cut(x = Y[,"time"], breaks = breaks, include.lowest = T)
 
-  Y$time_g <- x.names
+  Y <- cbind(Y, "time_g" = x.names)
 
   vt=NULL
   vcategory=NULL
@@ -1364,7 +1365,7 @@ plot_events <- function(Y, max.breaks = 20, roundTo = 0.1, categories = c("Censo
   for(t in levels(x.names)){
     vt <- c(vt, t, t)
     vcategory <- c(vcategory, categories)
-    vvalues<- c(vvalues, sum(Y[Y$time_g==t, "event"]==F), sum(Y[Y$time_g==t, "event"]==T))
+    vvalues<- c(vvalues, sum(Y[Y[,"time_g"]==t, "event"]==F), sum(Y[Y[,"time_g"]==t, "event"]==T))
   }
 
   dd <- data.frame(Time=vt, Category=vcategory, Values=vvalues)

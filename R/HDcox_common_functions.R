@@ -567,6 +567,10 @@ checkXY.rownames <- function(X, Y, verbose = F){
 }
 
 checkXY.class <- function(X, Y, verbose = F){
+
+  rnX <- rownames(X)
+  rnY <- rownames(Y)
+
   # Convert X to matrix if it's a data.frame
   if(inherits(X, "data.frame")){
     if(verbose) message("X data is not a matrix, applying data.matrix\n")
@@ -596,6 +600,9 @@ checkXY.class <- function(X, Y, verbose = F){
       stop("Y data (event column) has values that HDcox cannot manage. The values accepted are '0' or 'FALSE' for censored observations and '1' or 'TRUE' for event observations.")
     }
   }
+
+  rownames(X) <- rnX
+  rownames(Y) <- rnY
 
   return(list(X = X, Y = Y))
 }
@@ -4270,7 +4277,7 @@ checkAtLeastTwoEvents <- function(X_test, Y_test){
   if(!isa(X_test, "list")){
     rn_X <- rownames(X_test)
 
-    if(!all(rn_X %in% rownames(Y_test))){
+    if(!all(rn_X %in% rownames(Y_test)) || is.null(rn_X)){
       stop("Rownames of X_test must be in Y_test")
     }
 
