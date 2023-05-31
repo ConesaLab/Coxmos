@@ -86,7 +86,7 @@ deleteZeroOrNearZeroVariance.mb <- function(X, remove_near_zero_variance = F, re
 
 }
 
-checkXY.rownames.class <- function(X, Y, verbose = T){
+checkXY.rownames.mb <- function(X, Y, verbose = T){
   # Check if X and Y are matrices
   if (!isa(X, "list")){
     if(verbose){

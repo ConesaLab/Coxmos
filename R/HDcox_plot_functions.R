@@ -4053,16 +4053,16 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
         }
 
         LST_SPLOT[[b]] <- plot_survivalplot.qual(data = d[[b]],
-                                                  sdata = data.frame(model$Y$data),
-                                                  BREAKTIME = BREAKTIME,
-                                                  cn_variables = v_names[[b]][v_names[[b]]$`P-Val (Log Rank)` <= alpha,]$Variable,
-                                                  name_data = NULL, title = title)
+                                                 sdata = data.frame(model$Y$data),
+                                                 BREAKTIME = BREAKTIME,
+                                                 cn_variables = v_names[[b]][v_names[[b]]$`P-Val (Log Rank)` <= alpha,]$Variable,
+                                                 name_data = NULL, title = title)
       }else{
         LST_SPLOT[[b]] <- plot_survivalplot.qual(data = d[[b]],
-                                                  sdata = data.frame(model$Y$data),
-                                                  BREAKTIME = BREAKTIME,
-                                                  cn_variables = v_names[[b]]$Variable,
-                                                  name_data = NULL, title = title)
+                                                 sdata = data.frame(model$Y$data),
+                                                 BREAKTIME = BREAKTIME,
+                                                 cn_variables = v_names[[b]]$Variable,
+                                                 name_data = NULL, title = title)
       }
     }
 
@@ -4530,9 +4530,8 @@ getTestKM.list <- function(lst_models, X_test, Y_test, lst_cutoff, type = "LP", 
     stop("List of models and list of cutoff must have the same length or list of cutoff must be just one value.")
   }
 
-
   LST_GGP <- NULL
-  if(length(lst_cutoff)==1){
+  if(length(lst_cutoff)==1 && !isa(lst_cutoff, "list")){
     LST_GGP <- purrr::map(sub_lst_models, ~getTestKM(model = .,
                                                  X_test = X_test, Y_test = Y_test,
                                                  cutoff = lst_cutoff, type = type, ori_data = ori_data,

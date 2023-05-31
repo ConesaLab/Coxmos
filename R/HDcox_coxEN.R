@@ -202,7 +202,7 @@ coxEN <- function(X, Y,
       }
       suppressWarnings(
         res <- glmnet::glmnet(x = Xh, y = survival::Surv(time = Yh[,"time"], event = Yh[,"event"]),
-                              family = "cox", EN.alpha = EN.alpha, standardize = F, pmax = max.variables, nlambda=300)
+                              family = "cox", alpha = EN.alpha, standardize = F, nlambda = 300, pmax = max.variables)
       )
       list(res = res, problem = T)
     }
