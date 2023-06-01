@@ -8,7 +8,7 @@
 #'
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
-#' @param EN.alpha Numeric. Elastic net mixing parameter. If EN.alpha = 1 is the lasso penalty, and EN.alpha = 0 the ridge penalty (default: 0.5).
+#' @param EN.alpha Numeric. Elastic net mixing parameter. If EN.alpha = 1 is the lasso penalty, and EN.alpha = 0 the ridge penalty (default: 0.5). NOTE: When ridge penalty is used, EVP and max.variables will not be used.
 #' @param max.variables Numeric. Maximum number of variables you want to keep in the cox model. If MIN_EPV is not meet, the value will be change automatically (default: 20).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
@@ -145,13 +145,22 @@ coxEN <- function(X, Y,
   X_norm <- Xh
 
   #### MAX PREDICTORS
-  max.variables <- check.ncomp(X, max.variables)
-  max.variables <- check.maxPredictors(X, Y, MIN_EPV, max.variables, verbose = verbose)
+  if(EN.alpha!=0){
+    max.variables <- check.ncomp(X, max.variables)
+    max.variables <- check.maxPredictors(X, Y, MIN_EPV, max.variables, verbose = verbose)
+  }else{
+    max.variables <- ncol(X)
+    if(getEPV(X, Y)<MIN_EPV){
+      warning("Full RIGDE penalty is used (EN.alpha=0). EPV and max.variables parameters will not be used. The new maximum value is the number of variables of matrix X.\n")
+    }else{
+      warning("Full RIGDE penalty is used (EN.alpha=0). EPV and max.variables parameters will not be used, although it seems the EPV requirement is meet.\n")
+    }
+  }
 
   #### REMOVING event in time 0 patients
   if(any(Yh[,"time"]==0)){
     if(verbose){
-      message("Some patients get the event at time 0. Those patients will be removed for the analysis")
+      message("Some patients get the event at time 0. Those patients will be removed for the analysis.")
     }
     pat_names <- rownames(Yh)[Yh[,"time"]==0]
     Yh <- Yh[!rownames(Yh) %in% pat_names,]
@@ -184,12 +193,13 @@ coxEN <- function(X, Y,
 
   #I cannot add the limit for maximum number of variables bc it fails
   #pmax = max.variables
+
   EN_cox <- tryCatch(
     # Specifying expression
-    # pmax - coeffitients to be non-zero
+    # pmax - coefficients to be non-zero
     expr = {
       glmnet::glmnet(x = Xh, y = survival::Surv(time = Yh[,"time"], event = Yh[,"event"]),
-                     family = "cox", alpha = EN.alpha, standardize = T, nlambda = 300, pmax = max.variables)
+                     family = "cox", alpha = EN.alpha, standardize = F, nlambda = 300, pmax = max.variables)
     },
     # Specifying error message
     error = function(e){
@@ -200,12 +210,20 @@ coxEN <- function(X, Y,
     warning = function(e){
       if(verbose){
         message("Model probably has a convergence issue...\n")
+        message(paste0("glmnet: ", e))
       }
       suppressWarnings(
         # dfmax - variables in the model
         res <- glmnet::glmnet(x = Xh, y = survival::Surv(time = Yh[,"time"], event = Yh[,"event"]),
                               family = "cox", alpha = EN.alpha, standardize = F, nlambda = 300, dfmax = max.variables)
       )
+      list(res = res, problem = T)
+    },
+    error = function(e){
+      if(verbose){
+        message("Model probably has a convergence issue...\n")
+        message(paste0("glmnet error: ", e))
+      }
       list(res = res, problem = T)
     }
   )
@@ -243,10 +261,14 @@ coxEN <- function(X, Y,
           return(NA)
         }
       )
-    }else{
+    }
+
+    if(best_lambda==Inf || all(is.na(best_cox)) || all(is.null(best_cox))){
       best_cox = NA
       best_lambda = NA
       selected_variables = NA
+      removed_variables <- NULL
+      removed_variables_cor <- NULL
 
       func_call <- match.call()
 
@@ -254,6 +276,8 @@ coxEN <- function(X, Y,
       time <- difftime(t2,t1,units = "mins")
 
       survival_model <- NULL
+
+      message("coxEN or cox could not be estimated. Sometimes, the error happens when using a EN.alpha = 0 (full ridge penalty). Try to use another value.")
 
       return(coxEN_class(list(X = list("data" = if(returnData) Xh else NA, "x.mean" = xmeans, "x.sd" = xsds),
                               Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
@@ -273,6 +297,39 @@ coxEN <- function(X, Y,
                               class = pkg.env$coxEN,
                               time = time)))
     }
+  }else{
+    best_cox = NA
+    best_lambda = NA
+    selected_variables = NA
+    removed_variables <- NULL
+    removed_variables_cor <- NULL
+
+    func_call <- match.call()
+
+    t2 <- Sys.time()
+    time <- difftime(t2,t1,units = "mins")
+
+    survival_model <- NULL
+
+    message("coxEN could not be estimated. Sometimes, the error happens when using a EN.alpha = 0 (full ridge penalty). Try to use another value.")
+
+    return(coxEN_class(list(X = list("data" = if(returnData) Xh else NA, "x.mean" = xmeans, "x.sd" = xsds),
+                            Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
+                            survival_model = survival_model,
+                            EN.alpha = EN.alpha,
+                            n.var = max.variables,
+                            #alpha = alpha,
+                            call = func_call,
+                            X_input = if(returnData) X_original else NA,
+                            Y_input = if(returnData) Y_original else NA,
+                            nzv = variablesDeleted,
+                            selected_variables = selected_variables,
+                            removed_variables = removed_variables,
+                            removed_variables_correlation = removed_variables_cor,
+                            opt.lambda = best_lambda,
+                            convergence_issue = problem,
+                            class = pkg.env$coxEN,
+                            time = time)))
   }
 
   # RETURN a MODEL with ALL significant Variables from complete, deleting one by one
