@@ -273,7 +273,6 @@ coxEN <- function(X, Y,
                               class = pkg.env$coxEN,
                               time = time)))
     }
-
   }
 
   # RETURN a MODEL with ALL significant Variables from complete, deleting one by one
