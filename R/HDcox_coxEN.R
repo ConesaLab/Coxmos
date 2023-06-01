@@ -189,7 +189,7 @@ coxEN <- function(X, Y,
     # pmax - coeffitients to be non-zero
     expr = {
       glmnet::glmnet(x = Xh, y = survival::Surv(time = Yh[,"time"], event = Yh[,"event"]),
-                     family = "cox", alpha = EN.alpha, standardize = F, nlambda = 300, pmax = max.variables)
+                     family = "cox", alpha = EN.alpha, standardize = T, nlambda = 300, pmax = max.variables)
     },
     # Specifying error message
     error = function(e){
@@ -219,29 +219,61 @@ coxEN <- function(X, Y,
   if(all(class(EN_cox) %in% c("coxnet", "glmnet"))){
     best_lambda <- EN_cox$lambda[which.max(EN_cox$dev.ratio)]
 
-    coef.matrix <- as.matrix(coef(EN_cox, s = best_lambda))
-    selected_variables <- rownames(coef.matrix)[which(coef.matrix != 0)]
+    if(best_lambda!=Inf){
+      coef.matrix <- as.matrix(coef(EN_cox, s = best_lambda))
+      selected_variables <- rownames(coef.matrix)[which(coef.matrix != 0)]
 
-    d <- as.data.frame(cbind(Xh[,selected_variables,drop=F], Yh)) #data
+      d <- as.data.frame(cbind(Xh[,selected_variables,drop=F], Yh)) #data
 
-    best_cox <- tryCatch(
-      # Specifying expression
-      expr = {
-        survival::coxph(formula = survival::Surv(time,event) ~ .,
-                        data = d,
-                        ties = "efron",
-                        singular.ok = T,
-                        robust = T,
-                        nocenter = rep(1, ncol(Xh)),
-                        model=T, x = T)
-      },
-      # Specifying error message
-      error = function(e){
-        message(paste0("COX: ", e))
-        # invisible(gc())
-        return(NA)
-      }
-    )
+      best_cox <- tryCatch(
+        # Specifying expression
+        expr = {
+          survival::coxph(formula = survival::Surv(time,event) ~ .,
+                          data = d,
+                          ties = "efron",
+                          singular.ok = T,
+                          robust = T,
+                          nocenter = rep(1, ncol(Xh)),
+                          model=T, x = T)
+        },
+        # Specifying error message
+        error = function(e){
+          message(paste0("COX: ", e))
+          # invisible(gc())
+          return(NA)
+        }
+      )
+    }else{
+      best_cox = NA
+      best_lambda = NA
+      selected_variables = NA
+
+      func_call <- match.call()
+
+      t2 <- Sys.time()
+      time <- difftime(t2,t1,units = "mins")
+
+      survival_model <- NULL
+
+      return(coxEN_class(list(X = list("data" = if(returnData) Xh else NA, "x.mean" = xmeans, "x.sd" = xsds),
+                              Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
+                              survival_model = survival_model,
+                              EN.alpha = EN.alpha,
+                              n.var = max.variables,
+                              #alpha = alpha,
+                              call = func_call,
+                              X_input = if(returnData) X_original else NA,
+                              Y_input = if(returnData) Y_original else NA,
+                              nzv = variablesDeleted,
+                              selected_variables = selected_variables,
+                              removed_variables = removed_variables,
+                              removed_variables_correlation = removed_variables_cor,
+                              opt.lambda = best_lambda,
+                              convergence_issue = problem,
+                              class = pkg.env$coxEN,
+                              time = time)))
+    }
+
   }
 
   # RETURN a MODEL with ALL significant Variables from complete, deleting one by one
