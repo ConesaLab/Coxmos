@@ -186,6 +186,7 @@ coxEN <- function(X, Y,
   #pmax = max.variables
   EN_cox <- tryCatch(
     # Specifying expression
+    # pmax - coeffitients to be non-zero
     expr = {
       glmnet::glmnet(x = Xh, y = survival::Surv(time = Yh[,"time"], event = Yh[,"event"]),
                      family = "cox", alpha = EN.alpha, standardize = F, nlambda = 300, pmax = max.variables)
@@ -201,8 +202,9 @@ coxEN <- function(X, Y,
         message("Model probably has a convergence issue...\n")
       }
       suppressWarnings(
+        # dfmax - variables in the model
         res <- glmnet::glmnet(x = Xh, y = survival::Surv(time = Yh[,"time"], event = Yh[,"event"]),
-                              family = "cox", alpha = EN.alpha, standardize = F, nlambda = 300, pmax = max.variables)
+                              family = "cox", alpha = EN.alpha, standardize = F, nlambda = 300, dfmax = max.variables)
       )
       list(res = res, problem = T)
     }

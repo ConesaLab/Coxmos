@@ -206,6 +206,11 @@ coxSW <- function(X, Y,
                             time = time)))
   }
 
+  ## STEPWISE MODEL IS A NOT-ROBUST COX MODEL
+  ## make it robust to have the same P-VAL
+  model <- cox(X = Xh[,names(model$coefficients), drop=F], Y = Yh,
+               alpha = alpha, MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose)
+
   # REMOVE NA-PVAL VARIABLES
   # p_val could be NA for some variables (if NA change to P-VAL=1)
   # DO IT ALWAYS, we do not want problems in COX models
@@ -417,7 +422,7 @@ stepwise.coxph <- function(Time = NULL, Status = NULL, variable.list,
             return(NA)
           })
 
-        if(!isa(model,"coxph")){# an error happend, next variable
+        if(!isa(model,"coxph")){# an error happens, next variable
           next
         }
 
