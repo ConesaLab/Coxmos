@@ -440,14 +440,22 @@ removeNAorINFcoxmodel <- function(model, data, time.value = NULL, event.value = 
     data <- cbind(data, event)
   }
 
-  while(sum(is.na(p_val))>0 || any(exp(model$coefficients)==Inf) || any(exp(model$coefficients)==0)){
+  if(isa(model, "HDcox")){
+    aux_model <- model$survival_model$fit
+  }else if(isa(model, "coxph")){
+    aux_model <- model
+  }else{
+    stop("Model is not a HDcox or coxph class.")
+  }
+
+  while(sum(is.na(p_val))>0 || any(exp(aux_model$coefficients)==Inf) || any(exp(aux_model$coefficients)==0)){
     #first check Inf value
-    to_remove <- names(which(exp(model$coefficients)==Inf))
+    to_remove <- names(which(exp(aux_model$coefficients)==Inf))
     if(length(to_remove)>1){to_remove <- to_remove[[1]]}
 
     #first check 0 value in exp(coef) [coef << 0]
     if(length(to_remove)==0){
-      to_remove <- names(which(exp(model$coefficients)==0))
+      to_remove <- names(which(exp(aux_model$coefficients)==0))
     }
 
     #if no Inf or no 0, then look for NA
@@ -457,7 +465,7 @@ removeNAorINFcoxmodel <- function(model, data, time.value = NULL, event.value = 
     }
     #data <- data[,!colnames(data) %in% c(to_remove)]
     vars_to_include <- names(p_val)[!names(p_val) %in% to_remove]
-    model <- tryCatch(
+    aux_model <- tryCatch(
       # Specifying expression
       expr = {
         f <- as.formula(paste0("survival::Surv(time,event) ~ ", paste0(vars_to_include, collapse = " + ")))
@@ -479,6 +487,12 @@ removeNAorINFcoxmodel <- function(model, data, time.value = NULL, event.value = 
 
     removed_variables <- c(removed_variables, to_remove)
     p_val <- getPvalFromCox(model)
+  }
+
+  if(isa(model, "HDcox")){
+    model$survival_model$fit <- aux_model
+  }else{
+    model <- aux_model
   }
 
   return(list(model = model, removed_variables = removed_variables, data = data))

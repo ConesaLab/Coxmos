@@ -215,7 +215,7 @@ coxSW <- function(X, Y,
   # p_val could be NA for some variables (if NA change to P-VAL=1)
   # DO IT ALWAYS, we do not want problems in COX models
   lst_model <- removeNAorINFcoxmodel(model, data)
-  coxph.sw <- lst_model$model
+  coxph.sw <- lst_model$model$survival_model$fit
   removed_variables_cor <- c(removed_variables_cor, lst_model$removed_variables)
 
   #### ### ###
@@ -385,6 +385,7 @@ stepwise.coxph <- function(Time = NULL, Status = NULL, variable.list,
       print(temp.model)
       iter = iter + 1
     }
+
     i <- i + 1
 
     # choose the list of variable than can enter to the model in this iteration
@@ -441,31 +442,38 @@ stepwise.coxph <- function(Time = NULL, Status = NULL, variable.list,
       variable.list2.1 <- variable.list2[mv.pvalue <= 0.9 & !is.na(mv.pvalue)]
       anova.pvalue2 <- anova.pvalue[mv.pvalue <= 0.9 & !is.na(mv.pvalue)]
       mv.pvalue2 <- mv.pvalue[mv.pvalue <= 0.9 & !is.na(mv.pvalue)]
-      enter.x <- variable.list2.1[anova.pvalue2 == min(anova.pvalue2, na.rm = TRUE) & anova.pvalue2 <= sle]
 
-      # last removed want to enter again, do not allow it
-      if(last_removed %in% enter.x){
-        enter.x <- enter.x[-which(last_removed==enter.x)]
-      }
+      if(length(anova.pvalue2)==0){
+        #any variable to enter into the model
+        enter.x <- NULL
+      }else{
+        enter.x <- variable.list2.1[anova.pvalue2 == min(anova.pvalue2, na.rm = TRUE) & anova.pvalue2 <= sle]
 
-      # But, if there is a tie, select that variable with the less p-val
-      wald.p <- mv.pvalue2[anova.pvalue2 == min(anova.pvalue2, na.rm = TRUE) & anova.pvalue2 <= sle]
-      if(length(setdiff(enter.x, NA)) != 0){
-
-        # if another tie, select the first one
-        if(length(enter.x) > 1){
-          enter.x <- enter.x[which.min(wald.p)]
+        # last removed want to enter again, do not allow it
+        if(last_removed %in% enter.x){
+          enter.x <- enter.x[-which(last_removed==enter.x)]
         }
 
-        if(verbose){
-          message(paste0("ENTER: ", paste0(enter.x, collapse = ", ")))
-        }
+        # But, if there is a tie, select that variable with the less p-val
+        wald.p <- mv.pvalue2[anova.pvalue2 == min(anova.pvalue2, na.rm = TRUE) & anova.pvalue2 <= sle]
+        if(length(setdiff(enter.x, NA)) != 0){
 
-        coeff <- names(coefficients(temp.model))
-        f <- as.formula(paste0("survival::Surv(", Time, ", ", Status, ") ~ ", paste0(c(coeff, enter.x), collapse = " + ")))
-        temp.model <- survival::coxph(formula = f, data = as.data.frame(data),
-                                      method = "efron", model = T, singular.ok = T, x = T)
+          # if another tie, select the first one
+          if(length(enter.x) > 1){
+            enter.x <- enter.x[which.min(wald.p)]
+          }
+
+          if(verbose){
+            message(paste0("ENTER: ", paste0(enter.x, collapse = ", ")))
+          }
+
+          coeff <- names(coefficients(temp.model))
+          f <- as.formula(paste0("survival::Surv(", Time, ", ", Status, ") ~ ", paste0(c(coeff, enter.x), collapse = " + ")))
+          temp.model <- survival::coxph(formula = f, data = as.data.frame(data),
+                                        method = "efron", model = T, singular.ok = T, x = T)
+        }
       }
+
     }else{
       enter.x <- NULL
     }
