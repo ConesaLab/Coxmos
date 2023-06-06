@@ -4665,7 +4665,7 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
     if(!attr(model, "model") %in% pkg.env$multiblock_methods){
       new_cn <- deleteIllegalChars(colnames(X_test))
       colnames(X_test) <- new_cn
-    }else{
+    }else if(isa(X_test, "list")){
       for(b in names(X_test)){
         new_cn <- deleteIllegalChars(colnames(X_test[[b]]))
         colnames(X_test[[b]]) <- new_cn
@@ -4691,9 +4691,10 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
         }
         return(lst_ggp)
       }
-    }else if(attr(model, "model") %in% c(pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
+    }else if(attr(model, "model") %in% c(pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox) && isa(X_test, "list")){
       ## MBs.
-      for(b in names(model$list_spls_models)){
+      lst_ggp <- NULL
+      for(b in names(model$mb.model$X)){
         new_cutoff <- cutoff[endsWith(names(cutoff), paste0("_",b))]
         names(new_cutoff) <- unlist(lapply(names(new_cutoff), function(x){substr(x, start = 1, stop = nchar(x)-nchar(paste0("_",b)))}))
         lst_ggp[[b]] <- getTestKM(model, X_test[[b]], Y_test, new_cutoff, type, ori_data, BREAKTIME, n.breaks, title)
