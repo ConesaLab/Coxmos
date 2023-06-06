@@ -316,7 +316,7 @@ mb.splsdrcox <- function (X, Y,
   cox_model <- cox(X = data, Y = Yh,
                    x.center = F, x.scale = F,
                    #y.center = F, y.scale = F,
-                   remove_non_significant = remove_non_significant, alpha = alpha, FORCE = T)
+                   remove_non_significant = F, alpha = alpha, FORCE = T)
 
   # RETURN a MODEL with ALL significant Variables from complete, deleting one by one
   removed_variables <- NULL
