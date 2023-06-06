@@ -447,7 +447,7 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
     if(!isa(vector[1],"list")){
       aux <- list()
       for(b in names(Xh)){
-        aux[[b]] <- vector
+        aux[[b]] <- min(vector, dim(Xh[[b]])) #to not overpass the dimension
       }
       vector <- aux
       message(paste0("The initial vector is: ", paste0(vector, collapse = ", ")))
@@ -589,6 +589,11 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
       if(length(new_vector[[b]])>1){
         new_vector[[b]] <- new_vector[[b]][-1]
       }
+    }
+
+    ## if vector == new vector - means a custom vector has been used
+    if(identical(new_vector,vector)){
+      break
     }
 
     if(verbose){
