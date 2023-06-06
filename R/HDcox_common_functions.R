@@ -451,11 +451,14 @@ removeNAorINFcoxmodel <- function(model, data, time.value = NULL, event.value = 
   while(sum(is.na(p_val))>0 || any(exp(aux_model$coefficients)==Inf) || any(exp(aux_model$coefficients)==0)){
     #first check Inf value
     to_remove <- names(which(exp(aux_model$coefficients)==Inf))
-    if(length(to_remove)>1){to_remove <- to_remove[[1]]}
-
-    #first check 0 value in exp(coef) [coef << 0]
-    if(length(to_remove)==0){
+    if(length(to_remove)>0){
+      to_remove <- to_remove[[1]]
+    }else{
+      #first check 0 value in exp(coef) [coef << 0]
       to_remove <- names(which(exp(aux_model$coefficients)==0))
+      if(length(to_remove)>0){
+        to_remove <- to_remove[[1]]
+      }
     }
 
     #if no Inf or no 0, then look for NA
@@ -486,7 +489,7 @@ removeNAorINFcoxmodel <- function(model, data, time.value = NULL, event.value = 
     )
 
     removed_variables <- c(removed_variables, to_remove)
-    p_val <- getPvalFromCox(model)
+    p_val <- getPvalFromCox(aux_model)
   }
 
   if(isa(model, "HDcox")){
