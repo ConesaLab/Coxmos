@@ -559,7 +559,6 @@ cv.sb.splsicox <- function(X, Y,
   #### ### #
   # RETURN #
   #### ### #
-
   message(paste0("Best model obtained.\n"))
 
   t2 <- Sys.time()

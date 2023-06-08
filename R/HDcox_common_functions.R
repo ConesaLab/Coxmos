@@ -2020,9 +2020,17 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
             eval_aux.r[[mode]] <- NA
           }else{
             if(mode %in% "BRIER"){
-              eval_aux.r[[mode]] <- lst_AUC_component[[l.index]][[e.index]][[r]]
+              if(length(lst_AUC_component)>=l.index && length(lst_AUC_component[[l.index]])>=e.index && length(lst_AUC_component[[l.index]][[e.index]])>=r){
+                eval_aux.r[[mode]] <- lst_AUC_component[[l.index]][[e.index]][[r]]
+              }else{
+                eval_aux.r[[mode]] <- NA
+              }
             }else{
-              eval_aux.r[[mode]] <- lst_AUC_component[[l.index]][[e.index]][[r]][[mode]]
+              if(length(lst_AUC_component)>=l.index && length(lst_AUC_component[[l.index]])>=e.index && length(lst_AUC_component[[l.index]][[e.index]])>=r){
+                eval_aux.r[[mode]] <- lst_AUC_component[[l.index]][[e.index]][[r]][[mode]]
+              }else{
+                eval_aux.r[[mode]] <- NA
+              }
             }
           }
           eval_aux.run <- rbind(eval_aux.run, eval_aux.r)
@@ -2080,9 +2088,17 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
           AUC_v <- NULL
           for(r in 1:n_run){
             if(mode %in% "BRIER"){
-              AUC_v <- c(AUC_v, c(lst_AUC_component[[l.index]][[e.index]][[r]])) #MEAN FOR ALL COMPONENTS
+              if(length(lst_AUC_component)>=l.index && length(lst_AUC_component[[l.index]])>=e.index && length(lst_AUC_component[[l.index]][[e.index]])>=r){
+                AUC_v <- c(AUC_v, c(lst_AUC_component[[l.index]][[e.index]][[r]])) #MEAN FOR ALL COMPONENTS
+              }else{
+                AUC_v <- c(AUC_v, c(NA))
+              }
             }else{
-              AUC_v <- c(AUC_v, c(lst_AUC_component[[l.index]][[e.index]][[r]][[mode]])) #MEAN FOR ALL COMPONENTS
+              if(length(lst_AUC_component)>=l.index && length(lst_AUC_component[[l.index]])>=e.index && length(lst_AUC_component[[l.index]][[e.index]])>=r){
+                AUC_v <- c(AUC_v, c(lst_AUC_component[[l.index]][[e.index]][[r]][[mode]])) #MEAN FOR ALL COMPONENTS
+              }else{
+                AUC_v <- c(AUC_v, c(NA))
+              }
             }
           }
           AUC_mean <- mean(AUC_v, na.rm = T)
@@ -3492,7 +3508,7 @@ getSubModel.mb <- function(model, comp, remove_non_significant){
     col_names <- NULL
     for(b in names(model$list_spls_models)){
       # a sb.model could not have a specific block if no relevant
-      if(is.na(model$list_spls_models[[b]]) || is.null(model$list_spls_models[[b]])){
+      if(all(is.na(model$list_spls_models[[b]])) || is.null(model$list_spls_models[[b]]) || length(grep(b, names(model$survival_model$fit$coefficients)))==0){
         res$list_spls_models[[b]] <- NA
       }else{
         res$list_spls_models[[b]]$X$loadings <- res$list_spls_models[[b]]$X$loadings[,1:min(ncol(res$list_spls_models[[b]]$X$loadings),comp), drop=F]
