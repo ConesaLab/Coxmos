@@ -1290,7 +1290,9 @@ predict.HDcox <- function(object, ..., newdata = NULL){
     cn.merge = NULL
     for(b in names(model$list_spls_models)){
       #some times b could not exist because for that eta, any variable was selected
-      if(!is.null(model$list_spls_models[[b]]$survival_model)){
+      if(all(is.na(model$list_spls_models[[b]])) || is.null(model$list_spls_models[[b]]$survival_model)){
+        next
+      }else{
         predicted_scores <- cbind(predicted_scores, predict.HDcox(object = model$list_spls_models[[b]], newdata = X_test[[b]]))
         cn.merge <- c(cn.merge, paste0(colnames(model$list_spls_models[[b]]$X$scores)[1:ncol(model$list_spls_models[[b]]$X$scores)], "_", b))
       }
@@ -2805,7 +2807,7 @@ get_COX_evaluation_BRIER_sPLS <- function(comp_model_lst,
               next
             #model is NA
             }else if(is.null(model <- comp_model_lst[[l.index]][[e]][[r]][[f]]$survival_model$fit) ||
-                     is.na(model <- comp_model_lst[[l.index]][[e]][[r]][[f]]$survival_model$fit)){
+                     all(is.na(model <- comp_model_lst[[l.index]][[e]][[r]][[f]]$survival_model$fit))){
               next
             }
 
