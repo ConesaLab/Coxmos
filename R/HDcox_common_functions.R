@@ -648,10 +648,12 @@ check_min0_max1_variables <- function(lst){
   nm <- names(lst)
   res <- lapply(nm, function(name){
     element <- lst[[name]]
+
     if(!is.numeric(element)){
       stop(paste0("Variable: ", name, " must be a numeric variable and ", class(element), " was detected."))
     }
-    if(!(element >= 0 && element <= 1)){
+
+    if(!(all(element >= 0) && all(element <= 1))){
       stop(paste0("Variable: ", name, " must be in range [0,1] and ", element, " was detected."))
     }
     return("Meet the values!")
@@ -1970,7 +1972,9 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
       l.index <- which(l == unique(df_results_evals$n.comps))
       for(e in unique(df_results_evals[df_results_evals$n.comps==l,]$eta)){
         # EVAL PER RUN
-        e.index <- which(e == unique(eta.list))
+
+        e.index <- which(sapply(unique(eta.list), function(x){all.equal(x,e)}) == "TRUE")
+
         eval_aux.run <- NULL
         for(r in unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$eta==e,]$runs)){
           aux.run <- df_results_evals[which(df_results_evals$n.comps==l & df_results_evals$eta==e & df_results_evals$runs==r),!colnames(df_results_evals) %in% c("fold")]
@@ -2113,7 +2117,14 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
   }else{ #AUC / BRIER
     for(l in unique(df_results_evals$n.comps)){
       for(e in unique(df_results_evals[df_results_evals$n.comps==l,]$eta)){
-        e.index <- which(e == unique(eta.list))
+
+        e.index <- which(sapply(unique(eta.list), function(x){all.equal(x,e)}) == "TRUE")
+        # e.index <- which(e == unique(eta.list))
+        # # R has problems with seq, and sometimes need to compare chars instead of integers
+        # if(length(e.index)==0){
+        #   e.index <- which(as.character(e) == unique(eta.list))
+        # }
+
         if(method.train %in% c(pkg.env$splsicox, pkg.env$splsdrcox)){
           # EVAL PER COMPONENT
           aux <- df_results_evals[which(df_results_evals$n.comps==max.ncomp[[l]] & df_results_evals$eta==e),!colnames(df_results_evals) %in% c("fold", "runs")]
@@ -2827,7 +2838,7 @@ get_COX_evaluation_BRIER_sPLS <- function(comp_model_lst,
 
           # in some cases, one patient could be a test and not to be in any train
           # probably a problem of caret or bc the division in folds
-          # vignette data adn coxEN
+          # vignette data and coxEN
 
           inters <- intersect(unique(names(lst_train_LP)), unique(names(lst_test_LP)))
           lst_train_LP <- lst_train_LP[names(lst_train_LP) %in% inters]

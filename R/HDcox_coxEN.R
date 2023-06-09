@@ -201,12 +201,6 @@ coxEN <- function(X, Y,
       glmnet::glmnet(x = Xh, y = survival::Surv(time = Yh[,"time"], event = Yh[,"event"]),
                      family = "cox", alpha = EN.alpha, standardize = F, nlambda = 300, pmax = max.variables)
     },
-    # Specifying error message
-    error = function(e){
-      message(paste0("coxEN: ", e))
-      # invisible(gc())
-      return(NA)
-    },
     warning = function(e){
       if(verbose){
         message("Model probably has a convergence issue...\n")
@@ -224,7 +218,7 @@ coxEN <- function(X, Y,
         message("Model probably has a convergence issue...\n")
         message(paste0("glmnet error: ", e))
       }
-      list(res = res, problem = T)
+      list(res = NA, problem = T)
     }
   )
 
@@ -538,6 +532,10 @@ cv.coxEN <- function(X, Y,
 
   character_params <- list("pred.attr" = pred.attr, "pred.method" = pred.method)
   check_class(character_params, class = "character")
+
+  #### FIX possible SEQ() problems
+  EN.alpha.list <- as.character(EN.alpha.list)
+  EN.alpha.list <- as.numeric(EN.alpha.list)
 
   #### Check cv-folds
   lst_checkFR <- checkFoldRuns(Y, n_run, k_folds, fast_mode)

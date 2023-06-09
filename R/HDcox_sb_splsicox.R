@@ -316,11 +316,11 @@ cv.sb.splsicox <- function(X, Y,
   checkLibraryEvaluator(pred.method)
 
   #### Check values classes and ranges
-  params_with_limits <- list("MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
+  params_with_limits <- list("spv_penalty.list" = spv_penalty.list, "MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
                  "w_AIC" = w_AIC, "w_c.index" = w_c.index, "w_AUC" = w_AUC, "w_BRIER" = w_BRIER)
   check_min0_max1_variables(params_with_limits)
 
-  numeric_params <- list("max.ncomp" = max.ncomp, "spv_penalty.list" = spv_penalty.list,
+  numeric_params <- list("max.ncomp" = max.ncomp,
                   "n_run" = n_run, "k_folds" = k_folds, "max_time_points" = max_time_points,
                   "MIN_COMP_TO_CHECK" = MIN_COMP_TO_CHECK, "MIN_EPV" = MIN_EPV, "seed" = seed, "tol" = tol)
   check_class(numeric_params, class = "numeric")
@@ -336,6 +336,10 @@ cv.sb.splsicox <- function(X, Y,
 
   character_params <- list("pred.attr" = pred.attr, "pred.method" = pred.method)
   check_class(character_params, class = "character")
+
+  #### FIX possible SEQ() problems
+  spv_penalty.list <- as.character(spv_penalty.list)
+  spv_penalty.list <- as.numeric(spv_penalty.list)
 
   #### Check cv-folds
   lst_checkFR <- checkFoldRuns(Y, n_run, k_folds, fast_mode)
@@ -686,11 +690,11 @@ fast.cv.sb.splsicox <- function(X, Y,
   checkLibraryEvaluator(pred.method)
 
   #### Check values classes and ranges
-  params_with_limits <- list("MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
+  params_with_limits <- list("spv_penalty.list" = spv_penalty.list, "MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
                  "w_AIC" = w_AIC, "w_c.index" = w_c.index, "w_AUC" = w_AUC, "w_BRIER" = w_BRIER)
   check_min0_max1_variables(params_with_limits)
 
-  numeric_params <- list("max.ncomp" = max.ncomp, "spv_penalty.list" = spv_penalty.list,
+  numeric_params <- list("max.ncomp" = max.ncomp,
                   "n_run" = n_run, "k_folds" = k_folds, "max_time_points" = max_time_points,
                   "MIN_COMP_TO_CHECK" = MIN_COMP_TO_CHECK, "MIN_EPV" = MIN_EPV, "seed" = seed, "tol" = tol)
   check_class(numeric_params, class = "numeric")
@@ -706,6 +710,10 @@ fast.cv.sb.splsicox <- function(X, Y,
 
   character_params <- list("pred.attr" = pred.attr, "pred.method" = pred.method)
   check_class(character_params, class = "character")
+
+  #### FIX possible SEQ() problems
+  spv_penalty.list <- as.character(spv_penalty.list)
+  spv_penalty.list <- as.numeric(spv_penalty.list)
 
   #### Check cv-folds
   lst_checkFR <- checkFoldRuns(Y, n_run, k_folds, fast_mode)
