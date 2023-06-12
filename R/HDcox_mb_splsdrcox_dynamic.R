@@ -266,7 +266,56 @@ mb.splsdrcox <- function (X, Y,
   mb.spls <- mixOmics::block.spls(Xh, DR_coxph_ori, ncomp = n.comp, keepX = keepX, scale = F, all.outputs = T, near.zero.var = F)
 
   #PREDICTION
-  predplsfit <- predict(mb.spls, newdata=Xh)
+  #both methods return same values
+  # but second with pseudo inverse matrix
+  predplsfit <- tryCatch(
+    # Specifying expression
+    # pmax - coefficients to be non-zero
+    expr = {
+      predict(mb.spls, newdata=Xh)
+    },
+    error = function(e){
+      if(verbose){
+        message("Predicting values using a pseudo-inverse matrix...\n")
+      }
+      # Estimation matrix W, P and C
+      predplsfit <- NULL
+      predict <- list()
+      for(block in names(mb.spls$X)){
+        if(block == "Y"){
+          next
+        }
+        Pmat = crossprod(mb.spls$X[[block]], mb.spls$variates[[block]])
+        Cmat = crossprod(mb.spls$X$Y, mb.spls$variates[[block]])
+        Wmat = mb.spls$loadings[[block]]
+        # PW <- tryCatch(expr = {MASS::ginv(t(Pmat) %*% Wmat)},
+        #                error = function(e){
+        #                  if(verbose){
+        #                    message(e$message)
+        #                  }
+        #                  NA
+        #                })
+
+        PW <- list()
+        for(i in 1:n.comp){
+          PW[[i]] <- tryCatch(expr = {MASS::ginv(t(Pmat[,1:i]) %*% Wmat[,1:i])},
+                              error = function(e){
+                                if(verbose){
+                                  message(e$message)
+                                }
+                                NA
+                              })
+        }
+
+
+        Ypred = lapply(1:n.comp, function(x){Xh[[block]] %*% Wmat[, 1:x] %*% PW[[x]] %*% t(Cmat)[1:x, ]})
+        Ypred = sapply(Ypred, function(x){x}, simplify = "array")
+        predict[[block]] = array(Ypred, c(nrow(mb.spls$X[[block]]), ncol(mb.spls$X$Y), n.comp)) # in case one observation and only one Y, we need array() to keep it an array with a third dimension being ncomp
+      }
+
+      predplsfit$predict <- predict
+    }
+  )
 
   for(block in names(predplsfit$predict)){
     E[[block]] <- list()
@@ -702,18 +751,18 @@ cv.mb.splsdrcox <- function(X, Y,
   total_models <- 1 * k_folds * n_run
 
   comp_model_lst <- get_HDCOX_models2.0(method = pkg.env$mb.splsdrcox,
-                                   lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
-                                   max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL, max.variables = NULL, vector = vector,
-                                   n_run = n_run, k_folds = k_folds,
-                                   MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, MIN_AUC_INCREASE = MIN_AUC_INCREASE, EVAL_METHOD = EVAL_METHOD,
-                                   n.cut_points = n.cut_points,
-                                   x.center = x.center, x.scale = x.scale,
-                                   y.center = y.center, y.scale = y.scale,
-                                   remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
-                                   alpha = alpha, MIN_EPV = MIN_EPV,
-                                   remove_non_significant = remove_non_significant, tol = tol, max.iter = max.iter,
-                                   returnData = returnData, total_models = total_models,
-                                   PARALLEL = PARALLEL, verbose = verbose)
+                                        lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
+                                        max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL, max.variables = NULL, vector = vector,
+                                        n_run = n_run, k_folds = k_folds,
+                                        MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, MIN_AUC_INCREASE = MIN_AUC_INCREASE, EVAL_METHOD = EVAL_METHOD,
+                                        n.cut_points = n.cut_points,
+                                        x.center = x.center, x.scale = x.scale,
+                                        y.center = y.center, y.scale = y.scale,
+                                        remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
+                                        alpha = alpha, MIN_EPV = MIN_EPV,
+                                        remove_non_significant = remove_non_significant, tol = tol, max.iter = max.iter,
+                                        returnData = returnData, total_models = total_models,
+                                        PARALLEL = PARALLEL, verbose = verbose)
 
   # already check in HDCOX_models
   # if(all(is.na(unlist(lst_model)))){

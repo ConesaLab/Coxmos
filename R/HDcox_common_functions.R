@@ -426,7 +426,7 @@ getIndividualCox <- function(data, time_var = "time", event_var = "event", score
   return(wh)
 }
 
-removeNAorINFcoxmodel <- function(model, data, time.value = NULL, event.value = NULL){
+removeNAorINFcoxmodel <- function(model, data, time.value = NULL, event.value = NULL, max.iter = 200){
   # REMOVE NA-PVAL VARIABLES
   # p_val could be NA for some variables (if NA change to P-VAL=1)
   # DO IT ALWAYS, we do not want problems in COX models
@@ -448,7 +448,8 @@ removeNAorINFcoxmodel <- function(model, data, time.value = NULL, event.value = 
     stop("Model is not a HDcox or coxph class.")
   }
 
-  while(sum(is.na(p_val))>0 || any(exp(aux_model$coefficients)==Inf) || any(exp(aux_model$coefficients)==0)){
+  count <- 1
+  while((sum(is.na(p_val))>0 || any(exp(aux_model$coefficients)==Inf) || any(exp(aux_model$coefficients)==0)) & count <= max.iter){
     #first check Inf value
     to_remove <- names(which(exp(aux_model$coefficients)==Inf))
     if(length(to_remove)>0){
@@ -490,6 +491,12 @@ removeNAorINFcoxmodel <- function(model, data, time.value = NULL, event.value = 
 
     removed_variables <- c(removed_variables, to_remove)
     p_val <- getPvalFromCox(aux_model)
+
+    count <- count + 1
+  }
+
+  if(count>max.iter){
+    stop("A problem has happened when removing NA or INF coefficients. Review colnames to avoid illegal characters.")
   }
 
   if(isa(model, "HDcox")){
@@ -3710,14 +3717,14 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
 
       }else if(method==pkg.env$mb.splsdrcox){
         lst_all_models <- furrr::future_map(lst_inputs, ~mb.splsdrcox(X = lst_X_train[[.$run]][[.$fold]],
-                                                                              Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
-                                                                 n.comp = .$comp, vector = vector,
-                                                                 MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, MIN_AUC_INCREASE = MIN_AUC_INCREASE,
-                                                                 x.center = x.center, x.scale = x.scale,
-                                                                 #y.center = y.center, y.scale = y.scale,
-                                                                 remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
-                                                                 remove_non_significant = remove_non_significant, alpha = alpha,
-                                                                 MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose), .options = furrr_options(seed = TRUE))
+                                                                      Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
+                                                                      n.comp = .$comp, vector = vector,
+                                                                      MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, MIN_AUC_INCREASE = MIN_AUC_INCREASE,
+                                                                      x.center = x.center, x.scale = x.scale,
+                                                                      #y.center = y.center, y.scale = y.scale,
+                                                                      remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
+                                                                      remove_non_significant = remove_non_significant, alpha = alpha,
+                                                                      MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose), .options = furrr_options(seed = TRUE))
       }
       future::plan("sequential")
 

@@ -240,7 +240,57 @@ mb.splsdacox <- function (X, Y,
   mb.splsda <- mixOmics::block.splsda(Xh, Yh[,"event"], scale=F, ncomp = n.comp, keepX = keepX, max.iter = max.iter, near.zero.var = F, all.outputs = T)
 
   #PREDICTION
-  predplsfit <- predict(mb.splsda, newdata=Xh)
+  #PREDICTION
+  #both methods return same values
+  # but second with pseudo inverse matrix
+  predplsfit <- tryCatch(
+    # Specifying expression
+    # pmax - coefficients to be non-zero
+    expr = {
+      predict(mb.splsda, newdata=Xh)
+    },
+    error = function(e){
+      if(verbose){
+        message("Predicting values using a pseudo-inverse matrix...\n")
+      }
+      # Estimation matrix W, P and C
+      predplsfit <- NULL
+      predict <- list()
+      for(block in names(mb.splsda$X)){
+        if(block == "Y"){
+          next
+        }
+        Pmat = crossprod(mb.splsda$X[[block]], mb.splsda$variates[[block]])
+        Cmat = crossprod(mb.splsda$X$Y, mb.splsda$variates[[block]])
+        Wmat = mb.splsda$loadings[[block]]
+        # PW <- tryCatch(expr = {MASS::ginv(t(Pmat) %*% Wmat)},
+        #                error = function(e){
+        #                  if(verbose){
+        #                    message(e$message)
+        #                  }
+        #                  NA
+        #                })
+
+        PW <- list()
+        for(i in 1:n.comp){
+          PW[[i]] <- tryCatch(expr = {MASS::ginv(t(Pmat[,1:i]) %*% Wmat[,1:i])},
+                              error = function(e){
+                                if(verbose){
+                                  message(e$message)
+                                }
+                                NA
+                              })
+        }
+
+
+        Ypred = lapply(1:n.comp, function(x){Xh[[block]] %*% Wmat[, 1:x] %*% PW[[x]] %*% t(Cmat)[1:x, ]})
+        Ypred = sapply(Ypred, function(x){x}, simplify = "array")
+        predict[[block]] = array(Ypred, c(nrow(mb.splsda$X[[block]]), ncol(mb.splsda$X$Y), n.comp)) # in case one observation and only one Y, we need array() to keep it an array with a third dimension being ncomp
+      }
+
+      predplsfit$predict <- predict
+    }
+  )
 
   for(block in names(predplsfit$predict)){
     E[[block]] <- list()
