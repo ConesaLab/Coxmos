@@ -279,7 +279,6 @@ mb.splsdrcox <- function (X, Y,
         message("Predicting values using a pseudo-inverse matrix...\n")
       }
       # Estimation matrix W, P and C
-      predplsfit <- NULL
       predict <- list()
       for(block in names(mb.spls$X)){
         if(block == "Y"){
@@ -313,7 +312,9 @@ mb.splsdrcox <- function (X, Y,
         predict[[block]] = array(Ypred, c(nrow(mb.spls$X[[block]]), ncol(mb.spls$X$Y), n.comp)) # in case one observation and only one Y, we need array() to keep it an array with a third dimension being ncomp
       }
 
+      predplsfit <- list()
       predplsfit$predict <- predict
+      predplsfit
     }
   )
 
@@ -321,6 +322,7 @@ mb.splsdrcox <- function (X, Y,
     E[[block]] <- list()
     SCR[[block]] <- list()
     SCT[[block]] <- list()
+    R2[[block]] <- list()
     for(h in 1:n.comp){
       E[[block]][[h]] <- DR_coxph_ori - predplsfit$predict[[block]][,,h]
 
