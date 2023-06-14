@@ -93,7 +93,7 @@ EPV
 ## ---- eval=FALSE, warning=F---------------------------------------------------
 #  # run cv.coxEN
 #  cv.coxen_res <- cv.coxEN(X = X_train, Y = Y_train,
-#                           EN.alpha.list = seq(0,1,0.1),
+#                           EN.alpha.list = seq(0.1,1,0.1),
 #                           max.variables = ncol(X_train),
 #                           n_run = 2, k_folds = 10,
 #                           x.center = T, x.scale = F,
@@ -112,8 +112,8 @@ EPV
 
 ## -----------------------------------------------------------------------------
 coxen_model <- coxEN(X = X_train, Y = Y_train, 
-                     EN.alpha = 0, #cv.coxen_res$opt.EN.alpha
-                     max.variables = 10, #cv.coxen_res$opt.nvar
+                     EN.alpha = 0.2, #cv.coxen_res$opt.EN.alpha
+                     max.variables = 11, #cv.coxen_res$opt.nvar
                      x.center = T, x.scale = F,
                      remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL, 
                      remove_non_significant = F, alpha = 0.05, 
@@ -124,8 +124,8 @@ coxen_model
 
 ## -----------------------------------------------------------------------------
 coxen_model <- coxEN(X = X_train, Y = Y_train, 
-                     EN.alpha = 0, #cv.coxen_res$opt.EN.alpha
-                     max.variables = 10, #cv.coxen_res$opt.nvar
+                     EN.alpha = 0.2, #cv.coxen_res$opt.EN.alpha
+                     max.variables = 11, #cv.coxen_res$opt.nvar
                      x.center = T, x.scale = F,
                      remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL, 
                      remove_non_significant = T, alpha = 0.05, 
@@ -133,6 +133,9 @@ coxen_model <- coxEN(X = X_train, Y = Y_train,
 
 ## -----------------------------------------------------------------------------
 coxen_model
+
+## -----------------------------------------------------------------------------
+coxen_model$removed_variables_cox
 
 ## ---- eval=FALSE--------------------------------------------------------------
 #  # run cv.plsicox
@@ -146,23 +149,24 @@ coxen_model
 #                                 w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL, max_time_points = 15,
 #                                 MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
 #                                 pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
-#                                 MIN_EPV = 5, return_models = F, remove_non_significant = F, returnData = F, tol = 1e-15,
+#                                 MIN_EPV = 5, return_models = F, remove_non_significant = F, returnData = F,
 #                                 PARALLEL = F, verbose = F, seed = 123)
 
 ## ---- eval=FALSE--------------------------------------------------------------
-#  cv.splsicox_res #12min.
+#  cv.splsicox_res #8min.
 
-## ---- eval=FALSE, fig.small=T-------------------------------------------------
+## ---- eval=FALSE, fig.small=T, warning=F--------------------------------------
 #  # plot cv.plsicox
 #  cv.splsicox_res$plot_AUC
 
 ## -----------------------------------------------------------------------------
 splsicox_model <- splsicox(X = X_train, Y = Y_train, 
                            #n.comp = cv.splsicox_res$opt.comp, spv_penalty = cv.splsicox_res$opt.spv_penalty
-                          n.comp = 5, spv_penalty = 0.4,
-                          x.center = T, x.scale = F,
-                          remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
-                          MIN_EPV = 5, returnData = T, verbose = F)
+                           n.comp = 2, spv_penalty = 0.7,
+                           x.center = T, x.scale = F,
+                           remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+                           remove_non_significant = T,
+                           MIN_EPV = 5, returnData = T, verbose = F)
 
 ## -----------------------------------------------------------------------------
 splsicox_model
@@ -182,17 +186,18 @@ splsicox_model
 #                                   PARALLEL = F, verbose = F, seed = 123)
 
 ## ---- eval=FALSE--------------------------------------------------------------
-#  cv.splsdrcox_res #6min
+#  cv.splsdrcox_res #3min
 
-## ---- eval=FALSE, fig.small=T-------------------------------------------------
+## ---- eval=FALSE, fig.small=T, warning=F--------------------------------------
 #  # plot cv.plsicox
 #  cv.splsdrcox_res$plot_AUC
 
 ## -----------------------------------------------------------------------------
 splsdrcox_model <- splsdrcox(X = X_train, Y = Y_train, 
-                             n.comp = 9, eta = 0, #n.comp = cv.splsdrcox_res$opt.comp, eta = cv.splsdrcox_res$opt.eta
+                             n.comp = 10, eta = 0, #n.comp = cv.splsdrcox_res$opt.comp, eta = cv.splsdrcox_res$opt.eta
                              x.center = T, x.scale = F,
                              remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+                             remove_non_significant = T,
                              MIN_EPV = 5, returnData = T, verbose = F)
 
 ## -----------------------------------------------------------------------------
@@ -201,32 +206,33 @@ splsdrcox_model
 ## ---- eval=FALSE--------------------------------------------------------------
 #  # run cv.splsdrcox
 #  cv.splsdrcox_dynamic_res <- cv.splsdrcox_dynamic(X = X_train, Y = Y_train,
-#                                              max.ncomp = 10, vector = NULL,
-#                                              MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 10, EVAL_METHOD = "AUC",
-#                                              n_run = 2, k_folds = 10,
-#                                              x.center = T, x.scale = F,
-#                                              remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
-#                                              remove_non_significant_models = F, alpha = 0.05,
-#                                              remove_variance_at_fold_level = F, remove_non_significant = F,
-#                                              w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0,
-#                                              times = NULL, max_time_points = 15, returnData = F, tol = 1e-10,
-#                                              MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
-#                                              pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
-#                                              MIN_EPV = 5, return_models = F,
-#                                              PARALLEL = F, verbose = F, seed = 123)
+#                                                   max.ncomp = 10, vector = NULL,
+#                                                   MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 10, EVAL_METHOD = "AUC",
+#                                                   n_run = 2, k_folds = 10,
+#                                                   x.center = T, x.scale = F,
+#                                                   remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+#                                                   remove_non_significant_models = F, alpha = 0.05,
+#                                                   remove_variance_at_fold_level = F, remove_non_significant = F,
+#                                                   w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0,
+#                                                   times = NULL, max_time_points = 15, returnData = F,
+#                                                   MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
+#                                                   pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
+#                                                   MIN_EPV = 5, return_models = F,
+#                                                   PARALLEL = F, verbose = F, seed = 123)
 
 ## ---- eval=FALSE--------------------------------------------------------------
-#  cv.splsdrcox_dynamic_res #3mins
+#  cv.splsdrcox_dynamic_res #1.8mins
 
 ## -----------------------------------------------------------------------------
 splsdrcox_dynamic_model <- splsdrcox_dynamic(X = X_train, Y = Y_train, 
-                                             n.comp = 3, #cv.splsdrcox_dynamic_res$opt.comp 
-                                             vector = 118, #cv.splsdrcox_dynamic_res$opt.nvar
+                                             n.comp = 10, #cv.splsdrcox_dynamic_res$opt.comp 
+                                             vector = 250, #cv.splsdrcox_dynamic_res$opt.nvar
                                              x.center = T, x.scale = F,
                                              remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
                                              MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 5,
                                              MIN_AUC_INCREASE = 0.01,
                                              EVAL_METHOD = "AUC", pred.method = "cenROC", max.iter = 200,
+                                             remove_non_significant = T, 
                                              MIN_EPV = 5, returnData = T, verbose = F)
 
 splsdrcox_dynamic_model
@@ -245,20 +251,21 @@ splsdrcox_dynamic_model
 #                                                   times = NULL, max_time_points = 15, returnData = F,
 #                                                   MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
 #                                                   pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
-#                                                   MIN_EPV = 5, return_models = F, max.iter = 200, tol = 1e-10,
+#                                                   MIN_EPV = 5, return_models = F, max.iter = 200,
 #                                                   PARALLEL = F, verbose = F, seed = 123)
 
 ## ---- eval=FALSE--------------------------------------------------------------
-#  cv.splsdacox_dynamic_res #3min
+#  cv.splsdacox_dynamic_res #1.8min
 
 ## -----------------------------------------------------------------------------
 splsdacox_dynamic_model <- splsdacox_dynamic(X = X_train, Y = Y_train, 
-                                             n.comp = 1, vector = 91,
+                                             n.comp = 10, vector = 91,
                                              x.center = T, x.scale = F,
                                              remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
                                              MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 5,
                                              MIN_AUC_INCREASE = 0.01,
                                              EVAL_METHOD = "AUC", pred.method = "cenROC", max.iter = 200,
+                                             remove_non_significant = T, 
                                              MIN_EPV = 5, returnData = T, verbose = F)
 
 splsdacox_dynamic_model
@@ -291,12 +298,12 @@ eval_results <- eval_HDcox_models(lst_models = lst_models,
 eval_results
 #eval_results$cenROC
 
-## -----------------------------------------------------------------------------
+## ---- warning=F---------------------------------------------------------------
 lst_eval_results <- plot_evaluation(eval_results, evaluation = "AUC", pred.attr = "mean")
 lst_eval_results_BRIER <- plot_evaluation(eval_results, evaluation = "Brier", pred.attr = "mean")
 #lst_eval_results <- plot_evaluation.list(eval_results)
 
-## ---- fig.small=T-------------------------------------------------------------
+## ---- fig.small=T, warning=F--------------------------------------------------
 lst_eval_results$lst_plots$lineplot
 lst_eval_results$lst_plot_comparisons$anova
 
@@ -313,51 +320,51 @@ lst_models_time <- list(coxen_model,
 ## -----------------------------------------------------------------------------
 ggp_time <- plot_time.list(lst_models_time)
 
-## ---- fig.small=T-------------------------------------------------------------
+## ---- fig.small=T, warning=F--------------------------------------------------
 ggp_time
 
 ## -----------------------------------------------------------------------------
 lst_forest_plot <- plot_forest.list(lst_models)
 
-## ---- fig.small=T-------------------------------------------------------------
-lst_forest_plot$`sPLS-DRCOX-Dynamic`
+## ---- fig.small=T, warning=F--------------------------------------------------
+lst_forest_plot$`COX-EN`
 
 ## -----------------------------------------------------------------------------
 lst_ph_ggplot <- plot_proportionalHazard.list(lst_models)
 
-## ---- fig.small=T-------------------------------------------------------------
-lst_ph_ggplot$`sPLS-DRCOX-Dynamic`
+## ---- fig.small=T, warning=F--------------------------------------------------
+lst_ph_ggplot$`COX-EN`
 
 ## -----------------------------------------------------------------------------
 density.plots.lp <- plot_cox.event.list(lst_models, type = "lp")
 
-## ---- fig.small=T-------------------------------------------------------------
-density.plots.lp$`sPLS-DRCOX-Dynamic`$plot.density
-density.plots.lp$`sPLS-DRCOX-Dynamic`$plot.histogram
+## ---- fig.small=T, warning=F--------------------------------------------------
+density.plots.lp$`COX-EN`$plot.density
+density.plots.lp$`COX-EN`$plot.histogram
 
 ## -----------------------------------------------------------------------------
-ggp_scores <- plot_PLS_HDcox(model = lst_models$`sPLS-DRCOX-Dynamic`, 
+ggp_scores <- plot_PLS_HDcox(model = lst_models$`sPLS-ICOX`, 
                              comp = c(1,2), mode = "scores")
 
-## ---- fig.small=T-------------------------------------------------------------
+## ---- fig.small=T, warning=F--------------------------------------------------
 ggp_scores$plot
 
 ## -----------------------------------------------------------------------------
-ggp_loadings <- plot_PLS_HDcox(model = lst_models$`sPLS-DRCOX-Dynamic`, 
+ggp_loadings <- plot_PLS_HDcox(model = lst_models$`sPLS-ICOX`, 
                                comp = c(1,2), mode = "loadings",
                                top = 10) #length from 0,0
 
-## ---- fig.small=T-------------------------------------------------------------
+## ---- fig.small=T, warning=F--------------------------------------------------
 ggp_loadings$plot
 
 ## -----------------------------------------------------------------------------
-ggp_biplot <- plot_PLS_HDcox(model = lst_models$`sPLS-DRCOX-Dynamic`, 
+ggp_biplot <- plot_PLS_HDcox(model = lst_models$`sPLS-ICOX`, 
                              comp = c(1,2), mode = "biplot",
                              top = 15,
                              only_top = T,
                              overlaps = 20)
 
-## ---- fig.small=T-------------------------------------------------------------
+## ---- fig.small=T, warning=F--------------------------------------------------
 ggp_biplot$plot
 
 ## -----------------------------------------------------------------------------
@@ -366,8 +373,8 @@ ggp.simulated_beta <- plot_pseudobeta.list(lst_models = lst_models,
                                            zero.rm = T, auto.limits = T, top = 20,
                                            show_percentage = T, size_percentage = 2, verbose = F)
 
-## ---- fig.small=T-------------------------------------------------------------
-ggp.simulated_beta$`sPLS-DRCOX-Dynamic`$plot
+## ---- fig.small=T, warning=F--------------------------------------------------
+ggp.simulated_beta$`sPLS-ICOX`$plot
 
 ## -----------------------------------------------------------------------------
 LST_KM_RES_LP <- getAutoKM.list(type = "LP",
@@ -378,8 +385,9 @@ LST_KM_RES_LP <- getAutoKM.list(type = "LP",
                                 BREAKTIME = NULL,
                                 only_sig = T, alpha = 0.05)
 
-## ---- fig.small=T-------------------------------------------------------------
-LST_KM_RES_LP$`sPLS-DRCOX-Dynamic`$LST_PLOTS$LP
+## ---- fig.small=T, warning=F--------------------------------------------------
+LST_KM_RES_LP$`COX-EN`$LST_PLOTS$LP
+LST_KM_RES_LP$`sPLS-ICOX`$LST_PLOTS$LP
 
 ## -----------------------------------------------------------------------------
 lst_cutoff <- getCutoffAutoKM.list(LST_KM_RES_LP)
@@ -390,8 +398,8 @@ LST_KM_TEST_LP <- getTestKM.list(lst_models = lst_models,
                                  BREAKTIME = NULL, n.breaks = 20,
                                  lst_cutoff = lst_cutoff)
 
-## ---- fig.small=T-------------------------------------------------------------
-LST_KM_TEST_LP$`sPLS-DRCOX-Dynamic`
+## ---- fig.small=T, warning=F--------------------------------------------------
+LST_KM_TEST_LP$`COX-EN`
 
 ## -----------------------------------------------------------------------------
 LST_KM_RES_COMP <- getAutoKM.list(type = "COMP",
@@ -403,9 +411,9 @@ LST_KM_RES_COMP <- getAutoKM.list(type = "COMP",
                                   n.breaks = 20,
                                   only_sig = T, alpha = 0.05)
 
-## ---- fig.small=T-------------------------------------------------------------
-LST_KM_RES_COMP$`sPLS-DRCOX-Dynamic`$LST_PLOTS$comp_1
-LST_KM_RES_COMP$`sPLS-DRCOX-Dynamic`$LST_PLOTS$comp_2
+## ---- fig.small=T, warning=F--------------------------------------------------
+LST_KM_RES_COMP$`sPLS-ICOX`$LST_PLOTS$comp_1
+LST_KM_RES_COMP$`sPLS-ICOX`$LST_PLOTS$comp_2
 
 ## -----------------------------------------------------------------------------
 lst_cutoff <- getCutoffAutoKM.list(LST_KM_RES_COMP)
@@ -416,10 +424,10 @@ LST_KM_TEST_COMP <- getTestKM.list(lst_models = lst_models,
                                    BREAKTIME = NULL, n.breaks = 20,
                                    lst_cutoff = lst_cutoff)
 
-## ---- fig.small=T-------------------------------------------------------------
-#LST_KM_TEST_COMP$`sPLS-DRCOX-Dynamic`$comp_1 # all patients in same group 
-#LST_KM_TEST_COMP$`sPLS-DRCOX-Dynamic`$comp_2 # all patients in same group
-LST_KM_TEST_COMP$`sPLS-DRCOX-Dynamic`$comp_3
+## ---- fig.small=T, warning=F--------------------------------------------------
+# all patients could be categorize into the same group
+LST_KM_TEST_COMP$`sPLS-ICOX`$comp_1
+LST_KM_TEST_COMP$`sPLS-ICOX`$comp_2
 
 ## -----------------------------------------------------------------------------
 LST_KM_RES_VAR <- getAutoKM.list(type = "VAR",
@@ -430,9 +438,9 @@ LST_KM_RES_VAR <- getAutoKM.list(type = "VAR",
                                  BREAKTIME = NULL,
                                  only_sig = T, alpha = 0.05)
 
-## ---- fig.small=T-------------------------------------------------------------
-LST_KM_RES_VAR$`sPLS-DRCOX-Dynamic`$LST_PLOTS$hsa_miR_365
-LST_KM_RES_VAR$`sPLS-DRCOX-Dynamic`$LST_PLOTS$hsa_miR_146a
+## ---- fig.small=T, warning=F--------------------------------------------------
+LST_KM_RES_VAR$`COX-EN`$LST_PLOTS$`hsa-miR-34a`
+LST_KM_RES_VAR$`COX-EN`$LST_PLOTS$`hsa-miR-296`
 
 ## -----------------------------------------------------------------------------
 lst_cutoff <- getCutoffAutoKM.list(LST_KM_RES_VAR)
@@ -443,9 +451,9 @@ LST_KM_TEST_VAR <- getTestKM.list(lst_models = lst_models,
                                   BREAKTIME = NULL, n.breaks = 20,
                                   lst_cutoff = lst_cutoff)
 
-## ---- fig.small=T-------------------------------------------------------------
-LST_KM_TEST_VAR$`sPLS-DRCOX-Dynamic`$hsa_miR_365
-LST_KM_TEST_VAR$`sPLS-DRCOX-Dynamic`$hsa_miR_148a
+## ---- fig.small=T, warning=F--------------------------------------------------
+LST_KM_TEST_VAR$`COX-EN`$`hsa-miR-34a`
+LST_KM_TEST_VAR$`COX-EN`$`hsa-miR-296`
 
 ## -----------------------------------------------------------------------------
 new_pat <- X_test[1,,drop=F]
@@ -453,36 +461,36 @@ new_pat <- X_test[1,,drop=F]
 ## -----------------------------------------------------------------------------
 knitr::kable(Y_test[rownames(new_pat),])
 
-## -----------------------------------------------------------------------------
+## ---- warning=F---------------------------------------------------------------
 ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient.list(lst_models = lst_models, 
                                                              new_observation = new_pat,
                                                              error.bar = T, onlySig = T, alpha = 0.05,
                                                              zero.rm = T, auto.limits = T, show.betas = T, top = 20)
 
-# ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient(model = lst_models[[5]],
+# ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient(model = lst_models$`sPLS-ICOX`,
 #                                                         new_observation = new_pat,
 #                                                         error.bar = T, onlySig = T, alpha = 0.05,
 #                                                         zero.rm = T, auto.limits = T, show.betas = T, top = 20)
 
-## ---- fig.small=T-------------------------------------------------------------
-ggp.simulated_beta_newPat$`sPLS-DRCOX-Dynamic`$plot
+## ---- fig.small=T, warning=F--------------------------------------------------
+ggp.simulated_beta_newPat$`sPLS-ICOX`$plot
 
 ## -----------------------------------------------------------------------------
 pat_density <- plot_patient.eventDensity(patient = new_pat, 
                                          time = NULL, 
-                                         model = lst_models$`sPLS-DRCOX-Dynamic`, 
+                                         model = lst_models$`COX-EN`, 
                                          type = "lp")
 
-## ---- fig.small=T-------------------------------------------------------------
+## ---- fig.small=T, warning=F--------------------------------------------------
 pat_density
 
 ## -----------------------------------------------------------------------------
 pat_histogram <- plot_patient.eventHistogram(patient = new_pat, 
                                              time = NULL, 
-                                             model = lst_models$`sPLS-DRCOX-Dynamic`, 
+                                             model = lst_models$`COX-EN`, 
                                              type = "lp")
 
-## ---- fig.small=T-------------------------------------------------------------
+## ---- fig.small=T, warning=F--------------------------------------------------
 pat_histogram
 
 ## ---- eval=F------------------------------------------------------------------
@@ -491,11 +499,11 @@ pat_histogram
 ## -----------------------------------------------------------------------------
 knitr::kable(Y_test[1:5,])
 
-## -----------------------------------------------------------------------------
+## ---- warning=F---------------------------------------------------------------
 lst_cox.comparison <- plot_LP.multiplePatients.list(lst_models = lst_models,
                                                     new_data = X_test[1:5,],
-                                                    error.bar = T, zero.rm = T, onlySig = T, alpha = 0.05, top = 5)
+                                                    error.bar = T, zero.rm = T, onlySig = T, alpha = 0.05, top = 10)
 
-## ---- fig.small=T-------------------------------------------------------------
-lst_cox.comparison$`sPLS-DRCOX-Dynamic`$plot
+## ---- fig.small=T, warning=F--------------------------------------------------
+lst_cox.comparison$`COX-EN`$plot
 

@@ -2996,10 +2996,11 @@ plot_pseudobeta.newPatient <- function(model, new_observation, error.bar = T, on
 
   accuracy <- 0.1
 
+  #limit based on max value in abs between lower and higher values
   if(show.betas){
     if(error.bar){
-      val_min <- as.numeric(max(abs(coeff.min), abs(df.pat$lp.min)))
-      val_max <- as.numeric(max(abs(coeff.max), abs(df.pat$lp.max)))
+      val_min <- as.numeric(min(min(coeff.max), min(df.pat$lp.min)))
+      val_max <- as.numeric(max(max(coeff.max), max(df.pat$lp.max)))
       auto.limits_min <- round2any(val_min, accuracy = accuracy, f = ceiling)
       auto.limits_max <- round2any(val_max, accuracy = accuracy, f = ceiling)
       auto.limits <- max(auto.limits_min, auto.limits_max)
@@ -3052,10 +3053,14 @@ plot_pseudobeta.newPatient <- function(model, new_observation, error.bar = T, on
 
   if(show.betas){
 
-    ggp.aux <- ggp + scale_y_continuous(n.breaks = 10, limits = c(-1*auto.limits, auto.limits))
+    auto.limits.lp <- max(abs(min(df.pat$lp.max)), abs(max(df.pat$lp.max)))
+    ggp.aux <- ggp + scale_y_continuous(n.breaks = 10, limits = c(-1*auto.limits.lp, auto.limits.lp))
 
     ggp.aux2 <- ggp.simulated_beta$plot
     ggp.aux2 <- ggp.aux2 + guides(fill = "none")
+    suppressMessages(
+      ggp.aux2 <- ggp.aux2 + scale_y_continuous(n.breaks = 10, limits = c(-1*auto.limits, auto.limits))
+    )
 
     sign.beta <- coefficients$value>0
     names(sign.beta)<-rownames(coefficients)
@@ -3236,10 +3241,14 @@ plot_MB.pseudobeta.newPatient <- function(model, new_observation, error.bar = T,
 
     if(show.betas){
 
-      ggp.aux <- ggp + scale_y_continuous(n.breaks = 10, limits = c(-1*auto.limits, auto.limits))
+      auto.limits.lp <- max(abs(min(df.pat$lp.max)), abs(max(df.pat$lp.max)))
+      ggp.aux <- ggp + scale_y_continuous(n.breaks = 10, limits = c(-1*auto.limits.lp, auto.limits.lp))
 
       ggp.aux2 <- ggp.simulated_beta$plot[[b]]
       ggp.aux2 <- ggp.aux2 + guides(fill = "none")
+      suppressMessages(
+        ggp.aux2 <- ggp.aux2 + scale_y_continuous(n.breaks = 10, limits = c(-1*auto.limits, auto.limits))
+      )
 
       sign.beta <- coefficients[[b]]$value>0
       names(sign.beta)<-rownames(coefficients[[b]])

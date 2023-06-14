@@ -768,7 +768,7 @@ check.maxPredictors.cox <- function(X, Y, MIN_EPV = 5, FORCE){
   if(ncol(X) > max_n_predictors){
     if(!FORCE){
       EPV <- getEPV(X, Y)
-      msg <- paste0("The ratio of Y events to the number of variables used does not meet the minimum EPV. The X matrix should have a maximum of ", max_n_predictors, " variables, or the MIN_EPV parameter should be lowered to ", EPV,".")
+      msg <- paste0("The minimum EPV is not met by the ratio of Y events and the number of variables used in the final model. The X matrix should have a maximum of ", max_n_predictors, " variables, or the MIN_EPV parameter should be lowered to ", EPV,".")
       message(msg)
       return(F)
     }

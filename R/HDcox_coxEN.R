@@ -201,22 +201,22 @@ coxEN <- function(X, Y,
       glmnet::glmnet(x = Xh, y = survival::Surv(time = Yh[,"time"], event = Yh[,"event"]),
                      family = "cox", alpha = EN.alpha, standardize = F, nlambda = 300, pmax = max.variables)
     },
-    warning = function(e){
-      if(verbose){
-        message("Model probably has a convergence issue...\n")
-        message(paste0("glmnet: ", e))
-      }
-      suppressWarnings(
-        # dfmax - variables in the model
-        res <- glmnet::glmnet(x = Xh, y = survival::Surv(time = Yh[,"time"], event = Yh[,"event"]),
-                              family = "cox", alpha = EN.alpha, standardize = F, nlambda = 300, dfmax = max.variables)
-      )
-      list(res = res, problem = T)
-    },
+    # warning = function(e){
+    #   if(verbose){
+    #     message("Model probably has a convergence issue...\n")
+    #     message(paste0("glmnet: ", e))
+    #   }
+    #   suppressWarnings(
+    #     # dfmax - variables in the model
+    #     res <- glmnet::glmnet(x = Xh, y = survival::Surv(time = Yh[,"time"], event = Yh[,"event"]),
+    #                           family = "cox", alpha = EN.alpha, standardize = F, nlambda = 300, dfmax = max.variables-1)
+    #   )
+    #   list(res = res, problem = T)
+    # },
     error = function(e){
       if(verbose){
         message("Model probably has a convergence issue...\n")
-        message(paste0("glmnet error: ", e))
+        message(paste0("\nglmnet error: ", e))
       }
       list(res = NA, problem = T)
     }
