@@ -2362,7 +2362,7 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
           }else if(attr(model, "model") %in% pkg.env$splsicox){
             n_var <- nrow(model$X$loadings)
           }else if(attr(model, "model") %in% pkg.env$classical_methods){
-            n_var <- length(model$survival_model$coef) #COX, COXSW and COXEN
+            n_var <- length(model$survival_model$fit$coefficients) #COX, COXSW and COXEN
           }
 
           df <- as.data.frame(summary(cox)[[7]])
@@ -4436,6 +4436,12 @@ eval_HDcox_models <- function(lst_models, X_test, Y_test, pred.method, pred.attr
   }
 
   #MULTIBLOCK
+  lst_models_classes <- unlist(lapply(lst_models, function(x){attr(x, "model")}))
+  if(isa(X_test, "list") && !all(lst_models_classes %in% pkg.env$multiblock_methods)){
+    #message(paste0("\nYou cannot evalue a MB input with non-MB models."))
+    stop("You cannot evalue a MB input with non-MB models.")
+  }
+
   if(isa(X_test, "list")){
     X_test_ori  <- purrr::map(X_test, ~data.matrix(.))
     Y_test  <- Y_test

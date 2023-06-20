@@ -560,7 +560,7 @@ SURVCOMP_BRIER <- function(model, X_test_mod, Y_test){
   lp_test <- getLinealPredictors(cox = cox, data = X_test_mod, center = T)
   train <- data.frame("time" = model$Y$data[,"time"],
                       "event" = model$Y$data[,"event"],
-                      "score" = model$survival_model$lp)
+                      "score" = model$survival_model$fit$linear.predictors)
   test <- data.frame("time" = Y_test[,"time"],
                      "event" = Y_test[,"event"],
                      "score" = lp_test$fit)

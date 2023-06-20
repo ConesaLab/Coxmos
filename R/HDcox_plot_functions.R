@@ -3405,7 +3405,7 @@ getLPKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL,
   }
 
   #select data
-  vars_data <- as.data.frame(model$survival_model$lp)
+  vars_data <- as.data.frame(model$survival_model$fit$linear.predictors)
   rownames(vars_data) <- rownames(model$X$data)
   colnames(vars_data) <- "LP"
 
@@ -3490,15 +3490,64 @@ getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NUL
   #select original or scale data - top X of each component, takes all of them
   if(!attr(model, "model") %in% pkg.env$multiblock_methods){
     unique_vars <- deleteIllegalChars(unique(unlist(vars)))
-    vars_data <- as.data.frame(model$X$scores[rownames(model$X$scores),unique_vars,drop=F])
+    # vars %*% coeff to get component LP
+    cn_aux <- colnames(as.data.frame(model$X$scores[rownames(model$X$scores),unique_vars,drop=F]))
+    sc_aux <- as.data.frame(model$X$scores[rownames(model$X$scores),unique_vars,drop=F])
+    coeff_aux <- model$survival_model$fit$coefficients[cn_aux]
+    if(length(names(coeff_aux))>1){
+      vars_data <- NULL
+      for(cn in colnames(sc_aux)){
+        vars_data <- cbind(vars_data, as.matrix(sc_aux[,cn,drop=F]) %*% coeff_aux[cn])
+      }
+      colnames(vars_data) <- names(unique_vars)
+    }else{
+      vars_data <- as.matrix(sc_aux) %*% coeff_aux
+      colnames(vars_data) <- names(unique_vars)
+    }
   }else{
     vars_data <- list()
     for(b in names(model$X$data)){
+      # vars %*% coeff to get component LP
       unique_vars <- deleteIllegalChars(unique(unlist(lst_vars[[b]])))
+      if(length(unique_vars)==0){next}#no components selected
       if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox)){
-        vars_data[[b]] <- as.data.frame(model[[4]][[b]]$X$scores[rownames(model[[4]][[b]]$X$scores),unique_vars,drop=F])
+        cn_aux <- colnames(as.data.frame(model[[4]][[b]]$X$scores[rownames(model[[4]][[b]]$X$scores),unique_vars,drop=F]))
+        sc_aux <- as.data.frame(model[[4]][[b]]$X$scores[rownames(model[[4]][[b]]$X$scores),unique_vars,drop=F])
+        coeff_aux <- model$survival_model$fit$coefficients[paste0(cn_aux, "_", b)]
+        if(length(names(coeff_aux))>1){
+          vars_data[[b]] <- NULL
+          # if coeff_aux has comp_1_genes and comp_10_genes, both start by comp_1
+          # new colnames vector to match
+          new_coeff_names <- names(coeff_aux)
+          new_coeff_names <- unlist(lapply(new_coeff_names, function(x){paste0(strsplit(x, "_")[[1]][1], "_", strsplit(x, "_")[[1]][2])}))
+          for(cn in colnames(sc_aux)){
+            idx <- which(new_coeff_names %in% cn)
+            vars_data[[b]] <- cbind(vars_data[[b]], as.matrix(sc_aux[,cn,drop=F]) %*% coeff_aux[idx])
+          }
+          colnames(vars_data[[b]]) <- names(unique_vars)
+        }else{
+          vars_data[[b]] <- as.matrix(sc_aux) %*% coeff_aux
+          colnames(vars_data[[b]]) <- names(unique_vars)
+        }
       }else{
-        vars_data[[b]] <- as.data.frame(model$X$scores[[b]][rownames(model$X$scores[[b]]),unique_vars,drop=F])
+        cn_aux <- colnames(as.data.frame(model$X$scores[[b]][rownames(model$X$scores[[b]]),unique_vars,drop=F]))
+        sc_aux <- as.data.frame(model$X$scores[[b]][rownames(model$X$scores[[b]]),unique_vars,drop=F])
+        coeff_aux <- model$survival_model$fit$coefficients[paste0(cn_aux, "_", b)]
+        if(length(names(coeff_aux))>1){
+          vars_data[[b]] <- NULL
+          # if coeff_aux has comp_1_genes and comp_10_genes, both start by comp_1
+          # new colnames vector to match
+          new_coeff_names <- names(coeff_aux)
+          new_coeff_names <- unlist(lapply(new_coeff_names, function(x){paste0(strsplit(x, "_")[[1]][1], "_", strsplit(x, "_")[[1]][2])}))
+          for(cn in colnames(sc_aux)){
+            idx <- which(new_coeff_names %in% cn)
+            vars_data[[b]] <- cbind(vars_data[[b]], as.matrix(sc_aux[,cn,drop=F]) %*% coeff_aux[idx])
+          }
+          colnames(vars_data[[b]]) <- names(unique_vars)
+        }else{
+          vars_data[[b]] <- as.matrix(sc_aux) %*% coeff_aux
+          colnames(vars_data[[b]]) <- names(unique_vars)
+        }
       }
     }
   }
@@ -3515,6 +3564,7 @@ getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NUL
     info_logrank_num <- list()
     vars_num <- list()
     for(b in names(model$X$data)){
+      if(!b %in% names(vars_data)){next}
       vars_num[[b]] <- vars_data[[b]]
 
       if(all(dim(vars_num[[b]]))>0){
@@ -3678,7 +3728,7 @@ getLPVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NU
     #GET LP_VAR per each patient
     if(attr(model, "model") %in% pkg.env$pls_methods){
 
-      # lp <- model$survival_model$lp
+      # lp <- model$survival_model$fit$linear.predictors)
       # lp_calculated <- vars_data[,rownames(pseudo_betas$beta)] %*% pseudo_betas$beta$value ## COMPROBATION LP ## !!!!
 
       aux <- NULL
@@ -4362,7 +4412,7 @@ plot_survivalplot.qual <- function(data, sdata, cn_variables, name_data = NULL, 
       colors <- NULL
     }
 
-    kmplot <- survminer::ggsurvplot(fit = kmsurvival, censor.shape = "|", color = colors,
+    kmplot <- survminer::ggsurvplot(fit = kmsurvival, censor.shape = "|", palette = colors,
                                     conf.int = TRUE, ggtheme = theme_bw(),
                                     conf.int.style = "ribbon",
                                     conf.int.alpha = 0.25,
@@ -4383,7 +4433,7 @@ plot_survivalplot.qual <- function(data, sdata, cn_variables, name_data = NULL, 
       theme(axis.text = element_text(size = 8)) + theme(axis.title = element_text(size = 10))
     lst_splots[["SurvivalFunction"]] <- kmplot
 
-    kmplot <- survminer::ggsurvplot(fit = kmsurvival, censor.shape = "|", color = colors, fun = "event",
+    kmplot <- survminer::ggsurvplot(fit = kmsurvival, censor.shape = "|", palette = colors, fun = "event",
                                     conf.int = TRUE, ggtheme = theme_bw(),
                                     conf.int.style = "ribbon",
                                     conf.int.alpha = 0.25,
@@ -4404,7 +4454,7 @@ plot_survivalplot.qual <- function(data, sdata, cn_variables, name_data = NULL, 
       theme(axis.text = element_text(size = 8)) + theme(axis.title = element_text(size = 10))
     lst_splots[["HazardCurve"]] <- kmplot
 
-    kmplot <- survminer::ggsurvplot(fit = kmsurvival, censor.shape = "|", color = colors, fun = "cumhaz",
+    kmplot <- survminer::ggsurvplot(fit = kmsurvival, censor.shape = "|", palette = colors, fun = "cumhaz",
                                     conf.int = TRUE, ggtheme = theme_bw(),
                                     conf.int.style = "ribbon",
                                     conf.int.alpha = 0.25,
@@ -4639,8 +4689,13 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
 
     #predict scores X_test
     test_score <- predict(model, newdata = X_test)
-    test_score <- test_score[,names(model$survival_model$coef),drop=F]
-    for(cn in names(model$survival_model$coef)){
+    test_score <- test_score[,names(model$survival_model$fit$coefficients),drop=F]
+    for(cn in names(model$survival_model$fit$coefficients)){
+      # check only coef in final model
+      if(!cn %in% names(model$survival_model$fit$coefficients)){
+        next
+      }
+
       #get LP for individual components
       lst_test_lp[[cn]] <- test_score[,cn,drop=F] %*% model$survival_model$fit$coefficients[cn]
       colnames(lst_test_lp[[cn]]) <- cn
@@ -4848,7 +4903,7 @@ plot_classicalcox.comparePatients <- function(model, new_data, error.bar = F, on
   #DFCALLS
   value <- patients <- NULL
 
-  coefficients <- model$survival_model$coef
+  coefficients <- model$survival_model$fit$coefficients
   coefficients <- as.data.frame(coefficients)
   colnames(coefficients) <- "value"
   coefficients <- coefficients[order(coefficients$value, decreasing = T),,drop=F]
@@ -4883,7 +4938,7 @@ plot_classicalcox.comparePatients <- function(model, new_data, error.bar = F, on
   #can be change for cox.prediction(model = model, new_data = patient, time = time, type = type, method = "cox")
   #for each patient on the data frame
 
-  lp.pats <- norm_patient[,deleteIllegalChars(names(model$survival_model$coef))] %*% model$survival_model$coef
+  lp.pats <- norm_patient[,deleteIllegalChars(names(model$survival_model$fit$coefficients))] %*% model$survival_model$fit$coefficients
   colnames(lp.pats) <- "linear predictor"
 
   rownames(lp.new_pat_variable) <- rownames(coefficients)
