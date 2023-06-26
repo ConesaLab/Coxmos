@@ -4213,7 +4213,7 @@ getBetasFromCOXNET <- function(fit, bestFitModelIndex){
   return(betas)
 }
 
-getLinealPredictors <- function(cox, data, bestModel = NULL, center=T, scale=F){
+getLinealPredictors <- function(cox, data, bestModel = NULL, lp_per_variable = F, center=T, scale=F){
 
   if(all(is.na(cox)) | all(is.null(cox))){
     return(rep(NA, nrow(data)))
@@ -4221,8 +4221,9 @@ getLinealPredictors <- function(cox, data, bestModel = NULL, center=T, scale=F){
 
   #Linear predictors by hand [los resultados de la curva roc son independientes de si se centran o no los predictores]
   c <- class(cox)
-  if(length(c)>1)
+  if(length(c)>1){
     c <- c[1]
+  }
 
   if(c=="coxph"){
     lst_cn <- attr(cox$terms, which = "term.labels")
@@ -4232,6 +4233,14 @@ getLinealPredictors <- function(cox, data, bestModel = NULL, center=T, scale=F){
     lp <- predict(object = cox, newdata = d,
                   type="lp",
                   se.fit=T, na.action=na.pass, reference=c("strata"))
+
+    if(lp_per_variable){
+      lst_lp <- list()
+      lst_lp[["LP"]] <- lp$fit
+      for(var in names(cox$coefficients)){
+        lst_lp[[var]] <- drop(as.matrix(d[,var,drop=F]) %*% cox$coefficients[var])
+      }
+    }
 
     # lp <- tryCatch({ #si warning, stop
     #   apply(data[,!colnames(data) %in% c("time","event","status"),drop=F], 1, function(x) sum(t((x-cox$means)*cox$coefficients))) #X*betas but they are centered
@@ -4249,14 +4258,19 @@ getLinealPredictors <- function(cox, data, bestModel = NULL, center=T, scale=F){
     lp <- apply(data[,!colnames(data) %in% c("time","event","status"),drop=F], 1, function(x) sum(t(x*betas)))
   }
 
-  if(center & c!="coxph"){
-    lp.center <- scale(lp, center = center, scale = scale)
-    lp.center <- as.numeric(lp.center)
-    names(lp.center) <- names(lp)
-    return(lp.center)
+  if(!lp_per_variable){
+    if(center & c!="coxph"){
+      lp.center <- scale(lp, center = center, scale = scale)
+      lp.center <- as.numeric(lp.center)
+      names(lp.center) <- names(lp)
+      return(lp.center)
+    }else{
+      return(lp)
+    }
   }else{
-    return(lp)
+    return(lst_lp)
   }
+
 }
 
 getVectorCuts <- function(vector, cut_points, verbose = F){
@@ -4614,6 +4628,68 @@ evaluation_HDcox_class = function(object, ...) {
   model = structure(object, class = pkg.env$model_class,
                     model = pkg.env$eval_class)
   return(model)
+}
+
+#' eval_HDcox_model_per_variable
+#' @description The function is used to evaluate how each variable/component affect the prediction for an specific HDcox model. The function
+#' returns all the data needed for plotting the information, including the AUC per model and for each
+#' time point selected for the predictions. After their used, it is recommended to run the plot_evaluation()
+#' function.
+#'
+#' @param model HDcox model.
+#' @param X_test Numeric matrix or data.frame. Explanatory variables for test data (raw format). Qualitative variables must be transform into binary variables.
+#' @param Y_test Numeric matrix or data.frame. Response variables for test data. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
+#' @param pred.method Character. AUC evaluation algorithm method for evaluate the model performance. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC").
+#' @param pred.attr Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").
+#' @param times Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 'max_time_points' points will be selected equally distributed (default: NULL).
+#' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).
+#' @param max_time_points Numeric. Maximum number of time points to use for evaluating the model (default: 15).
+#' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' X <- data[train_index,]
+#' Y <- data_Y[train_index,]
+#' X_test <- data[-train_index,]
+#' Y_test <- data_Y[-train_index,]
+#' model_icox <- splsicox(X, Y)
+#' eval_HDcox_model_per_variable(model_icox, X_test, Y_test, pred.method = "cenROC")
+#' }
+eval_HDcox_model_per_variable <- function(model,
+                                          X_test, Y_test,
+                                          pred.method = "cenROC", pred.attr = "mean",
+                                          times = NULL, max_time_points = 15,
+                                          PARALLEL = F, verbose = F){
+
+  # BRIER not implemeted !!!
+
+  scores_aux <- predict.HDcox(object = model, newdata = X_test)
+  lp <- getLinealPredictors(cox = model$survival_model$fit, data = scores_aux, lp_per_variable = T)
+
+  if(is.null(times)){
+    times <- getTimesVector(Y_test, max_time_points)
+  }
+
+  lp_vars <- purrr::map(.x = lp, ~getAUC_from_LP_2.0(linear.predictors = ., Y = Y_test, times = times, bestModel = NULL, eval = pred.attr, method = pred.method, PARALLEL = PARALLEL, verbose = verbose))
+  df <- NULL
+  for(vars in names(lp_vars)){
+    m <- rep(vars, length(lp_vars[[vars]]$AUC.vector))
+    t <- paste0("time_", names(lp_vars[[vars]]$AUC.vector))
+    auc <- lp_vars[[vars]]$AUC.vector
+    df_aux <- data.frame(m, t, auc)
+    df <- rbind(df, df_aux)
+  }
+  colnames(df) <- c("method", "time", "AUC")
+  df$time <- factor(df$time, levels = t)
+  df$method <- factor(df$method, levels = names(lp_vars))
+
+  aux <- list()
+  aux[["df"]] <- df
+  aux[["lst_AUC"]] <- lp_vars
+
+  return(aux)
 }
 
 #' cox.prediction

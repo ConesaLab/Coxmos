@@ -9,7 +9,7 @@ plot_HDcox.PLS.model(
   comp = c(1, 2),
   mode = "scores",
   factor = NULL,
-  legend.title = NULL,
+  legend_title = NULL,
   top = NULL,
   only_top = F,
   radius = NULL,
@@ -28,7 +28,7 @@ plot_HDcox.PLS.model(
 
 \item{factor}{Factor. Factor variable to color the observations. If factor = NULL, event will be used (default: NULL).}
 
-\item{legend.title}{Character. Legend title (default: NULL).}
+\item{legend_title}{Character. Legend title (default: NULL).}
 
 \item{top}{Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: NULL).}
 

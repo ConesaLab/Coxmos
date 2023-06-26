@@ -20,7 +20,7 @@
 #' save_ggplot(plot, folder)
 #' }
 
-save_ggplot <- function(plot, folder = NULL, name = NULL, wide = T, quality = "4K", dpi = 80, custom = NULL){
+save_ggplot <- function(plot, folder = NULL, name = "plot", wide = T, quality = "4K", dpi = 80, custom = NULL){
   width=NULL
   height=NULL
 
@@ -118,7 +118,7 @@ save_ggplot <- function(plot, folder = NULL, name = NULL, wide = T, quality = "4
 #' save_ggplot.svg(plot, folder)
 #' }
 
-save_ggplot.svg <- function(plot, folder = NULL, name = NULL, wide = T, quality = "4K", dpi = 80, custom = NULL){
+save_ggplot.svg <- function(plot, folder = NULL, name = "plot", wide = T, quality = "4K", dpi = 80, custom = NULL){
   width=NULL
   height=NULL
 
@@ -660,6 +660,10 @@ plot_evaluation.list <- function(lst_eval_results, evaluation = "AUC", pred.attr
 #' @param pred.attr Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").
 #' @param y.min Numeric. Minimum Y value for establish the Y axis value. If y.min = NULL, automatic detection is performed (default: NULL).
 #' @param type Character. Plot type. Must be one of the following: "both", "line" or "mean". In other case, "both" will be selected (default: "both").
+#' @param legend_title Character. Legend title (default: "Method").
+#' @param legend_size_text Numeric. Text size for legend title (default: 12).
+#' @param x_axis_size_text Numeric. Text size for x axis (default: 10).
+#' @param y_axis_size_text Numeric. Text size for y axis (default: 10).
 #'
 #' @export
 #'
@@ -669,7 +673,7 @@ plot_evaluation.list <- function(lst_eval_results, evaluation = "AUC", pred.attr
 #' plot_evaluation(eval_results)
 #' }
 
-plot_evaluation <- function(eval_results, evaluation = "AUC", pred.attr = "mean", y.min = NULL, type = "both"){
+plot_evaluation <- function(eval_results, evaluation = "AUC", pred.attr = "mean", y.min = NULL, type = "both", legend_title = "Method", legend_size_text = 12, x_axis_size_text = 10, y_axis_size_text = 10){
 
   if(!evaluation %in% c("AUC", "Brier")){
     message("Evaluation parameter is not 'AUC' or 'Brier'. Changed to 'AUC'.")
@@ -710,7 +714,9 @@ plot_evaluation <- function(eval_results, evaluation = "AUC", pred.attr = "mean"
                                         y.var = evaluation,
                                         y.lab = ifelse(evaluation=="AUC", "AUC", "Brier"),
                                         x.color = "method",
-                                        y.limit = c(y.min, 1), pred.attr = pred.attr)
+                                        legend_title = legend_title,
+                                        y.limit = c(y.min, 1), pred.attr = pred.attr,
+                                        legend_size_text = legend_size_text, x_axis_size_text = x_axis_size_text, y_axis_size_text = y_axis_size_text)
   if(type == "both"){
     lst_ggp <- lst_plots
   }else if(type == "line"){
@@ -744,7 +750,11 @@ plot_evaluation <- function(eval_results, evaluation = "AUC", pred.attr = "mean"
                                 jitter = F,
                                 test = test_comparations,
                                 show.median = T,
-                                round.median = 3)
+                                round.median = 3,
+                                legend_title = legend_title,
+                                legend_size_text = legend_size_text,
+                                x_axis_size_text = x_axis_size_text,
+                                y_axis_size_text = y_axis_size_text)
 
     if(lst_tests[[t]] == "NULL"){
       lst_plot_comparisons[["no_test"]] <- plot
@@ -1057,7 +1067,9 @@ evalplot_errorbar <- function(df, x.var, y.var, y.var.sd, x.color = NULL, best_c
   return(ggp)
 }
 
-lineplot.performace2.0 <- function(df, x.var = "time", y.var = "AUC", x.color = "method", x.lab = NULL, y.lab = NULL, y.limit = NULL, point = T, mean = F, legend_rm = T){
+lineplot.performace2.0 <- function(df, x.var = "time", y.var = "AUC", x.color = "method", x.lab = NULL, y.lab = NULL, y.limit = NULL, point = T, mean = F, legend_rm = T, legend_title = "Method", legend_size_text = 12, x_axis_size_text = 10, y_axis_size_text = 10){
+
+  MAX_X_ELEMENTS = 20
 
   if(mean){
     mean_vector = NULL
@@ -1094,9 +1106,13 @@ lineplot.performace2.0 <- function(df, x.var = "time", y.var = "AUC", x.color = 
 
   }
 
-  if(length(unique(df[,x.var,drop=T]))>30){
-    ggp <- ggp + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  if(length(unique(df[,x.var,drop=T]))>MAX_X_ELEMENTS){
+    ggp <- ggp + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = x_axis_size_text))
+  }else{
+    ggp <- ggp + theme(axis.text.x = element_text(vjust = 0.5, size = x_axis_size_text))
   }
+
+  ggp <- ggp + theme(axis.text.y = element_text(vjust = 0.5, hjust=1, size = y_axis_size_text))
 
   # if(!is.null(y.limit)){
   #   ggp <- ggp + ylim(y.limit)
@@ -1108,6 +1124,9 @@ lineplot.performace2.0 <- function(df, x.var = "time", y.var = "AUC", x.color = 
 
   if(legend_rm){
     ggp <- ggp + theme(legend.position = "none")
+  }else{
+    ggp <- ggp + theme(legend.text=element_text(size = legend_size_text), legend.title = element_text(size=legend_size_text, face = "bold"))
+    ggp <- ggp + guides(color=guide_legend(title=legend_title))
   }
 
   if(!is.null(y.limit)){
@@ -1125,9 +1144,10 @@ lineplot.performace2.0 <- function(df, x.var = "time", y.var = "AUC", x.color = 
   return(ggp)
 }
 
-barplot.mean_performace2.0 <- function(df, x.var = "method", y.var="AUC", x.color = "method", x.lab = NULL, y.lab = NULL, y.limit = NULL, hide_labels = T, legend_rm = NULL){
+barplot.mean_performace2.0 <- function(df, x.var = "method", y.var="AUC", x.color = "method", x.lab = NULL, y.lab = NULL, y.limit = NULL, hide_labels = T, legend_rm = NULL, legend_title = "Method", legend_size_text = 12, x_axis_size_text = 10, y_axis_size_text = 10){
 
   #DFCALLS
+  MAX_X_ELEMENTS = 20
   method <- NULL
 
   mean_vector = NULL
@@ -1155,11 +1175,17 @@ barplot.mean_performace2.0 <- function(df, x.var = "method", y.var="AUC", x.colo
 
   if(legend_rm){
     ggp <- ggp + theme(legend.position = "none")
+  }else{
+    ggp <- ggp + theme(legend.text=element_text(size = legend_size_text), legend.title = element_text(size=legend_size_text, face = "bold"))
+    ggp <- ggp + guides(color=guide_legend(title=legend_title))
   }
 
-  if(length(unique(df[,x.var,drop=T]))>30){
-    ggp <- ggp + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  if(length(unique(df[,x.var,drop=T]))>MAX_X_ELEMENTS){
+    ggp <- ggp + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = x_axis_size_text))
+  }else{
+    ggp <- ggp + theme(axis.text.x = element_text(vjust = 0.5, size = x_axis_size_text))
   }
+  ggp <- ggp + theme(axis.text.y = element_text(vjust = 0.5, hjust=1, size = y_axis_size_text))
 
   if(!is.null(y.limit)){
     ggp <- ggp + coord_cartesian(ylim = y.limit)
@@ -1174,9 +1200,10 @@ barplot.mean_performace2.0 <- function(df, x.var = "method", y.var="AUC", x.colo
   return(ggp)
 }
 
-point.sd.mean_performace2.0 <- function(df, x.var = "method", y.var = "AUC", x.color = "method", x.lab = NULL, y.lab = NULL, y.limit = NULL, pred.attr = "mean", hide_labels = T, legend_rm = NULL){
+point.sd.mean_performace2.0 <- function(df, x.var = "method", y.var = "AUC", x.color = "method", x.lab = NULL, y.lab = NULL, y.limit = NULL, pred.attr = "mean", hide_labels = T, legend_rm = NULL, legend_title = "Method", legend_size_text = 12, x_axis_size_text = 10, y_axis_size_text = 10){
 
   #DFCALLS
+  MAX_X_ELEMENTS = 20
   method <- NULL
 
   mean_vector = NULL
@@ -1219,11 +1246,18 @@ point.sd.mean_performace2.0 <- function(df, x.var = "method", y.var = "AUC", x.c
 
   if(legend_rm){
     ggp <- ggp + theme(legend.position = "none")
+  }else{
+    ggp <- ggp + theme(legend.text=element_text(size = legend_size_text), legend.title = element_text(size=legend_size_text, face = "bold"))
+    ggp <- ggp + guides(color=guide_legend(title=legend_title), fill="none")
   }
 
-  if(length(unique(df[,x.var,drop=T]))>30){
-    ggp <- ggp + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  if(length(unique(df[,x.var,drop=T]))>MAX_X_ELEMENTS){
+    ggp <- ggp + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = x_axis_size_text))
+  }else{
+    ggp <- ggp + theme(axis.text.x = element_text(vjust = 0.5, size = x_axis_size_text))
   }
+  ggp <- ggp + theme(axis.text.y = element_text(vjust = 0.5, hjust=1, size = y_axis_size_text))
+
 
   if(!is.null(y.limit)){
     ggp <- ggp + coord_cartesian(ylim = y.limit)
@@ -1256,13 +1290,13 @@ point.sd.mean_performace2.0 <- function(df, x.var = "method", y.var = "AUC", x.c
   return(ggp)
 }
 
-comboplot.performance2.0 <- function(df, x.var = "time", y.var = "AUC", x.color = "method", x.lab = NULL, y.lab = NULL, y.limit = NULL, pred.attr = "mean", point = T, mean = F, hide_labels = T){
-  a <- lineplot.performace2.0(df = df, x.var = x.var, y.var = y.var, x.color = x.color, x.lab = x.lab, y.lab = y.lab, y.limit = y.limit, point = point, mean = F, legend_rm = T)
-  b <- point.sd.mean_performace2.0(df = df, x.var = x.var, y.var = y.var, x.color = x.color, x.lab = NULL, y.lab = NULL, y.limit = y.limit, pred.attr = pred.attr, hide_labels = T, legend_rm = F)
+comboplot.performance2.0 <- function(df, x.var = "time", y.var = "AUC", x.color = "method", x.lab = NULL, y.lab = NULL, y.limit = NULL, pred.attr = "mean", point = T, mean = F, hide_labels = T, legend_title = "Method", legend_size_text = 12, x_axis_size_text = 10, y_axis_size_text = 10){
+  a <- lineplot.performace2.0(df = df, x.var = x.var, y.var = y.var, x.color = x.color, x.lab = x.lab, y.lab = y.lab, y.limit = y.limit, point = point, mean = F, legend_rm = T, legend_title = legend_title, legend_size_text = legend_size_text, x_axis_size_text = x_axis_size_text, y_axis_size_text = y_axis_size_text)
+  b <- point.sd.mean_performace2.0(df = df, x.var = x.var, y.var = y.var, x.color = x.color, x.lab = NULL, y.lab = NULL, y.limit = y.limit, pred.attr = pred.attr, hide_labels = T, legend_rm = F, legend_title = legend_title, legend_size_text = legend_size_text, x_axis_size_text = x_axis_size_text, y_axis_size_text = y_axis_size_text)
 
   pp <- ggpubr::ggarrange(a, b, ncol = 2, widths = c(0.8, 0.2), align = "h")
 
-  a <- lineplot.performace2.0(df, x.var, y.var, x.color, x.lab, y.lab, y.limit, point, mean = F, legend_rm = F)
+  a <- lineplot.performace2.0(df, x.var, y.var, x.color, x.lab, y.lab, y.limit, point, mean = F, legend_rm = F, legend_title = legend_title, legend_size_text = legend_size_text, x_axis_size_text = x_axis_size_text, y_axis_size_text = y_axis_size_text)
   return(list(lineplot = a, lineplot.mean = pp))
 }
 
@@ -1520,7 +1554,7 @@ plot_divergent.biplot <- function(X, Y, NAMEVAR1, NAMEVAR2, BREAKTIME, x.text = 
 #' @param comp Numeric vector. Vector of length two. Select which components to plot (default: c(1,2)).
 #' @param mode Character. Choose one of the following plots: "scores", "loadings" o "biplot" (default: "scores").
 #' @param factor Factor. Factor variable to color the observations. If factor = NULL, event will be used (default: NULL).
-#' @param legend.title Character. Legend title (default: NULL).
+#' @param legend_title Character. Legend title (default: NULL).
 #' @param top Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: NULL).
 #' @param only_top Logical. If "only_top" = TRUE, then only top/radius loading variables will be shown in loading or biplot graph (default: FALSE).
 #' @param radius Numeric. Radius size (loading/scale value) to plot variable names that are greater than the radius value (default: NULL).
@@ -1536,7 +1570,7 @@ plot_divergent.biplot <- function(X, Y, NAMEVAR1, NAMEVAR2, BREAKTIME, x.text = 
 #' plot_PLS_HDcox(model, comp = c(1,2), mode = "scores")
 #' }
 
-plot_PLS_HDcox <- function(model, comp = c(1,2), mode = "scores", factor = NULL, legend.title = NULL, top = NULL, only_top = F, radius = NULL, names = T, colorReverse = F, text.size = 2, overlaps = 10){
+plot_PLS_HDcox <- function(model, comp = c(1,2), mode = "scores", factor = NULL, legend_title = NULL, top = NULL, only_top = F, radius = NULL, names = T, colorReverse = F, text.size = 2, overlaps = 10){
 
   if(!isa(model,pkg.env$model_class)){
     message("Model must be an object of class HDcox.")
@@ -1549,7 +1583,7 @@ plot_PLS_HDcox <- function(model, comp = c(1,2), mode = "scores", factor = NULL,
                          comp = comp,
                          mode = mode,
                          factor = factor,
-                         legend.title = legend.title,
+                         legend_title = legend_title,
                          top = top, only_top = only_top,
                          radius = radius, names = names,
                          colorReverse = colorReverse, text.size = text.size,
@@ -1560,7 +1594,7 @@ plot_PLS_HDcox <- function(model, comp = c(1,2), mode = "scores", factor = NULL,
                             comp = comp,
                             mode = mode,
                             factor = factor,
-                            legend.title = legend.title,
+                            legend_title = legend_title,
                             top = top, only_top = only_top,
                             radius = radius, names = names,
                             colorReverse = colorReverse, text.size = text.size,
@@ -1577,7 +1611,7 @@ plot_PLS_HDcox <- function(model, comp = c(1,2), mode = "scores", factor = NULL,
 #' @param comp Numeric vector. Vector of length two. Select which components to plot (default: c(1,2)).
 #' @param mode Character. Choose one of the following plots: "scores", "loadings" o "biplot" (default: "scores").
 #' @param factor Factor. Factor variable to color the observations. If factor = NULL, event will be used (default: NULL).
-#' @param legend.title Character. Legend title (default: NULL).
+#' @param legend_title Character. Legend title (default: NULL).
 #' @param top Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: NULL).
 #' @param only_top Logical. If "only_top" = TRUE, then only top/radius loading variables will be shown in loading or biplot graph (default: FALSE).
 #' @param radius Numeric. Radius size (loading/scale value) to plot variable names that are greater than the radius value (default: NULL).
@@ -1586,7 +1620,7 @@ plot_PLS_HDcox <- function(model, comp = c(1,2), mode = "scores", factor = NULL,
 #' @param text.size Numeric. Text size (default: 2).
 #' @param overlaps Numeric. Number of overlaps to show when plotting loading names (default: 10).
 
-plot_HDcox.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor = NULL, legend.title = NULL, top = NULL, only_top = F, radius = NULL, names = T, colorReverse = F, text.size = 2, overlaps = 10){
+plot_HDcox.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor = NULL, legend_title = NULL, top = NULL, only_top = F, radius = NULL, names = T, colorReverse = F, text.size = 2, overlaps = 10){
 
   MAX_POINTS = 1000
   MAX_LOADINGS = 15
@@ -1643,7 +1677,7 @@ plot_HDcox.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor =
       ggp <- ggp + geom_point(aes(x = df[,comp[1]], y = df[,comp[2]], color = factor))
     }
 
-    ggp <- ggp + labs(color = legend.title) + theme(legend.position="bottom") + coord_fixed(ratio=1)
+    ggp <- ggp + labs(color = legend_title) + theme(legend.position="bottom") + coord_fixed(ratio=1)
     ggp <- ggp + stat_ellipse(aes(x = df[,comp[1]], y = df[,comp[2]], fill = factor), geom = "polygon", alpha = 0.1, show.legend=F)
 
     if("R2" %in% names(model)){
@@ -1699,7 +1733,7 @@ plot_HDcox.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor =
       ggp <- ggp + geom_point(aes(x = df[,comp[1]], y = df[,comp[2]]))
     }
 
-    ggp <- ggp + labs(color = legend.title) + theme(legend.position="bottom") + coord_fixed(ratio=1)
+    ggp <- ggp + labs(color = legend_title) + theme(legend.position="bottom") + coord_fixed(ratio=1)
 
     if("R2" %in% names(model)){
       txt.expression <- paste0("Loadings (",attr(aux.model, "model"),") - ")
@@ -1757,7 +1791,7 @@ plot_HDcox.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor =
       ggp <- ggp + geom_point(aes(x = df[,comp[1]], y = df[,comp[2]], color = factor))
     }
 
-    ggp <- ggp + labs(color = legend.title) + theme(legend.position="bottom") + coord_fixed(ratio=1)
+    ggp <- ggp + labs(color = legend_title) + theme(legend.position="bottom") + coord_fixed(ratio=1)
     ggp <- ggp + stat_ellipse(aes(x = df[,comp[1]], y = df[,comp[2]], fill = factor), geom = "polygon", alpha = 0.1, show.legend=F)
 
     if("R2" %in% names(model)){
@@ -1845,7 +1879,7 @@ plot_HDcox.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor =
 #' @param comp Numeric vector. Vector of length two. Select which components to plot (default: c(1,2)).
 #' @param mode Character. Choose one of the following plots: "scores", "loadings" o "biplot" (default: "scores").
 #' @param factor Factor. Factor variable to color the observations. If factor = NULL, event will be used (default: NULL).
-#' @param legend.title Character. Legend title (default: NULL).
+#' @param legend_title Character. Legend title (default: NULL).
 #' @param top Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: NULL).
 #' @param only_top Logical. If "only_top" = TRUE, then only top/radius loading variables will be shown in loading or biplot graph (default: FALSE).
 #' @param radius Numeric. Radius size (loading/scale value) to plot variable names that are greater than the radius value (default: NULL).
@@ -1854,7 +1888,7 @@ plot_HDcox.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor =
 #' @param text.size Numeric. Text size (default: 2).
 #' @param overlaps Numeric. Number of overlaps to show when plotting loading names (default: 10).
 
-plot_HDcox.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor = NULL, legend.title = NULL, top = NULL, only_top = F, radius = NULL, names = T, colorReverse = F, text.size = 2, overlaps = 10){
+plot_HDcox.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor = NULL, legend_title = NULL, top = NULL, only_top = F, radius = NULL, names = T, colorReverse = F, text.size = 2, overlaps = 10){
 
   MAX_POINTS = 1000
   MAX_LOADINGS = 15
@@ -1933,7 +1967,7 @@ plot_HDcox.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", facto
           ggp <- ggp + geom_point(aes(x = df[,comp[1]], y = df[,comp[2]], color = factor))
         }
 
-        ggp <- ggp + labs(color = legend.title) + theme(legend.position="bottom") + coord_fixed(ratio=1)
+        ggp <- ggp + labs(color = legend_title) + theme(legend.position="bottom") + coord_fixed(ratio=1)
         ggp <- ggp + stat_ellipse(aes(x = df[,comp[1]], y = df[,comp[2]], fill = factor), geom = "polygon", alpha = 0.1, show.legend=F)
 
         if("R2" %in% names(model)){
@@ -2003,7 +2037,7 @@ plot_HDcox.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", facto
           ggp <- ggp + geom_point(aes(x = df[,comp[1]], y = df[,comp[2]]))
         }
 
-        ggp <- ggp + labs(color = legend.title) + theme(legend.position="bottom") + coord_fixed(ratio=1)
+        ggp <- ggp + labs(color = legend_title) + theme(legend.position="bottom") + coord_fixed(ratio=1)
 
         if("R2" %in% names(model)){
           txt.expression <- paste0("Loadings (",attr(aux.model, "model"),") - ", block, " - ")
@@ -2082,7 +2116,7 @@ plot_HDcox.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", facto
           ggp <- ggp + geom_point(aes(x = df[,comp[1]], y = df[,comp[2]], color = factor))
         }
 
-        ggp <- ggp + labs(color = legend.title) + theme(legend.position="bottom") + coord_fixed(ratio=1)
+        ggp <- ggp + labs(color = legend_title) + theme(legend.position="bottom") + coord_fixed(ratio=1)
         ggp <- ggp + stat_ellipse(aes(x = df[,comp[1]], y = df[,comp[2]], fill = factor), geom = "polygon", alpha = 0.1, show.legend=F)
 
         if("R2" %in% names(model)){

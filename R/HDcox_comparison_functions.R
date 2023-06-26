@@ -850,7 +850,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
   return(lst_res)
 }
 
-boxplot.performance <- function(df, x.var, y.var, x.fill = NULL, x.alpha = NULL, x.lab = NULL, y.lab = NULL, fill.lab = NULL, alpha.lab = NULL, title = NULL, y.limit = NULL, y.limit.exception = NULL, jitter = T, test = "anova", eval_method = "auto", show.median = T, round.median = 3){
+boxplot.performance <- function(df, x.var, y.var, x.fill = NULL, x.alpha = NULL, x.lab = NULL, y.lab = NULL, fill.lab = NULL, alpha.lab = NULL, title = NULL, y.limit = NULL, y.limit.exception = NULL, jitter = T, test = "anova", eval_method = "auto", show.median = T, round.median = 3, legend_title = "Method", legend_size_text = 12, x_axis_size_text = 10, y_axis_size_text = 10){
 
   if(!eval_method %in% c("median", "mean", "auto")){
     stop("Eval_method must be one of: 'mean' or 'median'.")
@@ -1012,10 +1012,17 @@ boxplot.performance <- function(df, x.var, y.var, x.fill = NULL, x.alpha = NULL,
     ggp <- ggp + ggtitle(title)
   }
 
+  ggp <- ggp + theme(legend.text=element_text(size = legend_size_text), legend.title = element_text(size=legend_size_text, face = "bold"))
+  ggp <- ggp + guides(fill=guide_legend(title=legend_title))
+  ggp <- ggp + theme(axis.text.x = element_text(vjust = 0.5, size = x_axis_size_text))
+  ggp <- ggp + theme(axis.text.y = element_text(vjust = 0.5, hjust=1, size = y_axis_size_text))
+
   return(ggp)
 }
 
-lineplot.performace <- function(df, x.var = "time", y.var = "AUC", x.color = "method", x.lab = NULL, y.lab = NULL, y.limit = NULL, point = T){
+lineplot.performace <- function(df, x.var = "time", y.var = "AUC", x.color = "method", x.lab = NULL, y.lab = NULL, y.limit = NULL, point = T, legend_title = "Method", legend_size_text = 12, x_axis_size_text = 10, y_axis_size_text = 10){
+  MAX_X_ELEMENTS = 20
+
   if(point){
     ggp <- ggplot2::ggplot(df, aes_string(x = x.var, y = y.var, color = x.color)) +
       geom_line(aes_string(group = x.color), size = 1) +
@@ -1039,13 +1046,19 @@ lineplot.performace <- function(df, x.var = "time", y.var = "AUC", x.color = "me
 
   }
 
-  if(length(df[,x.var]>30)){
-    ggp <- ggp + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  if(length(df[,x.var]>MAX_X_ELEMENTS)){
+    ggp <- ggp + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = x_axis_size_text))
+  }else{
+    ggp <- ggp + theme(axis.text.x = element_text(vjust = 0.5, size = x_axis_size_text))
   }
 
   if(!is.null(y.limit)){
     ggp <- ggp + ylim(y.limit)
   }
+
+  ggp <- ggp + theme(legend.text=element_text(size = legend_size_text), legend.title = element_text(size=legend_size_text, face = "bold"))
+  ggp <- ggp + guides(color=guide_legend(title=legend_title))
+  ggp <- ggp + theme(axis.text.y = element_text(vjust = 0.5, hjust=1, size = y_axis_size_text))
 
   return(ggp)
 }

@@ -9,7 +9,11 @@ plot_evaluation(
   evaluation = "AUC",
   pred.attr = "mean",
   y.min = NULL,
-  type = "both"
+  type = "both",
+  legend_title = "Method",
+  legend_size_text = 12,
+  x_axis_size_text = 10,
+  y_axis_size_text = 10
 )
 }
 \arguments{
@@ -22,6 +26,14 @@ plot_evaluation(
 \item{y.min}{Numeric. Minimum Y value for establish the Y axis value. If y.min = NULL, automatic detection is performed (default: NULL).}
 
 \item{type}{Character. Plot type. Must be one of the following: "both", "line" or "mean". In other case, "both" will be selected (default: "both").}
+
+\item{legend_title}{Character. Legend title (default: "Method").}
+
+\item{legend_size_text}{Numeric. Text size for legend title (default: 12).}
+
+\item{x_axis_size_text}{Numeric. Text size for x axis (default: 10).}
+
+\item{y_axis_size_text}{Numeric. Text size for y axis (default: 10).}
 }
 \description{
 Perform a evaluation test for the result object provided. It includes test comparison as "t.test", "anova", "wilcoxon", "kruscal-wallis". Furthermore, it generates plots for comparing the results.
