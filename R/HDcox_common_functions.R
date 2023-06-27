@@ -3491,10 +3491,22 @@ getSubModel.mb <- function(model, comp, remove_non_significant){
       if(is.na(model$list_spls_models[[b]]) || is.null(model$list_spls_models[[b]])){
         res$list_spls_models[[b]] <- NA
       }else{
-        res$list_spls_models[[b]]$X$loadings <- res$list_spls_models[[b]]$X$loadings[,1:min(ncol(res$list_spls_models[[b]]$X$loadings),comp), drop=F]
-        res$list_spls_models[[b]]$X$weightings <- res$list_spls_models[[b]]$X$weightings[,1:min(ncol(res$list_spls_models[[b]]$X$weightings),comp), drop=F]
-        res$list_spls_models[[b]]$X$W.star <- res$list_spls_models[[b]]$X$W.star[,1:min(ncol(res$list_spls_models[[b]]$X$W.star),comp),drop=F]
-        res$list_spls_models[[b]]$X$scores <- res$list_spls_models[[b]]$X$scores[,1:min(ncol(res$list_spls_models[[b]]$X$scores),comp), drop=F]
+
+        if(!all(is.na(res$list_spls_models[[b]]$X$loadings))){
+          res$list_spls_models[[b]]$X$loadings <- res$list_spls_models[[b]]$X$loadings[,1:min(ncol(res$list_spls_models[[b]]$X$loadings),comp), drop=F]
+        }
+
+        if(!all(is.na(res$list_spls_models[[b]]$X$weightings))){
+          res$list_spls_models[[b]]$X$weightings <- res$list_spls_models[[b]]$X$weightings[,1:min(ncol(res$list_spls_models[[b]]$X$weightings),comp), drop=F]
+        }
+
+        if(!all(is.na(res$list_spls_models[[b]]$X$W.star))){
+          res$list_spls_models[[b]]$X$W.star <- res$list_spls_models[[b]]$X$W.star[,1:min(ncol(res$list_spls_models[[b]]$X$W.star),comp),drop=F]
+        }
+
+        if(!all(is.na(res$list_spls_models[[b]]$X$scores))){
+          res$list_spls_models[[b]]$X$scores <- res$list_spls_models[[b]]$X$scores[,1:min(ncol(res$list_spls_models[[b]]$X$scores),comp), drop=F]
+        }
 
         res$list_spls_models[[b]]$var_by_component <- res$list_spls_models[[b]]$var_by_component[1:min(ncol(res$list_spls_models[[b]]$X$scores),comp)]
         res$list_spls_models[[b]]$n.comp <- comp
@@ -3531,10 +3543,22 @@ getSubModel.mb <- function(model, comp, remove_non_significant){
       if(all(is.na(model$list_spls_models[[b]])) || is.null(model$list_spls_models[[b]]) || length(grep(b, names(model$survival_model$fit$coefficients)))==0){
         res$list_spls_models[[b]] <- NA
       }else{
-        res$list_spls_models[[b]]$X$loadings <- res$list_spls_models[[b]]$X$loadings[,1:min(ncol(res$list_spls_models[[b]]$X$loadings),comp), drop=F]
-        res$list_spls_models[[b]]$X$weightings <- res$list_spls_models[[b]]$X$weightings[,1:min(ncol(res$list_spls_models[[b]]$X$weightings),comp), drop=F]
-        res$list_spls_models[[b]]$X$W.star <- res$list_spls_models[[b]]$X$W.star[,1:min(ncol(res$list_spls_models[[b]]$X$W.star),comp),drop=F]
-        res$list_spls_models[[b]]$X$scores <- res$list_spls_models[[b]]$X$scores[,1:min(ncol(res$list_spls_models[[b]]$X$scores),comp), drop=F]
+
+        if(!all(is.na(res$list_spls_models[[b]]$X$loadings))){
+          res$list_spls_models[[b]]$X$loadings <- res$list_spls_models[[b]]$X$loadings[,1:min(ncol(res$list_spls_models[[b]]$X$loadings),comp), drop=F]
+        }
+
+        if(!all(is.na(res$list_spls_models[[b]]$X$weightings))){
+          res$list_spls_models[[b]]$X$weightings <- res$list_spls_models[[b]]$X$weightings[,1:min(ncol(res$list_spls_models[[b]]$X$weightings),comp), drop=F]
+        }
+
+        if(!all(is.na(res$list_spls_models[[b]]$X$W.star))){
+          res$list_spls_models[[b]]$X$W.star <- res$list_spls_models[[b]]$X$W.star[,1:min(ncol(res$list_spls_models[[b]]$X$W.star),comp),drop=F]
+        }
+
+        if(!all(is.na(res$list_spls_models[[b]]$X$scores))){
+          res$list_spls_models[[b]]$X$scores <- res$list_spls_models[[b]]$X$scores[,1:min(ncol(res$list_spls_models[[b]]$X$scores),comp), drop=F]
+        }
 
         res$list_spls_models[[b]]$var_by_component <- res$list_spls_models[[b]]$var_by_component[1:min(ncol(res$list_spls_models[[b]]$X$scores),comp)]
         res$list_spls_models[[b]]$n.comp <- comp
@@ -3563,10 +3587,20 @@ getSubModel.mb <- function(model, comp, remove_non_significant){
   }else if(attr(model, "model") %in% c(pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){ #revisar!!!
     t1 <- Sys.time()
     for(b in names(model$mb.model$X)){
-      res$X$loadings[[b]] <- res$X$loadings[[b]][,1:min(ncol(res$X$loadings[[b]]),comp), drop=F]
-      res$X$weightings[[b]] <- res$X$weightings[[b]][,1:min(ncol(res$X$weightings[[b]]),comp), drop=F]
-      res$X$W.star[[b]] <- res$X$W.star[[b]][,1:min(ncol(res$X$W.star[[b]]),comp),drop=F]
-      res$X$scores[[b]] <- res$X$scores[[b]][,1:min(ncol(res$X$scores[[b]]),comp), drop=F]
+
+      if(!all(is.na(res$X$loadings[[b]]))){
+        res$X$loadings[[b]] <- res$X$loadings[[b]][,1:min(ncol(res$X$loadings[[b]]),comp), drop=F]
+      }
+      if(!all(is.na(res$X$weightings[[b]]))){
+        res$X$weightings[[b]] <- res$X$weightings[[b]][,1:min(ncol(res$X$weightings[[b]]),comp), drop=F]
+      }
+      if(!all(is.na(res$X$W.star[[b]]))){
+        res$X$W.star[[b]] <- res$X$W.star[[b]][,1:min(ncol(res$X$W.star[[b]]),comp),drop=F]
+      }
+      if(!all(is.na(res$X$scores[[b]]))){
+        res$X$scores[[b]] <- res$X$scores[[b]][,1:min(ncol(res$X$scores[[b]]),comp), drop=F]
+      }
+
     }
 
     #survival_model

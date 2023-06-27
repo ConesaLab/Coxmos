@@ -348,8 +348,15 @@ splsicox <- function(X, Y,
     t2 <- Sys.time()
     time <- difftime(t2,t1,units = "mins")
 
-    return(splsicox_class(list(X = list("data" = if(returnData) X_norm else NA, "weightings" = NULL, "weightings_norm" = NULL, "W.star" = NULL, "loadings" = NULL, "scores" = NULL, "E" = NULL, "x.mean" = xmeans, "x.sd" = xsds),
-                               Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
+    return(splsicox_class(list(X = list("data" = if(returnData) X_norm else NA,
+                                        "weightings" = NULL,
+                                        "weightings_norm" = NULL,
+                                        "W.star" = NULL, "loadings" = NULL,
+                                        "scores" = NULL,
+                                        "E" = NULL,
+                                        "x.mean" = xmeans, "x.sd" = xsds),
+                               Y = list("data" = Yh,
+                                        "y.mean" = ymeans, "y.sd" = ysds),
                                beta_matrix = NULL, #NEED TO BE COMPUTED
                                survival_model = NULL,
                                n.comp = h,
