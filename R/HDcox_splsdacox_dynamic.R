@@ -356,7 +356,7 @@ splsdacox_dynamic <- function (X, Y,
 
   # invisible(gc())
   return(splsdacox_dynamic_class(list(X = list("data" = if(returnData) X_norm else NA,
-                                               "weightings" = if(returnData) W else NA,
+                                               "weightings" = W, #used for computed number of variables, bc mixomics do not put 0 in loadings
                                                "W.star" = W.star,
                                                "loadings" = P,
                                                "scores" = Ts,
