@@ -273,8 +273,10 @@ coxEN <- function(X, Y,
 
       message("coxEN or cox could not be estimated. Sometimes, the error happens when using a EN.alpha = 0 (full ridge penalty). Try to use another value.")
 
-      return(coxEN_class(list(X = list("data" = if(returnData) Xh else NA, "x.mean" = xmeans, "x.sd" = xsds),
-                              Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
+      return(coxEN_class(list(X = list("data" = if(returnData) Xh else NA,
+                                       "x.mean" = xmeans, "x.sd" = xsds),
+                              Y = list("data" = Yh,
+                                       "y.mean" = ymeans, "y.sd" = ysds),
                               survival_model = survival_model,
                               EN.alpha = EN.alpha,
                               n.var = max.variables,

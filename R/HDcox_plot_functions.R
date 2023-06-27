@@ -4691,7 +4691,7 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
   #create new variable
   if(type=="LP"){
     #predict scores X_test
-    test_score <- predict(object = model, newdata = X_test)
+    test_score <- predict.HDcox(object = model, newdata = X_test)
     #predict LP using scores
     test_lp <- predict(model$survival_model$fit, newdata = as.data.frame(test_score))
 
@@ -4722,7 +4722,7 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
     lst_ggp <- NULL
 
     #predict scores X_test
-    test_score <- predict(model, newdata = X_test)
+    test_score <- predict.HDcox(model, newdata = X_test)
     test_score <- test_score[,names(model$survival_model$fit$coefficients),drop=F]
     for(cn in names(model$survival_model$fit$coefficients)){
       # check only coef in final model

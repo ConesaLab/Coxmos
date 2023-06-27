@@ -240,14 +240,13 @@ mb.splsdacox <- function (X, Y,
   mb.splsda <- mixOmics::block.splsda(Xh, Yh[,"event"], scale=F, ncomp = n.comp, keepX = keepX, max.iter = max.iter, near.zero.var = F, all.outputs = T)
 
   #PREDICTION
-  #PREDICTION
   #both methods return same values
   # but second with pseudo inverse matrix
   predplsfit <- tryCatch(
     # Specifying expression
     # pmax - coefficients to be non-zero
     expr = {
-      predict(mb.splsda, newdata=Xh)
+      predict(mb.splsda, newdata=Xh) #mixomics
     },
     error = function(e){
       if(verbose){

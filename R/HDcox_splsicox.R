@@ -550,8 +550,16 @@ splsicox <- function(X, Y,
   time <- difftime(t2,t1,units = "mins")
 
   # invisible(gc())
-  return(splsicox_class(list(X = list("data" = if(returnData) X_norm else NA, "weightings" = W, "weightings_norm" = W_norm, "W.star" = W.star, "loadings" = P, "scores" = Ts, "E" = E, "x.mean" = xmeans, "x.sd" = xsds),
-                            Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
+  return(splsicox_class(list(X = list("data" = if(returnData) X_norm else NA,
+                                      "weightings" = if(returnData) W else NA,
+                                      "weightings_norm" = if(returnData) W_norm else NA,
+                                      "W.star" = W.star,
+                                      "loadings" = P,
+                                      "scores" = if(returnData) Ts else NA,
+                                      "E" = if(returnData) E else NA,
+                                      "x.mean" = xmeans, "x.sd" = xsds),
+                            Y = list("data" = Yh,
+                                     "y.mean" = ymeans, "y.sd" = ysds),
                             survival_model = survival_model,
                             n.comp = h,
                             spv_penalty = spv_penalty,

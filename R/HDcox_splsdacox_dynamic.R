@@ -207,6 +207,10 @@ splsdacox_dynamic <- function (X, Y,
 
   splsda <- mixOmics::splsda(Xh, Yh[,"event"], scale=F, ncomp = n.comp, keepX = rep(keepX, n.comp), max.iter = max.iter, near.zero.var = T)
 
+  # PREDICTION
+  # not implemented !!!
+  # E, R2...
+
   #last model includes all of them
   tt_splsDR = data.matrix(splsda$variates$X)
   ww_splsDR = data.matrix(splsda$loadings$X)
@@ -351,8 +355,14 @@ splsdacox_dynamic <- function (X, Y,
   time <- difftime(t2,t1,units = "mins")
 
   # invisible(gc())
-  return(splsdacox_dynamic_class(list(X = list("data" = if(returnData) X_norm else NA, "weightings" = W, "W.star" = W.star, "loadings" = P, "scores" = Ts, "x.mean" = xmeans, "x.sd" = xsds),
-                                      Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
+  return(splsdacox_dynamic_class(list(X = list("data" = if(returnData) X_norm else NA,
+                                               "weightings" = if(returnData) W else NA,
+                                               "W.star" = W.star,
+                                               "loadings" = P,
+                                               "scores" = if(returnData) Ts else NA,
+                                               "x.mean" = xmeans, "x.sd" = xsds),
+                                      Y = list("data" = Yh,
+                                               "y.mean" = ymeans, "y.sd" = ysds),
                                       survival_model = survival_model,
                                       n.comp = n.comp, #number of components
                                       n.varX = keepX,

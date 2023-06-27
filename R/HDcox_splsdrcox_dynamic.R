@@ -273,13 +273,37 @@ splsdrcox_dynamic <- function (X, Y,
 
   # sometimes solve(t(P) %*% W) in predict can cause an error
   # system is computationally singular: reciprocal condition number = 6.24697e-18
-  predplsfit <- tryCatch(expr = {predict(spls, newdata=Xh[,rownames(spls$loadings$X),drop=F])},
-                 error = function(e){
-                   if(verbose){
-                     message(e$message)
-                   }
-                   NA
-                 })
+  predplsfit <- tryCatch(expr = {predict(spls, newdata=Xh[,rownames(spls$loadings$X),drop=F])}, #mixomics
+                         error = function(e){
+                           if(verbose){
+                             message("Predicting values using a pseudo-inverse matrix...\n")
+                           }
+                           # Estimation matrix W, P and C
+                           predict <- NULL
+                           Pmat = crossprod(spls$X, spls$variates$X)
+                           Cmat = crossprod(spls$Y, spls$variates$X)
+                           Wmat = spls$loadings
+
+                           PW <- list()
+                           for(i in 1:n.comp){
+                             PW[[i]] <- tryCatch(expr = {MASS::ginv(t(Pmat[,1:i]) %*% Wmat$X[,1:i])},
+                                                 error = function(e){
+                                                   if(verbose){
+                                                     message(e$message)
+                                                   }
+                                                   NA
+                                                 })
+                           }
+
+
+                           Ypred = lapply(1:n.comp, function(x){Xh %*% Wmat$X[, 1:x] %*% PW[[x]] %*% t(Cmat)[1:x, ]})
+                           Ypred = sapply(Ypred, function(x){x}, simplify = "array")
+                           predict = array(Ypred, c(nrow(spls$X), ncol(spls$Y), n.comp)) # in case one observation and only one Y, we need array() to keep it an array with a third dimension being ncomp
+
+                           predplsfit <- list()
+                           predplsfit$predict <- predict
+                           predplsfit
+                         })
 
   if(!all(is.na(predplsfit))){
     # R2 calculation
@@ -441,9 +465,17 @@ splsdrcox_dynamic <- function (X, Y,
   time <- difftime(t2,t1,units = "mins")
 
   # invisible(gc())
-  return(splsdrcox_dynamic_class(list(X = list("data" = if(returnData) X_norm else NA, "weightings" = W, "W.star" = W.star, "loadings" = P, "scores" = Ts, "E" = E, "x.mean" = xmeans, "x.sd" = xsds),
-                                      Y = list("deviance_residuals" = if(returnData) DR_coxph_ori else NA, "dr.mean" = NULL, "dr.sd" = NULL, #deviance_residuals object already centered
-                                                "data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
+  return(splsdrcox_dynamic_class(list(X = list("data" = if(returnData) X_norm else NA,
+                                               "weightings" = if(returnData) W else NA,
+                                               "W.star" = W.star,
+                                               "loadings" = P,
+                                               "scores" = if(returnData) Ts else NA,
+                                               "E" = if(returnData) E else NA,
+                                               "x.mean" = xmeans, "x.sd" = xsds),
+                                      Y = list("deviance_residuals" = if(returnData) DR_coxph_ori else NA,
+                                               "dr.mean" = NULL, "dr.sd" = NULL, #deviance_residuals object already centered
+                                               "data" = Yh,
+                                               "y.mean" = ymeans, "y.sd" = ysds),
                                       survival_model = survival_model,
                                       n.comp = n.comp_used, #number of components
                                       n.varX = n.varX_used,

@@ -272,7 +272,7 @@ mb.splsdrcox <- function (X, Y,
     # Specifying expression
     # pmax - coefficients to be non-zero
     expr = {
-      predict(mb.spls, newdata=Xh)
+      predict(mb.spls, newdata=Xh) #mixomics
     },
     error = function(e){
       if(verbose){
