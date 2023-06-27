@@ -410,3 +410,98 @@ LST_KM_TEST_LP <- getTestKM.list(lst_models = lst_models,
 ## ---- fig.small=T, warning=F--------------------------------------------------
 LST_KM_TEST_LP$`sPLS-ICOX`
 
+## -----------------------------------------------------------------------------
+LST_KM_RES_COMP <- getAutoKM.list(type = "COMP",
+                                  lst_models = lst_models,
+                                  comp = 1:10,
+                                  top = 10,
+                                  ori_data = T,
+                                  BREAKTIME = NULL,
+                                  n.breaks = 20,
+                                  only_sig = T, alpha = 0.05)
+
+## ---- fig.small=T, warning=F--------------------------------------------------
+LST_KM_RES_COMP$`sPLS-ICOX`$LST_PLOTS$comp_1
+LST_KM_RES_COMP$`sPLS-ICOX`$LST_PLOTS$comp_2
+
+## -----------------------------------------------------------------------------
+lst_cutoff <- getCutoffAutoKM.list(LST_KM_RES_COMP)
+
+LST_KM_TEST_COMP <- getTestKM.list(lst_models = lst_models, 
+                                   X_test = X_test, Y_test = Y_test, 
+                                   type = "COMP",
+                                   BREAKTIME = NULL, n.breaks = 20,
+                                   lst_cutoff = lst_cutoff)
+
+## ---- fig.small=T, warning=F--------------------------------------------------
+# all patients could be categorize into the same group
+LST_KM_TEST_COMP$`sPLS-ICOX`$comp_1
+LST_KM_TEST_COMP$`sPLS-ICOX`$comp_2
+
+## -----------------------------------------------------------------------------
+LST_KM_RES_VAR <- getAutoKM.list(type = "VAR",
+                                 lst_models = lst_models,
+                                 comp = 1:10, #select how many components you want to compute for the pseudo beta
+                                 top = 10,
+                                 ori_data = T, #original data selected
+                                 BREAKTIME = NULL,
+                                 only_sig = T, alpha = 0.05)
+
+## ---- fig.small=T, warning=F--------------------------------------------------
+LST_KM_RES_VAR$`sPLS-ICOX`$LST_PLOTS$`hsa-miR-222`
+LST_KM_RES_VAR$`sPLS-ICOX`$LST_PLOTS$`hsa-miR-492`
+
+## -----------------------------------------------------------------------------
+lst_cutoff <- getCutoffAutoKM.list(LST_KM_RES_VAR)
+
+LST_KM_TEST_VAR <- getTestKM.list(lst_models = lst_models, 
+                                  X_test = X_test, Y_test = Y_test, 
+                                  type = "VAR", ori_data = T,
+                                  BREAKTIME = NULL, n.breaks = 20,
+                                  lst_cutoff = lst_cutoff)
+
+## ---- fig.small=T, warning=F--------------------------------------------------
+LST_KM_TEST_VAR$`sPLS-ICOX`$`hsa-miR-222`
+LST_KM_TEST_VAR$`sPLS-ICOX`$`hsa-miR-492`
+
+## -----------------------------------------------------------------------------
+new_pat <- X_test[3,,drop=F]
+
+## -----------------------------------------------------------------------------
+knitr::kable(Y_test[rownames(new_pat),])
+
+## ---- warning=F---------------------------------------------------------------
+ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient.list(lst_models = lst_models, 
+                                                             new_observation = new_pat,
+                                                             error.bar = T, onlySig = T, alpha = 0.05,
+                                                             zero.rm = T, auto.limits = T, show.betas = T, top = 20)
+
+# ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient(model = lst_models$`sPLS-ICOX`,
+#                                                         new_observation = new_pat,
+#                                                         error.bar = T, onlySig = T, alpha = 0.05,
+#                                                         zero.rm = T, auto.limits = T, show.betas = T, top = 20)
+
+## ---- fig.small=T, warning=F--------------------------------------------------
+ggp.simulated_beta_newPat$`sPLS-ICOX`$plot
+
+## -----------------------------------------------------------------------------
+pat_density <- plot_patient.eventDensity(patient = new_pat, 
+                                         time = NULL, 
+                                         model = lst_models$`sPLS-ICOX`, 
+                                         type = "lp")
+
+## ---- fig.small=T, warning=F--------------------------------------------------
+pat_density
+
+## -----------------------------------------------------------------------------
+pat_histogram <- plot_patient.eventHistogram(patient = new_pat, 
+                                             time = NULL, 
+                                             model = lst_models$`sPLS-ICOX`, 
+                                             type = "lp")
+
+## ---- fig.small=T, warning=F--------------------------------------------------
+pat_histogram
+
+## ---- eval=F------------------------------------------------------------------
+#  #plot_divergent.biplot - for num and qual variables
+

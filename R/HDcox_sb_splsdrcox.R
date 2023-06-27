@@ -875,8 +875,10 @@ fast.cv.sb.splsdrcox <- function(X, Y,
   time <- difftime(t2,t1,units = "mins")
 
   # invisible(gc())
-  return(sb.splsdrcox_class(list(X = list("data" = if(returnData) X_norm else NA, "x.mean" = xmeans, "x.sd" = xsds),
-                                Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
+  return(sb.splsdrcox_class(list(X = list("data" = if(returnData) X_norm else NA,
+                                          "x.mean" = xmeans, "x.sd" = xsds),
+                                Y = list("data" = Yh,
+                                         "y.mean" = ymeans, "y.sd" = ysds),
                                 survival_model = cox_model$survival_model,
                                 list_spls_models = lst_sb.spls,
                                 n.comp = aux_ncomp, #number of components used, but could be lesser than expected because not computed models

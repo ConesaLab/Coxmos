@@ -539,9 +539,17 @@ mb.splsdrcox <- function (X, Y,
   time <- difftime(t2,t1,units = "mins")
 
   # invisible(gc())
-  return(mb.splsdrcox_class(list(X = list("data" = if(returnData) X_norm else NA, "loadings" = P, "weightings" = W, "W.star" = W.star, "scores" = Ts, "E" = E, "x.mean" = xmeans, "x.sd" = xsds),
-                                 Y = list("deviance_residuals" = if(returnData) DR_coxph_ori else NA, "dr.mean" = NULL, "dr.sd" = NULL, #deviance_residuals object already centered
-                                          "data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
+  return(mb.splsdrcox_class(list(X = list("data" = if(returnData) X_norm else NA,
+                                          "loadings" = P,
+                                          "weightings" = if(returnData) W else NA,
+                                          "W.star" = W.star,
+                                          "scores" = Ts,
+                                          "E" = if(returnData) E else NA,
+                                          "x.mean" = xmeans, "x.sd" = xsds),
+                                 Y = list("deviance_residuals" = if(returnData) DR_coxph_ori else NA,
+                                          "dr.mean" = NULL, "dr.sd" = NULL, #deviance_residuals object already centered
+                                          "data" = Yh,
+                                          "y.mean" = ymeans, "y.sd" = ysds),
                                  survival_model = survival_model,
                                  mb.model = mb.spls,
                                  n.comp = n.comp_used, #number of components

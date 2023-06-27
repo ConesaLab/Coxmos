@@ -1219,11 +1219,11 @@ predict.HDcox <- function(object, ..., newdata = NULL){
     cn.merge = NULL
     for(b in names(model$list_spls_models)){
       predicted_scores <- cbind(predicted_scores, predict.HDcox(object = model$list_spls_models[[b]], newdata = X_test[[b]]))
-      cn.merge <- c(cn.merge, paste0(colnames(model$list_spls_models[[b]]$X$scores), "_", b))
-      #cn.merge <- c(cn.merge, paste0(colnames(model$list_spls_models[[b]]$X$scores)[1:model$list_spls_models[[b]]$n.comp], "_", b))
+      cn.merge <- c(cn.merge, paste0(colnames(model$list_spls_models[[b]]$X$W.star), "_", b))
+      #cn.merge <- c(cn.merge, paste0(colnames(model$list_spls_models[[b]]$X$W.star)[1:model$list_spls_models[[b]]$n.comp], "_", b))
     }
 
-    #colnames(predicted_scores) <- apply(expand.grid(colnames(model$list_spls_models[[1]]$X$scores[,,drop=F]), names(model$list_spls_models)), 1, paste, collapse="_")
+    #colnames(predicted_scores) <- apply(expand.grid(colnames(model$list_spls_models[[1]]$X$W.star[,,drop=F]), names(model$list_spls_models)), 1, paste, collapse="_")
     colnames(predicted_scores) <- cn.merge
 
     rn <- NULL
@@ -1303,11 +1303,11 @@ predict.HDcox <- function(object, ..., newdata = NULL){
         next
       }else{
         predicted_scores <- cbind(predicted_scores, predict.HDcox(object = model$list_spls_models[[b]], newdata = X_test[[b]]))
-        cn.merge <- c(cn.merge, paste0(colnames(model$list_spls_models[[b]]$X$scores)[1:ncol(model$list_spls_models[[b]]$X$scores)], "_", b))
+        cn.merge <- c(cn.merge, paste0(colnames(model$list_spls_models[[b]]$X$W.star)[1:ncol(model$list_spls_models[[b]]$X$W.star)], "_", b))
       }
     }
 
-    #colnames(predicted_scores) <- apply(expand.grid(colnames(model$list_spls_models[[1]]$X$scores[,,drop=F]), names(model$list_spls_models)), 1, paste, collapse="_")
+    #colnames(predicted_scores) <- apply(expand.grid(colnames(model$list_spls_models[[1]]$X$W.star[,,drop=F]), names(model$list_spls_models)), 1, paste, collapse="_")
     colnames(predicted_scores) <- cn.merge
 
     rn <- NULL
@@ -1453,7 +1453,7 @@ predict.HDcox <- function(object, ..., newdata = NULL){
     # predicted_scores <- matrix(data = sapply(1:ncol(predicted_scores),
     #                                          function(x) {predicted_scores[, x] * apply(model$X$scores, 2,
     #                                                                                     function(y){(norm(y, type = "2"))^2})[x]}), nrow = nrow(X_test), ncol = ncol(predicted_scores))
-    colnames(predicted_scores) <- colnames(model$X$scores)
+    colnames(predicted_scores) <- colnames(model$X$W.star)
     rownames(predicted_scores) <- rownames(X_test)
 
   }else if(attr(model, "model") %in% c(pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
@@ -1470,7 +1470,7 @@ predict.HDcox <- function(object, ..., newdata = NULL){
         lst_predicted_scores[[b]] <- matrix(data = sapply(1:ncol(lst_predicted_scores[[b]]),
                                                  function(x) {lst_predicted_scores[[b]][, x] * apply(model$X$scores[[b]], 2,
                                                                                             function(y){(norm(y, type = "2"))^2})[x]}), nrow = nrow(X_test[[b]]), ncol = ncol(lst_predicted_scores[[b]]))
-        colnames(lst_predicted_scores[[b]]) <- colnames(model$X$scores[[b]])
+        colnames(lst_predicted_scores[[b]]) <- colnames(model$X$W.star[[b]])
         rownames(lst_predicted_scores[[b]]) <- rownames(X_test[[b]])
       }
     }
@@ -1480,12 +1480,12 @@ predict.HDcox <- function(object, ..., newdata = NULL){
       predicted_scores <- cbind(predicted_scores, lst_predicted_scores[[i]])
     }
 
-    colnames(predicted_scores) <- apply(expand.grid(colnames(model$X$scores[[1]]), names(model$X$loadings)), 1, paste, collapse="_")
+    colnames(predicted_scores) <- apply(expand.grid(colnames(model$X$W.star[[1]]), names(model$X$loadings)), 1, paste, collapse="_")
 
   }else{
     # "sPLS-DACOX-Dynamic" does not perform the normalization for mixOmics, just this
     predicted_scores <- X_test %*% model$X$W.star
-    colnames(predicted_scores) <- colnames(model$X$scores)
+    colnames(predicted_scores) <- colnames(model$X$W.star)
     rownames(predicted_scores) <- rownames(X_test)
   }
 
