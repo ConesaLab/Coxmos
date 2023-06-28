@@ -935,11 +935,11 @@ removeNonSignificativeCox <- function(cox, alpha, cox_input, time.value = NULL, 
 
 }
 
-getFAST_LP_AUC <- function(fast_mode, comp_index, eta_index = NULL, run, fold, lst_X_test, lst_Y_test, comp_model_lst, times = NULL, lst_linear.predictors, df_results_evals_AUC, pred.method, pred.attr, PARALLEL = F, verbose = F){
+getFAST_LP_AUC <- function(fast_mode, comp_index, eta_index = NULL, run, fold, X_test, Y_test, lst_X_test, lst_Y_test, comp_model_lst, times = NULL, lst_linear.predictors, df_results_evals_AUC, pred.method, pred.attr, PARALLEL = F, verbose = F){
   lst_linear.predictors <- NULL
   Y_test_full <- NULL
   lst_resCOMPLETE_LP <- getCOMPLETE_LP(comp_index = comp_index, eta_index = eta_index, run = run, fold = fold,
-                                       lst_X_test = lst_X_test, lst_Y_test = lst_Y_test, Y_test_full = Y_test_full,
+                                       X_test = X_test, Y_test = Y_test, lst_X_test = lst_X_test, lst_Y_test = lst_Y_test, Y_test_full = Y_test_full,
                                        comp_model_lst = comp_model_lst, lst_linear.predictors = lst_linear.predictors)
   Y_test <- lst_resCOMPLETE_LP$Y_test
   Y_test_full <- lst_resCOMPLETE_LP$Y_test_full
@@ -963,10 +963,18 @@ getFAST_LP_AUC <- function(fast_mode, comp_index, eta_index = NULL, run, fold, l
   return(list(lst_AUC_values = lst_AUC_values, df_results_evals_AUC = df_results_evals_AUC))
 }
 
-getCOMPLETE_LP <- function(comp_index, eta_index = NULL, run, fold, lst_X_test, lst_Y_test, Y_test_full, comp_model_lst, lst_linear.predictors){
+getCOMPLETE_LP <- function(comp_index, eta_index = NULL, run, fold, X_test, Y_test, lst_X_test, lst_Y_test, Y_test_full, comp_model_lst, lst_linear.predictors){
 
-  X_test <- lst_X_test[[run]][[fold]]
-  Y_test <- lst_Y_test[[run]][[fold]]
+  #classical/sPLS
+  if(!isa(X_test, "list")){
+    X_test <- X_test[lst_X_test[[run]][[fold]],]
+    Y_test <- Y_test[lst_Y_test[[run]][[fold]],]
+  }else{
+    # SB/MO
+    X_test <- lapply(X_test, function(x, ind){x[ind,]}, ind = lst_X_test[[run]][[fold]])
+    Y_test <- Y_test[lst_Y_test[[run]][[fold]],]
+  }
+
   Y_test_full <- rbind(Y_test_full, Y_test)
 
   if(!is.null(eta_index)){
@@ -996,10 +1004,17 @@ getCOMPLETE_LP <- function(comp_index, eta_index = NULL, run, fold, lst_X_test, 
   }
 }
 
-getCOMPLETE_BRIER <- function(comp_index, eta_index = NULL, run, fold, lst_X_test, lst_Y_test, comp_model_lst, times, verbose = verbose){
+getCOMPLETE_BRIER <- function(comp_index, eta_index = NULL, run, fold, X_test, Y_test, lst_X_test, lst_Y_test, comp_model_lst, times, verbose = verbose){
 
-  X_test <- lst_X_test[[run]][[fold]]
-  Y_test <- lst_Y_test[[run]][[fold]]
+  #classical/sPLS
+  if(!isa(X_test, "list")){
+    X_test <- X_test[lst_X_test[[run]][[fold]],]
+    Y_test <- Y_test[lst_Y_test[[run]][[fold]],]
+  }else{
+  # SB/MO
+    X_test <- lapply(X_test, function(x, ind){x[ind,]}, ind = lst_X_test[[run]][[fold]])
+    Y_test <- Y_test[lst_Y_test[[run]][[fold]],]
+  }
 
   if(!is.null(eta_index)){
     model <- comp_model_lst[[comp_index]][[eta_index]][[run]][[fold]]
@@ -2480,6 +2495,7 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
 #BRIER is a FOLD LEVEL ALWAYS
 get_COX_evaluation_BRIER <- function(comp_model_lst,
                                      fast_mode,
+                                     X_test, Y_test,
                                      lst_X_test, lst_Y_test,
                                      df_results_evals, times = NULL,
                                      pred.method, pred.attr,
@@ -2538,6 +2554,7 @@ get_COX_evaluation_BRIER <- function(comp_model_lst,
           }
 
           lst_BRIER <- getCOMPLETE_BRIER(comp_index = l.index, eta_index = NULL, run = r, fold = f,
+                                         X_test = X_test, Y_test = Y_test,
                                          lst_X_test = lst_X_test, lst_Y_test = lst_Y_test,
                                          comp_model_lst = comp_model_lst, times = times,
                                          verbose = verbose)
@@ -2595,7 +2612,15 @@ get_COX_evaluation_BRIER <- function(comp_model_lst,
           index_2_add <- which(!rownames(comp_model_lst[[l.index]][[r]][[f]]$Y$data) %in% rownames(lst_train_Y))
           lst_train_Y <- rbind(lst_train_Y, comp_model_lst[[l.index]][[r]][[f]]$Y$data[index_2_add,,drop=F])
 
-          test_data <- predict.HDcox(object = comp_model_lst[[l.index]][[r]][[f]], newdata = lst_X_test[[r]][[f]])
+          #classical/sPLS
+          if(!isa(X_test, "list")){
+            newdata <- X_test[lst_X_test[[r]][[f]],]
+          }else{
+            # SB/MO
+            newdata <- lapply(X_test, function(x, ind){x[ind,]}, ind = lst_X_test[[r]][[f]])
+          }
+
+          test_data <- predict.HDcox(object = comp_model_lst[[l.index]][[r]][[f]], newdata = newdata)
           lp_test <- predict(object = model, newdata = as.data.frame(test_data), type = "lp")
           lst_test_LP <- c(lst_test_LP, lp_test)
 
@@ -2689,6 +2714,7 @@ get_COX_evaluation_BRIER <- function(comp_model_lst,
 
 get_COX_evaluation_BRIER_sPLS <- function(comp_model_lst,
                                           fast_mode,
+                                          X_test, Y_test,
                                           lst_X_test, lst_Y_test,
                                           df_results_evals, times = NULL,
                                           pred.method, pred.attr,
@@ -2750,6 +2776,7 @@ get_COX_evaluation_BRIER_sPLS <- function(comp_model_lst,
             }
 
             lst_BRIER <- getCOMPLETE_BRIER(comp_index = l.index, eta_index = e, run = r, fold = f,
+                                           X_test = X_test, Y_test = Y_test,
                                            lst_X_test = lst_X_test, lst_Y_test = lst_Y_test,
                                            comp_model_lst = comp_model_lst, times = times,
                                            verbose = verbose)
@@ -2837,7 +2864,15 @@ get_COX_evaluation_BRIER_sPLS <- function(comp_model_lst,
             index_2_add <- which(!rownames(comp_model_lst[[l.index]][[e]][[r]][[f]]$Y$data) %in% rownames(lst_train_Y))
             lst_train_Y <- rbind(lst_train_Y, comp_model_lst[[l.index]][[e]][[r]][[f]]$Y$data[index_2_add,,drop=F])
 
-            test_data <- predict.HDcox(object = comp_model_lst[[l.index]][[e]][[r]][[f]], newdata = lst_X_test[[r]][[f]])
+            #classical/sPLS
+            if(!isa(X_test, "list")){
+              newdata <- X_test[lst_X_test[[r]][[f]],]
+            }else{
+              # SB/MO
+              newdata <- lapply(X_test, function(x, ind){x[ind,]}, ind = lst_X_test[[r]][[f]])
+            }
+
+            test_data <- predict.HDcox(object = comp_model_lst[[l.index]][[e]][[r]][[f]], newdata = newdata)
             lp_test <- predict(object = model, newdata = as.data.frame(test_data), type = "lp")
             lst_test_LP <- c(lst_test_LP, lp_test)
 
@@ -2943,6 +2978,7 @@ get_COX_evaluation_BRIER_sPLS <- function(comp_model_lst,
 }
 
 get_COX_evaluation_AUC <- function(comp_model_lst,
+                                   X_test, Y_test,
                                    lst_X_test, lst_Y_test,
                                    df_results_evals, times = NULL,
                                    fast_mode, pred.method, pred.attr,
@@ -3000,6 +3036,7 @@ get_COX_evaluation_AUC <- function(comp_model_lst,
           }
 
           lst_FAST_LP_AUC <- getFAST_LP_AUC(fast_mode = fast_mode, comp_index = l.index, run = r, fold = f,
+                                            X_test = X_test, Y_test = Y_test,
                                             lst_X_test = lst_X_test, lst_Y_test = lst_Y_test, times = times,
                                             comp_model_lst = comp_model_lst, lst_linear.predictors = lst_linear.predictors,
                                             df_results_evals_AUC = df_results_evals_AUC,
@@ -3057,6 +3094,7 @@ get_COX_evaluation_AUC <- function(comp_model_lst,
           #comp_index is the index of l for coxEN
           # method updates automaticatly the lst of linear predictors addind each fold
           lst_COMPLETE_LP <- getCOMPLETE_LP(comp_index = l.index, run = r, fold = f,
+                                            X_test = X_test, Y_test = Y_test,
                                             lst_X_test = lst_X_test, lst_Y_test = lst_Y_test, Y_test_full = Y_test_full,
                                             comp_model_lst = comp_model_lst, lst_linear.predictors = lst_linear.predictors)
 
@@ -3149,6 +3187,7 @@ get_COX_evaluation_AUC <- function(comp_model_lst,
 }
 
 get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
+                                        X_test, Y_test,
                                         lst_X_test, lst_Y_test,
                                         df_results_evals, times = NULL,
                                         fast_mode, pred.method, pred.attr,
@@ -3230,6 +3269,7 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
               next
             }
             lst_FAST_LP_AUC <- getFAST_LP_AUC(fast_mode = fast_mode, comp_index = l, eta_index = e, run = r, fold = f,
+                                              X_test = X_test, Y_test = Y_test,
                                               lst_X_test = lst_X_test, lst_Y_test = lst_Y_test, times = times,
                                               comp_model_lst = comp_model_lst, lst_linear.predictors = lst_linear.predictors,
                                               df_results_evals_AUC = df_results_evals_AUC,
@@ -3310,6 +3350,7 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
               next
             }
             lst_COMPLETE_LP <- getCOMPLETE_LP(comp_index = l, eta_index = e, run = r, fold = f,
+                                              X_test = X_test, Y_test = Y_test,
                                               lst_X_test = lst_X_test, lst_Y_test = lst_Y_test, Y_test_full = Y_test_full,
                                               comp_model_lst = comp_model_lst, lst_linear.predictors = lst_linear.predictors)
             Y_test_full <- lst_COMPLETE_LP$Y_test_full
