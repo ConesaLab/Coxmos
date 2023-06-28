@@ -393,12 +393,17 @@ cv.sb.splsicox <- function(X, Y,
   #### #
   # CV #
   #### #
-  lst_data <- splitData_Iterations_Folds.mb(X, Y, n_run = n_run, k_folds = k_folds, seed = seed) #FOR TEST
-  lst_X_train <- lst_data$lst_X_train
-  lst_Y_train <- lst_data$lst_Y_train
-  lst_X_test <- lst_data$lst_X_test
-  lst_Y_test <- lst_data$lst_Y_test
-  k_folds <- lst_data$k_folds
+  # lst_data <- splitData_Iterations_Folds.mb(X, Y, n_run = n_run, k_folds = k_folds, seed = seed) #FOR TEST
+  # lst_X_train <- lst_data$lst_X_train
+  # lst_Y_train <- lst_data$lst_Y_train
+  # lst_X_test <- lst_data$lst_X_test
+  # lst_Y_test <- lst_data$lst_Y_test
+  # k_folds <- lst_data$k_folds
+  #
+  # lst_train_indexes <- lst_data$lst_train_index
+  # lst_test_indexes <- lst_data$lst_test_index
+
+  lst_data <- splitData_Iterations_Folds_indexes(Y, n_run = n_run, k_folds = k_folds, seed = seed) #FOR TEST
 
   lst_train_indexes <- lst_data$lst_train_index
   lst_test_indexes <- lst_data$lst_test_index
@@ -410,7 +415,8 @@ cv.sb.splsicox <- function(X, Y,
   total_models <- max.ncomp * k_folds * n_run * length(spv_penalty.list)
 
   lst_model <- get_HDCOX_models2.0(method = pkg.env$sb.splsicox,
-                                   lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
+                                   X_train = X, Y_train = Y,
+                                   lst_X_train = lst_train_indexes, lst_Y_train = lst_train_indexes,
                                    max.ncomp = max.ncomp, eta.list = spv_penalty.list, EN.alpha.list = NULL, max.variables = NULL, vector = NULL,
                                    n_run = n_run, k_folds = k_folds,
                                    MIN_NVAR = NULL, MAX_NVAR = NULL, MIN_AUC_INCREASE = NULL, EVAL_METHOD = NULL,

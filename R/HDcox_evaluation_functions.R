@@ -161,6 +161,49 @@ splitData_Iterations_Folds <- function(X, Y, n_run, k_folds, seed = 123){
   return(list(lst_X_train = lst_X_train, lst_Y_train = lst_Y_train, lst_X_test = lst_X_test, lst_Y_test = lst_Y_test, lst_train_index = lst_obs_index_train, lst_test_index = lst_obs_index_test, k_folds = k_folds))
 }
 
+#return a run/fold list where each fold are the indexes to select for train/test wehre train = k-1 folds and 1 fold of test
+#difference between folds will be 1 fold of patients
+splitData_Iterations_Folds_indexes <- function(Y, n_run, k_folds, seed = 123){
+
+  set.seed(seed)
+
+  if(!is.numeric(n_run) & n_run > 0){
+    stop_quietly("Parameter 'n_run' must be a numeric greater or equal than 1.")
+  }
+  if(!is.numeric(k_folds) & k_folds > 1){
+    stop_quietly("Parameter 'k_folds' must be a numeric greater or equal than 2.") #At least two folds for train/test
+  }
+
+  if(k_folds > nrow(Y)){
+    warning(paste0("Parameter 'k_folds' cannot be greater than the number of observations (changed to ", nrow(Y), ").\n")) #Folds as observation as maximum
+    k_folds <- nrow(Y)
+  }
+
+  if(!any(c("event", "status") %in% colnames(Y))){
+    stop_quietly("Y data.frame must contain the colname 'event' or 'status'.")
+  }else if("status" %in% colnames(Y)){
+    colnames(Y)[colnames(Y)=="status"] <- "event"
+  }
+
+  lst_obs_index_train <- list()
+  lst_obs_index_test <- list()
+
+  for(i in 1:n_run){
+    testIndex <- caret::createFolds(y = Y[,"event"],
+                                    k = k_folds,
+                                    list = TRUE)
+
+    lst_obs_index_test[[i]] <- testIndex
+    aux <- 1:nrow(Y)
+    lst_obs_index_train[[i]] <- lapply(testIndex, function(ind, aux) aux[-ind], aux = aux)
+  }
+
+  names(lst_obs_index_train) <- paste0("run", 1:n_run)
+  names(lst_obs_index_test) <- paste0("run", 1:n_run)
+
+  return(list(lst_train_index = lst_obs_index_train, lst_test_index = lst_obs_index_test, k_folds = k_folds))
+}
+
 getAUC_from_LP_2.0 <- function(linear.predictors, Y, times, bestModel = NULL, method = "cenROC", eval = "median", PARALLEL = F, verbose = F){
 
   # if(!method %in% c("risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I")){

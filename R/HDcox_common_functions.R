@@ -3488,7 +3488,7 @@ getSubModel.mb <- function(model, comp, remove_non_significant){
     col_names <- NULL
     for(b in names(model$list_spls_models)){
 
-      if(is.na(model$list_spls_models[[b]]) || is.null(model$list_spls_models[[b]])){
+      if(all(is.na(model$list_spls_models[[b]])) || is.null(model$list_spls_models[[b]])){
         res$list_spls_models[[b]] <- NA
       }else{
 
@@ -3627,7 +3627,10 @@ getSubModel.mb <- function(model, comp, remove_non_significant){
   return(res)
 }
 
+# lst_X_train now are train indexes
+# lst_Y_train now are train indexes - same input
 get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
+                                X_train, Y_train,
                                 lst_X_train, lst_Y_train, vector = NULL,
                                 max.ncomp, eta.list = NULL, EN.alpha.list = NULL, max.variables = 50,
                                 n_run, k_folds,
@@ -3711,8 +3714,8 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
       }
 
       if(method==pkg.env$splsdacox_dynamic){
-        lst_all_models <- furrr::future_map(lst_inputs, ~splsdacox_dynamic(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
-                                                                           Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
+        lst_all_models <- furrr::future_map(lst_inputs, ~splsdacox_dynamic(X = data.matrix(X_train[lst_X_train[[.$run]][[.$fold]],]),
+                                                                           Y = data.matrix(Y_train[lst_Y_train[[.$run]][[.$fold]],]),
                                                                            n.comp = .$comp,
                                                                            x.center = x.center, x.scale = x.scale,
                                                                            #y.center = y.center, y.scale = y.scale,
@@ -3725,33 +3728,33 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                                            MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose), .options = furrr_options(seed = TRUE))
 
       }else if(method==pkg.env$splsdrcox_dynamic){
-        lst_all_models <- furrr::future_map(lst_inputs, ~splsdrcox_dynamic(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
-                                                                            Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
-                                                                            n.comp = .$comp,
-                                                                            x.center = x.center, x.scale = x.scale,
+        lst_all_models <- furrr::future_map(lst_inputs, ~splsdrcox_dynamic(X = data.matrix(X_train[lst_X_train[[.$run]][[.$fold]],]),
+                                                                           Y = data.matrix(Y_train[lst_Y_train[[.$run]][[.$fold]],]),
+                                                                           n.comp = .$comp,
+                                                                           x.center = x.center, x.scale = x.scale,
                                                                            #y.center = y.center, y.scale = y.scale,
-                                                                            remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
-                                                                            remove_non_significant = remove_non_significant,
-                                                                            vector = vector,
-                                                                            MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
-                                                                            MIN_AUC_INCREASE = MIN_AUC_INCREASE,
-                                                                            EVAL_METHOD = EVAL_METHOD, alpha = alpha,
-                                                                            MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose), .options = furrr_options(seed = TRUE))
+                                                                           remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
+                                                                           remove_non_significant = remove_non_significant,
+                                                                           vector = vector,
+                                                                           MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
+                                                                           MIN_AUC_INCREASE = MIN_AUC_INCREASE,
+                                                                           EVAL_METHOD = EVAL_METHOD, alpha = alpha,
+                                                                           MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose), .options = furrr_options(seed = TRUE))
 
       }else if(method==pkg.env$mb.splsdacox){
-        lst_all_models <- furrr::future_map(lst_inputs, ~mb.splsdacox(X = lst_X_train[[.$run]][[.$fold]],
-                                                                     Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
-                                                                     n.comp = .$comp, vector = vector,
-                                                                     MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, MIN_AUC_INCREASE = MIN_AUC_INCREASE,
-                                                                     x.center = x.center, x.scale = x.scale,
-                                                                     #y.center = y.center, y.scale = y.scale,
-                                                                     remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
-                                                                     remove_non_significant = remove_non_significant,  alpha = alpha, max.iter = max.iter,
-                                                                     MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose), .options = furrr_options(seed = TRUE))
+        lst_all_models <- furrr::future_map(lst_inputs, ~mb.splsdacox(X = lapply(X_train, function(x, ind){x[ind,]}, ind = lst_X_train[[.$run]][[.$fold]]),
+                                                                      Y = data.matrix(Y_train[lst_Y_train[[.$run]][[.$fold]],]),
+                                                                      n.comp = .$comp, vector = vector,
+                                                                      MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, MIN_AUC_INCREASE = MIN_AUC_INCREASE,
+                                                                      x.center = x.center, x.scale = x.scale,
+                                                                      #y.center = y.center, y.scale = y.scale,
+                                                                      remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
+                                                                      remove_non_significant = remove_non_significant,  alpha = alpha, max.iter = max.iter,
+                                                                      MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose), .options = furrr_options(seed = TRUE))
 
       }else if(method==pkg.env$mb.splsdrcox){
-        lst_all_models <- furrr::future_map(lst_inputs, ~mb.splsdrcox(X = lst_X_train[[.$run]][[.$fold]],
-                                                                      Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
+        lst_all_models <- furrr::future_map(lst_inputs, ~mb.splsdrcox(X = lapply(X_train, function(x, ind){x[ind,]}, ind = lst_X_train[[.$run]][[.$fold]]),
+                                                                      Y = data.matrix(Y_train[lst_Y_train[[.$run]][[.$fold]],]),
                                                                       n.comp = .$comp, vector = vector,
                                                                       MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, MIN_AUC_INCREASE = MIN_AUC_INCREASE,
                                                                       x.center = x.center, x.scale = x.scale,
@@ -3765,8 +3768,8 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
     }else{
 
       if(method==pkg.env$splsdacox_dynamic){
-        lst_all_models <- purrr::map(lst_inputs, ~splsdacox_dynamic(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
-                                                                    Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
+        lst_all_models <- purrr::map(lst_inputs, ~splsdacox_dynamic(X = data.matrix(X_train[lst_X_train[[.$run]][[.$fold]],]),
+                                                                    Y = data.matrix(Y_train[lst_Y_train[[.$run]][[.$fold]],]),
                                                                     n.comp = .$comp,
                                                                     x.center = x.center, x.scale = x.scale,
                                                                     #y.center = y.center, y.scale = y.scale,
@@ -3779,8 +3782,8 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                                     returnData = returnData, verbose = verbose))
 
       }else if(method==pkg.env$splsdrcox_dynamic){
-        lst_all_models <- purrr::map(lst_inputs, ~splsdrcox_dynamic(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
-                                                                    Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
+        lst_all_models <- purrr::map(lst_inputs, ~splsdrcox_dynamic(X = data.matrix(X_train[lst_X_train[[.$run]][[.$fold]],]),
+                                                                    Y = data.matrix(Y_train[lst_Y_train[[.$run]][[.$fold]],]),
                                                                     n.comp = .$comp,
                                                                     x.center = x.center, x.scale = x.scale,
                                                                     #y.center = y.center, y.scale = y.scale,
@@ -3793,8 +3796,8 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                                     MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose))
 
       }else if(method==pkg.env$mb.splsdrcox){
-        lst_all_models <- purrr::map(lst_inputs, ~mb.splsdrcox(X = lst_X_train[[.$run]][[.$fold]],
-                                                               Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
+        lst_all_models <- purrr::map(lst_inputs, ~mb.splsdrcox(X = lapply(X_train, function(x, ind){x[ind,]}, ind = lst_X_train[[.$run]][[.$fold]]),
+                                                               Y = data.matrix(Y_train[lst_Y_train[[.$run]][[.$fold]],]),
                                                                n.comp = .$comp, vector = vector,
                                                                MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, MIN_AUC_INCREASE = MIN_AUC_INCREASE,
                                                                x.center = x.center, x.scale = x.scale,
@@ -3803,8 +3806,8 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                                remove_non_significant = remove_non_significant, alpha = alpha,
                                                                MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose))
       }else if(method==pkg.env$mb.splsdacox){
-        lst_all_models <- purrr::map(lst_inputs, ~mb.splsdacox(X = lst_X_train[[.$run]][[.$fold]],
-                                                               Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
+        lst_all_models <- purrr::map(lst_inputs, ~mb.splsdacox(X = lapply(X_train, function(x, ind){x[ind,]}, ind = lst_X_train[[.$run]][[.$fold]]),
+                                                               Y = data.matrix(Y_train[lst_Y_train[[.$run]][[.$fold]],]),
                                                                n.comp = .$comp, vector = vector,
                                                                MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, MIN_AUC_INCREASE = MIN_AUC_INCREASE,
                                                                x.center = x.center, x.scale = x.scale,
@@ -3926,8 +3929,8 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
       }
 
       if(method==pkg.env$coxEN){
-        lst_all_models <- furrr::future_map(lst_inputs, ~coxEN(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
-                                                               Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
+        lst_all_models <- furrr::future_map(lst_inputs, ~coxEN(X = data.matrix(X_train[lst_X_train[[.$run]][[.$fold]],]),
+                                                               Y = data.matrix(Y_train[lst_Y_train[[.$run]][[.$fold]],]),
                                                                EN.alpha = EN.alpha.list[[.$alpha_index]],
                                                                max.variables = max.variables,
                                                                x.center = x.center, x.scale = x.scale,
@@ -3943,8 +3946,8 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
     }else{
 
       if(method==pkg.env$coxEN){
-        lst_all_models <- purrr::map(lst_inputs, ~coxEN(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
-                                                        Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
+        lst_all_models <- purrr::map(lst_inputs, ~coxEN(X = data.matrix(X_train[lst_X_train[[.$run]][[.$fold]],]),
+                                                        Y = data.matrix(Y_train[lst_Y_train[[.$run]][[.$fold]],]),
                                                         EN.alpha = EN.alpha.list[[.$alpha_index]],
                                                         max.variables = max.variables,
                                                         x.center = x.center, x.scale = x.scale,
@@ -4046,8 +4049,8 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
       }
 
       if(method==pkg.env$splsicox){
-        lst_all_models <- furrr::future_map(lst_inputs, ~splsicox(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
-                                                                  Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
+        lst_all_models <- furrr::future_map(lst_inputs, ~splsicox(X = data.matrix(X_train[lst_X_train[[.$run]][[.$fold]],]),
+                                                                  Y = data.matrix(Y_train[lst_Y_train[[.$run]][[.$fold]],]),
                                                                   n.comp = .$comp, spv_penalty = eta.list[[.$eta_index]],
                                                                   x.center = x.center, x.scale = x.scale,
                                                                   #y.center = y.center, y.scale = y.scale,
@@ -4055,8 +4058,8 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                                   remove_non_significant = remove_non_significant, alpha = alpha,
                                                                   MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose), .options = furrr_options(seed = TRUE))
       }else if(method==pkg.env$sb.splsicox){
-        lst_all_models <- furrr::future_map(lst_inputs, ~sb.splsicox(X = lst_X_train[[.$run]][[.$fold]],
-                                                                     Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
+        lst_all_models <- furrr::future_map(lst_inputs, ~sb.splsicox(X = lapply(X_train, function(x, ind){x[ind,]}, ind = lst_X_train[[.$run]][[.$fold]]),
+                                                                     Y = data.matrix(Y_train[lst_Y_train[[.$run]][[.$fold]],]),
                                                                      n.comp = .$comp, spv_penalty = eta.list[[.$eta_index]],
                                                                      x.center = x.center, x.scale = x.scale,
                                                                      #y.center = y.center, y.scale = y.scale,
@@ -4064,8 +4067,8 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                                      remove_non_significant = remove_non_significant, alpha = alpha,
                                                                      MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose), .options = furrr_options(seed = TRUE))
       }else if(method==pkg.env$splsdrcox){
-        lst_all_models <- furrr::future_map(lst_inputs, ~splsdrcox(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
-                                                                   Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
+        lst_all_models <- furrr::future_map(lst_inputs, ~splsdrcox(X = data.matrix(X_train[lst_X_train[[.$run]][[.$fold]],]),
+                                                                   Y = data.matrix(Y_train[lst_Y_train[[.$run]][[.$fold]],]),
                                                                    n.comp = .$comp, eta = eta.list[[.$eta_index]],
                                                                    x.center = x.center, x.scale = x.scale,
                                                                    #y.center = y.center, y.scale = y.scale,
@@ -4074,8 +4077,8 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                                    alpha = alpha,
                                                                    MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose), .options = furrr_options(seed = TRUE))
       }else if(method==pkg.env$sb.splsdrcox){
-        lst_all_models <- furrr::future_map(lst_inputs, ~sb.splsdrcox(X = lst_X_train[[.$run]][[.$fold]],
-                                                                      Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
+        lst_all_models <- furrr::future_map(lst_inputs, ~sb.splsdrcox(X = lapply(X_train, function(x, ind){x[ind,]}, ind = lst_X_train[[.$run]][[.$fold]]),
+                                                                      Y = data.matrix(Y_train[lst_Y_train[[.$run]][[.$fold]],]),
                                                                       n.comp = .$comp, eta = eta.list[[.$eta_index]],
                                                                       x.center = x.center, x.scale = x.scale,
                                                                       #y.center = y.center, y.scale = y.scale,
@@ -4089,8 +4092,8 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
 
     }else{
       if(method==pkg.env$splsicox){
-        lst_all_models <- purrr::map(lst_inputs, ~splsicox(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
-                                                           Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
+        lst_all_models <- purrr::map(lst_inputs, ~splsicox(X = data.matrix(X_train[lst_X_train[[.$run]][[.$fold]],]),
+                                                           Y = data.matrix(Y_train[lst_Y_train[[.$run]][[.$fold]],]),
                                                            n.comp = .$comp, spv_penalty = eta.list[[.$eta_index]],
                                                            x.center = x.center, x.scale = x.scale,
                                                            #y.center = y.center, y.scale = y.scale,
@@ -4099,8 +4102,8 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                            returnData = returnData, verbose = verbose))
       }else if(method==pkg.env$sb.splsicox){
         #lst_all_models <- purrr::map(cli::cli_progress_along(lst_inputs), ~sb.splsicox(X = lst_X_train[[lst_inputs[[.x]]$run]][[lst_inputs[[.x]]$fold]],
-        lst_all_models <- purrr::map(lst_inputs, ~sb.splsicox(X = lst_X_train[[.$run]][[.$fold]],
-                                                              Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
+        lst_all_models <- purrr::map(lst_inputs, ~sb.splsicox(X = lapply(X_train, function(x, ind){x[ind,]}, ind = lst_X_train[[.$run]][[.$fold]]),
+                                                              Y = data.matrix(Y_train[lst_Y_train[[.$run]][[.$fold]],]),
                                                               n.comp = .$comp, spv_penalty = eta.list[[.$eta_index]],
                                                               x.center = x.center, x.scale = x.scale,
                                                               #y.center = y.center, y.scale = y.scale,
@@ -4108,25 +4111,25 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                                               remove_non_significant = remove_non_significant,
                                                               MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose))
       }else if(method==pkg.env$splsdrcox){
-        lst_all_models <- purrr::map(lst_inputs, ~splsdrcox(X = data.matrix(lst_X_train[[.$run]][[.$fold]]),
-                                                           Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
-                                                           n.comp = .$comp, eta = eta.list[[.$eta_index]],
-                                                           x.center = x.center, x.scale = x.scale,
-                                                           #y.center = y.center, y.scale = y.scale,
-                                                           remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
-                                                           remove_non_significant = remove_non_significant,
-                                                           alpha = alpha,
-                                                           MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose))
+        lst_all_models <- purrr::map(lst_inputs, ~splsdrcox(X = data.matrix(X_train[lst_X_train[[.$run]][[.$fold]],]),
+                                                            Y = data.matrix(Y_train[lst_Y_train[[.$run]][[.$fold]],]),
+                                                            n.comp = .$comp, eta = eta.list[[.$eta_index]],
+                                                            x.center = x.center, x.scale = x.scale,
+                                                            #y.center = y.center, y.scale = y.scale,
+                                                            remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
+                                                            remove_non_significant = remove_non_significant,
+                                                            alpha = alpha,
+                                                            MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose))
       }else if(method==pkg.env$sb.splsdrcox){
-        lst_all_models <- purrr::map(lst_inputs, ~sb.splsdrcox(X = lst_X_train[[.$run]][[.$fold]],
-                                                              Y = data.matrix(lst_Y_train[[.$run]][[.$fold]]),
-                                                              n.comp = .$comp, eta = eta.list[[.$eta_index]],
-                                                              x.center = x.center, x.scale = x.scale,
-                                                              #y.center = y.center, y.scale = y.scale,
-                                                              remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
-                                                              remove_non_significant = remove_non_significant,
-                                                              alpha = alpha,
-                                                              MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose))
+        lst_all_models <- purrr::map(lst_inputs, ~sb.splsdrcox(X = lapply(X_train, function(x, ind){x[ind,]}, ind = lst_X_train[[.$run]][[.$fold]]),
+                                                               Y = data.matrix(Y_train[lst_Y_train[[.$run]][[.$fold]],]),
+                                                               n.comp = .$comp, eta = eta.list[[.$eta_index]],
+                                                               x.center = x.center, x.scale = x.scale,
+                                                               #y.center = y.center, y.scale = y.scale,
+                                                               remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
+                                                               remove_non_significant = remove_non_significant,
+                                                               alpha = alpha,
+                                                               MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose))
       }
     }
 
@@ -4230,6 +4233,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
     return(list(comp_model_lst = comp_model_lst, info = info))
 
   }
+
 }
 
 #### ### ### #

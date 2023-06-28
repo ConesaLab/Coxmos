@@ -717,11 +717,16 @@ cv.mb.splsdacox <- function(X, Y,
   #### #
   # CV #
   #### #
-  lst_data <- splitData_Iterations_Folds.mb(X, Y, n_run = n_run, k_folds = k_folds, seed = seed) #FOR TEST
-  lst_X_train <- lst_data$lst_X_train
-  lst_Y_train <- lst_data$lst_Y_train
-  lst_X_test <- lst_data$lst_X_test
-  lst_Y_test <- lst_data$lst_Y_test
+  # lst_data <- splitData_Iterations_Folds.mb(X, Y, n_run = n_run, k_folds = k_folds, seed = seed) #FOR TEST
+  # lst_X_train <- lst_data$lst_X_train
+  # lst_Y_train <- lst_data$lst_Y_train
+  # lst_X_test <- lst_data$lst_X_test
+  # lst_Y_test <- lst_data$lst_Y_test
+  #
+  # lst_train_indexes <- lst_data$lst_train_index
+  # lst_test_indexes <- lst_data$lst_test_index
+
+  lst_data <- splitData_Iterations_Folds_indexes(Y, n_run = n_run, k_folds = k_folds, seed = seed) #FOR TEST
 
   lst_train_indexes <- lst_data$lst_train_index
   lst_test_indexes <- lst_data$lst_test_index
@@ -733,7 +738,8 @@ cv.mb.splsdacox <- function(X, Y,
   #total_models <- max.ncomp * k_folds * n_run
 
   comp_model_lst <- get_HDCOX_models2.0(method = pkg.env$mb.splsdacox,
-                                        lst_X_train = lst_X_train, lst_Y_train = lst_Y_train,
+                                        X_train = X, Y_train = Y,
+                                        lst_X_train = lst_train_indexes, lst_Y_train = lst_train_indexes,
                                         max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL, max.variables = NULL, vector = vector,
                                         n_run = n_run, k_folds = k_folds,
                                         MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, MIN_AUC_INCREASE = MIN_AUC_INCREASE, EVAL_METHOD = EVAL_METHOD,
