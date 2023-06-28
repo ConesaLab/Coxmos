@@ -3584,20 +3584,20 @@ getSubModel.mb <- function(model, comp, remove_non_significant){
       res$time <- difftime(t2,t1,units = "mins")
     }
 
-  }else if(attr(model, "model") %in% c(pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){ #revisar!!!
+  }else if(attr(model, "model") %in% c(pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
     t1 <- Sys.time()
     for(b in names(model$mb.model$X)){
 
-      if(!all(is.na(res$X$loadings[[b]]))){
+      if(b %in% names(res$X$loadings) && !all(is.na(res$X$loadings[[b]]))){
         res$X$loadings[[b]] <- res$X$loadings[[b]][,1:min(ncol(res$X$loadings[[b]]),comp), drop=F]
       }
-      if(!all(is.na(res$X$weightings[[b]]))){
+      if(b %in% names(res$X$weightings) && !all(is.na(res$X$weightings[[b]]))){
         res$X$weightings[[b]] <- res$X$weightings[[b]][,1:min(ncol(res$X$weightings[[b]]),comp), drop=F]
       }
-      if(!all(is.na(res$X$W.star[[b]]))){
+      if(b %in% names(res$X$W.star) && !all(is.na(res$X$W.star[[b]]))){
         res$X$W.star[[b]] <- res$X$W.star[[b]][,1:min(ncol(res$X$W.star[[b]]),comp),drop=F]
       }
-      if(!all(is.na(res$X$scores[[b]]))){
+      if(b %in% names(res$X$scores) && !all(is.na(res$X$scores[[b]]))){
         res$X$scores[[b]] <- res$X$scores[[b]][,1:min(ncol(res$X$scores[[b]]),comp), drop=F]
       }
 
