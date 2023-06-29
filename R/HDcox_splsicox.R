@@ -9,7 +9,7 @@
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
 #' @param n.comp Numeric. Number of latent components to compute for the (s)PLS model (default: 10).
-#' @param spv_penalty Numeric. Penalty for variable selection for the individual cox models. Variables with a lower P-Value than "spv_penalty" in the individual cox analysis will be keep for the sPLS-ICOX approach (default: 1).
+#' @param spv_penalty Numeric. Penalty for variable selection for the individual cox models. Variables with a lower P-Value than 1 - "spv_penalty" in the individual cox analysis will be keep for the sPLS-ICOX approach (default: 0).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
 #' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
@@ -80,7 +80,7 @@
 #' }
 
 splsicox <- function(X, Y,
-                     n.comp = 4, spv_penalty = 1,
+                     n.comp = 4, spv_penalty = 0,
                      x.center = TRUE, x.scale = FALSE,
                      remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
                      remove_non_significant = F, alpha = 0.05,
@@ -101,7 +101,10 @@ splsicox <- function(X, Y,
   event <- Y[,"event"]
 
   #### Check values classes and ranges
-  params_with_limits <- list("alpha" = alpha, "eta" = spv_penalty)
+  params_with_limits <- list("eta" = spv_penalty)
+  check_min0_less1_variables(params_with_limits)
+
+  params_with_limits <- list("alpha" = alpha)
   check_min0_max1_variables(params_with_limits)
 
   numeric_params <- list("n.comp" = n.comp,
@@ -259,8 +262,8 @@ splsicox <- function(X, Y,
     ### ## ## ##
     #filter variables by p-val cutoff
     ### ## ## ##
-    index2zero <- which(wh[,2,drop=T]>spv_penalty)
-    index2keep <- which(wh[,2,drop=T]<=spv_penalty)
+    index2zero <- which(wh[,2,drop=T]>(1-spv_penalty))# 1-spv_penalty because is a penalty - remove 0.8 of variables equals to keep 0.2
+    index2keep <- which(wh[,2,drop=T]<=(1-spv_penalty))
 
     if(length(index2keep)==0){
       if(verbose){
@@ -362,7 +365,7 @@ splsicox <- function(X, Y,
                                n.comp = h,
                                spv_penalty = spv_penalty,
                                var_by_component = var_by_component, #variables selected for each component
-                               call = func_call,
+                               call = if(returnData) func_call else NA,
                                X_input = if(returnData) X_original else NA,
                                Y_input = if(returnData) Y_original else NA,
                                nzv = variablesDeleted,
@@ -553,6 +556,10 @@ splsicox <- function(X, Y,
 
   func_call <- match.call()
 
+  if(!returnData){
+    survival_model <- removeInfoSurvivalModel(survival_model)
+  }
+
   t2 <- Sys.time()
   time <- difftime(t2,t1,units = "mins")
 
@@ -571,7 +578,7 @@ splsicox <- function(X, Y,
                             n.comp = h,
                             spv_penalty = spv_penalty,
                             var_by_component = var_by_component, #variables selected for each component
-                            call = func_call,
+                            call = if(returnData) func_call else NA,
                             X_input = if(returnData) X_original else NA,
                             Y_input = if(returnData) Y_original else NA,
                             alpha = alpha,
@@ -594,7 +601,7 @@ splsicox <- function(X, Y,
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
 #' @param max.ncomp Numeric. Maximum number of PLS components to compute for the cross validation (default: 10).
-#' @param spv_penalty.list Numeric vector. Penalty for variable selection for the individual cox models. Variables with a lower P-Value than "spv_penalty" in the individual cox analysis will be keep for the sPLS-ICOX approach (default: seq(0.1,1,0.1)).
+#' @param spv_penalty.list Numeric vector. Penalty for variable selection for the individual cox models. Variables with a lower P-Value than 1 - "spv_penalty" in the individual cox analysis will be keep for the sPLS-ICOX approach (default: seq(0.1,1,0.1)).
 #' @param n_run Numeric. Number of runs for cross validation (default: 5).
 #' @param k_folds Numeric. Number of folds for cross validation (default: 10).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
@@ -659,7 +666,7 @@ splsicox <- function(X, Y,
 #' }
 
 cv.splsicox <- function (X, Y,
-                        max.ncomp = 10, spv_penalty.list = seq(0.1,1,0.1),
+                        max.ncomp = 10, spv_penalty.list = seq(0,0.9,0.1),
                         n_run = 5, k_folds = 10,
                         x.center = TRUE, x.scale = FALSE,
                         remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL, remove_variance_at_fold_level = F,
@@ -685,7 +692,10 @@ cv.splsicox <- function (X, Y,
   checkLibraryEvaluator(pred.method)
 
   #### Check values classes and ranges
-  params_with_limits <- list("spv_penalty.list" = spv_penalty.list, "MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
+  params_with_limits <- list("spv_penalty.list" = spv_penalty.list)
+  check_min0_less1_variables(params_with_limits)
+
+  params_with_limits <- list("MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
                  "w_AIC" = w_AIC, "w_c.index" = w_c.index, "w_AUC" = w_AUC, "w_BRIER" = w_BRIER)
   check_min0_max1_variables(params_with_limits)
 

@@ -535,6 +535,10 @@ mb.splsdrcox <- function (X, Y,
 
   func_call <- match.call()
 
+  if(!returnData){
+    survival_model <- removeInfoSurvivalModel(survival_model)
+  }
+
   t2 <- Sys.time()
   time <- difftime(t2,t1,units = "mins")
 
@@ -554,7 +558,7 @@ mb.splsdrcox <- function (X, Y,
                                  mb.model = mb.spls,
                                  n.comp = n.comp_used, #number of components
                                  n.varX = n.varX_used,
-                                 call = func_call,
+                                 call = if(returnData) func_call else NA,
                                  X_input = if(returnData) X_original else NA,
                                  Y_input = if(returnData) Y_original else NA,
                                  B.hat = B.hat,
@@ -755,7 +759,7 @@ cv.mb.splsdrcox <- function(X, Y,
   # lst_train_indexes <- lst_data$lst_train_index
   # lst_test_indexes <- lst_data$lst_test_index
 
-  lst_data <- splitData_Iterations_Folds_indexes.mb(X, Y, n_run = n_run, k_folds = k_folds, seed = seed) #FOR TEST
+  lst_data <- splitData_Iterations_Folds_indexes(Y, n_run = n_run, k_folds = k_folds, seed = seed) #FOR TEST
 
   lst_train_indexes <- lst_data$lst_train_index
   lst_test_indexes <- lst_data$lst_test_index

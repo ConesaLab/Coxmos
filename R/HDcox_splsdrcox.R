@@ -111,7 +111,10 @@ splsdrcox <- function (X, Y,
   FREQ_CUT <- 95/5
 
   #### Check values classes and ranges
-  params_with_limits <- list("alpha" = alpha, "eta" = eta)
+  params_with_limits <- list("eta" = eta)
+  check_min0_less1_variables(params_with_limits)
+
+  params_with_limits <- list("alpha" = alpha)
   check_min0_max1_variables(params_with_limits)
 
   numeric_params <- list("n.comp" = n.comp,
@@ -494,6 +497,10 @@ splsdrcox <- function (X, Y,
 
   func_call <- match.call()
 
+  if(!returnData){
+    survival_model <- removeInfoSurvivalModel(survival_model)
+  }
+
   t2 <- Sys.time()
   time <- difftime(t2,t1,units = "mins")
 
@@ -518,7 +525,7 @@ splsdrcox <- function (X, Y,
                              eta = eta,
                              n.comp = n.comp_used, #number of components
                              var_by_component = var_by_component_nzv, #variables selected for each component
-                             call = func_call,
+                             call = if(returnData) func_call else NA,
                              X_input = if(returnData) X_original else NA,
                              Y_input = if(returnData) Y_original else NA,
                              B.hat = last.pls$B,
@@ -634,7 +641,10 @@ cv.splsdrcox <- function (X, Y,
   checkLibraryEvaluator(pred.method)
 
   #### Check values classes and ranges
-  params_with_limits <- list("eta.list" = eta.list, "MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
+  params_with_limits <- list("eta.list" = eta.list)
+  check_min0_less1_variables(params_with_limits)
+
+  params_with_limits <- list("MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
                  "w_AIC" = w_AIC, "w_c.index" = w_c.index, "w_AUC" = w_AUC, "w_BRIER" = w_BRIER)
   check_min0_max1_variables(params_with_limits)
 
@@ -829,7 +839,7 @@ cv.splsdrcox <- function (X, Y,
 
     #As we are measuring just one evaluator and one method - PARALLEL=F
     lst_df <- get_COX_evaluation_AUC_sPLS(comp_model_lst = comp_model_lst,
-                                          X_test = X_test, Y_test = Y_test,
+                                          X_test = X, Y_test = Y,
                                           lst_X_test = lst_test_indexes, lst_Y_test = lst_test_indexes,
                                           df_results_evals = df_results_evals, times = times,
                                           fast_mode = fast_mode, pred.method = pred.method, pred.attr = pred.attr,

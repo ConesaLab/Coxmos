@@ -8,7 +8,7 @@ cv.splsicox(
   X,
   Y,
   max.ncomp = 10,
-  spv_penalty.list = seq(0.1, 1, 0.1),
+  spv_penalty.list = seq(0, 0.9, 0.1),
   n_run = 5,
   k_folds = 10,
   x.center = TRUE,
@@ -47,7 +47,7 @@ cv.splsicox(
 
 \item{max.ncomp}{Numeric. Maximum number of PLS components to compute for the cross validation (default: 10).}
 
-\item{spv_penalty.list}{Numeric vector. Penalty for variable selection for the individual cox models. Variables with a lower P-Value than "spv_penalty" in the individual cox analysis will be keep for the sPLS-ICOX approach (default: seq(0.1,1,0.1)).}
+\item{spv_penalty.list}{Numeric vector. Penalty for variable selection for the individual cox models. Variables with a lower P-Value than 1 - "spv_penalty" in the individual cox analysis will be keep for the sPLS-ICOX approach (default: seq(0.1,1,0.1)).}
 
 \item{n_run}{Numeric. Number of runs for cross validation (default: 5).}
 

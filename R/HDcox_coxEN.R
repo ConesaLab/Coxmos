@@ -398,6 +398,10 @@ coxEN <- function(X, Y,
 
   func_call <- match.call()
 
+  if(!returnData){
+    survival_model <- removeInfoSurvivalModel(survival_model)
+  }
+
   t2 <- Sys.time()
   time <- difftime(t2,t1,units = "mins")
 
@@ -408,7 +412,7 @@ coxEN <- function(X, Y,
                           opt.lambda = best_lambda,
                           EN.alpha = EN.alpha,
                           n.var = max.variables,
-                          call = func_call,
+                          call = if(returnData) func_call else NA,
                           X_input = if(returnData) X_original else NA,
                           Y_input = if(returnData) Y_original else NA,
                           convergence_issue = problem,

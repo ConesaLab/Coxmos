@@ -509,6 +509,10 @@ mb.splsdacox <- function (X, Y,
 
   func_call <- match.call()
 
+  if(!returnData){
+    survival_model <- removeInfoSurvivalModel(survival_model)
+  }
+
   t2 <- Sys.time()
   time <- difftime(t2,t1,units = "mins")
 
@@ -526,7 +530,7 @@ mb.splsdacox <- function (X, Y,
                                  mb.model = mb.splsda,
                                  n.comp = n.comp_used, #number of components
                                  n.varX = n.varX_used,
-                                 call = func_call,
+                                 call = if(returnData) func_call else NA,
                                  X_input = if(returnData) X_original else NA,
                                  Y_input = if(returnData) Y_original else NA,
                                  B.hat = B.hat,

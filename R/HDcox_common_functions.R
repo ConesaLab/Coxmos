@@ -512,6 +512,38 @@ removeNAorINFcoxmodel <- function(model, data, time.value = NULL, event.value = 
 # Other functions #
 #### ### ### ### ##
 
+removeInfoSurvivalModel <- function(survival_model){
+  if("AIC" %in% names(survival_model)){
+    survival_model$AIC <- NULL
+  }
+  if("BIC" %in% names(survival_model)){
+    survival_model$BIC <- NULL
+  }
+  if("lp" %in% names(survival_model)){
+    survival_model$lp <- NULL
+  }
+  if("coef" %in% names(survival_model)){
+    survival_model$coef <- NULL
+  }
+  if("YChapeau" %in% names(survival_model)){
+    survival_model$YChapeau <- NULL
+  }
+  if("Yresidus" %in% names(survival_model)){
+    survival_model$Yresidus <- NULL
+  }
+
+  if("fit" %in% names(survival_model)){
+    survival_model$fit$x <- NULL
+    survival_model$fit$y <- NULL
+    survival_model$fit$residuals <- NULL
+    survival_model$fit$terms <- NULL
+    survival_model$fit$formula <- NULL
+    survival_model$fit$call <- NULL
+  }
+
+  return(survival_model)
+}
+
 deleteIllegalChars <- function(chr.vector){
   # v <- chr.vector
   # for(i in pkg.env$IllegalChars){
@@ -657,11 +689,27 @@ check_min0_max1_variables <- function(lst){
     element <- lst[[name]]
 
     if(!is.numeric(element)){
-      stop(paste0("Variable: ", name, " must be a numeric variable and ", class(element), " was detected."))
+      stop(paste0("Variable: ", name, " must be a numeric variable and ", class(element), " was detected.\n"))
     }
 
     if(!(all(element >= 0) && all(element <= 1))){
-      stop(paste0("Variable: ", name, " must be in range [0,1] and ", element, " was detected."))
+      stop(paste0("Variable: ", name, " must be in range [0,1] and ", element[which(!(0<=element & element<=1))], " was detected.\n"))
+    }
+    return("Meet the values!")
+  })
+}
+
+check_min0_less1_variables <- function(lst){
+  nm <- names(lst)
+  res <- lapply(nm, function(name){
+    element <- lst[[name]]
+
+    if(!is.numeric(element)){
+      stop(paste0("Variable: ", name, " must be a numeric variable and ", class(element), " was detected.\n"))
+    }
+
+    if(!(all(element >= 0) && all(element < 1))){
+      stop(paste0("Variable: ", name, " must be in range [0,1) and ", element[which(!(0<=element & element<1))], " was detected.\n"))
     }
     return("Meet the values!")
   })

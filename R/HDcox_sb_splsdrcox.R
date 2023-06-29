@@ -90,7 +90,10 @@ sb.splsdrcox <- function (X, Y,
   FREQ_CUT <- 95/5
 
   #### Check values classes and ranges
-  params_with_limits <- list("alpha" = alpha, "eta" = eta)
+  params_with_limits <- list("eta" = eta)
+  check_min0_less1_variables(params_with_limits)
+
+  params_with_limits <- list("alpha" = alpha)
   check_min0_max1_variables(params_with_limits)
 
   numeric_params <- list("n.comp" = n.comp,
@@ -205,17 +208,21 @@ sb.splsdrcox <- function (X, Y,
   #### ### #
   func_call <- match.call()
 
+  if(!returnData){
+    survival_model <- removeInfoSurvivalModel(cox_model$survival_model)
+  }
+
   t2 <- Sys.time()
   time <- difftime(t2,t1,units = "mins")
 
   # invisible(gc())
   return(sb.splsdrcox_class(list(X = list("data" = if(returnData) X_norm else NA, "x.mean" = xmeans, "x.sd" = xsds),
                                 Y = list("data" = Yh, "y.mean" = ymeans, "y.sd" = ysds),
-                                survival_model = cox_model$survival_model,
+                                survival_model = survival_model,
                                 list_spls_models = lst_sb.spls,
                                 n.comp = n.comp, #number of components used, but could be lesser than expected because not computed models
                                 eta = eta,
-                                call = func_call,
+                                call = if(returnData) func_call else NA,
                                 X_input = if(returnData) X_original else NA,
                                 Y_input = if(returnData) Y_original else NA,
                                 alpha = alpha,
@@ -326,7 +333,10 @@ cv.sb.splsdrcox <- function(X, Y,
   checkLibraryEvaluator(pred.method)
 
   #### Check values classes and ranges
-  params_with_limits <- list("eta.list" = eta.list, "MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
+  params_with_limits <- list("eta.list" = eta.list)
+  check_min0_less1_variables(params_with_limits)
+
+  params_with_limits <- list("MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
                  "w_AIC" = w_AIC, "w_c.index" = w_c.index, "w_AUC" = w_AUC, "w_BRIER" = w_BRIER)
   check_min0_max1_variables(params_with_limits)
 
@@ -713,7 +723,10 @@ fast.cv.sb.splsdrcox <- function(X, Y,
   checkLibraryEvaluator(pred.method)
 
   #### Check values classes and ranges
-  params_with_limits <- list("eta.list" = eta.list, "MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
+  params_with_limits <- list("eta.list" = eta.list)
+  check_min0_less1_variables(params_with_limits)
+
+  params_with_limits <- list("MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
                  "w_AIC" = w_AIC, "w_c.index" = w_c.index, "w_AUC" = w_AUC, "w_BRIER" = w_BRIER)
   check_min0_max1_variables(params_with_limits)
 
@@ -879,6 +892,10 @@ fast.cv.sb.splsdrcox <- function(X, Y,
   #### ### #
   func_call <- match.call()
 
+  if(!returnData){
+    survival_model <- removeInfoSurvivalModel(cox_model$survival_model)
+  }
+
   t2 <- Sys.time()
   time <- difftime(t2,t1,units = "mins")
 
@@ -887,7 +904,7 @@ fast.cv.sb.splsdrcox <- function(X, Y,
                                           "x.mean" = xmeans, "x.sd" = xsds),
                                 Y = list("data" = Yh,
                                          "y.mean" = ymeans, "y.sd" = ysds),
-                                survival_model = cox_model$survival_model,
+                                survival_model = survival_model,
                                 list_spls_models = lst_sb.spls,
                                 n.comp = aux_ncomp, #number of components used, but could be lesser than expected because not computed models
                                 eta = aux_eta,

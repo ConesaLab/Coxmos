@@ -8,7 +8,7 @@ splsicox(
   X,
   Y,
   n.comp = 4,
-  spv_penalty = 1,
+  spv_penalty = 0,
   x.center = TRUE,
   x.scale = FALSE,
   remove_near_zero_variance = T,
@@ -28,7 +28,7 @@ splsicox(
 
 \item{n.comp}{Numeric. Number of latent components to compute for the (s)PLS model (default: 10).}
 
-\item{spv_penalty}{Numeric. Penalty for variable selection for the individual cox models. Variables with a lower P-Value than "spv_penalty" in the individual cox analysis will be keep for the sPLS-ICOX approach (default: 1).}
+\item{spv_penalty}{Numeric. Penalty for variable selection for the individual cox models. Variables with a lower P-Value than 1 - "spv_penalty" in the individual cox analysis will be keep for the sPLS-ICOX approach (default: 0).}
 
 \item{x.center}{Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).}
 

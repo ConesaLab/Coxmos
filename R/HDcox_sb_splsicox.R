@@ -9,7 +9,7 @@
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
 #' @param n.comp Numeric. Number of latent components to compute for the (s)PLS model (default: 10).
-#' @param spv_penalty Numeric. Penalty for variable selection for the individual cox models. Variables with a lower P-Value than "spv_penalty" in the individual cox analysis will be keep for the sPLS-ICOX approach (default: 1).
+#' @param spv_penalty Numeric. Penalty for variable selection for the individual cox models. Variables with a lower P-Value than 1 - "spv_penalty" in the individual cox analysis will be keep for the sPLS-ICOX approach (default: 1).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
 #' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
@@ -90,7 +90,10 @@ sb.splsicox <- function(X, Y,
   FREQ_CUT <- 95/5
 
   #### Check values classes and ranges
-  params_with_limits <- list("alpha" = alpha, "eta" = spv_penalty)
+  params_with_limits <- list("eta" = spv_penalty)
+  check_min0_less1_variables(params_with_limits)
+
+  params_with_limits <- list("alpha" = alpha)
   check_min0_max1_variables(params_with_limits)
 
   numeric_params <- list("n.comp" = n.comp,
@@ -197,6 +200,10 @@ sb.splsicox <- function(X, Y,
   #### ### #
   func_call <- match.call()
 
+  if(!returnData){
+    survival_model <- removeInfoSurvivalModel(cox_model$survival_model)
+  }
+
   t2 <- Sys.time()
   time <- difftime(t2,t1,units = "mins")
 
@@ -205,11 +212,11 @@ sb.splsicox <- function(X, Y,
                                          "x.mean" = xmeans, "x.sd" = xsds),
                                 Y = list("data" = Yh,
                                          "y.mean" = ymeans, "y.sd" = ysds),
-                                survival_model = cox_model$survival_model,
+                                survival_model = survival_model,
                                 list_spls_models = lst_sb.pls,
                                 n.comp = aux_ncomp, #number of components used, but could be lesser than expected because not computed models
                                 spv_penalty = spv_penalty,
-                                call = func_call,
+                                call = if(returnData) func_call else NA,
                                 X_input = if(returnData) X_original else NA,
                                 Y_input = if(returnData) Y_original else NA,
                                 nzv = variablesDeleted,
@@ -227,7 +234,7 @@ sb.splsicox <- function(X, Y,
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
 #' @param max.ncomp Numeric. Maximum number of PLS components to compute for the cross validation (default: 10).
-#' @param spv_penalty.list Numeric vector. Penalty for variable selection for the individual cox models. Variables with a lower P-Value than "spv_penalty" in the individual cox analysis will be keep for the sPLS-ICOX approach (default: seq(0.1,1,0.1)).
+#' @param spv_penalty.list Numeric vector. Penalty for variable selection for the individual cox models. Variables with a lower P-Value than 1 - "spv_penalty" in the individual cox analysis will be keep for the sPLS-ICOX approach (default: seq(0.1,1,0.1)).
 #' @param n_run Numeric. Number of runs for cross validation (default: 5).
 #' @param k_folds Numeric. Number of folds for cross validation (default: 10).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
@@ -318,7 +325,10 @@ cv.sb.splsicox <- function(X, Y,
   checkLibraryEvaluator(pred.method)
 
   #### Check values classes and ranges
-  params_with_limits <- list("spv_penalty.list" = spv_penalty.list, "MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
+  params_with_limits <- list("spv_penalty.list" = spv_penalty.list)
+  check_min0_less1_variables(params_with_limits)
+
+  params_with_limits <- list("MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
                  "w_AIC" = w_AIC, "w_c.index" = w_c.index, "w_AUC" = w_AUC, "w_BRIER" = w_BRIER)
   check_min0_max1_variables(params_with_limits)
 
@@ -592,7 +602,7 @@ cv.sb.splsicox <- function(X, Y,
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
 #' @param max.ncomp Numeric. Maximum number of PLS components to compute for the cross validation (default: 10).
-#' @param spv_penalty.list Numeric vector. Penalty for variable selection for the individual cox models. Variables with a lower P-Value than "spv_penalty" in the individual cox analysis will be keep for the sPLS-ICOX approach (default: seq(0.1,1,0.1)).
+#' @param spv_penalty.list Numeric vector. Penalty for variable selection for the individual cox models. Variables with a lower P-Value than 1- "spv_penalty" in the individual cox analysis will be keep for the sPLS-ICOX approach (default: seq(0.1,1,0.1)).
 #' @param n_run Numeric. Number of runs for cross validation (default: 5).
 #' @param k_folds Numeric. Number of folds for cross validation (default: 10).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
@@ -700,7 +710,10 @@ fast.cv.sb.splsicox <- function(X, Y,
   checkLibraryEvaluator(pred.method)
 
   #### Check values classes and ranges
-  params_with_limits <- list("spv_penalty.list" = spv_penalty.list, "MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
+  params_with_limits <- list("spv_penalty.list" = spv_penalty.list)
+  check_min0_less1_variables(params_with_limits)
+
+  params_with_limits <- list("MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
                  "w_AIC" = w_AIC, "w_c.index" = w_c.index, "w_AUC" = w_AUC, "w_BRIER" = w_BRIER)
   check_min0_max1_variables(params_with_limits)
 
@@ -805,28 +818,28 @@ fast.cv.sb.splsicox <- function(X, Y,
     message(paste0("\nRunning cross validation ", pkg.env$sb.splsicox, " for block: ", b, "\n"))
 
     cv.splsdrcox_res <- cv.splsicox(X = Xh[[b]], Y = Yh,
-                                   max.ncomp = max.ncomp, spv_penalty.list = spv_penalty.list,
-                                   n_run = n_run, k_folds = k_folds, alpha = alpha, remove_non_significant_models = remove_non_significant_models,
-                                   w_AIC = w_AIC, w_c.index = w_c.index, w_BRIER = w_BRIER, w_AUC = w_AUC, times = times, max_time_points = max_time_points,
-                                   MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                   x.scale = x.scale[[b]], x.center = x.center[[b]],
-                                   #y.scale = y.scale, y.center = y.center,
-                                   remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = F, toKeep.zv = NULL,
-                                   remove_variance_at_fold_level = remove_variance_at_fold_level,
-                                   remove_non_significant = remove_non_significant,
-                                   fast_mode = fast_mode, return_models = return_models,
-                                   MIN_EPV = MIN_EPV, verbose = verbose,
-                                   pred.attr = pred.attr, pred.method = pred.method, seed = seed, PARALLEL = PARALLEL, returnData = F)
+                                    max.ncomp = max.ncomp, spv_penalty.list = spv_penalty.list,
+                                    n_run = n_run, k_folds = k_folds, alpha = alpha, remove_non_significant_models = remove_non_significant_models,
+                                    w_AIC = w_AIC, w_c.index = w_c.index, w_BRIER = w_BRIER, w_AUC = w_AUC, times = times, max_time_points = max_time_points,
+                                    MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
+                                    x.scale = x.scale[[b]], x.center = x.center[[b]],
+                                    #y.scale = y.scale, y.center = y.center,
+                                    remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = F, toKeep.zv = NULL,
+                                    remove_variance_at_fold_level = remove_variance_at_fold_level,
+                                    remove_non_significant = remove_non_significant,
+                                    fast_mode = fast_mode, return_models = return_models,
+                                    MIN_EPV = MIN_EPV, verbose = verbose,
+                                    pred.attr = pred.attr, pred.method = pred.method, seed = seed, PARALLEL = PARALLEL, returnData = F)
 
     lst_sb.pls[[b]] <- splsicox(X = Xh[[b]],
-                               Y = Yh,
-                               n.comp = cv.splsdrcox_res$opt.comp,
-                               remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
-                               remove_non_significant = remove_non_significant, alpha = alpha,
-                               returnData = F,
-                               x.center = x.center[[b]], x.scale = x.scale[[b]],
-                               #y.scale = y.scale, y.center = y.center,
-                               MIN_EPV = MIN_EPV, verbose = verbose)
+                                Y = Yh,
+                                n.comp = cv.splsdrcox_res$opt.comp,
+                                remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
+                                remove_non_significant = remove_non_significant, alpha = alpha,
+                                returnData = F,
+                                x.center = x.center[[b]], x.scale = x.scale[[b]],
+                                #y.scale = y.scale, y.center = y.center,
+                                MIN_EPV = MIN_EPV, verbose = verbose)
   }
 
   # CHECK ALL MODELS SAME COMPONENTS
@@ -870,6 +883,10 @@ fast.cv.sb.splsicox <- function(X, Y,
   #### ### #
   func_call <- match.call()
 
+  if(!returnData){
+    survival_model <- removeInfoSurvivalModel(cox_model$survival_model)
+  }
+
   t2 <- Sys.time()
   time <- difftime(t2,t1,units = "mins")
 
@@ -878,10 +895,10 @@ fast.cv.sb.splsicox <- function(X, Y,
                                          "x.mean" = xmeans, "x.sd" = xsds),
                                 Y = list("data" = Yh,
                                          "y.mean" = ymeans, "y.sd" = ysds),
-                                survival_model = cox_model$survival_model,
+                                survival_model = survival_model,
                                 list_spls_models = lst_sb.pls,
                                 n.comp = aux_ncomp, #number of components used, but could be lesser than expected because not computed models
-                                call = func_call,
+                                call = if(returnData) func_call else NA,
                                 X_input = if(returnData) X_original else NA,
                                 Y_input = if(returnData) Y_original else NA,
                                 alpha = alpha,

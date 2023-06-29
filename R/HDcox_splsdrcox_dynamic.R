@@ -431,8 +431,6 @@ splsdrcox_dynamic <- function (X, Y,
   W.star <- W %*% PW
   Ts <- tt_splsDR
 
-  func_call <- match.call()
-
   rownames(Ts) <- rownames(X)
   rownames(P) <- rownames(W) <-  rownames(W.star) <- rownames(ww_splsDR)
 
@@ -461,6 +459,12 @@ splsdrcox_dynamic <- function (X, Y,
     n.comp = ncol(max(which_to_keep))
   }
 
+  func_call <- match.call()
+
+  if(!returnData){
+    survival_model <- removeInfoSurvivalModel(survival_model)
+  }
+
   t2 <- Sys.time()
   time <- difftime(t2,t1,units = "mins")
 
@@ -481,7 +485,7 @@ splsdrcox_dynamic <- function (X, Y,
                                       n.varX = n.varX_used,
                                       var_by_component = var_by_component, #variables selected for each component
                                       plot_accuracyPerVariable = plotVAR,
-                                      call = func_call,
+                                      call = if(returnData) func_call else NA,
                                       X_input = if(returnData) X_original else NA,
                                       Y_input = if(returnData) Y_original else NA,
                                       R2 = R2,
