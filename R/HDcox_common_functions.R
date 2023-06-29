@@ -535,8 +535,7 @@ removeInfoSurvivalModel <- function(survival_model){
   if("fit" %in% names(survival_model)){
     survival_model$fit$x <- NULL
     survival_model$fit$y <- NULL
-    survival_model$fit$residuals <- NULL
-    survival_model$fit$terms <- NULL
+    #survival_model$fit$residuals <- NULL #important for computing predictions predict.coxph()
     survival_model$fit$formula <- NULL
     survival_model$fit$call <- NULL
   }
@@ -2653,7 +2652,7 @@ get_COX_evaluation_BRIER <- function(comp_model_lst,
           }
 
           model <- comp_model_lst[[l.index]][[r]][[f]]$survival_model$fit
-          lp_train <- comp_model_lst[[l.index]][[r]][[f]]$survival_model$lp
+          lp_train <- comp_model_lst[[l.index]][[r]][[f]]$survival_model$fit$linear.predictors
           names(lp_train) <- rownames(comp_model_lst[[l.index]][[r]][[f]]$Y$data)
           lst_train_LP <- c(lst_train_LP, lp_train)
 
@@ -2905,7 +2904,7 @@ get_COX_evaluation_BRIER_sPLS <- function(comp_model_lst,
             }
 
             model <- comp_model_lst[[l.index]][[e]][[r]][[f]]$survival_model$fit
-            lp_train <- comp_model_lst[[l.index]][[e]][[r]][[f]]$survival_model$lp
+            lp_train <- comp_model_lst[[l.index]][[e]][[r]][[f]]$survival_model$fit$linear.predictors
             names(lp_train) <- rownames(comp_model_lst[[l.index]][[e]][[r]][[f]]$Y$data)
             lst_train_LP <- c(lst_train_LP, lp_train)
 
