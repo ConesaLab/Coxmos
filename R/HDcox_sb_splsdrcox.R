@@ -56,6 +56,8 @@
 #'
 #' \code{n.comp}: Number of components selected.
 #'
+#' \code{eta} Penalty applied.
+#'
 #' \code{call}: call function
 #'
 #' \code{X_input}: X input matrix
@@ -210,6 +212,8 @@ sb.splsdrcox <- function (X, Y,
 
   if(!returnData){
     survival_model <- removeInfoSurvivalModel(cox_model$survival_model)
+  }else{
+    survival_model <- cox_model$survival_model
   }
 
   t2 <- Sys.time()
@@ -681,6 +685,8 @@ cv.sb.splsdrcox <- function(X, Y,
 #'
 #' \code{n.comp}: Number of components selected.
 #'
+#' \code{eta} Penalty applied.
+#'
 #' \code{call}: call function
 #'
 #' \code{X_input}: X input matrix
@@ -894,6 +900,8 @@ fast.cv.sb.splsdrcox <- function(X, Y,
 
   if(!returnData){
     survival_model <- removeInfoSurvivalModel(cox_model$survival_model)
+  }else{
+    survival_model <- cox_model$survival_model
   }
 
   t2 <- Sys.time()

@@ -56,6 +56,8 @@
 #'
 #' \code{n.comp}: Number of components selected.
 #'
+#' \code{spv_penalty} Penalty applied.
+#'
 #' \code{call}: call function
 #'
 #' \code{X_input}: X input matrix
@@ -134,7 +136,7 @@ sb.splsicox <- function(X, Y,
   variablesDeleted <- lst_dnz$variablesDeleted
 
   #### SCALING
-  lst_scale <- XY.mb.scale(X, Y, x.center, x.scale, y.center, y.scale)
+  lst_scale <- XY.mb.scale(X = X, Y = Y, x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale)
   Xh <- lst_scale$Xh
   Yh <- lst_scale$Yh
   xmeans <- lst_scale$xmeans
@@ -202,6 +204,8 @@ sb.splsicox <- function(X, Y,
 
   if(!returnData){
     survival_model <- removeInfoSurvivalModel(cox_model$survival_model)
+  }else{
+    survival_model <- cox_model$survival_model
   }
 
   t2 <- Sys.time()
@@ -668,6 +672,8 @@ cv.sb.splsicox <- function(X, Y,
 #'
 #' \code{n.comp}: Number of components selected.
 #'
+#' \code{spv_penalty} Penalty applied.
+#'
 #' \code{call}: call function
 #'
 #' \code{X_input}: X input matrix
@@ -844,6 +850,7 @@ fast.cv.sb.splsicox <- function(X, Y,
 
   # CHECK ALL MODELS SAME COMPONENTS
   aux_ncomp <- purrr::map(lst_sb.pls, ~ifelse("n.comp" %in% names(.),.$n.comp, NA))
+  aux_spv_penalty <- purrr::map(lst_sb.pls, ~.$spv_penalty)
 
   # CREATE COMBINE MODEL
   data <- NULL
@@ -885,6 +892,8 @@ fast.cv.sb.splsicox <- function(X, Y,
 
   if(!returnData){
     survival_model <- removeInfoSurvivalModel(cox_model$survival_model)
+  }else{
+    survival_model <- cox_model$survival_model
   }
 
   t2 <- Sys.time()
@@ -898,6 +907,7 @@ fast.cv.sb.splsicox <- function(X, Y,
                                 survival_model = survival_model,
                                 list_spls_models = lst_sb.pls,
                                 n.comp = aux_ncomp, #number of components used, but could be lesser than expected because not computed models
+                                spv_penalty = aux_spv_penalty,
                                 call = if(returnData) func_call else NA,
                                 X_input = if(returnData) X_original else NA,
                                 Y_input = if(returnData) Y_original else NA,

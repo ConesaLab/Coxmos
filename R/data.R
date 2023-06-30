@@ -1,74 +1,49 @@
-#' X_small_data_E.MTAB.386 Data
+#' X_proteomic Data
 #'
-#' Toy dataset from E.MTAB.386 ('curatedOvarianData' R package)
+#' Toy dataset from BREAST CANCER. Protein data. (https://github.com/pilargmarch/multiomics2.0/tree/main)
 #'
-#' @format A data frame with 126 observations and 500 features:
-#'  \describe{Each of the variables is a random gene selected from the original dataset}
+#' @format A data frame with 150 observations and 369 features:
+#'  \describe{Small data set from original data (585 observations).}
 #'
-#' @source curatedOvarianData R package
+#' @source TCGA-BRCA data
 
-"X_small_data_E.MTAB.386"
+"X_proteomic"
 
-#' Y_small_data_E.MTAB.386 Data
+#' Y_proteomic Data
 #'
-#' Toy dataset from E.MTAB.386 ('curatedOvarianData' R package)
+#' Toy dataset from BREAST CANCER. Protein data. (https://github.com/pilargmarch/multiomics2.0/tree/main)
 #'
-#' @format A data frame with 126 observations and 2 features:
+#' @format A data frame with 150 observations and 2 features:
 #'  \describe{
 #'     \item{time}{Global survival time in years. Time to the event of to the last patient information.}
-#'     \item{event}{Numeric. 0 for censored and 1 for event observations.}
+#'     \item{event}{Numeric. FALSE/0 for censored and TRUE/1 for event observations.}
 #'  }
 #'
-#' @source curatedOvarianData R package
+#' @source TCGA-BRCA data
 
-"Y_small_data_E.MTAB.386"
+"Y_proteomic"
 
-#' X_small_mo.data_Glioblastoma Data
+#' X_multiomic Data
 #'
-#' Toy dataset from Glioblastoma multiomic data (!!!)
+#' Toy dataset from BREAST CANCER. miRNA and Protein data. (https://github.com/pilargmarch/multiomics2.0/tree/main)
 #'
-#' @format A data frame with 225 observations and three block of features:
-#'  \describe{500 genes, 500 miRNA and 37 clinical features}
+#' @format A data frame with 150 observations and two omics (miRNA and proteomic):
+#'  \describe{642 miRNAs, 369 proteins}
 #'
-#' @source !!!
+#' @source TCGA-BRCA data
 
-"X_small_mo.data_Glioblastoma"
+"X_multiomic"
 
-#' Y_small_mo.data_Glioblastoma Data
+#' Y_multiomic Data
 #'
-#' Toy dataset from Glioblastoma multiomic data (!!!)
+#' Toy dataset from BREAST CANCER. miRNA and Protein data. (https://github.com/pilargmarch/multiomics2.0/tree/main)
 #'
-#' @format A data frame with 225 observations and 2 features:
+#' @format A data frame with 150 observations and 2 features:
 #'  \describe{
 #'     \item{time}{Global survival time in years. Time to the event of to the last patient information.}
-#'     \item{event}{Numeric. 0 for censored and 1 for event observations.}
+#'     \item{event}{Numeric. FALSE/0 for censored and TRUE/1 for event observations.}
 #'  }
 #'
-#' @source curatedOvarianData R package
+#' @source TCGA-BRCA data
 
-"Y_small_mo.data_Glioblastoma"
-
-#' X_miRNA_glioblastoma Data
-#'
-#' miRNA dataset from Glioblastome multiomic dataset
-#'
-#' @format A data frame with 552 observations and 534 features:
-#'  \describe{miRNA data set from multiomic glioblastome data.}
-#'
-#' @source Glioblastome data
-
-"X_miRNA_glioblastoma"
-
-#' Y_miRNA_glioblastoma Data
-#'
-#' miRNA dataset from Glioblastome multiomic dataset
-#'
-#' @format A data frame with 552 observations and 2 features:
-#'  \describe{
-#'     \item{time}{Global survival time in years. Time to the event of to the last patient information.}
-#'     \item{event}{Numeric. FALSE for censored and TRUE for event observations.}
-#'  }
-#'
-#' @source Glioblastome data
-
-"Y_miRNA_glioblastoma"
+"Y_multiomic"

@@ -291,6 +291,8 @@ XY.mb.scale <- function(X, Y, x.center, x.scale, y.center, y.scale){
   if(length(x.center)>1){
     if(length(x.center)==length(X) & all(names(X) %in% names(x.center))){
       Xh <- purrr::map2(.x = X, .y = names(X), ~scale(., center = x.center[[.y]], scale = F))
+    }else{
+      stop("Names in x.center do not match with names in X.")
     }
   }else{
     Xh <- purrr::map(X, ~scale(., center = x.center, scale = F))
@@ -300,6 +302,8 @@ XY.mb.scale <- function(X, Y, x.center, x.scale, y.center, y.scale){
   if(length(x.scale)>1){
     if(length(x.scale)==length(X) & all(names(X) %in% names(x.scale))){
       Xh <- purrr::map2(.x = Xh, .y = names(X), ~scale(., center = F, scale = x.scale[[.y]]))
+    }else{
+      stop("Names in x.scale do not match with names in X.")
     }
   }else{
     Xh <- purrr::map(X, ~scale(., center = F, scale = x.scale))

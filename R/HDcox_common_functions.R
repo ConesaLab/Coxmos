@@ -815,7 +815,7 @@ check.maxPredictors.cox <- function(X, Y, MIN_EPV = 5, FORCE){
   if(ncol(X) > max_n_predictors){
     if(!FORCE){
       EPV <- getEPV(X, Y)
-      msg <- paste0("The minimum EPV is not met by the ratio of Y events and the number of variables used in the final model. The X matrix should have a maximum of ", max_n_predictors, " variables, or the MIN_EPV parameter should be lowered to ", EPV,".")
+      msg <- paste0("The minimum EPV is not met by the ratio of Y events and the number of variables used in the final model. The X matrix should have a maximum of ", max_n_predictors, " variables, or the MIN_EPV parameter should be lowered to ", round(EPV, 4),".")
       message(msg)
       return(F)
     }
@@ -2246,7 +2246,7 @@ get_EVAL_PLOTS <- function(fast_mode, best_model_info, w_AUC, w_BRIER, max.ncomp
   if(!is.null(eta.list)){
     for(l in 1:length(max.ncomp)){
       for(e in 1:length(eta.list)){
-        if(l %in% df_results_evals_fold$n.comps & eta.list[[e]] %in% df_results_evals_fold$eta){
+        if(max.ncomp[[l]] %in% df_results_evals_fold$n.comps & eta.list[[e]] %in% df_results_evals_fold$eta){
           vector <- c("AIC.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]] & df_results_evals_fold$eta==eta.list[[e]],colname_AIC]),
                       "c_index.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]] & df_results_evals_fold$eta==eta.list[[e]],colname_c_index]))
 
@@ -2256,7 +2256,7 @@ get_EVAL_PLOTS <- function(fast_mode, best_model_info, w_AUC, w_BRIER, max.ncomp
     }
   }else{
     for(l in 1:length(max.ncomp)){
-      if(l %in% df_results_evals_fold$n.comps){
+      if(max.ncomp[[l]] %in% df_results_evals_fold$n.comps){
         vector <- c("AIC.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]],colname_AIC]),
                     "c_index.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]],colname_c_index]))
 
@@ -2274,7 +2274,7 @@ get_EVAL_PLOTS <- function(fast_mode, best_model_info, w_AUC, w_BRIER, max.ncomp
       if(fast_mode){
         for(l in 1:length(max.ncomp)){
           for(e in 1:length(eta.list)){
-            if(l %in% df_results_evals_fold$n.comps & eta.list[[e]] %in% df_results_evals_fold$eta){
+            if(max.ncomp[[l]] %in% df_results_evals_fold$n.comps & eta.list[[e]] %in% df_results_evals_fold$eta){
               sd_vector_AUC <- rbind(sd_vector_AUC, "AUC.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]] & df_results_evals_fold$eta==eta.list[[e]],colname_AUC]))
               sd_vector_BRIER <- rbind(sd_vector_BRIER, "BRIER.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]] & df_results_evals_fold$eta==eta.list[[e]],colname_BRIER]))
             }
@@ -2283,7 +2283,7 @@ get_EVAL_PLOTS <- function(fast_mode, best_model_info, w_AUC, w_BRIER, max.ncomp
       }else{
         for(l in 1:length(max.ncomp)){
           for(e in 1:length(eta.list)){
-            if(l %in% df_results_evals_run$n.comps & eta.list[[e]] %in% df_results_evals_run$eta){
+            if(max.ncomp[[l]] %in% df_results_evals_run$n.comps & eta.list[[e]] %in% df_results_evals_run$eta){
               sd_vector_AUC <- rbind(sd_vector_AUC, "AUC.sd" = sd(df_results_evals_run[df_results_evals_run$n.comps==max.ncomp[[l]] & df_results_evals_run$eta==eta.list[[e]],colname_AUC]))
               sd_vector_BRIER <- rbind(sd_vector_BRIER, "BRIER.sd" = sd(df_results_evals_run[df_results_evals_run$n.comps==max.ncomp[[l]] & df_results_evals_run$eta==eta.list[[e]],colname_BRIER]))
             }
@@ -2293,14 +2293,14 @@ get_EVAL_PLOTS <- function(fast_mode, best_model_info, w_AUC, w_BRIER, max.ncomp
     }else{
       if(fast_mode){
         for(l in 1:length(max.ncomp)){
-          if(l %in% df_results_evals_fold$n.comps){
+          if(max.ncomp[[l]] %in% df_results_evals_fold$n.comps){
             sd_vector_AUC <- rbind(sd_vector_AUC, "AUC.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]],colname_AUC]))
             sd_vector_BRIER <- rbind(sd_vector_BRIER, "BRIER.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]],colname_BRIER]))
           }
         }
       }else{
         for(l in 1:length(max.ncomp)){
-          if(l %in% df_results_evals_run$n.comps){
+          if(max.ncomp[[l]] %in% df_results_evals_run$n.comps){
             sd_vector_AUC <- rbind(sd_vector_AUC, "AUC.sd" = sd(df_results_evals_run[df_results_evals_run$n.comps==max.ncomp[[l]],colname_AUC]))
             sd_vector_BRIER <- rbind(sd_vector_BRIER, "BRIER.sd" = sd(df_results_evals_run[df_results_evals_run$n.comps==max.ncomp[[l]],colname_BRIER]))
           }
@@ -4516,6 +4516,38 @@ checkAtLeastTwoEvents <- function(X_test, Y_test){
   }
 }
 
+checkTestTimesVSTrainTimes <- function(lst_models, Y_test){
+
+  max_train_time <- NULL
+  min_train_time <- NULL
+
+  if(!isa(lst_models, "list")){
+    lst_aux <- list()
+    lst_aux[["model"]] <- lst_models
+    lst_models <-lst_aux
+  }
+
+  for(cn in names(lst_models)){
+    Y_max_aux <- max(lst_models[[cn]]$Y$data[,"time"]) #maybe we should pick last event !!!
+    Y_min_aux <- min(lst_models[[cn]]$Y$data[,"time"]) #maybe we should pick last event !!!
+    if(is.null(max_train_time)){
+      max_train_time <- Y_max_aux
+      min_train_time <- Y_min_aux
+    }
+    if(max_train_time < Y_max_aux){
+      max_train_time <- Y_max_aux
+    }
+    if(min_train_time > Y_min_aux){
+      min_train_time <- Y_min_aux
+    }
+  }
+
+  if(max(Y_test[,"time"]) > max_train_time || min(Y_test[,"time"]) < min_train_time){
+    message("WARNING: Test data has observations with time values outside train population range. This means some observations do not belong to the model population and could be wrong estimated.\n")
+  }
+
+}
+
 #' eval_HDcox_models
 #' @description The function is used to evaluate multiple HDcox models simultaneously. The function
 #' returns all the data needed for plotting the information, including the AUC per model and for each
@@ -4555,6 +4587,9 @@ eval_HDcox_models <- function(lst_models, X_test, Y_test, pred.method, pred.attr
 
   #### Check evaluator installed:
   checkLibraryEvaluator(pred.method)
+
+  #### Check test times are less or equal than max train time:
+  checkTestTimesVSTrainTimes(lst_models, Y_test)
 
   if(all(is.null(lst_models))){
     stop("List of model is NULL")
@@ -4788,6 +4823,9 @@ eval_HDcox_model_per_variable <- function(model,
                                           pred.method = "cenROC", pred.attr = "mean",
                                           times = NULL, max_time_points = 15,
                                           PARALLEL = F, verbose = F){
+
+  #### Check test times are less or equal than max train time:
+  checkTestTimesVSTrainTimes(model, Y_test)
 
   # BRIER not implemeted !!!
 

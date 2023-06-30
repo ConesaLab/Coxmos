@@ -143,6 +143,8 @@ Instance of class "HDcox" and model "sb.splscox". The class contains the followi
 
 \code{n.comp}: Number of components selected.
 
+\code{eta} Penalty applied.
+
 \code{call}: call function
 
 \code{X_input}: X input matrix

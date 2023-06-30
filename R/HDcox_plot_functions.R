@@ -4663,6 +4663,9 @@ getTestKM.list <- function(lst_models, X_test, Y_test, lst_cutoff, type = "LP", 
 
 getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, BREAKTIME = NULL, n.breaks = 20, title = NULL){
 
+  #### Check test times are less or equal than max train time:
+  checkTestTimesVSTrainTimes(model, Y_test)
+
   if(!isa(model,pkg.env$model_class)){
     message("Model must be an object of class HDcox.")
     print(model)

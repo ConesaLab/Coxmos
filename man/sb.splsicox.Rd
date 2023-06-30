@@ -86,6 +86,8 @@ Instance of class "HDcox" and model "sb.splsicox". The class contains the follow
 
 \code{n.comp}: Number of components selected.
 
+\code{spv_penalty} Penalty applied.
+
 \code{call}: call function
 
 \code{X_input}: X input matrix
