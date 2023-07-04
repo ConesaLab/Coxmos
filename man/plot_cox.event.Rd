@@ -14,7 +14,7 @@ plot_cox.event(model, type = "lp", n.breaks = 20)
 \item{n.breaks}{Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to compute (default: 20).}
 }
 \description{
-plot_cox.event
+Generates a density and histogram plot for event distribution (Models have to be run with returnData = TRUE).
 }
 \examples{
 \dontrun{

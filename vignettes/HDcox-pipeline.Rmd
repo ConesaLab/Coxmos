@@ -145,7 +145,7 @@ ggp_density.event <- plot_events(Y = Y,
                                  categories = c("Censored","Death"), #name for FALSE/0 (Censored) and TRUE/1 (Event)
                                  y.text = "Number of observations", 
                                  roundTo = 0.5, 
-                                 max.breaks = 15) 
+                                 max.breaks = 15)
 ```
 
 ```{r fig.small = T}
@@ -328,7 +328,7 @@ If you want to see the evolution of your metric, you can access to the plots ins
 cv.splsicox_res$plot_AUC
 ```
 
-We will generate a PLS-ICOX model with a total of two principal components based on the results obtained from the cross validation.
+We will generate a PLS-ICOX model with optimal number of principal components and its penalty based on the results obtained from the cross validation.
 
 ```{r}
 splsicox_model <- splsicox(X = X_train, Y = Y_train, 
@@ -390,7 +390,7 @@ splsdrcox_model
 
 ## sPLS-DRCOX MixOmics Penalty
 
-For sPLS-DRCOX methodology we implemented another kind of penalty based on an heuristic variable selection and the MixOmics algorithms. In this case, the penalty is based on a vector of variables. We can select a specific value to select that number of variables, but if we keep the value in NULL, the number of variable will be selected automatically. 
+For sPLS-DRCOX methodology we implemented another kind of penalty based on an heuristic variable selection and the MixOmics algorithms. In this case, the penalty is based on a vector of number of variables to test. We can select a specific value to select that number of variables, but if we keep the value to NULL, the number of variable will be selected automatically. 
 
 With this method, the user can specify the minimum and maximum number of variables and the number of cutpoints (how many number of variables to test between the minimum and the maximum number of variables) to be tested. After the first iteration, the algorithm will select the optimal number of variables and will further investigate better results between the existing cut points and the optimal value selected.
 
@@ -907,7 +907,8 @@ To generate the figure, the function "plot_LP.multiplePatients.list()" or "plot_
 ```{r, warning=F}
 lst_cox.comparison <- plot_LP.multiplePatients.list(lst_models = lst_models,
                                                     new_data = X_test[1:5,],
-                                                    error.bar = T, zero.rm = T, onlySig = T, alpha = 0.05, top = 10)
+                                                    error.bar = T, zero.rm = T, onlySig = T, 
+                                                    alpha = 0.05, top = 10)
 ```
 
 ```{r, fig.small=T, warning=F}

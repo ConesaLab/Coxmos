@@ -55,7 +55,7 @@ ggp_density.event <- plot_events(Y = Y,
                                  categories = c("Censored","Death"), #name for FALSE/0 (Censored) and TRUE/1 (Event)
                                  y.text = "Number of observations", 
                                  roundTo = 0.5, 
-                                 max.breaks = 15) 
+                                 max.breaks = 15)
 
 ## ----fig.small = T------------------------------------------------------------
 ggp_density.event$plot
@@ -518,7 +518,8 @@ knitr::kable(Y_test[1:5,])
 ## ---- warning=F---------------------------------------------------------------
 lst_cox.comparison <- plot_LP.multiplePatients.list(lst_models = lst_models,
                                                     new_data = X_test[1:5,],
-                                                    error.bar = T, zero.rm = T, onlySig = T, alpha = 0.05, top = 10)
+                                                    error.bar = T, zero.rm = T, onlySig = T, 
+                                                    alpha = 0.05, top = 10)
 
 ## ---- fig.small=T, warning=F--------------------------------------------------
 lst_cox.comparison$`sPLS-DRCOX`$plot

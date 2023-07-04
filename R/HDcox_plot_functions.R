@@ -1630,6 +1630,7 @@ plot_HDcox.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor =
 
   ggp = NULL
   aux.model = model
+  FLAG_1_COMP = FALSE
 
   if(!is.null(top) & !is.null(radius)){
     message("Only top meassure will be used. Radius and top do not work simultaneously.")
@@ -1662,6 +1663,8 @@ plot_HDcox.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor =
     if(ncol(aux.model$X$scores)==1){
       message("The model has only 1 component")
 
+      FLAG_1_COMP = TRUE
+
       df <- cbind(aux.model$X$scores[,1], aux.model$X$scores[,1])
       colnames(df) <- c("p1", "p2")
     }else{
@@ -1685,14 +1688,26 @@ plot_HDcox.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor =
       r2_1 <- round(model$R2[[comp[1]]], 4)
       r2_2 <- round(model$R2[[comp[2]]], 4)
       r2 <- round(sum(unlist(model$R2)), 4)
-      ggp <- ggp + ggtitle(label = bquote(.(txt.expression) ~R^2 == .(r2))) +
-        xlab(label = paste0("comp_",as.character(comp[1]), " (", as.character(r2_1*100), " %)")) +
-        ylab(label = paste0("comp_",as.character(comp[2]), " (", as.character(r2_2*100), " %)"))
+      if(FLAG_1_COMP){
+        ggp <- ggp + ggtitle(label = bquote(.(txt.expression) ~R^2 == .(r2))) +
+          xlab(label = paste0("comp_",as.character(1), " (", as.character(r2_1*100), " %)")) +
+          ylab(label = paste0("comp_",as.character(1), " (", as.character(r2_2*100), " %)"))
+      }else{
+        ggp <- ggp + ggtitle(label = bquote(.(txt.expression) ~R^2 == .(r2))) +
+          xlab(label = paste0("comp_",as.character(comp[1]), " (", as.character(r2_1*100), " %)")) +
+          ylab(label = paste0("comp_",as.character(comp[2]), " (", as.character(r2_2*100), " %)"))
+      }
     }else{
       txt.expression <- paste0("Scores (",attr(aux.model, "model"),")")
-      ggp <- ggp + ggtitle(label = bquote(.(txt.expression))) +
-        xlab(label = paste0("comp_",as.character(comp[1]))) +
-        ylab(label = paste0("comp_",as.character(comp[2])))
+      if(FLAG_1_COMP){
+        ggp <- ggp + ggtitle(label = bquote(.(txt.expression))) +
+          xlab(label = paste0("comp_",as.character(1))) +
+          ylab(label = paste0("comp_",as.character(1)))
+      }else{
+        ggp <- ggp + ggtitle(label = bquote(.(txt.expression))) +
+          xlab(label = paste0("comp_",as.character(comp[1]))) +
+          ylab(label = paste0("comp_",as.character(comp[2])))
+      }
     }
 
     if(requireNamespace("RColorConesa", quietly = TRUE)){
@@ -1705,6 +1720,8 @@ plot_HDcox.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor =
 
     if(ncol(aux.model$X$loadings)==1){
       message("The model has only 1 component")
+
+      FLAG_1_COMP = TRUE
 
       df <- as.data.frame(cbind(aux.model$X$loadings,aux.model$X$loadings))
       colnames(df) <- c("p1", "p2")
@@ -1740,14 +1757,26 @@ plot_HDcox.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor =
       r2_1 <- round(model$R2[[comp[1]]], 4)
       r2_2 <- round(model$R2[[comp[2]]], 4)
       r2 <- round(sum(r2_1, r2_2), 4)
-      ggp <- ggp + ggtitle(label = bquote(.(txt.expression) ~R^2 == .(r2))) +
-        xlab(label = paste0("comp_",as.character(comp[1]), " (", as.character(r2_1*100), " %)")) +
-        ylab(label = paste0("comp_",as.character(comp[2]), " (", as.character(r2_2*100), " %)"))
+      if(FLAG_1_COMP){
+        ggp <- ggp + ggtitle(label = bquote(.(txt.expression) ~R^2 == .(r2))) +
+          xlab(label = paste0("comp_",as.character(1), " (", as.character(r2_1*100), " %)")) +
+          ylab(label = paste0("comp_",as.character(1), " (", as.character(r2_2*100), " %)"))
+      }else{
+        ggp <- ggp + ggtitle(label = bquote(.(txt.expression) ~R^2 == .(r2))) +
+          xlab(label = paste0("comp_",as.character(comp[1]), " (", as.character(r2_1*100), " %)")) +
+          ylab(label = paste0("comp_",as.character(comp[2]), " (", as.character(r2_2*100), " %)"))
+      }
     }else{
       txt.expression <- paste0("Loadings (",attr(aux.model, "model"),")")
-      ggp <- ggp + ggtitle(label = bquote(.(txt.expression))) +
-        xlab(label = paste0("comp_",as.character(comp[1]))) +
-        ylab(label = paste0("comp_",as.character(comp[2])))
+      if(FLAG_1_COMP){
+        ggp <- ggp + ggtitle(label = bquote(.(txt.expression))) +
+          xlab(label = paste0("comp_",as.character(1))) +
+          ylab(label = paste0("comp_",as.character(1)))
+      }else{
+        ggp <- ggp + ggtitle(label = bquote(.(txt.expression))) +
+          xlab(label = paste0("comp_",as.character(comp[1]))) +
+          ylab(label = paste0("comp_",as.character(comp[2])))
+      }
     }
 
     if(names & !is.null(subdata_loading)){
@@ -1766,6 +1795,8 @@ plot_HDcox.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor =
   }else if(mode=="biplot"){
     if(ncol(aux.model$X$loadings)==1){
       message("The model has only 1 component")
+
+      FLAG_1_COMP = TRUE
 
       df <- as.data.frame(cbind(aux.model$X$scores, aux.model$X$scores))
       colnames(df) <- c("p1", "p2")
@@ -1799,14 +1830,26 @@ plot_HDcox.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor =
       r2_1 <- round(model$R2[[comp[1]]], 4)
       r2_2 <- round(model$R2[[comp[2]]], 4)
       r2 <- round(sum(r2_1, r2_2), 4)
-      ggp <- ggp + ggtitle(label = bquote(.(txt.expression) ~R^2 == .(r2))) +
-        xlab(label = paste0("comp_",as.character(comp[1]), " (", as.character(r2_1*100), " %)")) +
-        ylab(label = paste0("comp_",as.character(comp[2]), " (", as.character(r2_2*100), " %)"))
+      if(FLAG_1_COMP){
+        ggp <- ggp + ggtitle(label = bquote(.(txt.expression) ~R^2 == .(r2))) +
+          xlab(label = paste0("comp_",as.character(1), " (", as.character(r2_1*100), " %)")) +
+          ylab(label = paste0("comp_",as.character(1), " (", as.character(r2_2*100), " %)"))
+      }else{
+        ggp <- ggp + ggtitle(label = bquote(.(txt.expression) ~R^2 == .(r2))) +
+          xlab(label = paste0("comp_",as.character(comp[1]), " (", as.character(r2_1*100), " %)")) +
+          ylab(label = paste0("comp_",as.character(comp[2]), " (", as.character(r2_2*100), " %)"))
+      }
     }else{
       txt.expression <- paste0("Biplot (",attr(aux.model, "model"),")")
-      ggp <- ggp + ggtitle(label = bquote(.(txt.expression))) +
-        xlab(label = paste0("comp_",as.character(comp[1]))) +
-        ylab(label = paste0("comp_",as.character(comp[2])))
+      if(FLAG_1_COMP){
+        ggp <- ggp + ggtitle(label = bquote(.(txt.expression))) +
+          xlab(label = paste0("comp_",as.character(1))) +
+          ylab(label = paste0("comp_",as.character(1)))
+      }else{
+        ggp <- ggp + ggtitle(label = bquote(.(txt.expression))) +
+          xlab(label = paste0("comp_",as.character(comp[1]))) +
+          ylab(label = paste0("comp_",as.character(comp[2])))
+      }
     }
 
     if(requireNamespace("RColorConesa", quietly = TRUE)){
@@ -1935,11 +1978,15 @@ plot_HDcox.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", facto
 
       block <- block
 
+      FLAG_1_COMP = FALSE
+
       if(mode=="scores"){
 
         if(attr(aux.model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox)){
           if(ncol(aux.model[[4]][[block]]$X$scores)==1){
             message("The model has only 1 component")
+
+            FLAG_1_COMP = TRUE
 
             df <- cbind(aux.model[[4]][[block]]$X$scores[,1], aux.model[[4]][[block]]$X$scores[,1])
             colnames(df) <- c("p1", "p2")
@@ -1949,6 +1996,8 @@ plot_HDcox.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", facto
         }else{ #multiblock
           if(ncol(aux.model$X$scores[[block]])==1){
             message("The model has only 1 component")
+
+            FLAG_1_COMP = TRUE
 
             df <- cbind(aux.model$X$scores[[block]][,1], aux.model$X$scores[[block]][,1])
             colnames(df) <- c("p1", "p2")
@@ -1975,14 +2024,30 @@ plot_HDcox.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", facto
           r2_1 <- round(model$R2[[comp[1]]], 4)
           r2_2 <- round(model$R2[[comp[2]]], 4)
           r2 <- round(sum(r2_1, r2_2), 4)
+
+          if(FLAG_1_COMP){
           ggp <- ggp + ggtitle(label = bquote(.(txt.expression) ~R^2 == .(r2))) +
-            xlab(label = paste0("comp_",as.character(comp[1]), " (", as.character(r2_1*100), " %)")) +
-            ylab(label = paste0("comp_",as.character(comp[2]), " (", as.character(r2_2*100), " %)"))
+            xlab(label = paste0("comp_",as.character(1), " (", as.character(r2_1*100), " %)")) +
+            ylab(label = paste0("comp_",as.character(1), " (", as.character(r2_2*100), " %)"))
+          }else{
+            ggp <- ggp + ggtitle(label = bquote(.(txt.expression) ~R^2 == .(r2))) +
+              xlab(label = paste0("comp_",as.character(comp[1]), " (", as.character(r2_1*100), " %)")) +
+              ylab(label = paste0("comp_",as.character(comp[2]), " (", as.character(r2_2*100), " %)"))
+          }
+
         }else{
           txt.expression <- paste0("Scores (",attr(aux.model, "model"),") - ", block)
-          ggp <- ggp + ggtitle(label = bquote(.(txt.expression))) +
-            xlab(label = paste0("comp_",as.character(comp[1]))) +
-            ylab(label = paste0("comp_",as.character(comp[2])))
+
+          if(FLAG_1_COMP){
+            ggp <- ggp + ggtitle(label = bquote(.(txt.expression))) +
+              xlab(label = paste0("comp_",as.character(1))) +
+              ylab(label = paste0("comp_",as.character(1)))
+          }else{
+            ggp <- ggp + ggtitle(label = bquote(.(txt.expression))) +
+              xlab(label = paste0("comp_",as.character(comp[1]))) +
+              ylab(label = paste0("comp_",as.character(comp[2])))
+          }
+
         }
 
         if(requireNamespace("RColorConesa", quietly = TRUE)){
@@ -1997,6 +2062,8 @@ plot_HDcox.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", facto
           if(ncol(aux.model[[4]][[block]]$X$loadings)==1){
             message("The model has only 1 component")
 
+            FLAG_1_COMP = TRUE
+
             df <- cbind(aux.model[[4]][[block]]$X$loadings[,1], aux.model[[4]][[block]]$X$loadings[,1])
             colnames(df) <- c("p1", "p2")
           }else{
@@ -2005,6 +2072,8 @@ plot_HDcox.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", facto
         }else{ #multiblock
           if(ncol(aux.model$X$loadings[[block]])==1){
             message("The model has only 1 component")
+
+            FLAG_1_COMP = TRUE
 
             df <- cbind(aux.model$X$loadings[[block]][,1], aux.model$X$loadings[[block]][,1])
             colnames(df) <- c("p1", "p2")
@@ -2044,14 +2113,26 @@ plot_HDcox.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", facto
           r2_1 <- round(model$R2[[comp[1]]], 4)
           r2_2 <- round(model$R2[[comp[2]]], 4)
           r2 <- round(sum(r2_1, r2_2), 4)
-          ggp <- ggp + ggtitle(label = bquote(.(txt.expression) ~R^2 == .(r2))) +
-            xlab(label = paste0("comp_",as.character(comp[1]), " (", as.character(r2_1*100), " %)")) +
-            ylab(label = paste0("comp_",as.character(comp[2]), " (", as.character(r2_2*100), " %)"))
+          if(FLAG_1_COMP){
+            ggp <- ggp + ggtitle(label = bquote(.(txt.expression) ~R^2 == .(r2))) +
+              xlab(label = paste0("comp_",as.character(1), " (", as.character(r2_1*100), " %)")) +
+              ylab(label = paste0("comp_",as.character(1), " (", as.character(r2_2*100), " %)"))
+          }else{
+            ggp <- ggp + ggtitle(label = bquote(.(txt.expression) ~R^2 == .(r2))) +
+              xlab(label = paste0("comp_",as.character(comp[1]), " (", as.character(r2_1*100), " %)")) +
+              ylab(label = paste0("comp_",as.character(comp[2]), " (", as.character(r2_2*100), " %)"))
+          }
         }else{
           txt.expression <- paste0("Loadings (",attr(aux.model, "model"),") - ", block)
-          ggp <- ggp + ggtitle(label = bquote(.(txt.expression))) +
-            xlab(label = paste0("comp_",as.character(comp[1]))) +
-            ylab(label = paste0("comp_",as.character(comp[2])))
+          if(FLAG_1_COMP){
+            ggp <- ggp + ggtitle(label = bquote(.(txt.expression))) +
+              xlab(label = paste0("comp_",as.character(1))) +
+              ylab(label = paste0("comp_",as.character(1)))
+          }else{
+            ggp <- ggp + ggtitle(label = bquote(.(txt.expression))) +
+              xlab(label = paste0("comp_",as.character(comp[1]))) +
+              ylab(label = paste0("comp_",as.character(comp[2])))
+          }
         }
 
         if(names & !is.null(subdata_loading)){
@@ -2074,6 +2155,8 @@ plot_HDcox.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", facto
           if(ncol(aux.model[[4]][[block]]$X$loadings)==1){
             message("The model has only 1 component")
 
+            FLAG_1_COMP = TRUE
+
             df <- as.data.frame(cbind(aux.model[[4]][[block]]$X$scores, aux.model[[4]][[block]]$X$scores))
             colnames(df) <- c("p1", "p2")
 
@@ -2090,6 +2173,8 @@ plot_HDcox.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", facto
         }else{ #multiblock
           if(ncol(aux.model$X$loadings[[block]])==1){
             message("The model has only 1 component")
+
+            FLAG_1_COMP = TRUE
 
             df <- as.data.frame(cbind(aux.model$X$scores[[block]], aux.model$X$scores[[block]]))
             colnames(df) <- c("p1", "p2")
@@ -2124,14 +2209,27 @@ plot_HDcox.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", facto
           r2_1 <- round(model$R2[[comp[1]]], 4)
           r2_2 <- round(model$R2[[comp[2]]], 4)
           r2 <- round(sum(r2_1, r2_2), 4)
-          ggp <- ggp + ggtitle(label = bquote(.(txt.expression) ~R^2 == .(r2))) +
-            xlab(label = paste0("comp_",as.character(comp[1]), " (", as.character(r2_1*100), " %)")) +
-            ylab(label = paste0("comp_",as.character(comp[2]), " (", as.character(r2_2*100), " %)"))
+
+          if(FLAG_1_COMP){
+            ggp <- ggp + ggtitle(label = bquote(.(txt.expression) ~R^2 == .(r2))) +
+              xlab(label = paste0("comp_",as.character(1), " (", as.character(r2_1*100), " %)")) +
+              ylab(label = paste0("comp_",as.character(1), " (", as.character(r2_2*100), " %)"))
+          }else{
+            ggp <- ggp + ggtitle(label = bquote(.(txt.expression) ~R^2 == .(r2))) +
+              xlab(label = paste0("comp_",as.character(comp[1]), " (", as.character(r2_1*100), " %)")) +
+              ylab(label = paste0("comp_",as.character(comp[2]), " (", as.character(r2_2*100), " %)"))
+          }
         }else{
           txt.expression <- paste0("Biplot (",attr(aux.model, "model"),") - ", block)
-          ggp <- ggp + ggtitle(label = bquote(.(txt.expression))) +
-            xlab(label = paste0("comp_",as.character(comp[1]))) +
-            ylab(label = paste0("comp_",as.character(comp[2])))
+          if(FLAG_1_COMP){
+            ggp <- ggp + ggtitle(label = bquote(.(txt.expression))) +
+              xlab(label = paste0("comp_",as.character(1))) +
+              ylab(label = paste0("comp_",as.character(1)))
+          }else{
+            ggp <- ggp + ggtitle(label = bquote(.(txt.expression))) +
+              xlab(label = paste0("comp_",as.character(comp[1]))) +
+              ylab(label = paste0("comp_",as.character(comp[2])))
+          }
         }
 
         if(requireNamespace("RColorConesa", quietly = TRUE)){
@@ -2416,6 +2514,8 @@ plot_cox.event.list <- function(lst_models, type = "lp", n.breaks = 20){
 
 #' plot_cox.event
 #'
+#' Generates a density and histogram plot for event distribution (Models have to be run with returnData = TRUE).
+#'
 #' @param model HDcox model.
 #' @param type Character. Prediction type: "lp", "risk", "expected" or "survival" (default: "lp").
 #' @param n.breaks Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to compute (default: 20).
@@ -2451,9 +2551,9 @@ plot_cox.event <- function(model, type = "lp", n.breaks = 20){
   }else{
     stop_quietly("Type must be one of the follow: 'lp', 'risk', 'expected', 'survival'")
   }
-  names(lp) <- rownames(model$survival_model$fit$y)
+  names(lp) <- rownames(model$survival_model$fit$model)
 
-  df_hr <- cbind(lp, model$Y_input[names(lp),"event"])
+  df_hr <- cbind(lp, model$Y$data[names(lp),"event"])
   colnames(df_hr) <- c(type, "event")
   df_hr <- as.data.frame(df_hr)
   df_hr$event <- factor(df_hr$event, levels = c(0,1))
@@ -2963,7 +3063,7 @@ plot_pseudobeta.newPatient <- function(model, new_observation, error.bar = T, on
   }
 
   #norm patient
-  new_observation <- new_observation[,names(model$X$x.mean),drop=F]
+  new_observation <- new_observation[,rownames(model$X$W.star),drop=F]
 
   if(!is.null(model$X$x.mean) & !is.null(model$X$x.sd)){
     norm_patient <- scale(new_observation, center = model$X$x.mean, scale = model$X$x.sd)
