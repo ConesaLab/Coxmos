@@ -163,8 +163,8 @@ After loading the data, it may be of interest for the user to perform a survival
 
 More information for each approach could be found in the help section for each function. The function name for each methodology are:
 
-* Classical approaches: cox(), coxSW() and coxEN().
-* sPLS approaches: splsicox(), splsdrcox(), splsdrcox_dynamic() and splsdacox_dynamic().
+* Classical approaches: `cox()`, `coxSW()` and `coxEN()`.
+* sPLS approaches: `splsicox()`, `splsdrcox()`, `splsdrcox_dynamic()` and `splsdacox_dynamic()`.
 
 To perform a survival analysis with our example, we will use methodologies that can work with high-dimensional data. These are the set of methodologies that use PLS and COX Elastic Net techniques.
 
@@ -172,7 +172,7 @@ The first thing we are going to do is split our data into a train and test set. 
 
 ## TRAIN/TEST
 
-We will use the function `createDataPartition` from the R package **caret**. We will use a 70%/30% split for training and testing, respectively, and set a seed for reproducible results.
+We will use the function `createDataPartition` from the R package **caret**. We will use a 70% - 30% split for training and testing, respectively, and set a seed for reproducible results.
 
 ```{r}
 set.seed(123)
@@ -193,7 +193,7 @@ Y_test <- Y[-index_train,]
 
 We have already mentioned that we need to work with a high-dimensional methodology. However, if we try to run a classical analysis with one of our functions such as a Cox analysis using the entire matrix X, we will get an error due to the specification of the **MIN_EPV** parameter.
 
-This parameter (set by default to 5) establishes a minimum ratio of variables that should be included in a survival model according to the number of patients who experience the event. The formula is $\frac{#events}{#variables in the model}$. According to literature, the higher values the better. As a recommendation, values greater than 10 should be used to obtain models with good predictions, but this value should not be lower than 5.
+This parameter (set by default to 5) establishes a minimum ratio of variables that should be included in a survival model according to the number of patients who experience the event. The formula is $\frac{\text{# events}}{\text{# variables in survival model}}$. According to literature, the higher values the better. As a recommendation, values greater than 10 should be used to obtain models with good predictions, but this value should not be lower than 5.
 
 If we perform a classical cox survival analysis we will obtain an error.
 
@@ -224,7 +224,7 @@ Once the problem has been demonstrated, we will proceed to perform the methods t
 
 In order to perform survival analysis with our high-dimensional data, we have implemented a series of methods that utilize techniques such as Cox Elastic Net, to select a lower number of features applying a penalty or partial least squares (PLS) methodology in order to reduce the dimensionality of the input data. 
 
-To evaluate the performance of these methods, we have implemented cross-validation, which allows us to estimate the optimal parameters for future predictions based on prediction metrics such as: **AIC**, **C-INDEX**, **I.BRIER** and **AUC**. By default AUC metric (Area under the ROC curve) is used with the "cenROC" evaluator as it has provided the best results in our tests. However, multiple **AUC** evaluators could be used ("risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C" and "smoothROCtime_I"). 
+To evaluate the performance of these methods, we have implemented cross-validation, which allows us to estimate the optimal parameters for future predictions based on prediction metrics such as: **AIC**, **C-INDEX**, **I.BRIER** and **AUC**. By default AUC metric (Area under the ROC curve) is used with the "cenROC" evaluator as it has provided the best results in our tests. However, multiple **AUC** evaluators could be used: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C" and "smoothROCtime_I". 
 
 Furthermore, a mix of multiple metrics could be used to obtain the optimal model. The user has to establish different weight for each emtric and all of them will be consider to compute the optimal model (the total weight must sum 1).
 
@@ -576,7 +576,7 @@ Following the cross validation, we have selected the sPLS-DACOX methodology as t
 
 ## Forest plots
 
-A forest plot can be obtained as the first graph using the survminer R package. However, the function has been restructured to allow for simultaneous launch of an HDcox class model or a list of HDcox models using the plot_forest() or plot_forest.list() function.
+A forest plot can be obtained as the first graph using the survminer R package. However, the function has been restructured to allow for simultaneous launch of an HDcox class model or a list of HDcox models using the `plot_forest()` or `plot_forest.list()` function.
 
 ```{r}
 lst_forest_plot <- plot_forest.list(lst_models)
@@ -592,7 +592,7 @@ The following graph is related to one of the assumptions of the Cox models, call
 
 In a Cox proportional hazards model, the proportional hazards assumption states that the hazard ratio (the risk of experiencing the event of interest) is constant over time for a given set of predictor variables. This means that the effect of the predictors on the hazard ratio does not change over time. This assumption is important because it allows for the interpretation of the model's coefficients as measures of the effect of the predictors on the hazard ratio. Violations of the proportional hazards assumption can occur if the effect of the predictors on the hazard ratio changes over time or if there is an interaction between the predictors and time. In these cases, the coefficients of the model may not accurately reflect the effect of the predictors on the hazard ratio and the results of the model may not be reliable.
 
-In this way, to visualize and check if the assumption is violated, the function plot_proportionalHazard.list() or plot_proportionalHazard() can be called, depending on whether a list of models or a specific model is to be evaluated.
+In this way, to visualize and check if the assumption is violated, the function `plot_proportionalHazard.list()` or `plot_proportionalHazard()` can be called, depending on whether a list of models or a specific model is to be evaluated.
 
 ```{r}
 lst_ph_ggplot <- plot_proportionalHazard.list(lst_models)
@@ -633,7 +633,7 @@ density.plots.lp$`sPLS-DRCOX`$plot.histogram
 
 ## Studying PLS model
 
-For those models based on PLS components, the PLS could be studied in terms of loadings/scores. In order to get the plots, the function plot_PLS_HDcox() has been developed where the user could specify to see "scores", "loadings" or a "biplot" for a couple of latent variables. By default, if no factor is given, samples are grouped by event.
+For those models based on PLS components, the PLS could be studied in terms of loadings/scores. In order to get the plots, the function `plot_PLS_HDcox()` has been developed where the user could specify to see "scores", "loadings" or a "biplot" for a couple of latent variables. By default, if no factor is given, samples are grouped by event.
 
 ```{r}
 ggp_scores <- plot_PLS_HDcox(model = lst_models$`sPLS-DRCOX`, 
@@ -716,11 +716,11 @@ ggp.simulated_beta$`sPLS-DRCOX`$plot
 
 ## Kaplan-Meier
 
-For a more intuitive understanding of the model, the user can also employ the "getAutoKM.list()" or "getAutoKM()" functions to generate Kaplan-Meier curves. These functions allow the user to view the KM curve for the entire model, a specific component of a PLS model, or for individual variables.
+For a more intuitive understanding of the model, the user can also employ the `getAutoKM.list()` or `getAutoKM()` functions to generate Kaplan-Meier curves. These functions allow the user to view the KM curve for the entire model, a specific component of a PLS model, or for individual variables.
 
 ### Full model
 
-To run the full Kaplan-Meier model, the "type" parameter must be set to "LP" (linear predictors). This means that the linear predictor value for each patient will be used to divide the groups (in this case, the score value multiplied by the Cox coefficient). The "surv_cutpoint" function from the R package "survminer" is used to determine the optimal cut-point. Other parameters are not used in this specific method.
+To run the full Kaplan-Meier model, the "type" parameter must be set to "LP" (linear predictors). This means that the linear predictor value for each patient will be used to divide the groups (in this case, the score value multiplied by the Cox coefficient). The `surv_cutpoint()` function from the R package "survminer" is used to determine the optimal cut-point. Other parameters are not used in this specific method.
 
 ```{r}
 LST_KM_RES_LP <- getAutoKM.list(type = "LP",
@@ -738,9 +738,9 @@ As a result, the Kaplan-Meier curve could be plotted.
 LST_KM_RES_LP$`sPLS-DRCOX`$LST_PLOTS$LP
 ```
 
-After generating a Kaplan-Meier curve for the model, the cutoff value, which is used to divide the observations into two groups, can be used to evaluate how the test data is classified. The vector of cutoffs for multiple models, when "getAutoKM.list()" is applied, can be retrieved by using the function "getCutoffAutoKM.list()" and passing the output of "getAutoKM.list()" as a parameter.
+After generating a Kaplan-Meier curve for the model, the cutoff value, which is used to divide the observations into two groups, can be used to evaluate how the test data is classified. The vector of cutoffs for multiple models, when `getAutoKM.list()` is applied, can be retrieved by using the function `getCutoffAutoKM.list()` and passing the output of `getAutoKM.list()` as a parameter.
 
-Once the vector is obtained, the function "getTestKM.list()" or "getTestKM()" can be run with the list of models, the X test data, Y test data, the list of cutoffs or a single value, and the desired number of breaks for the new Kaplan-Meier plot.
+Once the vector is obtained, the function `getTestKM.list()` or `getTestKM()` can be run with the list of models, the X test data, Y test data, the list of cutoffs or a single value, and the desired number of breaks for the new Kaplan-Meier plot.
 
 A log-rank test will be displayed to determine if the chosen cutoff is an effective way to split the data into groups with higher and lower risk.
 
@@ -846,7 +846,7 @@ As shown, this is a censored patient who has the last observation at time 254.
 knitr::kable(Y_test[rownames(new_pat),])
 ```
 
-The function "plot_pseudobeta_newPatient.list()" or "plot_pseudobeta_newPatient()" allows the user to compare the characteristics of a new patient with the pseudo-beta values obtained from a specific model. The goal is to understand in a general way which variables are associated with an increased risk of an event or a decreased risk, in comparison to the variables predicted by the model.
+The function `plot_pseudobeta_newPatient.list()` or `plot_pseudobeta_newPatient()` allows the user to compare the characteristics of a new patient with the pseudo-beta values obtained from a specific model. The goal is to understand in a general way which variables are associated with an increased risk of an event or a decreased risk, in comparison to the variables predicted by the model.
 
 ```{r, warning=F}
 ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient.list(lst_models = lst_models, 
@@ -902,7 +902,7 @@ As an idea, this function could also be used to study the same patient in differ
 knitr::kable(Y_test[1:5,])
 ```
 
-To generate the figure, the function "plot_LP.multiplePatients.list()" or "plot_LP.multiplePatients()" can be used.
+To generate the figure, the function `plot_LP.multiplePatients.list()` or `plot_LP.multiplePatients()` can be used.
 
 ```{r, warning=F}
 lst_cox.comparison <- plot_LP.multiplePatients.list(lst_models = lst_models,

@@ -502,15 +502,8 @@ save_ggplot_lst.svg <- function(lst_plots, folder = NULL, prefix = NULL, suffix 
 
 plot_time.list <- function(lst_models, x.text = "Method", y.text = NULL){
 
-  if(is.null(names(lst_models))){
-    names(lst_models) <- unlist(lapply(lst_models, function(x){
-      if("time" %in% names(x)){
-        attr(x, "model")
-      }else if("time" %in% names(x[[1]])){
-        attr(x[[1]], "model")
-      }
-    }))
-  }
+  #check names in lst_models
+  lst_models <- checkModelNames(lst_models)
 
   lst_times <- list()
   for(m in names(lst_models)){
@@ -1965,7 +1958,7 @@ plot_HDcox.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", facto
   }else if(attr(aux.model, "model") %in% pkg.env$pls_methods){
     stop_quietly("For PLS models, use the function 'plot_HDcox.PLS.model'")
   }else if(!attr(aux.model, "model") %in% pkg.env$multiblock_methods){
-    stop_quietly("'model' must be a HDcox object PLS class ('SB.sPLS-ICOX','SB.sPLS-DRCOX','MB.sPLS-DRCOX' or 'MB.sPLS-DACOX').")
+    stop_quietly("'model' must be a HDcox object PLS class ('SB.sPLS-ICOX','SB.sPLS-DRCOX', 'iSB.sPLS-ICOX','iSB.sPLS-DRCOX','MB.sPLS-DRCOX' or 'MB.sPLS-DACOX').")
   }
 
   lst_ggp <- list()
@@ -1982,7 +1975,7 @@ plot_HDcox.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", facto
 
       if(mode=="scores"){
 
-        if(attr(aux.model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox)){
+        if(attr(aux.model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox, pkg.env$isb.splsicox, pkg.env$isb.splsdrcox)){
           if(ncol(aux.model[[4]][[block]]$X$scores)==1){
             message("The model has only 1 component")
 
@@ -2058,7 +2051,7 @@ plot_HDcox.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", facto
 
       }else if(mode=="loadings"){
 
-        if(attr(aux.model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox)){
+        if(attr(aux.model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox, pkg.env$isb.splsicox, pkg.env$isb.splsdrcox)){
           if(ncol(aux.model[[4]][[block]]$X$loadings)==1){
             message("The model has only 1 component")
 
@@ -2151,7 +2144,7 @@ plot_HDcox.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", facto
       }else if(mode=="biplot"){
 
 
-        if(attr(aux.model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox)){
+        if(attr(aux.model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox, pkg.env$isb.splsicox, pkg.env$isb.splsdrcox)){
           if(ncol(aux.model[[4]][[block]]$X$loadings)==1){
             message("The model has only 1 component")
 
@@ -2319,6 +2312,9 @@ plot_HDcox.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", facto
 
 plot_proportionalHazard.list <- function(lst_models){
 
+  #check names in lst_models
+  lst_models <- checkModelNames(lst_models)
+
   lst_plots <- purrr::map(lst_models, ~plot_proportionalHazard(model = .))
 
   return(lst_plots)
@@ -2435,6 +2431,9 @@ plot_forest.list <- function(lst_models,
                              refLabel = "reference",
                              noDigits = 2){
 
+  #check names in lst_models
+  lst_models <- checkModelNames(lst_models)
+
   lst_forest_plot <- purrr::map(lst_models, ~plot_forest(model = .,
                                                          title = paste0(title, " - ", .$class), cpositions = cpositions,
                                                          fontsize = fontsize, refLabel = refLabel, noDigits = noDigits))
@@ -2506,6 +2505,9 @@ plot_forest <- function(model,
 #' }
 
 plot_cox.event.list <- function(lst_models, type = "lp", n.breaks = 20){
+
+  #check names in lst_models
+  lst_models <- checkModelNames(lst_models)
 
   ggp_list <- purrr::map(lst_models, ~plot_cox.event(model = ., type = type, n.breaks = n.breaks))
 
@@ -2732,6 +2734,8 @@ plot_patient.eventHistogram <- function(patient, time = NULL, model, type = "lp"
 
 plot_pseudobeta.list <- function(lst_models, error.bar = T, onlySig = F, alpha = 0.05, zero.rm = T, top = NULL, auto.limits = T, show_percentage = T, size_percentage = 3, verbose = F){
 
+  #check names in lst_models
+  lst_models <- checkModelNames(lst_models)
 
   if(all(unlist(purrr::map(lst_models, function(x){x$class})) %in% c(pkg.env$pls_methods, pkg.env$multiblock_methods))){
     sub_lst_models <- lst_models
@@ -2780,7 +2784,7 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
   }
 
   if(!attr(model, "model") %in% c(pkg.env$pls_methods, pkg.env$multiblock_methods)){
-    stop("Model must be one of the follow models: 'sPLS-ICOX', 'sPLS-DRCOX', 'sPLS-DRCOX-Dynamic', 'sPLS-DACOX-Dynamic', 'SB.sPLS-ICOX', 'SB.sPLS-DRCOX', 'MB.sPLS-DRCOX', 'MB.sPLS-DACOX'")
+    stop("Model must be one of the follow models: 'sPLS-ICOX', 'sPLS-DRCOX', 'sPLS-DRCOX-Dynamic', 'sPLS-DACOX-Dynamic', 'SB.sPLS-ICOX', 'SB.sPLS-DRCOX', 'iSB.sPLS-ICOX','iSB.sPLS-DRCOX', 'MB.sPLS-DRCOX', 'MB.sPLS-DACOX'")
   }
 
   if(all(is.null(model$survival_model))){
@@ -2840,11 +2844,7 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
       coefficients <- as.matrix(model$survival_model$fit$coefficients)[rn,,drop=F]
       sd <- df.aux[rn,"se(coef)",drop=F]
       W.star <- list()
-      if(attr(model, "model") %in% pkg.env$sb.splsicox){
-        for(b in names(model$list_spls_models)){
-          W.star[[b]] <- model$list_spls_models[[b]]$X$W.star
-        }
-      }else if(attr(model, "model") %in% pkg.env$sb.splsdrcox){
+      if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$isb.splsicox, pkg.env$sb.splsdrcox, pkg.env$isb.splsdrcox)){
         for(b in names(model$list_spls_models)){
           W.star[[b]] <- model$list_spls_models[[b]]$X$W.star
         }
@@ -2856,11 +2856,7 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
       coefficients <- as.matrix(model$survival_model$fit$coefficients)
       sd <- df.aux[,"se(coef)",drop=F]
       W.star <- list()
-      if(attr(model, "model") %in% pkg.env$sb.splsicox){
-        for(b in names(model$list_spls_models)){
-          W.star[[b]] <- model$list_spls_models[[b]]$X$W.star
-        }
-      }else if(attr(model, "model") %in% pkg.env$sb.splsdrcox){
+      if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$isb.splsicox, pkg.env$sb.splsdrcox, pkg.env$isb.splsdrcox)){
         for(b in names(model$list_spls_models)){
           W.star[[b]] <- model$list_spls_models[[b]]$X$W.star
         }
@@ -2964,6 +2960,9 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
 
 plot_pseudobeta_newPatient.list <- function(lst_models, new_observation, error.bar = T, onlySig = T, alpha = 0.05, zero.rm = T,
                                             top = NULL, auto.limits = T, show.betas = F, verbose = F){
+
+  #check names in lst_models
+  lst_models <- checkModelNames(lst_models)
 
   if(all(unlist(purrr::map(lst_models, function(x){x$class})) %in% c(pkg.env$pls_methods, pkg.env$multiblock_methods))){
     sub_lst_models <- lst_models
@@ -3442,6 +3441,10 @@ plot_MB.pseudobeta.newPatient <- function(model, new_observation, error.bar = T,
 #' }
 
 getAutoKM.list <- function(type = "LP", lst_models, comp = 1:2, top = NULL, ori_data = T, BREAKTIME = NULL, n.breaks = 20, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
+
+  #check names in lst_models
+  lst_models <- checkModelNames(lst_models)
+
   if(!type %in% c("LP", "COMP", "VAR", "LPVAR")){
     stop("Type parameters must be one of the following: LP, COMP, VAR or LPVAR")
   }
@@ -3596,7 +3599,7 @@ getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NUL
 
     if(!all(is.null(model$survival_model))){
       for(b in names(model$X$data)){
-        if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox)){
+        if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox, pkg.env$isb.splsicox, pkg.env$isb.splsdrcox)){
           lst_vars[[b]] <- colnames(model[[4]][[b]]$X$W.star)
           keep <- which(paste0(lst_vars[[b]],"_",b) %in% names(model$survival_model$fit$coefficients))
           lst_vars[[b]] <- lst_vars[[b]][keep]
@@ -3644,7 +3647,7 @@ getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NUL
       # vars %*% coeff to get component LP
       unique_vars <- deleteIllegalChars(unique(unlist(lst_vars[[b]])))
       if(length(unique_vars)==0){next}#no components selected
-      if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox)){
+      if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox, pkg.env$isb.splsicox, pkg.env$isb.splsdrcox)){
         cn_aux <- colnames(as.data.frame(model[[4]][[b]]$X$scores[rownames(model[[4]][[b]]$X$scores),unique_vars,drop=F]))
         sc_aux <- as.data.frame(model[[4]][[b]]$X$scores[rownames(model[[4]][[b]]$X$scores),unique_vars,drop=F])
         coeff_aux <- model$survival_model$fit$coefficients[paste0(cn_aux, "_", b)]
@@ -3825,20 +3828,11 @@ getLPVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NU
     for(b in names(model$X$data)){
       vars <- list()
 
-      if(attr(model, "model") %in% pkg.env$sb.splsicox){
+      if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$isb.splsicox, pkg.env$sb.splsdrcox, pkg.env$isb.splsdrcox)){
         aux <- model$list_spls_models[[b]]
-      }else if(attr(model, "model") %in% pkg.env$sb.splsdrcox){
-        aux <- model$list_spls_models[[b]]
-      }
-
-      if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox)){
-
-        message("ARREGLAR PARA SB")
-
       }else if(attr(model, "model") %in% c(pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
-
-        message("ARREGLAR PARA MB")
-
+        message("Fix for MB")
+        stop()
       }
 
       # names(vars) <- as.character(1:length(vars))
@@ -4077,13 +4071,11 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
       vars <- list()
       vars_data <- list()
 
-      if(attr(model, "model") %in% pkg.env$sb.splsicox){
-        aux <- model$list_spls_models[[b]]
-      }else if(attr(model, "model") %in% pkg.env$sb.splsdrcox){
+      if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$isb.splsicox, pkg.env$sb.splsdrcox, pkg.env$isb.splsdrcox)){
         aux <- model$list_spls_models[[b]]
       }
 
-      if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox)){
+      if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox, pkg.env$isb.splsicox, pkg.env$isb.splsdrcox)){
 
         for(c in comp){
           if(ncol(aux$X$W.star)>=c){
@@ -4632,6 +4624,10 @@ plot_survivalplot.qual <- function(data, sdata, cn_variables, name_data = NULL, 
 #' }
 
 getCutoffAutoKM.list <- function(lst_results){
+
+  #check names in lst_models
+  lst_models <- checkModelNames(lst_models)
+
   LST_RES <- purrr::map(lst_results, ~getCutoffAutoKM(.))
 }
 
@@ -4701,6 +4697,9 @@ getCutoffAutoKM <- function(result){
 #' }
 
 getTestKM.list <- function(lst_models, X_test, Y_test, lst_cutoff, type = "LP", ori_data = T, BREAKTIME = NULL, n.breaks = 20, title = NULL, verbose = F){
+
+  #check names in lst_models
+  lst_models <- checkModelNames(lst_models)
 
   if(!type %in% c("LP", "COMP", "VAR")){
     stop("Type parameters must be one of the following: LP, COMP or VAR")
@@ -4873,10 +4872,10 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
       }
     }
 
-    if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox)){
+    if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox, pkg.env$isb.splsicox, pkg.env$isb.splsdrcox)){
       lst_ggp <- NULL
       ## SB.PLSICOX
-      if(attr(model, "model") %in% c(pkg.env$sb.splsicox)){
+      if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$isb.splsicox)){
         for(b in names(model$list_spls_models)){
           new_cutoff <- cutoff[endsWith(names(cutoff), paste0("_",b))]
           names(new_cutoff) <- unlist(lapply(names(new_cutoff), function(x){substr(x, start = 1, stop = nchar(x)-nchar(paste0("_",b)))}))
@@ -4975,6 +4974,9 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
 
 plot_LP.multiplePatients.list <- function(lst_models, new_data, error.bar = F, onlySig = T, alpha = 0.05, zero.rm = T,
                                           auto.limits = T, top = NULL){
+
+  #check names in lst_models
+  lst_models <- checkModelNames(lst_models)
 
   lst_plots <- purrr::map(lst_models, ~plot_LP.multiplePatients(model = ., new_data = new_data, error.bar = error.bar, onlySig = onlySig,
                                                                 alpha = alpha, zero.rm = zero.rm,

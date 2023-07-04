@@ -600,8 +600,8 @@ cv.sb.splsicox <- function(X, Y,
   }
 }
 
-#' Cross validation fast.cv.sb.splsicox
-#' @description fast.cv.sb.splsicox cross validation model
+#' Cross validation cv.isb.splsicox
+#' @description cv.isb.splsicox cross validation model
 #'
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
@@ -690,11 +690,11 @@ cv.sb.splsicox <- function(X, Y,
 #'
 #' @examples
 #' \dontrun{
-#' sb.splsicox_model <- fast.cv.sb.splsicox(X, Y, max.ncomp = 10,
+#' sb.splsicox_model <- cv.isb.splsicox(X, Y, max.ncomp = 10,
 #' spv_penalty.list = seq(0.1,1,0.1), x.center = TRUE, x.scale = TRUE)
 #' }
 
-fast.cv.sb.splsicox <- function(X, Y,
+cv.isb.splsicox <- function(X, Y,
                                max.ncomp = 10, spv_penalty.list = seq(0.1,1,0.1),
                                n_run = 5, k_folds = 10,
                                x.center = TRUE, x.scale = FALSE,
@@ -900,21 +900,21 @@ fast.cv.sb.splsicox <- function(X, Y,
   time <- difftime(t2,t1,units = "mins")
 
   # invisible(gc())
-  return(sb.splsicox_class(list(X = list("data" = if(returnData) X_norm else NA,
-                                         "x.mean" = xmeans, "x.sd" = xsds),
-                                Y = list("data" = Yh,
-                                         "y.mean" = ymeans, "y.sd" = ysds),
-                                survival_model = survival_model,
-                                list_spls_models = lst_sb.pls,
-                                n.comp = aux_ncomp, #number of components used, but could be lesser than expected because not computed models
-                                spv_penalty = aux_spv_penalty,
-                                call = if(returnData) func_call else NA,
-                                X_input = if(returnData) X_original else NA,
-                                Y_input = if(returnData) Y_original else NA,
-                                alpha = alpha,
-                                removed_variables_cox = removed_variables,
-                                class = pkg.env$sb.splsicox,
-                                time = time)))
+  return(isb.splsicox_class(list(X = list("data" = if(returnData) X_norm else NA,
+                                          "x.mean" = xmeans, "x.sd" = xsds),
+                                 Y = list("data" = Yh,
+                                          "y.mean" = ymeans, "y.sd" = ysds),
+                                 survival_model = survival_model,
+                                 list_spls_models = lst_sb.pls,
+                                 n.comp = aux_ncomp, #number of components used, but could be lesser than expected because not computed models
+                                 spv_penalty = aux_spv_penalty,
+                                 call = if(returnData) func_call else NA,
+                                 X_input = if(returnData) X_original else NA,
+                                 Y_input = if(returnData) Y_original else NA,
+                                 alpha = alpha,
+                                 removed_variables_cox = removed_variables,
+                                 class = pkg.env$sb.splsicox,
+                                 time = time)))
 }
 
 ### ## ##
@@ -924,6 +924,12 @@ fast.cv.sb.splsicox <- function(X, Y,
 sb.splsicox_class = function(pls_model, ...) {
   model = structure(pls_model, class = pkg.env$model_class,
                     model = pkg.env$sb.splsicox)
+  return(model)
+}
+
+isb.splsicox_class = function(pls_model, ...) {
+  model = structure(pls_model, class = pkg.env$model_class,
+                    model = pkg.env$isb.splsicox)
   return(model)
 }
 

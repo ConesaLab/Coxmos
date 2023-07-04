@@ -141,17 +141,19 @@ ggp_density.event <- plot_events(Y = Y,
 ggp_density.event$plot
 ```
 
-# Survival models for low/high dimensional data sets
+# Survival models for multiomic data sets
 
 After loading the data, it may be of interest for the user to perform a survival analysis in order to examine the relationship between explanatory variables and the outcome. However, traditional methods are only applicable for low-dimensional datasets. To address this issue, we have developed a set of functions that make use of (s)PLS techniques in combination with Cox analysis for the analysis of high-dimensional datasets.
 
 *HDcox* provides the following methodologies for multi-omic approaches:
 
-* sPLS approaches: SB.sPLS-ICOX, SB.sPLS-DRCOX, MB.sPLS-DRCOX-Dynamic and MB.sPLS-DACOX-Dynamic.
+* SB.sPLS approaches: SB.sPLS-ICOX, iSB.sPLS-ICOX, SB.sPLS-DRCOX and iSB.sPLS-DRCOX.
+* MB.sPLS approaches: MB.sPLS-DRCOX-Dynamic and MB.sPLS-DACOX-Dynamic.
 
 More information for each approach could be found in the help section for each function. The function name for each methodology are:
 
-* sPLS approaches: sb.splsicox(), sb.splsdrcox(), mb.splsdrcox() and mb.splsdacox().
+* SB.sPLS approaches: `sb.splsicox()`, `cv.isb.splsicox()`, `sb.splsdrcox()` and `cv.isb.splsdrcox()`.
+* MB.sPLS approaches: `mb.splsdrcox()` and `mb.splsdacox()`.
 
 To perform a survival analysis with our example, we will use methodologies that can work with high-dimensional data. These are the set of methodologies that use sPLS techniques.
 
@@ -159,7 +161,7 @@ The first thing we are going to do is split our data into a train and test set. 
 
 ## TRAIN/TEST
 
-We will use the function `createDataPartition` from the R package **caret**. We will use a 70%/30% split for training and testing, respectively, and set a seed for reproducible results.
+We will use the function `createDataPartition` from the R package **caret**. We will use a 70% - 30% split for training and testing, respectively, and set a seed for reproducible results.
 
 ```{r}
 set.seed(123)
@@ -189,6 +191,18 @@ for(b in names(X_train)){
 
 ```
 
+## Cross Validation
+
+In order to perform survival analysis with our high-dimensional data, we have implemented a series of methods that utilize techniques such as Cox Elastic Net, to select a lower number of features applying a penalty or partial least squares (PLS) methodology in order to reduce the dimensionality of the input data. 
+
+To evaluate the performance of these methods, we have implemented cross-validation, which allows us to estimate the optimal parameters for future predictions based on prediction metrics such as: **AIC**, **C-INDEX**, **I.BRIER** and **AUC**. By default AUC metric (Area under the ROC curve) is used with the "cenROC" evaluator as it has provided the best results in our tests. However, multiple **AUC** evaluators could be used: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C" and "smoothROCtime_I". 
+
+Furthermore, a mix of multiple metrics could be used to obtain the optimal model. The user has to establish different weight for each emtric and all of them will be consider to compute the optimal model (the total weight must sum 1).
+
+In addition, we have included options for normalizing data, filtering variables, and setting the minimum EPV, as well as specific parameters for each method, such as the alpha value for Cox Elastic Net and the number of components for PLS models. Overall, our cross-validation methodology allows us to effectively analyze high-dimensional survival data and optimize our model parameters.
+
+## Preprocessing
+
 As classical and PLS approach can not be perform in multiomic data, several multiomic methods have been designed. The methods are divided into two categories:
 
 1. **Single-Block approach**: Each omic will be studied individually to reduce their dimensionality in order to explain the survival. Then, integration of all omics will be run to obtain the final model.
@@ -206,7 +220,6 @@ x.scale = c(mirna = F, proteomic = F) #if vector, must be named
 In our pursuit of addressing the challenges posed by high-dimensional multi-omic data, we have developed SB.sPLS-ICOX, an innovative algorithm that combines the strengths of sPLS-ICOX and integrative analysis. SB.sPLS-ICOX employs a single-block approach, applying sPLS-ICOX individually to each omic, resulting in dimensionality reduction within each dataset. By constructing weights based on univariate cox models, we capture survival information during the reduction process. The reduced omic datasets are then integrated to create a comprehensive survival model using their PLS components. Cross-validation is utilized to determine the optimal number of components and the penalty for variable selection, ensuring robust model optimization.
 
 ```{r,warning=T}
-# run cv.sb.splsicox
 cv.sb.splsicox_res <- cv.sb.splsicox(X = X_train, Y = Y_train,
                                      max.ncomp = 2, spv_penalty.list = c(0.5,0.9),
                                      n_run = 2, k_folds = 5, 
@@ -224,7 +237,6 @@ cv.sb.splsicox_res #3.2min
 ```
 
 ```{r, fig.small=T}
-# plot cv.splsicox
 cv.sb.splsicox_res$plot_AUC
 ```
 
@@ -258,13 +270,12 @@ sb.splsicox_model <- sb.splsicox(X = X_train, Y = Y_train,
 sb.splsicox_model
 ```
 
-In this case, we optimized each omic/block to use the same number of components. But there is another methodology that allow to select a different number of components per block call "fast.sb.splsicox".
+In this case, we optimized each omic/block to use the same number of components. But there is another methodology that allow to select a different number of components per block call "isb.splsicox".
 
 In this case, the cross validation returns the model automatically.
 
 ```{r, warning=F}
-# run cv.sb.splsicox
-fast.sb.splsicox_model <- fast.cv.sb.splsicox(X = X_train, Y = Y_train,
+isb.splsicox_model <- cv.isb.splsicox(X = X_train, Y = Y_train,
                                                max.ncomp = 2, spv_penalty.list = c(0.5, 0.9),
                                                n_run = 2, k_folds = 5, 
                                                x.center = x.center, x.scale = x.scale, 
@@ -278,7 +289,7 @@ fast.sb.splsicox_model <- fast.cv.sb.splsicox(X = X_train, Y = Y_train,
                                                MIN_EPV = 5, return_models = F, remove_non_significant = T,
                                                PARALLEL = F, verbose = F, seed = 123)
 
-fast.sb.splsicox_model #3.5min.
+isb.splsicox_model #3.5min.
 ```
 
 ## SB.sPLS-DRCOX
@@ -286,7 +297,6 @@ fast.sb.splsicox_model #3.5min.
 We have developed also SB.sPLS-DRCOX, a comprehensive algorithm that employs the individual sPLS-DRCOX approach, executing the algorithm on each omic dataset independently to achieve dimensionality reduction. By integrating the resulting components, a unified survival model is constructed, capturing the collective information from all omics. Similar to SB.sPLS-ICOX, cross-validation is employed to identify the optimal number of components and penalty for variable selection, ensuring robust model optimization.
 
 ```{r, warning=F}
-# run cv.sb.splsicox
 cv.sb.splsdrcox_res <- cv.sb.splsdrcox(X = X_train, Y = Y_train,
                                        max.ncomp = 2, eta.list = c(0.5,0.9),
                                        n_run = 2, k_folds = 10, 
@@ -319,13 +329,12 @@ sb.splsdrcox_model <- sb.splsdrcox(X = X_train,
 sb.splsdrcox_model
 ```
 
-As before, we optimized each omic/block to use the same number of components. But there is another methodology that allow to select a different number of components and penalty per block call "fast.cv.sb.splsdrcox".
+As before, we optimized each omic/block to use the same number of components. But there is another methodology that allow to select a different number of components and penalty per block call "cv.isb.splsdrcox".
 
 The cross validation returns the model automatically.
 
 ```{r, warning=F}
-# run cv.sb.splsicox
-fast.sb.splsdrcox_model <- fast.cv.sb.splsdrcox(X = X_train, Y = Y_train,
+isb.splsdrcox_model <- cv.isb.splsdrcox(X = X_train, Y = Y_train,
                                                 max.ncomp = 2, eta.list = c(0.5,0.9),
                                                 n_run = 2, k_folds = 10, 
                                                 x.center = x.center, x.scale = x.scale,
@@ -338,7 +347,7 @@ fast.sb.splsdrcox_model <- fast.cv.sb.splsdrcox(X = X_train, Y = Y_train,
                                                 MIN_EPV = 5, return_models = F, remove_non_significant = T,
                                                 PARALLEL = F, verbose = F, seed = 123)
 
-fast.sb.splsdrcox_model #0.8min
+isb.splsdrcox_model #0.8min
 ```
 
 ## MB.sPLS-DRCOX
@@ -351,8 +360,7 @@ Our method empowers users to define the minimum and maximum number of variables 
 
 This integration of sPLS-DRCOX and multiblock sPLS provides researchers with a powerful tool for conducting comprehensive multivariate survival analysis.
 
-```{r, eval = FALSE, message=F}
-# run cv.splsdrcox
+```{r, warning=F}
 cv.mb.splsdrcox_res <- cv.mb.splsdrcox(X = X_train, Y = Y_train, 
                                        max.ncomp = 2, vector = NULL, #NULL - autodetection
                                        MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 10, EVAL_METHOD = "AUC",
@@ -370,7 +378,7 @@ cv.mb.splsdrcox_res <- cv.mb.splsdrcox(X = X_train, Y = Y_train,
 cv.mb.splsdrcox_res #1.5min
 ```
 
-After getting the cross-validation, the full model could be optaon by passing the optimizal number of components and the list of the number of variables per omic.
+After getting the cross-validation, the full model could be optain by passing the optimizal number of components and the list of the number of variables per omic.
 
 ```{r}
 mb.splsdrcox_model <- mb.splsdrcox(X = X_train, Y = Y_train, 
@@ -393,7 +401,7 @@ In some cases, if any component is significant, the model will keep at least the
 
 We also have extended our methodological repertoire with the development of MB.sPLS-DACOX. Building upon the foundation of sPLS-DACOX, this novel approach incorporates the powerful MultiBlock functions from the MixOmics R package, further enhancing its capabilities and performance.
 
-```{r, eval = FALSE, message=F}
+```{r, warning=F}
 # run cv.splsdrcox
 cv.mb.splsdacox_res <- cv.mb.splsdacox(X = X_train, Y = Y_train, 
                                        max.ncomp = 2, vector = NULL, #NULL - autodetection
@@ -411,7 +419,7 @@ cv.mb.splsdacox_res <- cv.mb.splsdacox(X = X_train, Y = Y_train,
 cv.mb.splsdacox_res #2min
 ```
 
-After getting the cross-validation, the full model could be optaon by passing the optimizal number of components and the list of the number of variables per omic.
+After getting the cross-validation, the full model could be optain by passing the optimizal number of components and the list of the number of variables per omic.
 
 ```{r}
 mb.splsdacox_model <- mb.splsdacox(X = X_train, Y = Y_train, 
@@ -440,9 +448,9 @@ When evaluating survival model results, we must indicate at which temporal point
 
 ```{r}
 lst_models <- list("SB.sPLS-ICOX" = sb.splsicox_model,
-                   "SB.sPLS-ICOX.fast" = fast.sb.splsicox_model,
+                   "iSB.sPLS-ICOX" = isb.splsicox_model,
                    "SB.sPLS-DRCOX" = sb.splsdrcox_model,
-                   "SB.sPLS-DRCOX.fast" = fast.sb.splsdrcox_model,
+                   "iSB.sPLS-DRCOX" = isb.splsdrcox_model,
                    "MB.sPLS-DRCOX" = mb.splsdrcox_model,
                    "MB.sPLS-DACOX" = mb.splsdacox_model)
 
@@ -498,17 +506,17 @@ lst_eval_results$lst_plot_comparisons$t.test
 Another possible comparison is related to the computation times for cross-validation, model creation, and evaluation. In this case, cross-validations and methods are loaded.
 
 ```{r}
-lst_models_time <- list("cv.sb.splsicox" = cv.sb.splsicox_res,
-                        "sb.splsicox" = sb.splsicox_model,
-                        "fast.sb.splsicox" = fast.sb.splsicox_model,
-                        "cv.sb.splsdrcox" = cv.sb.splsdrcox_res,
-                        "sb.splsdrcox" = sb.splsdrcox_model,
-                        "fast.sb.splsdrcox" = fast.sb.splsdrcox_model,
-                        "cv.mb.splsdrcox" = cv.mb.splsdrcox_res,
-                        "mb.splsdrcox" = mb.splsdrcox_model,
-                        "cv.mb.splsdacox" = cv.mb.splsdrcox_res,
-                        "mb.splsdacox" = mb.splsdacox_model,
-                        "Evaluation results" = eval_results)
+lst_models_time <- list(cv.sb.splsicox_res,
+                        sb.splsicox_model,
+                        isb.splsicox_model,
+                        cv.sb.splsdrcox_res,
+                        sb.splsdrcox_model,
+                        isb.splsdrcox_model,
+                        cv.mb.splsdrcox_res,
+                        mb.splsdrcox_model,
+                        cv.mb.splsdrcox_res,
+                        mb.splsdacox_model,
+                        eval_results)
 ```
 
 ```{r}
@@ -525,14 +533,14 @@ Following the cross validation, we have selected the sPLS-DACOX methodology as t
 
 ## Forest plots
 
-A forest plot can be obtained as the first graph using the survminer R package. However, the function has been restructured to allow for simultaneous launch of an HDcox class model or a list of HDcox models using the plot_forest() or plot_forest.list() function.
+A forest plot can be obtained as the first graph using the survminer R package. However, the function has been restructured to allow for simultaneous launch of an HDcox class model or a list of HDcox models using the `plot_forest()` or `plot_forest.list()` function.
 
 ```{r}
 lst_forest_plot <- plot_forest.list(lst_models)
 ```
 
 ```{r, fig.small=T}
-lst_forest_plot$`SB.sPLS-DRCOX.fast`
+lst_forest_plot$`iSB.sPLS-DRCOX`
 ```
 
 ## PH Assumption
@@ -541,7 +549,7 @@ The following graph is related to one of the assumptions of the Cox models, call
 
 In a Cox proportional hazards model, the proportional hazards assumption states that the hazard ratio (the risk of experiencing the event of interest) is constant over time for a given set of predictor variables. This means that the effect of the predictors on the hazard ratio does not change over time. This assumption is important because it allows for the interpretation of the model's coefficients as measures of the effect of the predictors on the hazard ratio. Violations of the proportional hazards assumption can occur if the effect of the predictors on the hazard ratio changes over time or if there is an interaction between the predictors and time. In these cases, the coefficients of the model may not accurately reflect the effect of the predictors on the hazard ratio and the results of the model may not be reliable.
 
-In this way, to visualize and check if the assumption is violated, the function plot_proportionalHazard.list() or plot_proportionalHazard() can be called, depending on whether a list of models or a specific model is to be evaluated.
+In this way, to visualize and check if the assumption is violated, the function `plot_proportionalHazard.list()` or `plot_proportionalHazard()` can be called, depending on whether a list of models or a specific model is to be evaluated.
 
 ```{r}
 lst_ph_ggplot <- plot_proportionalHazard.list(lst_models)
@@ -550,7 +558,7 @@ lst_ph_ggplot <- plot_proportionalHazard.list(lst_models)
 Variables or components with a significant P-Value indicate that the assumption is being violated.
 
 ```{r, fig.small=T}
-lst_ph_ggplot$`SB.sPLS-DRCOX.fast`
+lst_ph_ggplot$`iSB.sPLS-DRCOX`
 ```
 
 ## Density plots
@@ -576,16 +584,16 @@ density.plots.lp <- plot_cox.event.list(lst_models, type = "lp")
 ```
 
 ```{r, fig.small=T}
-density.plots.lp$`SB.sPLS-DRCOX.fast`$plot.density
-density.plots.lp$`SB.sPLS-DRCOX.fast`$plot.histogram
+density.plots.lp$`iSB.sPLS-DRCOX`$plot.density
+density.plots.lp$`iSB.sPLS-DRCOX`$plot.histogram
 ```
 
 ## Studying PLS model
 
-For those models based on PLS components, the PLS could be studied in terms of loadings/scores. In order to get the plots, the function plot_PLS_HDcox() has been developed where the user could specify to see "scores", "loadings" or a "biplot" for a couple of latent variables. By default, if no factor is given, samples are grouped by event.
+For those models based on PLS components, the PLS could be studied in terms of loadings/scores. In order to get the plots, the function `plot_PLS_HDcox()` has been developed where the user could specify to see "scores", "loadings" or a "biplot" for a couple of latent variables. By default, if no factor is given, samples are grouped by event.
 
 ```{r}
-ggp_scores <- plot_PLS_HDcox(model = lst_models$`SB.sPLS-DRCOX.fast`,
+ggp_scores <- plot_PLS_HDcox(model = lst_models$`iSB.sPLS-DRCOX`,
                              comp = c(1,2), mode = "scores")
 ```
 
@@ -594,7 +602,7 @@ ggp_scores$plot_block
 ```
 
 ```{r}
-ggp_loadings <- plot_PLS_HDcox(model = lst_models$`SB.sPLS-DRCOX.fast`, 
+ggp_loadings <- plot_PLS_HDcox(model = lst_models$`iSB.sPLS-DRCOX`, 
                                comp = c(1,2), mode = "loadings",
                                top = 10) #length from 0,0
 ```
@@ -604,7 +612,7 @@ ggp_loadings$plot_block
 ```
 
 ```{r}
-ggp_biplot <- plot_PLS_HDcox(model = lst_models$`SB.sPLS-DRCOX.fast`, 
+ggp_biplot <- plot_PLS_HDcox(model = lst_models$`iSB.sPLS-DRCOX`, 
                              comp = c(1,2), mode = "biplot",
                              top = 15,
                              only_top = T)
@@ -627,9 +635,9 @@ However, before studying the original variables, if a PLS model is computed. HDc
 The % of AUC explanation per component could be calculated for TRAIN or TEST data. Train data was used to compute the best model, so the sum of variables/components will generate a better LP (linear predictor) performance. However, when test data is used, could happen that a specific variable or a component could be a better predictor than the full model.
 
 ```{r, warning=F}
-variable_auc_results <- eval_HDcox_model_per_variable(model = lst_models$`SB.sPLS-DRCOX.fast`, 
-                                                      X_test = lst_models$`SB.sPLS-DRCOX.fast`$X_input, 
-                                                      Y_test = lst_models$`SB.sPLS-DRCOX.fast`$Y_input,
+variable_auc_results <- eval_HDcox_model_per_variable(model = lst_models$`iSB.sPLS-DRCOX`, 
+                                                      X_test = lst_models$`iSB.sPLS-DRCOX`$X_input, 
+                                                      Y_test = lst_models$`iSB.sPLS-DRCOX`$Y_input,
                                                       pred.method = "cenROC", pred.attr = "mean",
                                                       times = NULL, max_time_points = 15,
                                                       PARALLEL = FALSE)
@@ -654,17 +662,17 @@ ggp.simulated_beta <- plot_pseudobeta.list(lst_models = lst_models,
                                            show_percentage = T, size_percentage = 2, verbose = F)
 ```
 
-The SB.sPLS-DRCOX.fast model was computed using a total of 2 components. Although these components were classified as dangerous for the observations (based on coefficients greater than one), certain variables within the components may still have a protective effect, depending on their individual weights.
+The iSB.sPLS-DRCOX model was computed using a total of 2 components. Although these components were classified as dangerous for the observations (based on coefficients greater than one), certain variables within the components may still have a protective effect, depending on their individual weights.
 
-The following plot illustrates the pseudo-beta coefficient for the original variables in the SB.sPLS-DRCOX.fast model. As only the top 20 variables are shown, in some case a percentage of the total linear predictor total value could be shown. To view the complete model, all variables would need to be included in the plot by assigning the value NULL to the "top" parameter.
+The following plot illustrates the pseudo-beta coefficient for the original variables in the iSB.sPLS-DRCOX model. As only the top 20 variables are shown, in some case a percentage of the total linear predictor total value could be shown. To view the complete model, all variables would need to be included in the plot by assigning the value NULL to the "top" parameter.
 
 ```{r, fig.small=T}
-ggp.simulated_beta$`SB.sPLS-DRCOX.fast`$plot
+ggp.simulated_beta$`iSB.sPLS-DRCOX`$plot
 ```
 
 ## Kaplan-Meier
 
-For a more intuitive understanding of the model, the user can also employ the "getAutoKM.list()" or "getAutoKM()" functions to generate Kaplan-Meier curves. These functions allow the user to view the KM curve for the entire model, a specific component of a PLS model, or for individual variables.
+For a more intuitive understanding of the model, the user can also employ the `getAutoKM.list()` or `getAutoKM()` functions to generate Kaplan-Meier curves. These functions allow the user to view the KM curve for the entire model, a specific component of a PLS model, or for individual variables.
 
 ### Full model
 
@@ -683,12 +691,12 @@ LST_KM_RES_LP <- getAutoKM.list(type = "LP",
 As a result, the Kaplan-Meier curve could be plotted.  
 
 ```{r, fig.small=T}
-LST_KM_RES_LP$`SB.sPLS-DRCOX.fast`$LST_PLOTS$LP
+LST_KM_RES_LP$`iSB.sPLS-DRCOX`$LST_PLOTS$LP
 ```
 
-After generating a Kaplan-Meier curve for the model, the cutoff value, which is used to divide the observations into two groups, can be used to evaluate how the test data is classified. The vector of cutoffs for multiple models, when "getAutoKM.list()" is applied, can be retrieved by using the function "getCutoffAutoKM.list()" and passing the output of "getAutoKM.list()" as a parameter.
+After generating a Kaplan-Meier curve for the model, the cutoff value, which is used to divide the observations into two groups, can be used to evaluate how the test data is classified. The vector of cutoffs for multiple models, when `getAutoKM.list()` is applied, can be retrieved by using the function `getCutoffAutoKM.list()` and passing the output of `getAutoKM.list()` as a parameter.
 
-Once the vector is obtained, the function "getTestKM.list()" or "getTestKM()" can be run with the list of models, the X test data, Y test data, the list of cutoffs or a single value, and the desired number of breaks for the new Kaplan-Meier plot.
+Once the vector is obtained, the function `getTestKM.list()` or `getTestKM()` can be run with the list of models, the X test data, Y test data, the list of cutoffs or a single value, and the desired number of breaks for the new Kaplan-Meier plot.
 
 A log-rank test will be displayed to determine if the chosen cutoff is an effective way to split the data into groups with higher and lower risk.
 
@@ -703,7 +711,7 @@ LST_KM_TEST_LP <- getTestKM.list(lst_models = lst_models,
 ```
 
 ```{r}
-LST_KM_TEST_LP$`SB.sPLS-DRCOX.fast`
+LST_KM_TEST_LP$`iSB.sPLS-DRCOX`
 ```
 
 ### Components
@@ -721,8 +729,8 @@ LST_KM_RES_COMP <- getAutoKM.list(type = "COMP",
 ```
 
 ```{r, fig.small=T}
-LST_KM_RES_COMP$`SB.sPLS-DRCOX.fast`$LST_PLOTS$genes$comp_1
-LST_KM_RES_COMP$`SB.sPLS-DRCOX.fast`$LST_PLOTS$clinical$comp_1
+LST_KM_RES_COMP$`iSB.sPLS-DRCOX`$LST_PLOTS$genes$comp_1
+LST_KM_RES_COMP$`iSB.sPLS-DRCOX`$LST_PLOTS$clinical$comp_1
 ```
 
 ```{r}
@@ -736,9 +744,9 @@ LST_KM_TEST_COMP <- getTestKM.list(lst_models = lst_models,
 ```
 
 ```{r, fig.small=T}
-LST_KM_TEST_COMP$`SB.sPLS-DRCOX.fast`$comp_1_genes # all patients in same group
-LST_KM_TEST_COMP$`SB.sPLS-DRCOX.fast`$comp_1_miRNA # all patients in same group
-LST_KM_TEST_COMP$`SB.sPLS-DRCOX.fast`$comp_1_clinical # all patients in same group
+LST_KM_TEST_COMP$`iSB.sPLS-DRCOX`$comp_1_genes # all patients in same group
+LST_KM_TEST_COMP$`iSB.sPLS-DRCOX`$comp_1_miRNA # all patients in same group
+LST_KM_TEST_COMP$`iSB.sPLS-DRCOX`$comp_1_clinical # all patients in same group
 ```
 
 ### Original variables
@@ -758,8 +766,8 @@ LST_KM_RES_VAR <- getAutoKM.list(type = "VAR",
 ```
 
 ```{r, fig.small=T}
-LST_KM_RES_VAR$`SB.sPLS-DRCOX.fast`$LST_PLOTS$proteomic$`840`
-LST_KM_RES_VAR$`SB.sPLS-DRCOX.fast`$LST_PLOTS$proteomic$`3897`
+LST_KM_RES_VAR$`iSB.sPLS-DRCOX`$LST_PLOTS$proteomic$`840`
+LST_KM_RES_VAR$`iSB.sPLS-DRCOX`$LST_PLOTS$proteomic$`3897`
 ```
 
 ```{r}
@@ -773,8 +781,8 @@ LST_KM_TEST_VAR <- getTestKM.list(lst_models = lst_models,
 ```
 
 ```{r, fig.small=T}
-LST_KM_TEST_VAR$`SB.sPLS-DRCOX.fast`$proteomic$`840`
-LST_KM_TEST_VAR$`SB.sPLS-DRCOX.fast`$proteomic$`3897`
+LST_KM_TEST_VAR$`iSB.sPLS-DRCOX`$proteomic$`840`
+LST_KM_TEST_VAR$`iSB.sPLS-DRCOX`$proteomic$`3897`
 ```
 
 # New patients
@@ -797,7 +805,7 @@ As shown, this is a censored patient who has the last observation at time 825.
 knitr::kable(Y_test[rownames(new_pat$mirna),])
 ```
 
-The function "plot_pseudobeta_newPatient.list()" or "plot_pseudobeta_newPatient()" allows the user to compare the characteristics of a new patient with the pseudo-beta values obtained from a specific model. The goal is to understand in a general way which variables are associated with an increased risk of an event or a decreased risk, in comparison to the variables predicted by the model.
+The function `plot_pseudobeta_newPatient.list()` or `plot_pseudobeta_newPatient()` allows the user to compare the characteristics of a new patient with the pseudo-beta values obtained from a specific model. The goal is to understand in a general way which variables are associated with an increased risk of an event or a decreased risk, in comparison to the variables predicted by the model.
 
 ```{r}
 ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient.list(lst_models = lst_models, 
@@ -814,7 +822,7 @@ ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient.list(lst_models = lst_mo
 On the left, a linear predictor value is shown for the observation and each variable. On the right, the pseudo-beta coefficients for the model's original variables are illustrated. This allows the user to compare the direction of the linear predictors per variable. A change in direction means that the variable's value is below the mean for hazard variables or above the mean for protective ones. Having an opposite direction for hazard variables and maintaining the direction for protective variables makes the observation safer over time.
 
 ```{r, fig.small=T}
-ggp.simulated_beta_newPat$`SB.sPLS-DRCOX.fast`$plot$proteomic
+ggp.simulated_beta_newPat$`iSB.sPLS-DRCOX`$plot$proteomic
 ```
 
 ## Add patient to density plot
@@ -824,7 +832,7 @@ Additionally, the new observation can be added to the density and histogram plot
 ```{r}
 pat_density <- plot_patient.eventDensity(patient = new_pat, 
                                          time = NULL, 
-                                         model = lst_models$`SB.sPLS-DRCOX.fast`, 
+                                         model = lst_models$`iSB.sPLS-DRCOX`, 
                                          type = "lp")
 ```
 
@@ -835,7 +843,7 @@ pat_density
 ```{r}
 pat_histogram <- plot_patient.eventHistogram(patient = new_pat, 
                                              time = NULL, 
-                                             model = lst_models$`SB.sPLS-DRCOX.fast`, 
+                                             model = lst_models$`iSB.sPLS-DRCOX`, 
                                              type = "lp")
 ```
 
@@ -861,7 +869,7 @@ for(b in names(X_test)){
 knitr::kable(Y_test[rownames(sub_X_test$proteomic),])
 ```
 
-To generate the figure, the function "plot_LP.multiplePatients.list()" or "plot_LP.multiplePatients()" can be used.
+To generate the figure, the function `plot_LP.multiplePatients.list()` or `plot_LP.multiplePatients()` can be used.
 
 ```{r}
 lst_cox.comparison <- plot_LP.multiplePatients.list(lst_models = lst_models, 
@@ -875,5 +883,5 @@ lst_cox.comparison <- plot_LP.multiplePatients.list(lst_models = lst_models,
 ```
 
 ```{r, fig.small=T}
-lst_cox.comparison$`SB.sPLS-DRCOX.fast`$plot
+lst_cox.comparison$`iSB.sPLS-DRCOX`$plot
 ```

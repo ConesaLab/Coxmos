@@ -39,9 +39,15 @@ assign(x = 'pls_methods', value = c(pkg.env$splsicox, pkg.env$splsdrcox, pkg.env
 
 assign(x = 'sb.splsicox', value = c("SB.sPLS-ICOX"), pkg.env)
 assign(x = 'sb.splsdrcox', value = c("SB.sPLS-DRCOX"), pkg.env)
+
+assign(x = 'isb.splsicox', value = c("iSB.sPLS-ICOX"), pkg.env)
+assign(x = 'isb.splsdrcox', value = c("iSB.sPLS-DRCOX"), pkg.env)
+
 assign(x = 'mb.splsdrcox', value = c("MB.sPLS-DRCOX"), pkg.env)
 assign(x = 'mb.splsdacox', value = c("MB.sPLS-DACOX"), pkg.env)
-assign(x = 'multiblock_methods', value = c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox, pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox), pkg.env)
+assign(x = 'multiblock_methods', value = c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox,
+                                           pkg.env$isb.splsicox, pkg.env$isb.splsdrcox,
+                                           pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox), pkg.env)
 assign(x = 'all_methods', value = c(pkg.env$classical_methods, pkg.env$pls_methods, pkg.env$multiblock_methods), pkg.env)
 
 assign(x = 'cv.coxEN', value = c("cv.coxEN"), pkg.env)
@@ -1221,7 +1227,7 @@ predict.HDcox <- function(object, ..., newdata = NULL){
   ## ## ## ## ## ##
   # SB sPLS-DRCOX #
   ## ## ## ## ## ##
-  if(attr(model, "model") %in% pkg.env$sb.splsdrcox){
+  if(attr(model, "model") %in% c(pkg.env$sb.splsdrcox, pkg.env$isb.splsdrcox)){
     #in this case, we should update newdata before run the method cause the normalization is performed before
     x.mean <- NULL
     x.sd <- NULL
@@ -1301,7 +1307,7 @@ predict.HDcox <- function(object, ..., newdata = NULL){
   ## ## ## ## ##
   # SB sPLS-ICOX #
   ## ## ## ## ##
-  if(attr(model, "model") %in% pkg.env$sb.splsicox){
+  if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$isb.splsicox)){
     #in this case, we should update newdata before run the method cause the normalization is performed before
     x.mean <- NULL
     x.sd <- NULL
@@ -2007,7 +2013,7 @@ getAUC_RUN_AND_COMP <- function(mode = "AUC", fast_mode, max.ncomp, n_run,
     df_results_evals_comp <- as.data.frame(df_results_evals_comp)
   }
 
-  if(method.train %in% c(pkg.env$splsdacox_dynamic,pkg.env$sb.splsicox,pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
+  if(method.train %in% c(pkg.env$splsdacox_dynamic, pkg.env$sb.splsicox, pkg.env$isb.splsicox, pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
     df_results_evals_run$n.var <- factor(df_results_evals_run$n.var)
     df_results_evals_comp$n.var <- factor(df_results_evals_comp$n.var)
   }
@@ -2056,7 +2062,7 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
             next
           }
 
-          if(method.train %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox)){
+          if(method.train %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox, pkg.env$isb.splsicox, pkg.env$isb.splsdrcox)){
             eval_aux.r <- apply(aux.run[,!colnames(aux.run) %in% c("n.var")], 2, function(x){mean(x, na.rm = T)})
             eval_aux.r <- as.data.frame(t(eval_aux.r))
 
@@ -2120,7 +2126,7 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
         # EVAL PER COMPONENT
         aux.run <- df_results_evals[which(df_results_evals$n.comps==l & df_results_evals$eta==e),!colnames(df_results_evals) %in% c("fold", "runs")]
 
-        if(method.train %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox)){
+        if(method.train %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox, pkg.env$isb.splsicox, pkg.env$isb.splsdrcox)){
           eval_aux.r <- apply(aux.run[,!colnames(aux.run) %in% c("n.var")], 2, function(x){mean(x, na.rm = T)})
           eval_aux.r <- as.data.frame(t(eval_aux.r))
 
@@ -2207,8 +2213,8 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
             eval_aux.r <- apply(aux.run, 2, function(x){mean(x, na.rm = T)})
             df_results_evals_run <- rbind(df_results_evals_run, eval_aux.r)
           }
-        }else if(method.train %in% c(pkg.env$splsdrcox_dynamic, pkg.env$splsdacox_dynamic, pkg.env$sb.splsicox, pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
-          # we need to manage n.var as factor !!!
+        }else if(method.train %in% c(pkg.env$splsdrcox_dynamic, pkg.env$splsdacox_dynamic, pkg.env$sb.splsicox, pkg.env$isb.splsicox, pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
+          # we need to manage n.var as factor? !!!
         }else{
           stop(paste0(method.train, " is not a HDcox algorithm."))
         }
@@ -2224,7 +2230,7 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
   colnames(df_results_evals_comp) <- c("n.comps", "eta", "n.var", "AIC", "c_index", mode)
   df_results_evals_comp <- as.data.frame(df_results_evals_comp)
 
-  if(method.train %in% pkg.env$sb.splsdrcox){
+  if(method.train %in% c(pkg.env$sb.splsdrcox, pkg.env$isb.splsdrcox)){ ## maybe add splsicox too? !!!
     df_results_evals_run$n.var <- factor(df_results_evals_run$n.var)
     df_results_evals_comp$n.var <- factor(df_results_evals_comp$n.var)
   }
@@ -2412,10 +2418,10 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
           if(attr(model, "model") %in% c(pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
             n_var <- unlist(purrr::map(model$n.varX, ~length(.[[1]])))
             n_var <- paste0(n_var, collapse = "_")
-          }else if(attr(model, "model") == pkg.env$sb.splsicox){
+          }else if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$isb.splsicox)){
             n_var <- purrr::map(model$list_spls_models, ~nrow(.$X$loadings))
             n_var <- paste0(n_var, collapse = "_") #VAR FOR SB.spls IS THE MAX NUMBER OF VARIABLES (PER BLOCK)
-          }else if(attr(model, "model") == pkg.env$sb.splsdrcox){
+          }else if(attr(model, "model") %in% c(pkg.env$sb.splsdrcox, pkg.env$isb.splsdrcox)){
             n_var <- purrr::map(model$list_spls_models, ~sum(rowSums(.$X$weightings!=0)>0)) #this have to be checked !!!
             n_var <- paste0(n_var, collapse = "_")
           }else if(attr(model, "model") %in% c(pkg.env$splsdrcox_dynamic, pkg.env$splsdacox_dynamic)){
@@ -2486,10 +2492,10 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
             aux_model = model #to store a model with values
 
             eta <- model$eta
-            if(attr(model, "model") == pkg.env$sb.splsdrcox){
+            if(attr(model, "model") %in% c(pkg.env$sb.splsdrcox, pkg.env$isb.splsdrcox)){
               n_var <- purrr::map(model$list_spls_models, ~ifelse("var_by_component" %in% names(.),length(unique(unlist(.$var_by_component))), NA))
               n_var <- paste0(n_var, collapse = "_") #VAR FOR SB.spls IS THE MAX NUMBER OF VARIABLES (PER BLOCK)
-            }else if(attr(model, "model") == pkg.env$sb.splsicox){
+            }else if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$isb.splsicox)){
               n_var <- purrr::map(model$list_spls_models, ~ifelse("var_by_component" %in% names(.),length(unique(unlist(.$var_by_component))), NA))
               n_var <- paste0(n_var, collapse = "_") #VAR FOR SB.spls IS THE MAX NUMBER OF VARIABLES (PER BLOCK)
             }else{
@@ -3569,7 +3575,7 @@ getSubModel.mb <- function(model, comp, remove_non_significant){
   }
 
   #X
-  if(attr(model, "model") %in% pkg.env$sb.splsdrcox){
+  if(attr(model, "model") %in% c(pkg.env$sb.splsdrcox, pkg.env$isb.splsdrcox)){
 
     t1 <- Sys.time()
     data <- NULL
@@ -3621,7 +3627,7 @@ getSubModel.mb <- function(model, comp, remove_non_significant){
       res$time <- difftime(t2,t1,units = "mins")
     }
 
-  }else if(attr(model, "model") %in% pkg.env$sb.splsicox){
+  }else if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$isb.splsicox)){
 
     t1 <- Sys.time()
     data <- NULL
@@ -3739,8 +3745,8 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
   ## CHECK METHOD
   if(is.null(eta.list) & is.null(EN.alpha.list) & !method %in% c(pkg.env$splsdacox_dynamic, pkg.env$splsdrcox_dynamic, pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
     stop_quietly("Method must be one of 'sPLS-DACOX-Dynamic', 'MB.sPLS-DACOX' or 'sPLS-DRCOX-Dynamic' if 'eta.list' and 'EN.alpha.list' is NULL.")
-  }else if(!is.null(eta.list) & is.null(EN.alpha.list)  & !method %in% c(pkg.env$splsicox, pkg.env$sb.splsicox, pkg.env$splsdrcox, pkg.env$sb.splsdrcox)){
-    stop_quietly("Method must be 'sPLS-ICOX', 'SB.sPLS-ICOX', 'sPLS-DRCOX' or 'SB.sPLS-DRCOX' or if 'eta.list' is not NULL.")
+  }else if(!is.null(eta.list) & is.null(EN.alpha.list)  & !method %in% c(pkg.env$splsicox, pkg.env$sb.splsicox, pkg.env$splsdrcox, pkg.env$sb.splsdrcox, pkg.env$isb.splsicox, pkg.env$isb.splsdrcox)){
+    stop_quietly("Method must be 'sPLS-ICOX', 'SB.sPLS-ICOX', 'iSB.sPLS-ICOX', 'sPLS-DRCOX', 'SB.sPLS-DRCOX' or 'iSB.sPLS-DRCOX' or if 'eta.list' is not NULL.")
   }else if(!is.null(EN.alpha.list) & !method %in% c(pkg.env$coxEN)){
     stop_quietly("Method must be 'coxEN' if 'EN.alpha.list' is not NULL.")
   }
@@ -3957,7 +3963,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
       for(r in 1:n_run){
         fold_model_lst <- list()
         for(f in 1:k_folds){
-          if(method %in% c(pkg.env$sb.splsicox, pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
+          if(method %in% c(pkg.env$sb.splsicox, pkg.env$isb.splsicox, pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
             fold_model <- getSubModel.mb(model = comp_model_lst[[max.ncomp]][[r]][[f]], comp = comp, remove_non_significant = remove_non_significant)
           }else{
             fold_model <- getSubModel(model = comp_model_lst[[max.ncomp]][[r]][[f]], comp = comp, remove_non_significant = remove_non_significant)
@@ -4093,7 +4099,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
   #### ### ### ### ### ### #
   # COMP-VECTOR-REP-FOLDS #
   #### ### ### ### ### ### #
-  if(method %in% c(pkg.env$splsicox, pkg.env$sb.splsicox, pkg.env$splsdrcox, pkg.env$sb.splsdrcox)){
+  if(method %in% c(pkg.env$splsicox, pkg.env$sb.splsicox, pkg.env$splsdrcox, pkg.env$sb.splsdrcox, pkg.env$isb.splsicox, pkg.env$isb.splsdrcox)){
 
     #function to compute all models at the same time
     lst_inputs <- list()
@@ -4248,10 +4254,8 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
         names(run_model_lst) <- paste0("run_", 1:n_run)
         eta_model_lst[[e]] <- run_model_lst
       }
-      if(method %in% c(pkg.env$splsicox, pkg.env$sb.splsicox)){
-        names(eta_model_lst) <- paste0("eta_", eta.list) #eta de momento
-      }else if(method %in% c(pkg.env$splsdrcox, pkg.env$sb.splsdrcox)){
-        names(eta_model_lst) <- paste0("eta_", eta.list)
+      if(method %in% c(pkg.env$splsicox, pkg.env$sb.splsicox, pkg.env$isb.splsicox, pkg.env$splsdrcox, pkg.env$sb.splsdrcox, pkg.env$isb.splsdrcox)){
+        names(eta_model_lst) <- paste0("eta_", eta.list) #eta at this moment
       }
 
       comp_model_lst[[c]] <- eta_model_lst
@@ -4289,7 +4293,7 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
         for(r in 1:n_run){
           fold_model_lst <- list()
           for(f in 1:k_folds){
-            if(method %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox)){
+            if(method %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox, pkg.env$isb.splsicox, pkg.env$isb.splsdrcox)){
               fold_model <- getSubModel.mb(model = comp_model_lst[[max.ncomp]][[e]][[r]][[f]], comp = comp, remove_non_significant = remove_non_significant)
             }else{
               fold_model <- getSubModel(model = comp_model_lst[[max.ncomp]][[e]][[r]][[f]], comp = comp, remove_non_significant = remove_non_significant)
@@ -4303,10 +4307,8 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
         names(run_model_lst) <- paste0("run_", 1:n_run)
         eta_model_lst[[e]] <- run_model_lst
       }
-      if(method %in% c(pkg.env$splsicox, pkg.env$sb.splsicox)){
-        names(eta_model_lst) <- paste0("eta_", eta.list) #eta de momento
-      }else if(method %in% c(pkg.env$splsdrcox, pkg.env$sb.splsdrcox)){
-        names(eta_model_lst) <- paste0("eta_", eta.list)
+      if(method %in% c(pkg.env$splsicox, pkg.env$sb.splsicox, pkg.env$isb.splsicox, pkg.env$splsdrcox, pkg.env$sb.splsdrcox, pkg.env$isb.splsdrcox)){
+        names(eta_model_lst) <- paste0("eta_", eta.list) #eta at this moment
       }
       comp_model_lst[[comp]] <- eta_model_lst
     }
@@ -4484,6 +4486,25 @@ checkLibraryEvaluator <- function(pred.method){
 ## Eval all models by the pred.methods the user defined #
 #### ### ### ### ### ### ### ### ### ### ### ### ### ## #
 
+checkModelNames <- function(lst_models){
+  if(is.null(names(lst_models))){
+    n <- unlist(lapply(lst_models, function(x){attr(x, "model")}))
+    #look for duplicated classes
+    dup <- duplicated(n)
+    new_names <- NULL
+    if(any(dup)){
+      for(i in which(dup)){
+        count_before <- sum(n[1:i] %in% n[[i]])
+        new_names <- c(new_names, paste0(n[[i]], "_", count_before))
+      }
+      n[which(dup)] <- new_names
+    }
+    names(lst_models) <- n
+  }
+
+  return(lst_models)
+}
+
 checkAtLeastTwoEvents <- function(X_test, Y_test){
 
   if(!isa(X_test, "list")){
@@ -4581,6 +4602,9 @@ checkTestTimesVSTrainTimes <- function(lst_models, Y_test){
 
 ## Eval all models by the pred.methods the user defined
 eval_HDcox_models <- function(lst_models, X_test, Y_test, pred.method, pred.attr = "mean", times = NULL, PARALLEL = F, max_time_points = 15, verbose = F, progress_bar = T){
+
+  #check names in lst_models
+  lst_models <- checkModelNames(lst_models)
 
   #Check at least two events in total
   checkAtLeastTwoEvents(X_test, Y_test)

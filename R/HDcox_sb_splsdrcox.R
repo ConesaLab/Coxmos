@@ -613,8 +613,8 @@ cv.sb.splsdrcox <- function(X, Y,
   }
 }
 
-#' Cross validation fast.cv.sb.splsdrcox
-#' @description fast.cv.sb.splsdrcox cross validation model
+#' Cross validation cv.isb.splsdrcox
+#' @description cv.isb.splsdrcox cross validation model
 #'
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
@@ -703,11 +703,11 @@ cv.sb.splsdrcox <- function(X, Y,
 #'
 #' @examples
 #' \dontrun{
-#' sb.splsdrcox_model <- fast.cv.sb.splsdrcox(X, Y, max.ncomp = 10,
+#' sb.splsdrcox_model <- cv.isb.splsdrcox(X, Y, max.ncomp = 10,
 #' eta.list = seq(0.1,1,0.1), x.center = TRUE, x.scale = TRUE)
 #' }
 
-fast.cv.sb.splsdrcox <- function(X, Y,
+cv.isb.splsdrcox <- function(X, Y,
                                 max.ncomp = 10, eta.list = seq(0.1,0.9,0.1),
                                 n_run = 5, k_folds = 10,
                                 x.center = TRUE, x.scale = FALSE,
@@ -908,7 +908,7 @@ fast.cv.sb.splsdrcox <- function(X, Y,
   time <- difftime(t2,t1,units = "mins")
 
   # invisible(gc())
-  return(sb.splsdrcox_class(list(X = list("data" = if(returnData) X_norm else NA,
+  return(isb.splsdrcox_class(list(X = list("data" = if(returnData) X_norm else NA,
                                           "x.mean" = xmeans, "x.sd" = xsds),
                                 Y = list("data" = Yh,
                                          "y.mean" = ymeans, "y.sd" = ysds),
@@ -932,6 +932,12 @@ fast.cv.sb.splsdrcox <- function(X, Y,
 sb.splsdrcox_class = function(pls_model, ...) {
   model = structure(pls_model, class = pkg.env$model_class,
                     model = pkg.env$sb.splsdrcox)
+  return(model)
+}
+
+isb.splsdrcox_class = function(pls_model, ...) {
+  model = structure(pls_model, class = pkg.env$model_class,
+                    model = pkg.env$isb.splsdrcox)
   return(model)
 }
 
