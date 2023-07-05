@@ -13,7 +13,7 @@ plot_evaluation.list(
 )
 }
 \arguments{
-\item{lst_eval_results}{List (named) of HDcox evaluation results.}
+\item{lst_eval_results}{List (named) of Coxmos evaluation results.}
 
 \item{evaluation}{Character. Perform the evaluation using the "AUC" or "Brier" metric (default: "AUC").}
 
@@ -28,7 +28,7 @@ Run the function "plot_evaluation" for a list of results. More information in "?
 }
 \examples{
 \dontrun{
-#lst_eval_results #list of multiple eval_HDcox_models()
+#lst_eval_results #list of multiple eval_Coxmos_models()
 plot_evaluation.list(lst_eval_results)
 }
 }

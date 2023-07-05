@@ -7,7 +7,7 @@
 plot_cox.event(model, type = "lp", n.breaks = 20)
 }
 \arguments{
-\item{model}{HDcox model.}
+\item{model}{Coxmos model.}
 
 \item{type}{Character. Prediction type: "lp", "risk", "expected" or "survival" (default: "lp").}
 

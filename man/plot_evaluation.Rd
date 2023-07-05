@@ -17,7 +17,7 @@ plot_evaluation(
 )
 }
 \arguments{
-\item{eval_results}{HDcox evaluation object.}
+\item{eval_results}{Coxmos evaluation object.}
 
 \item{evaluation}{Character. Perform the evaluation using the "AUC" or "Brier" metric (default: "AUC").}
 
@@ -40,7 +40,7 @@ Perform a evaluation test for the result object provided. It includes test compa
 }
 \examples{
 \dontrun{
-eval_results <- eval_HDcox_models(lst_models, X_test, Y_test, pred.method)
+eval_results <- eval_Coxmos_models(lst_models, X_test, Y_test, pred.method)
 plot_evaluation(eval_results)
 }
 }

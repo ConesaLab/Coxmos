@@ -78,7 +78,7 @@ splsdacox_dynamic(
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
 \value{
-Instance of class "HDcox" and model "sPLS-DACOX-Dynamic". The class contains the following elements:
+Instance of class "Coxmos" and model "sPLS-DACOX-Dynamic". The class contains the following elements:
 \code{X}: List of normalized X data information.
 \itemize{
 \item \code{(data)}: normalized X matrix
@@ -134,7 +134,7 @@ Instance of class "HDcox" and model "sPLS-DACOX-Dynamic". The class contains the
 }
 \description{
 This function performs a sparse partial least squares discriminant analysis Cox (sPLSDA-COX) by dynamic variable selection methodology.
-The function returns a HDcox model with the attribute model as "sPLSDA-COX".
+The function returns a Coxmos model with the attribute model as "sPLSDA-COX".
 }
 \examples{
 \dontrun{

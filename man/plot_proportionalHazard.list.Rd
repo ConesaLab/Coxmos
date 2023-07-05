@@ -7,7 +7,7 @@
 plot_proportionalHazard.list(lst_models)
 }
 \arguments{
-\item{lst_models}{List of HDcox models.}
+\item{lst_models}{List of Coxmos models.}
 }
 \description{
 Run the function "plot_proportionalHazard" for a list of models. More information in "?plot_proportionalHazard".

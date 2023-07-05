@@ -108,7 +108,7 @@ cv.isb.splsdrcox(
 \item{seed}{Number. Seed value for performing runs/folds divisions (default: 123).}
 }
 \value{
-Instance of class "HDcox" and model "sb.splscox". The class contains the following elements:
+Instance of class "Coxmos" and model "sb.splscox". The class contains the following elements:
 \code{X}: List of normalized X data information.
 \itemize{
 \item \code{(data)}: normalized X matrix

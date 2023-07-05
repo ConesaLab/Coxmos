@@ -63,7 +63,7 @@ coxSW(
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
 \value{
-Instance of class "HDcox" and model "coxSW". The class contains the following elements:
+Instance of class "Coxmos" and model "coxSW". The class contains the following elements:
 
 \code{X}: List of normalized X data information.
 \itemize{
@@ -105,7 +105,7 @@ Instance of class "HDcox" and model "coxSW". The class contains the following el
 }
 \description{
 This function performs a cox stepwise model (based on My.stepwise R package).
-The function returns a HDcox model with the attribute model as "coxSW".
+The function returns a Coxmos model with the attribute model as "coxSW".
 }
 \examples{
 \dontrun{

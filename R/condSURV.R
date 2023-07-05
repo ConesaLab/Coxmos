@@ -25,7 +25,7 @@
 #' @author Luis Meira-Machado and Marta Sestelo
 #' @references R. Beran. Nonparametric regression with randomly censored
 #' survival data. Technical report, University of California, Berkeley, 1981.
-#' @useDynLib HDcox
+#' @useDynLib Coxmos
 Beran <-
   function(time, status, covariate, delta, x, y, kernel = "gaussian", bw,
            lower.tail = FALSE) {

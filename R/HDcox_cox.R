@@ -8,7 +8,7 @@
 
 #' cox
 #' @description This function performs a cox model (based on survival::coxph R package).
-#' The function returns a HDcox model with the attribute model as "cox".
+#' The function returns a Coxmos model with the attribute model as "cox".
 #'
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
@@ -26,7 +26,7 @@
 #'
 #' @details If \code{"MIN_EPV"} condition is not meet,
 #'
-#' @return Instance of class "HDcox" and model "cox". The class contains the following elements:
+#' @return Instance of class "Coxmos" and model "cox". The class contains the following elements:
 #'
 #' \code{X}: List of normalized X data information.
 #' \itemize{

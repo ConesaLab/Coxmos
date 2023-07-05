@@ -4,7 +4,7 @@
 
 #' coxSW
 #' @description This function performs a cox stepwise model (based on My.stepwise R package).
-#' The function returns a HDcox model with the attribute model as "coxSW".
+#' The function returns a Coxmos model with the attribute model as "coxSW".
 #'
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
@@ -25,7 +25,7 @@
 #' @param returnData Logical. Return original and normalized X and Y matrices (default: TRUE).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #'
-#' @return Instance of class "HDcox" and model "coxSW". The class contains the following elements:
+#' @return Instance of class "Coxmos" and model "coxSW". The class contains the following elements:
 #'
 #' \code{X}: List of normalized X data information.
 #' \itemize{

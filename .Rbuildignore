@@ -1,6 +1,7 @@
-^HDcox\.Rproj$
+^Coxmos\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^doc$
 ^Meta$
+^images
 cran-comments.md

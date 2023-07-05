@@ -120,7 +120,7 @@ cv.splsdrcox_dynamic(
 \item{seed}{Number. Seed value for performing runs/folds divisions (default: 123).}
 }
 \value{
-Instance of class "HDcox" and model "cv.sPLS-DRCOX-Dynamic".
+Instance of class "Coxmos" and model "cv.sPLS-DRCOX-Dynamic".
 \code{best_model_info}: A data.frame with the information for the best model.
 \code{df_results_folds}: A data.frame with fold-level information.
 \code{df_results_runs}: A data.frame with run-level information.

@@ -21,7 +21,7 @@ getAutoKM(
 \arguments{
 \item{type}{Character. Kaplan Meier for complete model linear predictor ("LP"), for PLS components ("COMP") or for original variables ("VAR") (default: LP).}
 
-\item{model}{HDcox model.}
+\item{model}{Coxmos model.}
 
 \item{comp}{Numeric vector. Vector of length two. Select which components to plot (default: c(1,2)).}
 
@@ -42,7 +42,7 @@ getAutoKM(
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
 \description{
-Performs a Kaplan-Meier plot for the HDcox model selected. KM could be based on model Linear Predictor value ("LP"), based on PLS-COX component ("COMP") or at original variable level ("VAR").
+Performs a Kaplan-Meier plot for the Coxmos model selected. KM could be based on model Linear Predictor value ("LP"), based on PLS-COX component ("COMP") or at original variable level ("VAR").
 }
 \examples{
 \dontrun{

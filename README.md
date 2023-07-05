@@ -2,15 +2,15 @@
 
 **Coxmos** is still a beta-version. Work in progress. We strongly recommend to not use it yet.
 
-* [Introduction](https://github.com/ConesaLab/HDcox/edit/master/README.md#introduction)
+* [Introduction](https://github.com/ConesaLab/Coxmos/edit/master/README.md#introduction)
 
-* [Installation](https://github.com/ConesaLab/HDcox/edit/master/README.md#installation)
+* [Installation](https://github.com/ConesaLab/Coxmos/edit/master/README.md#installation)
 
-* [Getting started](https://github.com/ConesaLab/HDcox/edit/master/README.md#getting-started)
+* [Getting started](https://github.com/ConesaLab/Coxmos/edit/master/README.md#getting-started)
 
-* [Contact](https://github.com/ConesaLab/HDcox/edit/master/README.md#contact)
+* [Contact](https://github.com/ConesaLab/Coxmos/edit/master/README.md#contact)
 
-* [References](https://github.com/ConesaLab/HDcox/edit/master/README.md#references)
+* [References](https://github.com/ConesaLab/Coxmos/edit/master/README.md#references)
 
 
 ### Introduction
@@ -54,14 +54,14 @@ The *coxmos* R package and all the remaining dependencies can be installed
 from GitHub using `devtools`:
 
 ```
-devtools::install_github("ConesaLab/HDcox")
+devtools::install_github("ConesaLab/Coxmos")
 ```
 
 To access vignettes, you will need to force building with
 `devtools::install_github(build_vignettes = TRUE)`. Please note that this will
 also install all suggested packages required for vignette build and might 
 increase install time. Alternatively, an HTML version of the vignette is
-available under the [vignettes](https://github.com/ConesaLab/HDcox/tree/master/vignettes)
+available under the [vignettes](https://github.com/ConesaLab/Coxmos/tree/master/vignettes)
 folder.
 
 
@@ -78,7 +78,7 @@ found in the package's vignette.
 
 ### Contact
 If you encounter a problem, please 
-[open an issue](https://github.com/ConesaLab/HDcox/issues) via GitHub.
+[open an issue](https://github.com/ConesaLab/Coxmos/issues) via GitHub.
 
   
 ### References

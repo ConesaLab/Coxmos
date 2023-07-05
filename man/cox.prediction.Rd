@@ -7,7 +7,7 @@
 cox.prediction(model, new_data, time = NULL, type = "lp", method = "cox")
 }
 \arguments{
-\item{model}{HDcox model.}
+\item{model}{Coxmos model.}
 
 \item{new_data}{Numeric matrix or data.frame. New explanatory variables (raw data). Qualitative variables must be transform into binary variables.}
 
@@ -21,7 +21,7 @@ cox.prediction(model, new_data, time = NULL, type = "lp", method = "cox")
 Return the lp or other metric for the patient
 }
 \description{
-The function is used to perform a predict.cox() for a HDcox model from raw data. The function
+The function is used to perform a predict.cox() for a Coxmos model from raw data. The function
 automatically generates the score matrix if a PLS Survival is performed and then performs the cox prediction.
 }
 \examples{

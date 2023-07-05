@@ -18,7 +18,7 @@ plot_patient.eventHistogram(
 
 \item{time}{Numeric. Time point where the AUC will be evaluated (default: NULL).}
 
-\item{model}{HDcox model.}
+\item{model}{Coxmos model.}
 
 \item{type}{Character. Prediction type: "lp", "risk", "expected" or "survival" (default: "lp").}
 

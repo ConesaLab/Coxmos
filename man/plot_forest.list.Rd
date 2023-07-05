@@ -14,7 +14,7 @@ plot_forest.list(
 )
 }
 \arguments{
-\item{lst_models}{List of HDcox models.}
+\item{lst_models}{List of Coxmos models.}
 
 \item{title}{Character. Forest plot title (default: "Hazard Ratio").}
 

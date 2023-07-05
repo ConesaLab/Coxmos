@@ -18,11 +18,11 @@ rm(dpi)
 
 ## ---- eval=FALSE--------------------------------------------------------------
 #  install.packages("devtools")
-#  devtools::install_github("ConesaLab/HDcox")
+#  devtools::install_github("ConesaLab/Coxmos")
 
 ## ----setup, eval=FALSE, results = "hide"--------------------------------------
-#  # load HDcox
-#  library(HDcox)
+#  # load Coxmos
+#  library(Coxmos)
 
 ## ---- eval=FALSE--------------------------------------------------------------
 #  # install.packages("devtools")
@@ -278,7 +278,7 @@ lst_models <- list("COX-EN" = coxen_model,
                    "sPLS-DRCOX-Dynamic" = splsdrcox_dynamic_model,
                    "sPLS-DACOX-Dynamic" = splsdacox_dynamic_model)
 
-eval_results <- eval_HDcox_models(lst_models = lst_models,
+eval_results <- eval_Coxmos_models(lst_models = lst_models,
                                   X_test = X_test, Y_test = Y_test, 
                                   pred.method = "cenROC",
                                   pred.attr = "mean",
@@ -289,7 +289,7 @@ eval_results <- eval_HDcox_models(lst_models = lst_models,
 #  lst_evaluators <- c(cenROC = "cenROC",
 #                      risksetROC = "risksetROC")
 #  
-#  eval_results <- purrr::map(lst_evaluators, ~eval_HDcox_models(lst_models = lst_models,
+#  eval_results <- purrr::map(lst_evaluators, ~eval_Coxmos_models(lst_models = lst_models,
 #                                                                X_test = X_test, Y_test = Y_test,
 #                                                                pred.method = .,
 #                                                                pred.attr = "mean",
@@ -350,14 +350,14 @@ density.plots.lp$`sPLS-DRCOX`$plot.density
 density.plots.lp$`sPLS-DRCOX`$plot.histogram
 
 ## -----------------------------------------------------------------------------
-ggp_scores <- plot_PLS_HDcox(model = lst_models$`sPLS-DRCOX`, 
+ggp_scores <- plot_PLS_Coxmos(model = lst_models$`sPLS-DRCOX`, 
                              comp = c(1,2), mode = "scores")
 
 ## ---- fig.small=T, warning=F--------------------------------------------------
 ggp_scores$plot
 
 ## -----------------------------------------------------------------------------
-ggp_loadings <- plot_PLS_HDcox(model = lst_models$`sPLS-DRCOX`, 
+ggp_loadings <- plot_PLS_Coxmos(model = lst_models$`sPLS-DRCOX`, 
                                comp = c(1,2), mode = "loadings",
                                top = 10) #length from 0,0
 
@@ -365,7 +365,7 @@ ggp_loadings <- plot_PLS_HDcox(model = lst_models$`sPLS-DRCOX`,
 ggp_loadings$plot
 
 ## -----------------------------------------------------------------------------
-ggp_biplot <- plot_PLS_HDcox(model = lst_models$`sPLS-DRCOX`, 
+ggp_biplot <- plot_PLS_Coxmos(model = lst_models$`sPLS-DRCOX`, 
                              comp = c(1,2), mode = "biplot",
                              top = 15,
                              only_top = T,
@@ -375,7 +375,7 @@ ggp_biplot <- plot_PLS_HDcox(model = lst_models$`sPLS-DRCOX`,
 ggp_biplot$plot
 
 ## ---- warning=F---------------------------------------------------------------
-variable_auc_results <- eval_HDcox_model_per_variable(model = lst_models$`sPLS-DRCOX`, 
+variable_auc_results <- eval_Coxmos_model_per_variable(model = lst_models$`sPLS-DRCOX`, 
                                                       X_test = lst_models$`sPLS-DRCOX`$X_input, 
                                                       Y_test = lst_models$`sPLS-DRCOX`$Y_input,
                                                       pred.method = "cenROC", pred.attr = "mean",

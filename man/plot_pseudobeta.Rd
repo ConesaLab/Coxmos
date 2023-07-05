@@ -17,7 +17,7 @@ plot_pseudobeta(
 )
 }
 \arguments{
-\item{model}{HDcox model.}
+\item{model}{Coxmos model.}
 
 \item{error.bar}{Logical. Show error bar (default: TRUE).}
 

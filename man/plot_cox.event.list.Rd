@@ -7,7 +7,7 @@
 plot_cox.event.list(lst_models, type = "lp", n.breaks = 20)
 }
 \arguments{
-\item{lst_models}{List of HDcox models.}
+\item{lst_models}{List of Coxmos models.}
 
 \item{type}{Character. Prediction type: "lp", "risk", "expected" or "survival" (default: "lp").}
 

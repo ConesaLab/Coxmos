@@ -17,7 +17,7 @@ plot_pseudobeta_newPatient(
 )
 }
 \arguments{
-\item{model}{HDcox model.}
+\item{model}{Coxmos model.}
 
 \item{new_observation}{Numeric matrix or data.frame. New explanatory variables (raw data) for one observation. Qualitative variables must be transform into binary variables.}
 
@@ -36,7 +36,7 @@ plot_pseudobeta_newPatient(
 \item{show.betas}{Logical. Show original betas (default: FALSE).}
 }
 \description{
-Generates a ggplot2 to compare the pseudobeta direction from de HDcox model and the values of the new observation.
+Generates a ggplot2 to compare the pseudobeta direction from de Coxmos model and the values of the new observation.
 }
 \examples{
 \dontrun{

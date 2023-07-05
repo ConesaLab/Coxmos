@@ -16,7 +16,7 @@ plot_LP.multiplePatients(
 )
 }
 \arguments{
-\item{model}{HDcox model.}
+\item{model}{Coxmos model.}
 
 \item{new_data}{Numeric matrix or data.frame. New explanatory variables (raw data). Qualitative variables must be transform into binary variables.}
 

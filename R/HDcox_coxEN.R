@@ -4,7 +4,7 @@
 
 #' coxEN
 #' @description This function performs a cox elastic net model (based on glmnet R package).
-#' The function returns a HDcox model with the attribute model as "coxEN".
+#' The function returns a Coxmos model with the attribute model as "coxEN".
 #'
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
@@ -21,7 +21,7 @@
 #' @param returnData Logical. Return original and normalized X and Y matrices (default: TRUE).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #'
-#' @return Instance of class "HDcox" and model "coxEN". The class contains the following elements:
+#' @return Instance of class "Coxmos" and model "coxEN". The class contains the following elements:
 #' \code{X}: List of normalized X data information.
 #' \itemize{
 #'  \item \code{(data)}: normalized X matrix
@@ -463,7 +463,7 @@ coxEN <- function(X, Y,
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #' @param seed Number. Seed value for performing runs/folds divisions (default: 123).
 #'
-#' @return Instance of class "HDcox" and model "cv.coxEN". The class contains the following elements:
+#' @return Instance of class "Coxmos" and model "cv.coxEN". The class contains the following elements:
 #' \code{best_model_info}: A data.frame with the information for the best model.
 #' \code{df_results_folds}: A data.frame with fold-level information.
 #' \code{df_results_runs}: A data.frame with run-level information.

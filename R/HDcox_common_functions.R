@@ -23,7 +23,7 @@
 #suggest #splines
 
 pkg.env <- new.env(parent = emptyenv())
-assign(x = 'model_class', value = "HDcox", pkg.env)
+assign(x = 'model_class', value = "Coxmos", pkg.env)
 assign(x = 'eval_class', value = "evaluation", pkg.env)
 
 assign(x = 'cox', value = c("cox"), pkg.env)
@@ -148,11 +148,11 @@ norm01 <- function(x){
   }
 }
 
-#' print.HDcox
-#' @description The function is used to print the output of an object of class HDcox. The function
+#' print.Coxmos
+#' @description The function is used to print the output of an object of class Coxmos. The function
 #' prints the final cox model if it is a survival model, or the characteristics of the best model if
 #' it is a cross-validated model.
-#' @param x HDcox object
+#' @param x Coxmos object
 #' @param ... further arguments passed to or from other methods.
 #'
 #' @export
@@ -161,13 +161,13 @@ norm01 <- function(x){
 #' \dontrun{
 #' cv.model <- cv.splsicox(X,Y, max.ncomp = 10, spv_penalty.list = seq(0.1,1,0.1), n_run = 5,
 #' k_folds = 10)
-#' print.HDcox(cv.model)
+#' print.Coxmos(cv.model)
 #'
 #' model <- splsicox(X,Y)
-#' print.HDcox(model)
+#' print.Coxmos(model)
 #' }
 
-print.HDcox <- function(x, ...){
+print.Coxmos <- function(x, ...){
 
   if(attr(x, "model") %in% pkg.env$all_methods){
 
@@ -446,12 +446,12 @@ removeNAorINFcoxmodel <- function(model, data, time.value = NULL, event.value = 
     data <- cbind(data, event)
   }
 
-  if(isa(model, "HDcox")){
+  if(isa(model, "Coxmos")){
     aux_model <- model$survival_model$fit
   }else if(isa(model, "coxph")){
     aux_model <- model
   }else{
-    stop("Model is not a HDcox or coxph class.")
+    stop("Model is not a Coxmos or coxph class.")
   }
 
   count <- 1
@@ -505,7 +505,7 @@ removeNAorINFcoxmodel <- function(model, data, time.value = NULL, event.value = 
     stop("A problem has happened when removing NA or INF coefficients. Review colnames to avoid illegal characters.")
   }
 
-  if(isa(model, "HDcox")){
+  if(isa(model, "Coxmos")){
     model$survival_model$fit <- aux_model
   }else{
     model <- aux_model
@@ -660,11 +660,11 @@ checkXY.class <- function(X, Y, verbose = F){
 
   if("status" %in% colnames(Y)){
     if(!all(Y[,"status"] %in% c(FALSE, TRUE, 0, 1))){
-      stop("Y data (status column) has values that HDcox cannot manage. The values accepted are '0' or 'FALSE' for censored observations and '1' or 'TRUE' for event observations.")
+      stop("Y data (status column) has values that Coxmos cannot manage. The values accepted are '0' or 'FALSE' for censored observations and '1' or 'TRUE' for event observations.")
     }
   }else if("event" %in% colnames(Y)){
     if(!all(Y[,"event"] %in% c(FALSE, TRUE, 0, 1))){
-      stop("Y data (event column) has values that HDcox cannot manage. The values accepted are '0' or 'FALSE' for censored observations and '1' or 'TRUE' for event observations.")
+      stop("Y data (event column) has values that Coxmos cannot manage. The values accepted are '0' or 'FALSE' for censored observations and '1' or 'TRUE' for event observations.")
     }
   }
 
@@ -1047,7 +1047,7 @@ getCOMPLETE_LP <- function(comp_index, eta_index = NULL, run, fold, X_test, Y_te
     return(list(lst_linear.predictors = lst_linear.predictors, X_test = X_test, Y_test = Y_test, Y_test_full = Y_test_full))
   }else{
     ## Get LP for each fold
-    X_test_mod <- predict.HDcox(object = model, newdata = X_test)
+    X_test_mod <- predict.Coxmos(object = model, newdata = X_test)
 
     lp <- getLinealPredictors(cox = cox, data = X_test_mod)
     lst_linear.predictors[["fit"]] <- c(lst_linear.predictors[["fit"]], lp$fit) #includes colnames
@@ -1084,7 +1084,7 @@ getCOMPLETE_BRIER <- function(comp_index, eta_index = NULL, run, fold, X_test, Y
     return(list(brier_score = brier, X_test = X_test, Y_test = Y_test))
   }else{
     ## Get LP for each fold
-    X_test_mod <- predict.HDcox(object = model, newdata = X_test)
+    X_test_mod <- predict.Coxmos(object = model, newdata = X_test)
 
     ### ##
     # SurvMetrics::Brier
@@ -1190,16 +1190,16 @@ getCOMPLETE_LP_AUC <- function(Y_test_full, lst_linear.predictors, df_results_ev
   return(list(lst_AUC_values = lst_AUC_values, df_results_evals_AUC = df_results_evals_AUC))
 }
 
-#' predict.HDcox
+#' predict.Coxmos
 #' @description The function is used to generate the prediction score matrix for PLS Survival models.
 #' The score matrix is required for the final survival prediction of the data, as dimensional reduction
 #' is performed before running the cox survival analysis.
 #'
-#' @param object HDcox model
+#' @param object Coxmos model
 #' @param ... additional arguments affecting the predictions produced.
 #' @param newdata Numeric matrix or data.frame. New data for explanatory variables (raw data). Qualitative variables must be transform into binary variables.
 #'
-#' @return Score values for new data using the HDcox model selected.
+#' @return Score values for new data using the Coxmos model selected.
 #' @export
 #'
 #' @examples
@@ -1208,15 +1208,15 @@ getCOMPLETE_LP_AUC <- function(Y_test_full, lst_linear.predictors, df_results_ev
 #' Y <- data_Y[train_index,]
 #' X_test <- data[-train_index,]
 #' model <- splsicox(X, Y)
-#' predict.HDcox(object = model, newdata = X_test)
+#' predict.Coxmos(object = model, newdata = X_test)
 #' }
 
-predict.HDcox <- function(object, ..., newdata = NULL){
+predict.Coxmos <- function(object, ..., newdata = NULL){
 
   model <- object
 
   if(!isa(model,pkg.env$model_class)){
-    stop_quietly("Model must be an object of class HDcox.")
+    stop_quietly("Model must be an object of class Coxmos.")
   }
 
   if(all(is.null(model$survival_model))){
@@ -1286,7 +1286,7 @@ predict.HDcox <- function(object, ..., newdata = NULL){
     predicted_scores <- NULL
     cn.merge = NULL
     for(b in names(model$list_spls_models)){
-      predicted_scores <- cbind(predicted_scores, predict.HDcox(object = model$list_spls_models[[b]], newdata = X_test[[b]]))
+      predicted_scores <- cbind(predicted_scores, predict.Coxmos(object = model$list_spls_models[[b]], newdata = X_test[[b]]))
       cn.merge <- c(cn.merge, paste0(colnames(model$list_spls_models[[b]]$X$W.star), "_", b))
       #cn.merge <- c(cn.merge, paste0(colnames(model$list_spls_models[[b]]$X$W.star)[1:model$list_spls_models[[b]]$n.comp], "_", b))
     }
@@ -1370,7 +1370,7 @@ predict.HDcox <- function(object, ..., newdata = NULL){
       if(all(is.na(model$list_spls_models[[b]])) || is.null(model$list_spls_models[[b]]$survival_model)){
         next
       }else{
-        predicted_scores <- cbind(predicted_scores, predict.HDcox(object = model$list_spls_models[[b]], newdata = X_test[[b]]))
+        predicted_scores <- cbind(predicted_scores, predict.Coxmos(object = model$list_spls_models[[b]], newdata = X_test[[b]]))
         cn.merge <- c(cn.merge, paste0(colnames(model$list_spls_models[[b]]$X$W.star)[1:ncol(model$list_spls_models[[b]]$X$W.star)], "_", b))
       }
     }
@@ -2216,7 +2216,7 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
         }else if(method.train %in% c(pkg.env$splsdrcox_dynamic, pkg.env$splsdacox_dynamic, pkg.env$sb.splsicox, pkg.env$isb.splsicox, pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
           # we need to manage n.var as factor? !!!
         }else{
-          stop(paste0(method.train, " is not a HDcox algorithm."))
+          stop(paste0(method.train, " is not a Coxmos algorithm."))
         }
       }
     }
@@ -2408,7 +2408,7 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
           }
 
           if(!isa(model,pkg.env$model_class)){
-            message("Model must be an object of class HDcox.")
+            message("Model must be an object of class Coxmos.")
             print(model)
             next
           }
@@ -2484,7 +2484,7 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
             }
 
             if(!isa(model,pkg.env$model_class)){
-              message("Model must be an object of class HDcox.")
+              message("Model must be an object of class Coxmos.")
               print(model)
               next
             }
@@ -2673,7 +2673,7 @@ get_COX_evaluation_BRIER <- function(comp_model_lst,
             newdata <- lapply(X_test, function(x, ind){x[ind,]}, ind = lst_X_test[[r]][[f]])
           }
 
-          test_data <- predict.HDcox(object = comp_model_lst[[l.index]][[r]][[f]], newdata = newdata)
+          test_data <- predict.Coxmos(object = comp_model_lst[[l.index]][[r]][[f]], newdata = newdata)
           lp_test <- predict(object = model, newdata = as.data.frame(test_data), type = "lp")
           lst_test_LP <- c(lst_test_LP, lp_test)
 
@@ -2925,7 +2925,7 @@ get_COX_evaluation_BRIER_sPLS <- function(comp_model_lst,
               newdata <- lapply(X_test, function(x, ind){x[ind,]}, ind = lst_X_test[[r]][[f]])
             }
 
-            test_data <- predict.HDcox(object = comp_model_lst[[l.index]][[e]][[r]][[f]], newdata = newdata)
+            test_data <- predict.Coxmos(object = comp_model_lst[[l.index]][[e]][[r]][[f]], newdata = newdata)
             lp_test <- predict(object = model, newdata = as.data.frame(test_data), type = "lp")
             lst_test_LP <- c(lst_test_LP, lp_test)
 
@@ -3563,7 +3563,7 @@ getSubModel <- function(model, comp, remove_non_significant){
 getSubModel.mb <- function(model, comp, remove_non_significant){
 
   if(!isa(model,pkg.env$model_class)){
-    message("Model must be an object of class HDcox.")
+    message("Model must be an object of class Coxmos.")
     print(model)
     return(NA)
   }
@@ -4569,13 +4569,13 @@ checkTestTimesVSTrainTimes <- function(lst_models, Y_test){
 
 }
 
-#' eval_HDcox_models
-#' @description The function is used to evaluate multiple HDcox models simultaneously. The function
+#' eval_Coxmos_models
+#' @description The function is used to evaluate multiple Coxmos models simultaneously. The function
 #' returns all the data needed for plotting the information, including the AUC per model and for each
 #' time point selected for the predictions. After their used, it is recommended to run the plot_evaluation()
 #' function.
 #'
-#' @param lst_models List of HDcox models. Each object of the list must be named.
+#' @param lst_models List of Coxmos models. Each object of the list must be named.
 #' @param X_test Numeric matrix or data.frame. Explanatory variables for test data (raw format). Qualitative variables must be transform into binary variables.
 #' @param Y_test Numeric matrix or data.frame. Response variables for test data. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
 #' @param pred.method Character. AUC evaluation algorithm method for evaluate the model performance. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC").
@@ -4597,11 +4597,11 @@ checkTestTimesVSTrainTimes <- function(lst_models, Y_test){
 #' model_icox <- splsicox(X, Y)
 #' model_drcox <- splsdrcox(X, Y)
 #' lst_models <- list("splsicox" = model, "splsdrcox" = model_drcox)
-#' eval_HDcox_models(lst_models, X_test, Y_test, pred.method = "cenROC")
+#' eval_Coxmos_models(lst_models, X_test, Y_test, pred.method = "cenROC")
 #' }
 
 ## Eval all models by the pred.methods the user defined
-eval_HDcox_models <- function(lst_models, X_test, Y_test, pred.method, pred.attr = "mean", times = NULL, PARALLEL = F, max_time_points = 15, verbose = F, progress_bar = T){
+eval_Coxmos_models <- function(lst_models, X_test, Y_test, pred.method, pred.attr = "mean", times = NULL, PARALLEL = F, max_time_points = 15, verbose = F, progress_bar = T){
 
   #check names in lst_models
   lst_models <- checkModelNames(lst_models)
@@ -4684,10 +4684,10 @@ eval_HDcox_models <- function(lst_models, X_test, Y_test, pred.method, pred.attr
       future::plan("multisession", workers = min(length(lst_models), n_cores))
     }
 
-    lst_eval <- furrr::future_map(lst_models, ~evaluation_list_HDcox(model = ., X_test = X_test, Y_test = Y_test, pred.method = pred.method, pred.attr = pred.attr, times = times, PARALLEL = F, verbose = verbose, progress_bar = progress_bar))
+    lst_eval <- furrr::future_map(lst_models, ~evaluation_list_Coxmos(model = ., X_test = X_test, Y_test = Y_test, pred.method = pred.method, pred.attr = pred.attr, times = times, PARALLEL = F, verbose = verbose, progress_bar = progress_bar))
     future::plan("sequential")
   }else{
-    lst_eval <- purrr::map(lst_models, ~evaluation_list_HDcox(model = ., X_test = X_test, Y_test = Y_test, pred.method = pred.method, pred.attr = pred.attr, times = times, PARALLEL = F, verbose = verbose, progress_bar = progress_bar))
+    lst_eval <- purrr::map(lst_models, ~evaluation_list_Coxmos(model = ., X_test = X_test, Y_test = Y_test, pred.method = pred.method, pred.attr = pred.attr, times = times, PARALLEL = F, verbose = verbose, progress_bar = progress_bar))
   }
 
   names(lst_eval) <- names(lst_models)
@@ -4758,15 +4758,15 @@ eval_HDcox_models <- function(lst_models, X_test, Y_test, pred.method, pred.attr
     message(paste0("\nTime for ", pred.method, ": ", as.character(round(time, 5))))
   }
 
-  return(evaluation_HDcox_class(list(df = new_df, lst_AUC = lst_AUC, lst_BRIER = lst_BRIER, time = time)))
+  return(evaluation_Coxmos_class(list(df = new_df, lst_AUC = lst_AUC, lst_BRIER = lst_BRIER, time = time)))
 }
 
-evaluation_list_HDcox <- function(model, X_test, Y_test, pred.method, pred.attr = "mean", times = NULL, PARALLEL = F, verbose = F, progress_bar = F){
+evaluation_list_Coxmos <- function(model, X_test, Y_test, pred.method, pred.attr = "mean", times = NULL, PARALLEL = F, verbose = F, progress_bar = F){
 
   t3 <- Sys.time()
 
   if(!isa(model,pkg.env$model_class)){
-    message("Model must be an object of class HDcox.")
+    message("Model must be an object of class Coxmos.")
     print(model)
     return(list(model_time = NA, comp.time = NA, aic.cox = NA, c_index.cox = NA, lst_AUC_values = NA))
   }
@@ -4776,7 +4776,7 @@ evaluation_list_HDcox <- function(model, X_test, Y_test, pred.method, pred.attr 
     return(list(model_time = NA, comp.time = NA, aic.cox = NA, c_index.cox = NA, lst_AUC_values = NA))
   }
 
-  #NULL in HDcox object (NA no anymore)
+  #NULL in Coxmos object (NA no anymore)
   if(all(is.null(model$survival_model))){
     return(list(model_time = NA, comp.time = NA, aic.cox = NA, c_index.cox = NA, lst_AUC_values = NA))
   }
@@ -4789,9 +4789,9 @@ evaluation_list_HDcox <- function(model, X_test, Y_test, pred.method, pred.attr 
   if(isa(X_test, "list") & !attr(model, "model") %in% pkg.env$multiblock_methods){ #mix between multiblock and all PLS - Special case
     which_block = purrr::map(names(X_test), ~length(grep(., m, fixed = F))>0)
     names(which_block) <- names(X_test)
-    X_test_mod <- predict.HDcox(object = model, newdata = X_test[[names(which_block)[which_block==T]]])
+    X_test_mod <- predict.Coxmos(object = model, newdata = X_test[[names(which_block)[which_block==T]]])
   }else{
-    X_test_mod <- predict.HDcox(object = model, newdata = X_test) #all multiblock or all PLS - Ok
+    X_test_mod <- predict.Coxmos(object = model, newdata = X_test) #all multiblock or all PLS - Ok
   }
 
   #brier score
@@ -4809,19 +4809,19 @@ evaluation_list_HDcox <- function(model, X_test, Y_test, pred.method, pred.attr 
   return(list(model_time = model$time, comp.time = comp.time, aic.cox = aic.cox, c_index.cox = c_index.cox, brier.cox = brier_score, lst_AUC_values = lst_AUC_values))
 }
 
-evaluation_HDcox_class = function(object, ...) {
+evaluation_Coxmos_class = function(object, ...) {
   model = structure(object, class = pkg.env$model_class,
                     model = pkg.env$eval_class)
   return(model)
 }
 
-#' eval_HDcox_model_per_variable
-#' @description The function is used to evaluate how each variable/component affect the prediction for an specific HDcox model. The function
+#' eval_Coxmos_model_per_variable
+#' @description The function is used to evaluate how each variable/component affect the prediction for an specific Coxmos model. The function
 #' returns all the data needed for plotting the information, including the AUC per model and for each
 #' time point selected for the predictions. After their used, it is recommended to run the plot_evaluation()
 #' function.
 #'
-#' @param model HDcox model.
+#' @param model Coxmos model.
 #' @param X_test Numeric matrix or data.frame. Explanatory variables for test data (raw format). Qualitative variables must be transform into binary variables.
 #' @param Y_test Numeric matrix or data.frame. Response variables for test data. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
 #' @param pred.method Character. AUC evaluation algorithm method for evaluate the model performance. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC").
@@ -4840,9 +4840,9 @@ evaluation_HDcox_class = function(object, ...) {
 #' X_test <- data[-train_index,]
 #' Y_test <- data_Y[-train_index,]
 #' model_icox <- splsicox(X, Y)
-#' eval_HDcox_model_per_variable(model_icox, X_test, Y_test, pred.method = "cenROC")
+#' eval_Coxmos_model_per_variable(model_icox, X_test, Y_test, pred.method = "cenROC")
 #' }
-eval_HDcox_model_per_variable <- function(model,
+eval_Coxmos_model_per_variable <- function(model,
                                           X_test, Y_test,
                                           pred.method = "cenROC", pred.attr = "mean",
                                           times = NULL, max_time_points = 15,
@@ -4853,7 +4853,7 @@ eval_HDcox_model_per_variable <- function(model,
 
   # BRIER not implemeted !!!
 
-  scores_aux <- predict.HDcox(object = model, newdata = X_test)
+  scores_aux <- predict.Coxmos(object = model, newdata = X_test)
   lp <- getLinealPredictors(cox = model$survival_model$fit, data = scores_aux, lp_per_variable = T)
 
   if(is.null(times)){
@@ -4881,10 +4881,10 @@ eval_HDcox_model_per_variable <- function(model,
 }
 
 #' cox.prediction
-#' @description The function is used to perform a predict.cox() for a HDcox model from raw data. The function
+#' @description The function is used to perform a predict.cox() for a Coxmos model from raw data. The function
 #' automatically generates the score matrix if a PLS Survival is performed and then performs the cox prediction.
 #'
-#' @param model HDcox model.
+#' @param model Coxmos model.
 #' @param new_data Numeric matrix or data.frame. New explanatory variables (raw data). Qualitative variables must be transform into binary variables.
 #' @param time Numeric. Time point where the AUC will be evaluated (default: NULL).
 #' @param type Character. Prediction type: "lp", "risk", "expected" or "survival" (default: "lp").
@@ -4905,7 +4905,7 @@ cox.prediction <- function(model, new_data, time = NULL, type = "lp", method = "
   #could be obtain by predicting scores or by computing W*
 
   if(method == "cox"){
-    scores <- predict.HDcox(object = model, newdata = new_data) #X must be original X data
+    scores <- predict.Coxmos(object = model, newdata = new_data) #X must be original X data
 
     if(type %in% c("expected", "survival") & is.null(time)){
       stop("For survivial or expected prediction, you must provided a specific time of study.")

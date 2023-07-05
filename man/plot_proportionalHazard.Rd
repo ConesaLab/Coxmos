@@ -7,13 +7,13 @@
 plot_proportionalHazard(model)
 }
 \arguments{
-\item{model}{HDcox model.}
+\item{model}{Coxmos model.}
 }
 \value{
 A ggplot2 plot.
 }
 \description{
-Perform the proportional hazard assumption for a specific HDcox model.
+Perform the proportional hazard assumption for a specific Coxmos model.
 It uses the functions "survival::cox.zph" and "survminer::ggcoxzph", but it returns a ggplot2 graph.
 }
 \examples{

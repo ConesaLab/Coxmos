@@ -14,7 +14,7 @@ plot_forest(
 )
 }
 \arguments{
-\item{model}{HDcox model.}
+\item{model}{Coxmos model.}
 
 \item{title}{Character. Forest plot title (default: "Hazard Ratio").}
 
@@ -27,7 +27,7 @@ plot_forest(
 \item{noDigits}{Numeric. Number of digits for estimates and p-values in the plot (default: 2).}
 }
 \description{
-Forest plot for HDcox models using the R library plot_forest. For more information check ?survminer::ggforest.
+Forest plot for Coxmos models using the R library plot_forest. For more information check ?survminer::ggforest.
 }
 \examples{
 \dontrun{

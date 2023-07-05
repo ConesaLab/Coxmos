@@ -702,7 +702,7 @@ SURVCOMP_BRIER_LP <- function(lp_train, Y_train, lp_test, Y_test){
 # survAUC_BRIER <- function(model, X_test, Y_test, times, raw_test = T){
 #   ## Get LP for each fold
 #   if(raw_test){
-#     X_test_mod <- predict.HDcox(object = model, newdata = X_test)
+#     X_test_mod <- predict.Coxmos(object = model, newdata = X_test)
 #   }else{
 #     X_test_mod <- X_test
 #   }

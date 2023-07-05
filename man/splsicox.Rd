@@ -51,7 +51,7 @@ splsicox(
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
 \value{
-Instance of class "HDcox" and model "sPLS-ICOX". The class contains the following elements:
+Instance of class "Coxmos" and model "sPLS-ICOX". The class contains the following elements:
 \code{X}: List of normalized X data information.
 \itemize{
 \item \code{(data)}: normalized X matrix
@@ -103,7 +103,7 @@ Instance of class "HDcox" and model "sPLS-ICOX". The class contains the followin
 }
 \description{
 This function performs a sparse partial least squares individual Cox (sPLS-ICOX) (based on plsRcox R package).
-The function returns a HDcox model with the attribute model as "sPLS-ICOX".
+The function returns a Coxmos model with the attribute model as "sPLS-ICOX".
 }
 \examples{
 \dontrun{

@@ -51,7 +51,7 @@ splsdrcox(
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
 \value{
-Instance of class "HDcox" and model "sPLS-DRCOX". The class contains the following elements:
+Instance of class "Coxmos" and model "sPLS-DRCOX". The class contains the following elements:
 \code{X}: List of normalized X data information.
 \itemize{
 \item \code{(data)}: normalized X matrix
@@ -121,7 +121,7 @@ Instance of class "HDcox" and model "sPLS-DRCOX". The class contains the followi
 }
 \description{
 This function performs a sparse partial least squares deviance residual Cox (sPLS-DRCOX) (based on plsRcox R package).
-The function returns a HDcox model with the attribute model as "sPLS-DRCOX".
+The function returns a Coxmos model with the attribute model as "sPLS-DRCOX".
 }
 \examples{
 \dontrun{

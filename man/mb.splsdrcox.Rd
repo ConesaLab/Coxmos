@@ -78,7 +78,7 @@ mb.splsdrcox(
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
 \value{
-Instance of class "HDcox" and model "MB.sPLS-DRCOX". The class contains the following elements:
+Instance of class "Coxmos" and model "MB.sPLS-DRCOX". The class contains the following elements:
 \code{X}: List of normalized X data information.
 \itemize{
 \item \code{(data)}: normalized X matrix
@@ -140,7 +140,7 @@ Instance of class "HDcox" and model "MB.sPLS-DRCOX". The class contains the foll
 }
 \description{
 This function performs a multi-block sparse partial least squares deviance residual Cox (MB.sPLS-DRCOX) by dynamic variable selection methodology.
-The function returns a HDcox model with the attribute model as "MB.sPLS-DRCOX".
+The function returns a Coxmos model with the attribute model as "MB.sPLS-DRCOX".
 }
 \examples{
 \dontrun{

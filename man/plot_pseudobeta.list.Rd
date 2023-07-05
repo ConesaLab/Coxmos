@@ -18,7 +18,7 @@ plot_pseudobeta.list(
 )
 }
 \arguments{
-\item{lst_models}{List of HDcox models.}
+\item{lst_models}{List of Coxmos models.}
 
 \item{error.bar}{Logical. Show error bar (default: TRUE).}
 

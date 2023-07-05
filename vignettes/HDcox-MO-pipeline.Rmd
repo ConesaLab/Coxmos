@@ -1,16 +1,16 @@
 ---
-title: "Step-by-step guide to the MO-HDcox pipeline"
+title: "Step-by-step guide to the MO-Coxmos pipeline"
 author: 
     name: "Pedro Salguero García"
     affiliation: "Institute for Integrative Systems Biology (I2SysBio) and Polytechnic University of Valencia, Valencia, Spain"
     email: pedrosalguerog@gmail.com
-package: HDcox
+package: Coxmos
 date: "Last updated: `r format(Sys.time(), '%d %B, %Y')`"
 output: 
     rmarkdown::html_vignette:
         toc: true
 vignette: >
-  %\VignetteIndexEntry{Step-by-step guide to the MO-HDcox pipeline}
+  %\VignetteIndexEntry{Step-by-step guide to the MO-Coxmos pipeline}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -50,7 +50,7 @@ rm(dpi)
 
 # Introduction
 
-The **HDcox** R package contains the necessary functions to reproduce the
+The **Coxmos** R package contains the necessary functions to reproduce the
 pipeline in [this paper*](),
 a study by *Salguero-Garcia et al.* in which we analyze ....
 
@@ -64,23 +64,23 @@ The pipeline includes ... basic analysis blocks:
 
 # Installation
 
-HDcox can be installed from GitHub using `devtools`:
+Coxmos can be installed from GitHub using `devtools`:
 
 ```{r, eval = FALSE}
 install.packages("devtools")
-devtools::install_github("ConesaLab/HDcox", build_vignettes = TRUE)
+devtools::install_github("ConesaLab/Coxmos", build_vignettes = TRUE)
 ```
 
 # Getting ready
 
-To run the analyses in this vignette, you'll first need to load `HDcox`:
+To run the analyses in this vignette, you'll first need to load `Coxmos`:
 
 ```{r setup, results = "hide"}
-# load HDcox
-library(HDcox)
+# load Coxmos
+library(Coxmos)
 ```
 
-In addition, we'll require some additional packages for data formatting. Most of them are signaled as `HDcox` dependencies, 
+In addition, we'll require some additional packages for data formatting. Most of them are signaled as `Coxmos` dependencies, 
 so they will already be installed in your system.
 
 To generate plots, we make use of the `RColorConesa` R package.
@@ -100,7 +100,7 @@ library(RColorConesa)
 
 # Input data
 
-The HDcox pipeline requires two matrices as input. First one must be the features under study, and the second one a matrix with two columns called **time** and **event** for survival information.
+The Coxmos pipeline requires two matrices as input. First one must be the features under study, and the second one a matrix with two columns called **time** and **event** for survival information.
 
 To generate the matrices, we first processed the data from ... Details to this process can be found in [our manuscript]() 
 (see Supplementary Note and Methods).
@@ -110,8 +110,8 @@ If you wish to reproduce the analyses in Salguero-Garcia et al. [[1]](#1)), you 
 
 ```{r}
 # load dataset
-data("X_multiomic", package = "HDcox")
-data("Y_multiomic", package = "HDcox")
+data("X_multiomic", package = "Coxmos")
+data("Y_multiomic", package = "Coxmos")
 
 X <- X_multiomic
 Y <- Y_multiomic
@@ -145,7 +145,7 @@ ggp_density.event$plot
 
 After loading the data, it may be of interest for the user to perform a survival analysis in order to examine the relationship between explanatory variables and the outcome. However, traditional methods are only applicable for low-dimensional datasets. To address this issue, we have developed a set of functions that make use of (s)PLS techniques in combination with Cox analysis for the analysis of high-dimensional datasets.
 
-*HDcox* provides the following methodologies for multi-omic approaches:
+*Coxmos* provides the following methodologies for multi-omic approaches:
 
 * SB.sPLS approaches: SB.sPLS-ICOX, iSB.sPLS-ICOX, SB.sPLS-DRCOX and iSB.sPLS-DRCOX.
 * MB.sPLS approaches: MB.sPLS-DRCOX-Dynamic and MB.sPLS-DACOX-Dynamic.
@@ -454,7 +454,7 @@ lst_models <- list("SB.sPLS-ICOX" = sb.splsicox_model,
                    "MB.sPLS-DRCOX" = mb.splsdrcox_model,
                    "MB.sPLS-DACOX" = mb.splsdacox_model)
 
-eval_results <- eval_HDcox_models(lst_models = lst_models,
+eval_results <- eval_Coxmos_models(lst_models = lst_models,
                                   X_test = X_test, Y_test = Y_test, 
                                   pred.method = "cenROC",
                                   pred.attr = "mean",
@@ -468,7 +468,7 @@ In case you prefer to test multiple AUC evaluators, a list of them could be prop
 lst_evaluators <- c(cenROC = "cenROC",
                     risksetROC = "risksetROC")
 
-eval_results <- purrr::map(lst_evaluators, ~eval_HDcox_models(lst_models = lst_models,
+eval_results <- purrr::map(lst_evaluators, ~eval_Coxmos_models(lst_models = lst_models,
                                                               X_test = X_test, Y_test = Y_test,
                                                               pred.method = .,
                                                               pred.attr = "mean",
@@ -533,7 +533,7 @@ Following the cross validation, we have selected the sPLS-DACOX methodology as t
 
 ## Forest plots
 
-A forest plot can be obtained as the first graph using the survminer R package. However, the function has been restructured to allow for simultaneous launch of an HDcox class model or a list of HDcox models using the `plot_forest()` or `plot_forest.list()` function.
+A forest plot can be obtained as the first graph using the survminer R package. However, the function has been restructured to allow for simultaneous launch of an Coxmos class model or a list of Coxmos models using the `plot_forest()` or `plot_forest.list()` function.
 
 ```{r}
 lst_forest_plot <- plot_forest.list(lst_models)
@@ -590,10 +590,10 @@ density.plots.lp$`iSB.sPLS-DRCOX`$plot.histogram
 
 ## Studying PLS model
 
-For those models based on PLS components, the PLS could be studied in terms of loadings/scores. In order to get the plots, the function `plot_PLS_HDcox()` has been developed where the user could specify to see "scores", "loadings" or a "biplot" for a couple of latent variables. By default, if no factor is given, samples are grouped by event.
+For those models based on PLS components, the PLS could be studied in terms of loadings/scores. In order to get the plots, the function `plot_PLS_Coxmos()` has been developed where the user could specify to see "scores", "loadings" or a "biplot" for a couple of latent variables. By default, if no factor is given, samples are grouped by event.
 
 ```{r}
-ggp_scores <- plot_PLS_HDcox(model = lst_models$`iSB.sPLS-DRCOX`,
+ggp_scores <- plot_PLS_Coxmos(model = lst_models$`iSB.sPLS-DRCOX`,
                              comp = c(1,2), mode = "scores")
 ```
 
@@ -602,7 +602,7 @@ ggp_scores$plot_block
 ```
 
 ```{r}
-ggp_loadings <- plot_PLS_HDcox(model = lst_models$`iSB.sPLS-DRCOX`, 
+ggp_loadings <- plot_PLS_Coxmos(model = lst_models$`iSB.sPLS-DRCOX`, 
                                comp = c(1,2), mode = "loadings",
                                top = 10) #length from 0,0
 ```
@@ -612,7 +612,7 @@ ggp_loadings$plot_block
 ```
 
 ```{r}
-ggp_biplot <- plot_PLS_HDcox(model = lst_models$`iSB.sPLS-DRCOX`, 
+ggp_biplot <- plot_PLS_Coxmos(model = lst_models$`iSB.sPLS-DRCOX`, 
                              comp = c(1,2), mode = "biplot",
                              top = 15,
                              only_top = T)
@@ -626,16 +626,16 @@ ggp_biplot$plot_block
 
 When a PLS-COX model is computed, the final survival model is based on the PLS latent variables. Although those new variables can explain the survival, in order to understand the disease, new coefficients could be computed in terms of the original variables. 
 
-HDcox is able to transfer the component beta coefficient to original variables by decomposing the coefficients by using the weight of the variables in that latent variables.
+Coxmos is able to transfer the component beta coefficient to original variables by decomposing the coefficients by using the weight of the variables in that latent variables.
 
 ## Understanding the relative contribution per variable/component
 
-However, before studying the original variables, if a PLS model is computed. HDcox also proportionates plots to see how many % of AUC is computed per each component in order to see which components or latent variables are more related to the observation survival.
+However, before studying the original variables, if a PLS model is computed. Coxmos also proportionates plots to see how many % of AUC is computed per each component in order to see which components or latent variables are more related to the observation survival.
 
 The % of AUC explanation per component could be calculated for TRAIN or TEST data. Train data was used to compute the best model, so the sum of variables/components will generate a better LP (linear predictor) performance. However, when test data is used, could happen that a specific variable or a component could be a better predictor than the full model.
 
 ```{r, warning=F}
-variable_auc_results <- eval_HDcox_model_per_variable(model = lst_models$`iSB.sPLS-DRCOX`, 
+variable_auc_results <- eval_Coxmos_model_per_variable(model = lst_models$`iSB.sPLS-DRCOX`, 
                                                       X_test = lst_models$`iSB.sPLS-DRCOX`$X_input, 
                                                       Y_test = lst_models$`iSB.sPLS-DRCOX`$Y_input,
                                                       pred.method = "cenROC", pred.attr = "mean",

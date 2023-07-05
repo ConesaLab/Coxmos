@@ -1,16 +1,16 @@
-#' loadingplot.HDcox
+#' loadingplot.Coxmos
 #'
-#' @param model HDcox model.
+#' @param model Coxmos model.
 #' @param zero.rm Logical. Remove variables equal to 0 (default: TRUE).
 #' @param top Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: NULL).
 #' @param auto.limits Logical. If "auto.limits" = TRUE, limits are detected automatically (default: TRUE).
 #'
 #' @export
 
-loadingplot.HDcox <- function(model, zero.rm = T, top = NULL, auto.limits = T){
+loadingplot.Coxmos <- function(model, zero.rm = T, top = NULL, auto.limits = T){
 
   if(!isa(model,pkg.env$model_class)){
-    message("Model must be an object of class HDcox.")
+    message("Model must be an object of class Coxmos.")
     print(model)
     return(NULL)
   }
@@ -106,9 +106,9 @@ loadingplot.HDcox <- function(model, zero.rm = T, top = NULL, auto.limits = T){
   return(ggp_loading)
 }
 
-#' loadingplot.fromVector.HDcox
+#' loadingplot.fromVector.Coxmos
 #'
-#' @param model HDcox model.
+#' @param model Coxmos model.
 #' @param vector Vector of loading
 #' @param zero.rm Logical. Remove variables equal to 0 (default: FALSE).
 #' @param top Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: NULL).
@@ -116,10 +116,10 @@ loadingplot.HDcox <- function(model, zero.rm = T, top = NULL, auto.limits = T){
 #'
 #' @export
 
-loadingplot.fromVector.HDcox <- function(model, vector, zero.rm = F, top = NULL, auto.limits = T){
+loadingplot.fromVector.Coxmos <- function(model, vector, zero.rm = F, top = NULL, auto.limits = T){
 
   if(!isa(model,pkg.env$model_class)){
-    message("Model must be an object of class HDcox.")
+    message("Model must be an object of class Coxmos.")
     print(model)
     return(NULL)
   }
@@ -214,19 +214,19 @@ loadingplot.fromVector.HDcox <- function(model, vector, zero.rm = F, top = NULL,
   return(ggp_loading)
 }
 
-#' w.starplot.HDcox
+#' w.starplot.Coxmos
 #'
-#' @param model HDcox model.
+#' @param model Coxmos model.
 #' @param zero.rm Logical. Remove variables equal to 0 (default: FALSE).
 #' @param top Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: NULL).
 #' @param auto.limits Logical. If "auto.limits" = TRUE, limits are detected automatically (default: TRUE).
 #'
 #' @export
 
-w.starplot.HDcox <- function(model, zero.rm = F, top = NULL, auto.limits = T){
+w.starplot.Coxmos <- function(model, zero.rm = F, top = NULL, auto.limits = T){
 
   if(!isa(model,pkg.env$model_class)){
-    message("Model must be an object of class HDcox.")
+    message("Model must be an object of class Coxmos.")
     print(model)
     return(NULL)
   }

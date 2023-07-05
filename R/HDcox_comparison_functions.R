@@ -401,7 +401,7 @@ super.evalAllModels <- function(lst_subdata, lst_subdata_models, lst_evaluations
       future::plan("multisession", workers = min(future::availableCores()-1, length(lst_models_to_test)))
     }
 
-    eval_results <- furrr::future_map(lst_models_to_test, ~eval_HDcox_models(lst_models = lst_subdata_models[[.$model]],
+    eval_results <- furrr::future_map(lst_models_to_test, ~eval_Coxmos_models(lst_models = lst_subdata_models[[.$model]],
                                                                           X_test = lst_subdata[[.$EPV]][[.$censored]][[.$set]]$X_test,
                                                                           Y_test = lst_subdata[[.$EPV]][[.$censored]][[.$set]]$Y_test,
                                                                           pred.method = .$evaluator,
@@ -413,7 +413,7 @@ super.evalAllModels <- function(lst_subdata, lst_subdata_models, lst_evaluations
     future::plan("sequential")
 
   }else{
-    eval_results <- purrr::map(lst_models_to_test, ~eval_HDcox_models(lst_models = lst_subdata_models[[.$model]],
+    eval_results <- purrr::map(lst_models_to_test, ~eval_Coxmos_models(lst_models = lst_subdata_models[[.$model]],
                                                                        X_test = lst_subdata[[.$EPV]][[.$censored]][[.$set]]$X_test,
                                                                        Y_test = lst_subdata[[.$EPV]][[.$censored]][[.$set]]$Y_test,
                                                                        pred.method = .$evaluator,

@@ -21,7 +21,7 @@ getAutoKM.list(
 \arguments{
 \item{type}{Character. Kaplan Meier for complete model linear predictor ("LP"), for PLS components ("COMP") or for original variables ("VAR") (default: LP).}
 
-\item{lst_models}{List of HDcox models.}
+\item{lst_models}{List of Coxmos models.}
 
 \item{comp}{Numeric vector. Vector of length two. Select which components to plot (default: c(1,2)).}
 
