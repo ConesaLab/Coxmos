@@ -162,7 +162,7 @@ cv.isb.splsicox cross validation model
 }
 \examples{
 \dontrun{
-sb.splsicox_model <- cv.isb.splsicox(X, Y, max.ncomp = 10,
+isb.splsicox_model <- cv.isb.splsicox(X, Y, max.ncomp = 10,
 spv_penalty.list = seq(0.1,1,0.1), x.center = TRUE, x.scale = TRUE)
 }
 }

@@ -162,7 +162,7 @@ cv.isb.splsdrcox cross validation model
 }
 \examples{
 \dontrun{
-sb.splsdrcox_model <- cv.isb.splsdrcox(X, Y, max.ncomp = 10,
+isb.splsdrcox_model <- cv.isb.splsdrcox(X, Y, max.ncomp = 10,
 eta.list = seq(0.1,1,0.1), x.center = TRUE, x.scale = TRUE)
 }
 }

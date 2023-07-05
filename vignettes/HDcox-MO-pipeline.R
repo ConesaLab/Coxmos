@@ -411,8 +411,8 @@ LST_KM_RES_COMP <- getAutoKM.list(type = "COMP",
                                   only_sig = T, alpha = 0.05)
 
 ## ---- fig.small=T-------------------------------------------------------------
-LST_KM_RES_COMP$`iSB.sPLS-DRCOX`$LST_PLOTS$genes$comp_1
-LST_KM_RES_COMP$`iSB.sPLS-DRCOX`$LST_PLOTS$clinical$comp_1
+LST_KM_RES_COMP$`iSB.sPLS-DRCOX`$LST_PLOTS$proteomic$comp_1
+LST_KM_RES_COMP$`iSB.sPLS-DRCOX`$LST_PLOTS$proteomic$comp_2
 
 ## -----------------------------------------------------------------------------
 lst_cutoff <- getCutoffAutoKM.list(LST_KM_RES_COMP)
@@ -424,9 +424,8 @@ LST_KM_TEST_COMP <- getTestKM.list(lst_models = lst_models,
                                    lst_cutoff = lst_cutoff)
 
 ## ---- fig.small=T-------------------------------------------------------------
-LST_KM_TEST_COMP$`iSB.sPLS-DRCOX`$comp_1_genes # all patients in same group
-LST_KM_TEST_COMP$`iSB.sPLS-DRCOX`$comp_1_miRNA # all patients in same group
-LST_KM_TEST_COMP$`iSB.sPLS-DRCOX`$comp_1_clinical # all patients in same group
+LST_KM_TEST_COMP$`iSB.sPLS-DRCOX`$comp_1_proteomic
+LST_KM_TEST_COMP$`iSB.sPLS-DRCOX`$comp_2_proteomic
 
 ## -----------------------------------------------------------------------------
 LST_KM_RES_VAR <- getAutoKM.list(type = "VAR",
@@ -470,11 +469,6 @@ ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient.list(lst_models = lst_mo
                                                              error.bar = T, onlySig = T, alpha = 0.05,
                                                              zero.rm = T, auto.limits = T, show.betas = T, top = 20)
 
-# ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient(model = lst_models$`SB.PLS-ICOX`,
-#                                                         new_observation = new_pat,
-#                                                         error.bar = T, onlySig = T, alpha = 0.05,
-#                                                         zero.rm = T, auto.limits = T, show.betas = T, top = 20)
-
 ## ---- fig.small=T-------------------------------------------------------------
 ggp.simulated_beta_newPat$`iSB.sPLS-DRCOX`$plot$proteomic
 
@@ -511,10 +505,6 @@ lst_cox.comparison <- plot_LP.multiplePatients.list(lst_models = lst_models,
                                                     new_data = sub_X_test, 
                                                     error.bar = T, zero.rm = T, onlySig = T, 
                                                     alpha = 0.05, top = 5)
-
-# lst_cox.comparison <- plot_LP.multiplePatients(model = lst_models$`SB.PLS-ICOX`, 
-#                                      df.pat = sub_X_test, 
-#                                      error.bar = T, zero.rm = T, onlySig = T, alpha = 0.05, top = 5)
 
 ## ---- fig.small=T-------------------------------------------------------------
 lst_cox.comparison$`iSB.sPLS-DRCOX`$plot

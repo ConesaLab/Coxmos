@@ -703,7 +703,7 @@ cv.sb.splsdrcox <- function(X, Y,
 #'
 #' @examples
 #' \dontrun{
-#' sb.splsdrcox_model <- cv.isb.splsdrcox(X, Y, max.ncomp = 10,
+#' isb.splsdrcox_model <- cv.isb.splsdrcox(X, Y, max.ncomp = 10,
 #' eta.list = seq(0.1,1,0.1), x.center = TRUE, x.scale = TRUE)
 #' }
 
@@ -837,6 +837,7 @@ cv.isb.splsdrcox <- function(X, Y,
   for(b in names(Xh)){
 
     message(paste0("\nRunning cross validation ", pkg.env$sb.splsdrcox ," for block: ", b, "\n"))
+    t1 <- Sys.time()
 
     cv.splsdrcox_res <- cv.splsdrcox(X = Xh[[b]], Y = Yh,
                                      max.ncomp = max.ncomp, eta.list = eta.list,
@@ -862,6 +863,12 @@ cv.isb.splsdrcox <- function(X, Y,
                                  x.center = x.center[[b]], x.scale = x.scale[[b]],
                                  #y.scale = y.scale, y.center = y.center,
                                  verbose = verbose)
+
+    t2 <- Sys.time()
+    time <- difftime(t2,t1,units = "mins")
+    if(verbose){
+      message(paste0("\nTime for block ", b , ": ", as.character(round(time, 2)), "\n"))
+    }
   }
 
   # CHECK ALL MODELS SAME COMPONENTS

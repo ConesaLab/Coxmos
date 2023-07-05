@@ -1065,13 +1065,17 @@ lineplot.performace2.0 <- function(df, x.var = "time", y.var = "AUC", x.color = 
   MAX_X_ELEMENTS = 20
 
   ## fix df column, we do not need prefix anymore
-  lst_new_levels <- as.list(levels(df$time))
-  names(lst_new_levels) <- unlist(lapply(levels(df$time), function(x){strsplit(x,"_")[[1]][[2]]}))
-  levels(df$time) <- lst_new_levels
+  if("time" %in% colnames(df)){
+    lst_new_levels <- as.list(levels(df$time))
+    names(lst_new_levels) <- unlist(lapply(levels(df$time), function(x){strsplit(x,"_")[[1]][[2]]}))
+    levels(df$time) <- lst_new_levels
+  }
 
-  lst_new_levels <- as.list(levels(df$brier_time))
-  names(lst_new_levels) <- unlist(lapply(levels(df$brier_time), function(x){strsplit(x,"_")[[1]][[3]]}))
-  levels(df$brier_time) <- lst_new_levels
+  if("brier_time" %in% colnames(df)){
+    lst_new_levels <- as.list(levels(df$brier_time))
+    names(lst_new_levels) <- unlist(lapply(levels(df$brier_time), function(x){strsplit(x,"_")[[1]][[3]]}))
+    levels(df$brier_time) <- lst_new_levels
+  }
 
   if(mean){
     mean_vector = NULL
@@ -3744,9 +3748,7 @@ getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NUL
     if(only_sig){
 
       if(length(v_names[v_names$`P-Val (Log Rank)` <= alpha,]$Variable)==0){
-        if(verbose){
-          cat("Any variable has a significant log-rank test value. Survival function, Hazard Curve and Cumulative Hazard plots will be returned.")
-        }
+          cat("None of the variables have a significant log-rank test value. Survival function, Hazard Curve, and Cumulative Hazard plots will be returned.\n")
       }
 
       LST_SPLOT <- plot_survivalplot.qual(data = d,
@@ -3764,7 +3766,16 @@ getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NUL
   }else{
     LST_SPLOT <- list()
     for(b in names(model$X$data)){
+
+      unique_vars <- deleteIllegalChars(unique(unlist(lst_vars[[b]])))
+      if(length(unique_vars)==0){next}#no components selected
+
       if(only_sig){
+
+        if(length(v_names[[b]][v_names[[b]]$`P-Val (Log Rank)` <= alpha,]$Variable)==0){
+            cat("None of the variables have a significant log-rank test value. Survival function, Hazard Curve, and Cumulative Hazard plots will be returned.\n")
+        }
+
         LST_SPLOT[[b]] <- plot_survivalplot.qual(data = d[[b]],
                                                   sdata = data.frame(model$Y$data),
                                                   BREAKTIME = BREAKTIME,

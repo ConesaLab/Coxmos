@@ -690,7 +690,7 @@ cv.sb.splsicox <- function(X, Y,
 #'
 #' @examples
 #' \dontrun{
-#' sb.splsicox_model <- cv.isb.splsicox(X, Y, max.ncomp = 10,
+#' isb.splsicox_model <- cv.isb.splsicox(X, Y, max.ncomp = 10,
 #' spv_penalty.list = seq(0.1,1,0.1), x.center = TRUE, x.scale = TRUE)
 #' }
 
@@ -822,6 +822,7 @@ cv.isb.splsicox <- function(X, Y,
   for(b in names(Xh)){
 
     message(paste0("\nRunning cross validation ", pkg.env$sb.splsicox, " for block: ", b, "\n"))
+    t1 <- Sys.time()
 
     cv.splsdrcox_res <- cv.splsicox(X = Xh[[b]], Y = Yh,
                                     max.ncomp = max.ncomp, spv_penalty.list = spv_penalty.list,
@@ -846,6 +847,12 @@ cv.isb.splsicox <- function(X, Y,
                                 x.center = x.center[[b]], x.scale = x.scale[[b]],
                                 #y.scale = y.scale, y.center = y.center,
                                 MIN_EPV = MIN_EPV, verbose = verbose)
+
+    t2 <- Sys.time()
+    time <- difftime(t2,t1,units = "mins")
+    if(verbose){
+      message(paste0("\nTime for block ", b , ": ", as.character(round(time, 2)), "\n"))
+    }
   }
 
   # CHECK ALL MODELS SAME COMPONENTS

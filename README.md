@@ -1,4 +1,4 @@
-# Coxmos: Cox MultiBlock Survival Analysis for high dimensional and multiblock data
+# Coxmos: Cox MultiBlock Survival Analysis for high dimensional and multiomic data
 
 **Coxmos** is still a beta-version. Work in progress. We strongly recommend to not use it yet.
 
