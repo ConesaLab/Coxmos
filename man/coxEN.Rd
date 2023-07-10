@@ -93,11 +93,13 @@ Instance of class "Coxmos" and model "coxEN". The class contains the following e
 
 \code{selected_variables_cox}: Variables selected to enter the cox model.
 
-\code{removed_variables_cox}: Variables removed by EN penalty.
+\code{nsv}: Variables removed by cox alpha cutoff.
 
 \code{removed_variables_correlation}: Variables removed by being high correlated with other variables.
 
 \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
+
+\code{nz_coeffvar}: Variables removed by coefficient variation near zero.
 
 \code{class}: Model class.
 

@@ -132,9 +132,7 @@ Instance of class "Coxmos" and model "MB.sPLS-DRCOX". The class contains the fol
 
 \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
 
-\code{time}: time consumed for running the cox analysis.
-
-\code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
+\code{nz_coeffvar}: Variables removed by coefficient variation near zero.
 
 \code{time}: time consumed for running the cox analysis.
 }

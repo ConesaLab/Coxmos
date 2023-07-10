@@ -625,7 +625,16 @@ plot_time.list <- function(lst_models, x.text = "Method", y.text = NULL){
 #' @param pred.attr Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").
 #' @param y.min Numeric. Minimum Y value for establish the Y axis value. If y.min = NULL, automatic detection is performed (default: NULL).
 #' @param type Character. Plot type. Must be one of the following: "both", "line" or "mean". In other case, "both" will be selected (default: "both").
-#'
+#' @param round_times Logical. Whether times x value should be rounded (default: FALSE).
+#' @param decimals Numeric. Number of decimals to use in round times. Must be a value greater or equal zero (default = 2).
+#' @param title Character. Plot title (default: NULL).
+#' @param legend_title Character. Legend title (default: "Method").
+#' @param title_size_text Numeric. Text size for legend title (default: 15).
+#' @param legend_size_text Numeric. Text size for legend title (default: 12).
+#' @param x_axis_size_text Numeric. Text size for x axis (default: 10).
+#' @param y_axis_size_text Numeric. Text size for y axis (default: 10).
+#' @param label_x_axis_size Numeric. Text size for x label axis (default: 10).
+#' @param label_y_axis_size Numeric. Text size for y label axis (default: 10).
 #' @export
 #'
 #' @examples
@@ -634,12 +643,19 @@ plot_time.list <- function(lst_models, x.text = "Method", y.text = NULL){
 #' plot_evaluation.list(lst_eval_results)
 #' }
 
-plot_evaluation.list <- function(lst_eval_results, evaluation = "AUC", pred.attr = "mean", y.min = NULL, type = "both"){
+plot_evaluation.list <- function(lst_eval_results, evaluation = "AUC", pred.attr = "mean", y.min = NULL, type = "both", round_times = FALSE, decimals = 2,
+                                 title = NULL, title_size_text = 15, legend_title = "Method", legend_size_text = 12,
+                                 x_axis_size_text = 10, y_axis_size_text = 10, label_x_axis_size = 10, label_y_axis_size = 10){
 
   lst_res <- purrr::map(lst_eval_results, ~plot_evaluation(eval_results = .,
                                                            evaluation = evaluation,
                                                            pred.attr = pred.attr,
-                                                           y.min = y.min, type = type))
+                                                           y.min = y.min, type = type,
+                                                           round_times = round_times, decimals = decimals,
+                                                           title = title, title_size_text = title_size_text,
+                                                           legend_title = legend_title, legend_size_text = legend_size_text,
+                                                           x_axis_size_text = x_axis_size_text, y_axis_size_text = y_axis_size_text,
+                                                           label_x_axis_size = label_x_axis_size, label_y_axis_size = label_y_axis_size))
 
   return(lst_res)
 
@@ -653,10 +669,16 @@ plot_evaluation.list <- function(lst_eval_results, evaluation = "AUC", pred.attr
 #' @param pred.attr Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").
 #' @param y.min Numeric. Minimum Y value for establish the Y axis value. If y.min = NULL, automatic detection is performed (default: NULL).
 #' @param type Character. Plot type. Must be one of the following: "both", "line" or "mean". In other case, "both" will be selected (default: "both").
+#' @param round_times Logical. Whether times x value should be rounded (default: FALSE).
+#' @param decimals Numeric. Number of decimals to use in round times. Must be a value greater or equal zero (default = 2).
+#' @param title Character. Plot title (default: NULL).
 #' @param legend_title Character. Legend title (default: "Method").
+#' @param title_size_text Numeric. Text size for legend title (default: 15).
 #' @param legend_size_text Numeric. Text size for legend title (default: 12).
 #' @param x_axis_size_text Numeric. Text size for x axis (default: 10).
 #' @param y_axis_size_text Numeric. Text size for y axis (default: 10).
+#' @param label_x_axis_size Numeric. Text size for x label axis (default: 10).
+#' @param label_y_axis_size Numeric. Text size for y label axis (default: 10).
 #'
 #' @export
 #'
@@ -666,7 +688,9 @@ plot_evaluation.list <- function(lst_eval_results, evaluation = "AUC", pred.attr
 #' plot_evaluation(eval_results)
 #' }
 
-plot_evaluation <- function(eval_results, evaluation = "AUC", pred.attr = "mean", y.min = NULL, type = "both", legend_title = "Method", legend_size_text = 12, x_axis_size_text = 10, y_axis_size_text = 10){
+plot_evaluation <- function(eval_results, evaluation = "AUC", pred.attr = "mean", y.min = NULL, type = "both", round_times = FALSE, decimals = 2,
+                            title = NULL, title_size_text = 15, legend_title = "Method", legend_size_text = 12,
+                            x_axis_size_text = 10, y_axis_size_text = 10, label_x_axis_size = 10, label_y_axis_size = 10){
 
   if(!evaluation %in% c("AUC", "Brier")){
     message("Evaluation parameter is not 'AUC' or 'Brier'. Changed to 'AUC'.")
@@ -709,7 +733,11 @@ plot_evaluation <- function(eval_results, evaluation = "AUC", pred.attr = "mean"
                                         x.color = "method",
                                         legend_title = legend_title,
                                         y.limit = c(y.min, 1), pred.attr = pred.attr,
-                                        legend_size_text = legend_size_text, x_axis_size_text = x_axis_size_text, y_axis_size_text = y_axis_size_text)
+                                        round_times = round_times, decimals = decimals,
+                                        title = title, title_size_text = title_size_text,
+                                        legend_size_text = legend_size_text,
+                                        x_axis_size_text = x_axis_size_text, y_axis_size_text = y_axis_size_text,
+                                        label_x_axis_size = label_x_axis_size, label_y_axis_size = label_y_axis_size)
   if(type == "both"){
     lst_ggp <- lst_plots
   }else if(type == "line"){
@@ -1060,20 +1088,36 @@ evalplot_errorbar <- function(df, x.var, y.var, y.var.sd, x.color = NULL, best_c
   return(ggp)
 }
 
-lineplot.performace2.0 <- function(df, x.var = "time", y.var = "AUC", x.color = "method", x.lab = NULL, y.lab = NULL, y.limit = NULL, point = T, mean = F, legend_rm = T, legend_title = "Method", legend_size_text = 12, x_axis_size_text = 10, y_axis_size_text = 10){
+lineplot.performace2.0 <- function(df, x.var = "time", y.var = "AUC", x.color = "method", x.lab = NULL, y.lab = NULL, y.limit = NULL, point = T,
+                                   mean = F, legend_rm = T, round_times = F, decimals = 0, legend_title = "Method", legend_size_text = 12,
+                                   x_axis_size_text = 10, y_axis_size_text = 10, label_x_axis_size = 10, label_y_axis_size = 10){
 
   MAX_X_ELEMENTS = 20
+
+  if(decimals<0){
+    stop("Decimals must be a positive number or zero.")
+  }
 
   ## fix df column, we do not need prefix anymore
   if("time" %in% colnames(df)){
     lst_new_levels <- as.list(levels(df$time))
     names(lst_new_levels) <- unlist(lapply(levels(df$time), function(x){strsplit(x,"_")[[1]][[2]]}))
+    if(round_times){
+      aux_num <- as.numeric(names(lst_new_levels))
+      aux_num <- round2any(aux_num, 1*10^(-(decimals)))
+      names(lst_new_levels) <- as.character(aux_num)
+    }
     levels(df$time) <- lst_new_levels
   }
 
   if("brier_time" %in% colnames(df)){
     lst_new_levels <- as.list(levels(df$brier_time))
     names(lst_new_levels) <- unlist(lapply(levels(df$brier_time), function(x){strsplit(x,"_")[[1]][[3]]}))
+    if(round_times){
+      aux_num <- as.numeric(names(lst_new_levels))
+      aux_num <- round2any(aux_num, 1*10^(-(decimals)))
+      names(lst_new_levels) <- as.character(aux_num)
+    }
     levels(df$brier_time) <- lst_new_levels
   }
 
@@ -1120,6 +1164,9 @@ lineplot.performace2.0 <- function(df, x.var = "time", y.var = "AUC", x.color = 
 
   ggp <- ggp + theme(axis.text.y = element_text(vjust = 0.5, hjust=1, size = y_axis_size_text))
 
+  ggp <- ggp + theme(axis.title.x = element_text(size = label_x_axis_size))
+  ggp <- ggp + theme(axis.title.y = element_text(size = label_y_axis_size))
+
   # if(!is.null(y.limit)){
   #   ggp <- ggp + ylim(y.limit)
   # }
@@ -1149,7 +1196,9 @@ lineplot.performace2.0 <- function(df, x.var = "time", y.var = "AUC", x.color = 
   return(ggp)
 }
 
-barplot.mean_performace2.0 <- function(df, x.var = "method", y.var="AUC", x.color = "method", x.lab = NULL, y.lab = NULL, y.limit = NULL, hide_labels = T, legend_rm = NULL, legend_title = "Method", legend_size_text = 12, x_axis_size_text = 10, y_axis_size_text = 10){
+barplot.mean_performace2.0 <- function(df, x.var = "method", y.var="AUC", x.color = "method", x.lab = NULL, y.lab = NULL, y.limit = NULL,
+                                       hide_labels = T, legend_rm = NULL, legend_title = "Method", legend_size_text = 12,
+                                       x_axis_size_text = 10, y_axis_size_text = 10, label_x_axis_size = 10, label_y_axis_size = 10){
 
   #DFCALLS
   MAX_X_ELEMENTS = 20
@@ -1202,10 +1251,15 @@ barplot.mean_performace2.0 <- function(df, x.var = "method", y.var="AUC", x.colo
                                               axis.ticks.x=element_blank())
   }
 
+  ggp <- ggp + theme(axis.title.x = element_text(size = label_x_axis_size))
+  ggp <- ggp + theme(axis.title.y = element_text(size = label_y_axis_size))
+
   return(ggp)
 }
 
-point.sd.mean_performace2.0 <- function(df, x.var = "method", y.var = "AUC", x.color = "method", x.lab = NULL, y.lab = NULL, y.limit = NULL, pred.attr = "mean", hide_labels = T, legend_rm = NULL, legend_title = "Method", legend_size_text = 12, x_axis_size_text = 10, y_axis_size_text = 10){
+point.sd.mean_performace2.0 <- function(df, x.var = "method", y.var = "AUC", x.color = "method", x.lab = NULL, y.lab = NULL, y.limit = NULL,
+                                        pred.attr = "mean", hide_labels = T, legend_rm = NULL, legend_title = "Method", legend_size_text = 12,
+                                        x_axis_size_text = 10, y_axis_size_text = 10, label_x_axis_size = 10, label_y_axis_size = 10){
 
   #DFCALLS
   MAX_X_ELEMENTS = 20
@@ -1263,6 +1317,8 @@ point.sd.mean_performace2.0 <- function(df, x.var = "method", y.var = "AUC", x.c
   }
   ggp <- ggp + theme(axis.text.y = element_text(vjust = 0.5, hjust=1, size = y_axis_size_text))
 
+  ggp <- ggp + theme(axis.title.x = element_text(size = label_x_axis_size))
+  ggp <- ggp + theme(axis.title.y = element_text(size = label_y_axis_size))
 
   if(!is.null(y.limit)){
     ggp <- ggp + coord_cartesian(ylim = y.limit)
@@ -1295,16 +1351,44 @@ point.sd.mean_performace2.0 <- function(df, x.var = "method", y.var = "AUC", x.c
   return(ggp)
 }
 
-comboplot.performance2.0 <- function(df, x.var = "time", y.var = "AUC", x.color = "method", x.lab = NULL, y.lab = NULL, y.limit = NULL, pred.attr = "mean", point = T, mean = F, hide_labels = T, legend_title = "Method", legend_size_text = 12, x_axis_size_text = 10, y_axis_size_text = 10){
-  a <- lineplot.performace2.0(df = df, x.var = x.var, y.var = y.var, x.color = x.color, x.lab = x.lab, y.lab = y.lab, y.limit = y.limit, point = point, mean = F, legend_rm = T, legend_title = legend_title, legend_size_text = legend_size_text, x_axis_size_text = x_axis_size_text, y_axis_size_text = y_axis_size_text)
-  b <- point.sd.mean_performace2.0(df = df, x.var = x.var, y.var = y.var, x.color = x.color, x.lab = NULL, y.lab = NULL, y.limit = y.limit, pred.attr = pred.attr, hide_labels = T, legend_rm = F, legend_title = legend_title, legend_size_text = legend_size_text, x_axis_size_text = x_axis_size_text, y_axis_size_text = y_axis_size_text)
+comboplot.performance2.0 <- function(df, x.var = "time", y.var = "AUC", x.color = "method",
+                                     x.lab = NULL, y.lab = NULL, y.limit = NULL, pred.attr = "mean",
+                                     point = T, mean = F, hide_labels = T,
+                                     title = NULL, legend_title = "Method", round_times = FALSE, decimals = 2,
+                                     title_size_text = 15, legend_size_text = 12, x_axis_size_text = 10, y_axis_size_text = 10,
+                                     label_x_axis_size = 10, label_y_axis_size = 10){
 
-  pp <- ggpubr::ggarrange(a, b, ncol = 2, widths = c(0.8, 0.2), align = "h")
+  a <- lineplot.performace2.0(df = df, x.var = x.var, y.var = y.var, x.color = x.color, x.lab = x.lab, y.lab = y.lab, y.limit = y.limit, point = point,
+                              mean = F, legend_rm = T, round_times = round_times, decimals = decimals,
+                              legend_title = legend_title, legend_size_text = legend_size_text,
+                              x_axis_size_text = x_axis_size_text, y_axis_size_text = y_axis_size_text, label_x_axis_size = label_x_axis_size, label_y_axis_size = label_y_axis_size)
+
+  b <- point.sd.mean_performace2.0(df = df, x.var = x.var, y.var = y.var, x.color = x.color, x.lab = NULL, y.lab = NULL, y.limit = y.limit,
+                                   pred.attr = pred.attr, hide_labels = T, legend_rm = F,
+                                   legend_title = legend_title, legend_size_text = legend_size_text,
+                                   x_axis_size_text = x_axis_size_text, y_axis_size_text = y_axis_size_text, label_x_axis_size = label_x_axis_size, label_y_axis_size = label_y_axis_size)
+
+  if(!is.null(title)){
+    a <- a + ggtitle(label = title) + theme(plot.title = element_text(size = title_size_text))
+  }
+
+  pp <- ggpubr::ggarrange(a, b, ncol = 2, widths = c(0.7, 0.3), align = "h")
 
   # transform margins to show full legend text
   pp <- pp + theme(plot.margin = margin(10, 20, 10, 10, "pt"))
 
-  a <- lineplot.performace2.0(df, x.var, y.var, x.color, x.lab, y.lab, y.limit, point, mean = F, legend_rm = F, legend_title = legend_title, legend_size_text = legend_size_text, x_axis_size_text = x_axis_size_text, y_axis_size_text = y_axis_size_text)
+  a <- lineplot.performace2.0(df = df, x.var = x.var, y.var = y.var, x.color = x.color, x.lab = x.lab, y.lab = y.lab, y.limit = y.limit, point = point,
+                              mean = F, legend_rm = F, round_times = round_times, decimals = decimals,
+                              legend_title = legend_title, legend_size_text = legend_size_text,
+                              x_axis_size_text = x_axis_size_text, y_axis_size_text = y_axis_size_text, label_x_axis_size = label_x_axis_size, label_y_axis_size = label_y_axis_size)
+
+  # transform margins to show full legend text
+  a <- a + theme(plot.margin = margin(10, 20, 10, 10, "pt"))
+
+  if(!is.null(title)){
+    a <- a + ggtitle(label = title) + theme(plot.title = element_text(size = title_size_text))
+  }
+
   return(list(lineplot = a, lineplot.mean = pp))
 }
 
@@ -2731,7 +2815,7 @@ plot_patient.eventHistogram <- function(patient, time = NULL, model, type = "lp"
 #'
 #' @param lst_models List of Coxmos models.
 #' @param error.bar Logical. Show error bar (default: TRUE).
-#' @param onlySig Logical. Compute psudobetas using only significant components (default: FALSE).
+#' @param onlySig Logical. Compute pseudobetas using only significant components (default: FALSE).
 #' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
 #' @param zero.rm Logical. Remove variables with a pseudobeta equal to 0 (default: TRUE).
 #' @param top Numeric. Show "top" first variables with the higher pseudobetas in absolute value. If top = NULL, all variables are shown (default: NULL).
@@ -2775,13 +2859,19 @@ plot_pseudobeta.list <- function(lst_models, error.bar = T, onlySig = F, alpha =
 #'
 #' @param model Coxmos model.
 #' @param error.bar Logical. Show error bar (default: TRUE).
-#' @param onlySig Logical. Compute psudobetas using only significant components (default: FALSE).
+#' @param onlySig Logical. Compute pseudobetas using only significant components (default: FALSE).
 #' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
 #' @param zero.rm Logical. Remove variables with a pseudobeta equal to 0 (default: TRUE).
 #' @param top Numeric. Show "top" first variables with the higher pseudobetas in absolute value. If top = NULL, all variables are shown (default: NULL).
 #' @param auto.limits Logical. If "auto.limits" = TRUE, limits are detected automatically (default: TRUE).
 #' @param show_percentage Logical. If show_percentage = TRUE, it shows the contribution percentage for each variable to the full model (default: TRUE).
 #' @param size_percentage Numeric. Size of percentage text (default: 3).
+#' @param title_size_text Numeric. Text size for legend title (default: 15).
+#' @param legend_size_text Numeric. Text size for legend title (default: 12).
+#' @param x_axis_size_text Numeric. Text size for x axis (default: 10).
+#' @param y_axis_size_text Numeric. Text size for y axis (default: 10).
+#' @param label_x_axis_size Numeric. Text size for x label axis (default: 10).
+#' @param label_y_axis_size Numeric. Text size for y label axis (default: 10).
 #'
 #' @export
 #'
@@ -2790,7 +2880,11 @@ plot_pseudobeta.list <- function(lst_models, error.bar = T, onlySig = F, alpha =
 #' plot_pseudobeta(model)
 #' }
 
-plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zero.rm = T, top = NULL, auto.limits = T, show_percentage = T, size_percentage = 3){
+plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zero.rm = T, top = NULL, auto.limits = T,
+                            show_percentage = T, size_percentage = 3,
+                            title_size_text = 15, legend_size_text  = 12,
+                            x_axis_size_text  = 10, y_axis_size_text = 10,
+                            label_x_axis_size  = 10, label_y_axis_size  = 10){
 
   if(!isa(model,pkg.env$model_class)){
     message("Model must be an object of class Coxmos.")
@@ -2927,6 +3021,16 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
 
   if(attr(model, "model") %in% pkg.env$pls_methods){
     vector <- plot$coefficients
+
+    #update sizes
+    plot$plot = plot$plot + theme(plot.title = element_text(size = title_size_text),
+                                  legend.text = element_text(size = legend_size_text),
+                                  legend.title = element_text(size = legend_size_text),
+                                  axis.text.x = element_text(size = x_axis_size_text),
+                                  axis.text.y = element_text(size = y_axis_size_text),
+                                  axis.title.x = element_text(size = label_x_axis_size),
+                                  axis.title.y = element_text(size = label_y_axis_size))
+
     return(list(plot = plot$plot,
                 beta = vector,
                 sd.min = sd.min,
@@ -2938,6 +3042,13 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
     for(b in names(model$X$data)){
       aux_vector[[b]] <- plot[[b]]$coefficients
       aux_plot[[b]] <- plot[[b]]$plot
+      aux_plot[[b]] <- aux_plot[[b]] + theme(plot.title = element_text(size = title_size_text),
+                                             legend.text = element_text(size = legend_size_text),
+                                             legend.title = element_text(size = legend_size_text),
+                                             axis.text.x = element_text(size = x_axis_size_text),
+                                             axis.text.y = element_text(size = y_axis_size_text),
+                                             axis.title.x = element_text(size = label_x_axis_size),
+                                             axis.title.y = element_text(size = label_y_axis_size))
     }
 
     return(list(plot = aux_plot,
@@ -2958,7 +3069,7 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
 #' @param lst_models List of Coxmos models.
 #' @param new_observation Numeric matrix or data.frame. New explanatory variables (raw data) for one observation. Qualitative variables must be transform into binary variables.
 #' @param error.bar Logical. Show error bar (default: TRUE).
-#' @param onlySig Logical. Compute psudobetas using only significant components (default: TRUE).
+#' @param onlySig Logical. Compute pseudobetas using only significant components (default: TRUE).
 #' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
 #' @param zero.rm Logical. Remove variables with a pseudobeta equal to 0 (default: TRUE).
 #' @param top Numeric. Show "top" first variables with the higher pseudobetas in absolute value. If top = NULL, all variables are shown (default: NULL).
@@ -3005,7 +3116,7 @@ plot_pseudobeta_newPatient.list <- function(lst_models, new_observation, error.b
 #' @param model Coxmos model.
 #' @param new_observation Numeric matrix or data.frame. New explanatory variables (raw data) for one observation. Qualitative variables must be transform into binary variables.
 #' @param error.bar Logical. Show error bar (default: TRUE).
-#' @param onlySig Logical. Compute psudobetas using only significant components (default: TRUE).
+#' @param onlySig Logical. Compute pseudobetas using only significant components (default: TRUE).
 #' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
 #' @param zero.rm Logical. Remove variables with a pseudobeta equal to 0 (default: TRUE).
 #' @param top Numeric. Show "top" first variables with the higher pseudobetas in absolute value. If top = NULL, all variables are shown (default: NULL).

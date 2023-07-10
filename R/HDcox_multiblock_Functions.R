@@ -43,7 +43,7 @@ getEPV.mb <- function(X,Y){
 
 #' deleteZeroOrNearZeroVariance.mb
 #'
-#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
+#' @param X List of numeric matrices or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
 #' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
@@ -84,6 +84,30 @@ deleteZeroOrNearZeroVariance.mb <- function(X, remove_near_zero_variance = F, re
 
   return(list(X = auxX, variablesDeleted = variablesDeleted))
 
+}
+
+#' deleteNearZeroCoefficientOfVariation.mb
+#'
+#' @param X List of numeric matrices or data.frames. Explanatory variables. Qualitative variables must be transform into binary variables.
+#' @param LIMIT Numeric. Cutoff for minimum variation. If coefficient is lesser than the limit, the variables are removed because not vary enough (default: 0.1).
+#'
+#' @export
+deleteNearZeroCoefficientOfVariation.mb <- function(X, LIMIT = 0.1){
+  variablesDeleted <- list()
+  newX <- X
+  for(b in names(newX)){
+    cvar <- apply(newX[[b]], 2, function(x){sd(x)/abs(mean(x))})
+    variablesDeleted[[b]] <- names(cvar)[which(cvar <= LIMIT)]
+    if(length(variablesDeleted[[b]])>0){
+      newX[[b]] <- newX[[b]][,!colnames(newX[[b]]) %in% variablesDeleted[[b]]]
+    }else{
+      variablesDeleted[[b]] <- 0
+    }
+  }
+
+  variablesDeleted <- purrr::map(variablesDeleted, ~{.==0;NULL})
+
+  return(list("X" = newX, "variablesDeleted" = variablesDeleted))
 }
 
 checkXY.rownames.mb <- function(X, Y, verbose = T){

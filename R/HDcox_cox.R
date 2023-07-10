@@ -60,6 +60,8 @@
 #'
 #' \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
 #'
+#' \code{nz_coeffvar}: Variables removed by coefficient variation near zero.
+#'
 #' \code{removed_variables_correlation}: Variables removed by being high correlated with other variables.
 #'
 #' \code{class}: Model class.
@@ -133,6 +135,11 @@ cox <- function (X, Y,
                                           freqCut = FREQ_CUT)
   X <- lst_dnz$X
   variablesDeleted <- lst_dnz$variablesDeleted
+
+  #### COEF VARIATION
+  lst_dnzc <- deleteNearZeroCoefficientOfVariation(X = X)
+  X <- lst_dnzc$X
+  variablesDeleted_cvar <- lst_dnzc$variablesDeleted
 
   #### MAX PREDICTORS
   if(!check.maxPredictors.cox(X, Y, MIN_EPV, FORCE)){
@@ -273,8 +280,9 @@ cox <- function (X, Y,
                         X_input = if(returnData) X_original else NA,
                         Y_input = if(returnData) Y_original else NA,
                         nsv = removed_variables,
-                        nzv = variablesDeleted,
                         removed_variables_correlation = removed_variables_cor,
+                        nzv = variablesDeleted,
+                        nz_coeffvar = variablesDeleted_cvar,
                         class = pkg.env$cox,
                         time = time)))
 }

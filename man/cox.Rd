@@ -82,6 +82,8 @@ Instance of class "Coxmos" and model "cox". The class contains the following ele
 
 \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
 
+\code{nz_coeffvar}: Variables removed by coefficient variation near zero.
+
 \code{removed_variables_correlation}: Variables removed by being high correlated with other variables.
 
 \code{class}: Model class.

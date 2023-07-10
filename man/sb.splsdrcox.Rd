@@ -96,6 +96,8 @@ Instance of class "Coxmos" and model "sb.splscox". The class contains the follow
 
 \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
 
+\code{nz_coeffvar}: Variables removed by coefficient variation near zero.
+
 \code{class}: Model class.
 
 \code{time}: time consumed for running the cox analysis.

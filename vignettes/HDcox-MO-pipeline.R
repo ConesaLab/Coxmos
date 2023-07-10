@@ -130,18 +130,17 @@ sb.splsicox_model
 
 ## ---- warning=F---------------------------------------------------------------
 isb.splsicox_model <- cv.isb.splsicox(X = X_train, Y = Y_train,
-                                               max.ncomp = 2, spv_penalty.list = c(0.5, 0.9),
-                                               n_run = 2, k_folds = 5, 
-                                               x.center = x.center, x.scale = x.scale, 
-                                               #y.center = FALSE, y.scale = FALSE,
-                                               remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
-                                               remove_variance_at_fold_level = F,
-                                               remove_non_significant_models = F, alpha = 0.05, 
-                                               w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL, max_time_points = 15,
-                                               MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
-                                               pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
-                                               MIN_EPV = 5, return_models = F, remove_non_significant = T,
-                                               PARALLEL = F, verbose = F, seed = 123)
+                                      max.ncomp = 2, spv_penalty.list = c(0.5, 0.9),
+                                      n_run = 2, k_folds = 5, 
+                                      x.center = x.center, x.scale = x.scale, 
+                                      remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+                                      remove_variance_at_fold_level = F,
+                                      remove_non_significant_models = F, alpha = 0.05, 
+                                      w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL, max_time_points = 15,
+                                      MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
+                                      pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
+                                      MIN_EPV = 5, return_models = F, remove_non_significant = T,
+                                      PARALLEL = F, verbose = F, seed = 123)
 
 isb.splsicox_model #3.5min.
 
@@ -176,17 +175,17 @@ sb.splsdrcox_model
 
 ## ---- warning=F---------------------------------------------------------------
 isb.splsdrcox_model <- cv.isb.splsdrcox(X = X_train, Y = Y_train,
-                                                max.ncomp = 2, eta.list = c(0.5,0.9),
-                                                n_run = 2, k_folds = 10, 
-                                                x.center = x.center, x.scale = x.scale,
-                                                remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
-                                                remove_variance_at_fold_level = F,
-                                                remove_non_significant_models = F, alpha = 0.05, 
-                                                w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL, max_time_points = 15,
-                                                MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
-                                                pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
-                                                MIN_EPV = 5, return_models = F, remove_non_significant = T,
-                                                PARALLEL = F, verbose = F, seed = 123)
+                                        max.ncomp = 2, eta.list = c(0.5,0.9),
+                                        n_run = 2, k_folds = 10, 
+                                        x.center = x.center, x.scale = x.scale,
+                                        remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
+                                        remove_variance_at_fold_level = F,
+                                        remove_non_significant_models = F, alpha = 0.05, 
+                                        w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL, max_time_points = 15,
+                                        MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
+                                        pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
+                                        MIN_EPV = 5, return_models = F, remove_non_significant = T,
+                                        PARALLEL = F, verbose = F, seed = 123)
 
 isb.splsdrcox_model #0.8min
 

@@ -76,9 +76,11 @@
 #'
 #' \code{alpha}: alpha value selected
 #'
-#' \code{removed_variables_cox}: Variables removed by sparse penalty.
+#' \code{nsv}: Variables removed by cox alpha cutoff.
 #'
 #' \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
+#'
+#' \code{nz_coeffvar}: Variables removed by coefficient variation near zero.
 #'
 #' \code{class}: Model class.
 #'
@@ -153,6 +155,11 @@ splsdacox_dynamic <- function (X, Y,
                                           freqCut = FREQ_CUT)
   X <- lst_dnz$X
   variablesDeleted <- lst_dnz$variablesDeleted
+
+  #### COEF VARIATION
+  lst_dnzc <- deleteNearZeroCoefficientOfVariation(X = X)
+  X <- lst_dnzc$X
+  variablesDeleted_cvar <- lst_dnzc$variablesDeleted
 
   #### SCALING
   lst_scale <- XY.scale(X, Y, x.center, x.scale, y.center, y.scale)
@@ -376,8 +383,9 @@ splsdacox_dynamic <- function (X, Y,
                                       X_input = if(returnData) X_original else NA,
                                       Y_input = if(returnData) Y_original else NA,
                                       alpha = alpha,
-                                      removed_variables_cox = removed_variables,
+                                      nsv = removed_variables,
                                       nzv = variablesDeleted,
+                                      nz_coeffvar = variablesDeleted_cvar,
                                       class = pkg.env$splsdacox_dynamic,
                                       time = time)))
 }
@@ -558,6 +566,15 @@ cv.splsdacox_dynamic <- function(X, Y,
     variablesDeleted <- lst_dnz$variablesDeleted
   }else{
     variablesDeleted <- NULL
+  }
+
+  #### COEF VARIATION
+  if(!remove_variance_at_fold_level & (remove_near_zero_variance | remove_zero_variance)){
+    lst_dnzc <- deleteNearZeroCoefficientOfVariation(X = X)
+    X <- lst_dnzc$X
+    variablesDeleted_cvar <- lst_dnzc$variablesDeleted
+  }else{
+    variablesDeleted_cvar <- NULL
   }
 
   #### #
@@ -747,9 +764,38 @@ cv.splsdacox_dynamic <- function(X, Y,
 
   # invisible(gc())
   if(return_models){
-    return(cv.splsdacox_dynamic_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.nvar = best_model_info$n.var, plot_AIC = ggp_AIC, plot_c_index = ggp_c_index, plot_BRIER = ggp_BRIER, plot_AUC = ggp_AUC, class= pkg.env$cv.splsdacox_dynamic, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+    return(cv.splsdacox_dynamic_class(list(best_model_info = best_model_info,
+                                           df_results_folds = df_results_evals_fold,
+                                           df_results_runs = df_results_evals_run,
+                                           df_results_comps = df_results_evals_comp,
+                                           lst_models = comp_model_lst,
+                                           pred.method = pred.method,
+                                           opt.comp = best_model_info$n.comps,
+                                           opt.nvar = best_model_info$n.var,
+                                           plot_AIC = ggp_AIC,
+                                           plot_c_index = ggp_c_index,
+                                           plot_BRIER = ggp_BRIER,
+                                           plot_AUC = ggp_AUC,
+                                           class= pkg.env$cv.splsdacox_dynamic,
+                                           lst_train_indexes = lst_train_indexes,
+                                           lst_test_indexes = lst_test_indexes,
+                                           time = time)))
   }else{
-    return(cv.splsdacox_dynamic_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = NULL, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.nvar = best_model_info$n.var, plot_AIC = ggp_AIC, plot_c_index = ggp_c_index, plot_BRIER = ggp_BRIER, plot_AUC = ggp_AUC, class = pkg.env$cv.splsdacox_dynamic, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+    return(cv.splsdacox_dynamic_class(list(best_model_info = best_model_info,
+                                           df_results_folds = df_results_evals_fold,
+                                           df_results_runs = df_results_evals_run,
+                                           df_results_comps = df_results_evals_comp,
+                                           lst_models = NULL, pred.method = pred.method,
+                                           opt.comp = best_model_info$n.comps,
+                                           opt.nvar = best_model_info$n.var,
+                                           plot_AIC = ggp_AIC,
+                                           plot_c_index = ggp_c_index,
+                                           plot_BRIER = ggp_BRIER,
+                                           plot_AUC = ggp_AUC,
+                                           class = pkg.env$cv.splsdacox_dynamic,
+                                           lst_train_indexes = lst_train_indexes,
+                                           lst_test_indexes = lst_test_indexes,
+                                           time = time)))
   }
 
 }

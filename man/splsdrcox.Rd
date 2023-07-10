@@ -111,9 +111,11 @@ Instance of class "Coxmos" and model "sPLS-DRCOX". The class contains the follow
 
 \code{alpha}: alpha value selected
 
-\code{removed_variables_cox}: Variables removed by sparse penalty.
+\code{nsv}: Variables removed by cox alpha cutoff.
 
 \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
+
+\code{nz_coeffvar}: Variables removed by coefficient variation near zero.
 
 \code{class}: Model class.
 

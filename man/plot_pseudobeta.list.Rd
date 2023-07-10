@@ -22,7 +22,7 @@ plot_pseudobeta.list(
 
 \item{error.bar}{Logical. Show error bar (default: TRUE).}
 
-\item{onlySig}{Logical. Compute psudobetas using only significant components (default: FALSE).}
+\item{onlySig}{Logical. Compute pseudobetas using only significant components (default: FALSE).}
 
 \item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
 

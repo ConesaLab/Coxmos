@@ -13,7 +13,7 @@ deleteZeroOrNearZeroVariance.mb(
 )
 }
 \arguments{
-\item{X}{Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.}
+\item{X}{List of numeric matrices or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.}
 
 \item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).}
 

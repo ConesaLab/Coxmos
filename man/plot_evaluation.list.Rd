@@ -9,7 +9,17 @@ plot_evaluation.list(
   evaluation = "AUC",
   pred.attr = "mean",
   y.min = NULL,
-  type = "both"
+  type = "both",
+  round_times = FALSE,
+  decimals = 2,
+  title = NULL,
+  title_size_text = 15,
+  legend_title = "Method",
+  legend_size_text = 12,
+  x_axis_size_text = 10,
+  y_axis_size_text = 10,
+  label_x_axis_size = 10,
+  label_y_axis_size = 10
 )
 }
 \arguments{
@@ -22,6 +32,26 @@ plot_evaluation.list(
 \item{y.min}{Numeric. Minimum Y value for establish the Y axis value. If y.min = NULL, automatic detection is performed (default: NULL).}
 
 \item{type}{Character. Plot type. Must be one of the following: "both", "line" or "mean". In other case, "both" will be selected (default: "both").}
+
+\item{round_times}{Logical. Whether times x value should be rounded (default: FALSE).}
+
+\item{decimals}{Numeric. Number of decimals to use in round times. Must be a value greater or equal zero (default = 2).}
+
+\item{title}{Character. Plot title (default: NULL).}
+
+\item{title_size_text}{Numeric. Text size for legend title (default: 15).}
+
+\item{legend_title}{Character. Legend title (default: "Method").}
+
+\item{legend_size_text}{Numeric. Text size for legend title (default: 12).}
+
+\item{x_axis_size_text}{Numeric. Text size for x axis (default: 10).}
+
+\item{y_axis_size_text}{Numeric. Text size for y axis (default: 10).}
+
+\item{label_x_axis_size}{Numeric. Text size for x label axis (default: 10).}
+
+\item{label_y_axis_size}{Numeric. Text size for y label axis (default: 10).}
 }
 \description{
 Run the function "plot_evaluation" for a list of results. More information in "?plot_evaluation".

@@ -10,10 +10,16 @@ plot_evaluation(
   pred.attr = "mean",
   y.min = NULL,
   type = "both",
+  round_times = FALSE,
+  decimals = 2,
+  title = NULL,
+  title_size_text = 15,
   legend_title = "Method",
   legend_size_text = 12,
   x_axis_size_text = 10,
-  y_axis_size_text = 10
+  y_axis_size_text = 10,
+  label_x_axis_size = 10,
+  label_y_axis_size = 10
 )
 }
 \arguments{
@@ -27,6 +33,14 @@ plot_evaluation(
 
 \item{type}{Character. Plot type. Must be one of the following: "both", "line" or "mean". In other case, "both" will be selected (default: "both").}
 
+\item{round_times}{Logical. Whether times x value should be rounded (default: FALSE).}
+
+\item{decimals}{Numeric. Number of decimals to use in round times. Must be a value greater or equal zero (default = 2).}
+
+\item{title}{Character. Plot title (default: NULL).}
+
+\item{title_size_text}{Numeric. Text size for legend title (default: 15).}
+
 \item{legend_title}{Character. Legend title (default: "Method").}
 
 \item{legend_size_text}{Numeric. Text size for legend title (default: 12).}
@@ -34,6 +48,10 @@ plot_evaluation(
 \item{x_axis_size_text}{Numeric. Text size for x axis (default: 10).}
 
 \item{y_axis_size_text}{Numeric. Text size for y axis (default: 10).}
+
+\item{label_x_axis_size}{Numeric. Text size for x label axis (default: 10).}
+
+\item{label_y_axis_size}{Numeric. Text size for y label axis (default: 10).}
 }
 \description{
 Perform a evaluation test for the result object provided. It includes test comparison as "t.test", "anova", "wilcoxon", "kruscal-wallis". Furthermore, it generates plots for comparing the results.

@@ -63,9 +63,11 @@
 #'
 #' \code{alpha}: alpha value selected
 #'
-#' \code{removed_variables_cox}: Variables removed by sparse penalty.
+#' \code{nsv}: Variables removed by cox alpha cutoff.
 #'
 #' \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
+#'
+#' \code{nz_coeffvar}: Variables removed by coefficient variation near zero.
 #'
 #' \code{class}: Model class.
 #'
@@ -136,6 +138,11 @@ splsicox <- function(X, Y,
                                           freqCut = FREQ_CUT)
   X <- lst_dnz$X
   variablesDeleted <- lst_dnz$variablesDeleted
+
+  #### COEF VARIATION
+  lst_dnzc <- deleteNearZeroCoefficientOfVariation(X = X)
+  X <- lst_dnzc$X
+  variablesDeleted_cvar <- lst_dnzc$variablesDeleted
 
   #### SCALING
   lst_scale <- XY.scale(X, Y, x.center, x.scale, y.center, y.scale)
@@ -369,6 +376,7 @@ splsicox <- function(X, Y,
                                X_input = if(returnData) X_original else NA,
                                Y_input = if(returnData) Y_original else NA,
                                nzv = variablesDeleted,
+                               nz_coeffvar = variablesDeleted_cvar,
                                class = pkg.env$splsicox,
                                time = time)))
   }
@@ -582,8 +590,9 @@ splsicox <- function(X, Y,
                             X_input = if(returnData) X_original else NA,
                             Y_input = if(returnData) Y_original else NA,
                             alpha = alpha,
-                            removed_variables_cox = removed_variables,
+                            nsv = removed_variables,
                             nzv = variablesDeleted,
+                            nz_coeffvar = variablesDeleted_cvar,
                             class = pkg.env$splsicox,
                             time = time)))
 }
@@ -601,7 +610,7 @@ splsicox <- function(X, Y,
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
 #' @param max.ncomp Numeric. Maximum number of PLS components to compute for the cross validation (default: 10).
-#' @param spv_penalty.list Numeric vector. Penalty for variable selection for the individual cox models. Variables with a lower P-Value than 1 - "spv_penalty" in the individual cox analysis will be keep for the sPLS-ICOX approach (default: seq(0.1,1,0.1)).
+#' @param spv_penalty.list Numeric vector. Penalty for variable selection for the individual cox models. Variables with a lower P-Value than 1 - "spv_penalty" in the individual cox analysis will be keep for the sPLS-ICOX approach (default: seq(0.1,0.9,0.2)).
 #' @param n_run Numeric. Number of runs for cross validation (default: 5).
 #' @param k_folds Numeric. Number of folds for cross validation (default: 10).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
@@ -765,6 +774,15 @@ cv.splsicox <- function (X, Y,
     variablesDeleted <- lst_dnz$variablesDeleted
   }else{
     variablesDeleted <- NULL
+  }
+
+  #### COEF VARIATION
+  if(!remove_variance_at_fold_level & (remove_near_zero_variance | remove_zero_variance)){
+    lst_dnzc <- deleteNearZeroCoefficientOfVariation(X = X)
+    X <- lst_dnzc$X
+    variablesDeleted_cvar <- lst_dnzc$variablesDeleted
+  }else{
+    variablesDeleted_cvar <- NULL
   }
 
   #### #

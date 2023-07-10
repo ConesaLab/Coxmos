@@ -63,11 +63,13 @@
 #'
 #' \code{selected_variables_cox}: Variables selected to enter the cox model.
 #'
-#' \code{removed_variables_cox}: Variables removed by EN penalty.
+#' \code{nsv}: Variables removed by cox alpha cutoff.
 #'
 #' \code{removed_variables_correlation}: Variables removed by being high correlated with other variables.
 #'
 #' \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
+#'
+#' \code{nz_coeffvar}: Variables removed by coefficient variation near zero.
 #'
 #' \code{class}: Model class.
 #'
@@ -132,6 +134,11 @@ coxEN <- function(X, Y,
                                           freqCut = FREQ_CUT)
   X <- lst_dnz$X
   variablesDeleted <- lst_dnz$variablesDeleted
+
+  #### COEF VARIATION
+  lst_dnzc <- deleteNearZeroCoefficientOfVariation(X = X)
+  X <- lst_dnzc$X
+  variablesDeleted_cvar <- lst_dnzc$variablesDeleted
 
   #### SCALING
   lst_scale <- XY.scale(X, Y, x.center, x.scale, y.center, y.scale)
@@ -418,7 +425,7 @@ coxEN <- function(X, Y,
                           convergence_issue = problem,
                           alpha = alpha,
                           selected_variables_cox = selected_variables,
-                          removed_variables_cox = removed_variables,
+                          nsv = removed_variables,
                           nzv = variablesDeleted,
                           class = pkg.env$coxEN,
                           time = time)))
@@ -583,6 +590,15 @@ cv.coxEN <- function(X, Y,
     variablesDeleted <- lst_dnz$variablesDeleted
   }else{
     variablesDeleted <- NULL
+  }
+
+  #### COEF VARIATION
+  if(!remove_variance_at_fold_level & (remove_near_zero_variance | remove_zero_variance)){
+    lst_dnzc <- deleteNearZeroCoefficientOfVariation(X = X)
+    X <- lst_dnzc$X
+    variablesDeleted_cvar <- lst_dnzc$variablesDeleted
+  }else{
+    variablesDeleted_cvar <- NULL
   }
 
   #### #

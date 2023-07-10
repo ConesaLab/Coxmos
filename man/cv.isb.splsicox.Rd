@@ -8,7 +8,7 @@ cv.isb.splsicox(
   X,
   Y,
   max.ncomp = 10,
-  spv_penalty.list = seq(0.1, 1, 0.1),
+  spv_penalty.list = seq(0.1, 0.9, 0.2),
   n_run = 5,
   k_folds = 10,
   x.center = TRUE,
@@ -47,7 +47,7 @@ cv.isb.splsicox(
 
 \item{max.ncomp}{Numeric. Maximum number of PLS components to compute for the cross validation (default: 10).}
 
-\item{spv_penalty.list}{Numeric vector. Penalty for variable selection for the individual cox models. Variables with a lower P-Value than 1- "spv_penalty" in the individual cox analysis will be keep for the sPLS-ICOX approach (default: seq(0.1,1,0.1)).}
+\item{spv_penalty.list}{Numeric vector. Penalty for variable selection for the individual cox models. Variables with a lower P-Value than 1- "spv_penalty" in the individual cox analysis will be keep for the sPLS-ICOX approach (default: seq(0.1,0.9,0.2)).}
 
 \item{n_run}{Numeric. Number of runs for cross validation (default: 5).}
 
@@ -153,6 +153,8 @@ Instance of class "Coxmos" and model "sb.splsicox". The class contains the follo
 
 \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
 
+\code{nz_coeffvar}: Variables removed by coefficient variation near zero.
+
 \code{class}: Model class.
 
 \code{time}: time consumed for running the cox analysis.
@@ -163,6 +165,6 @@ cv.isb.splsicox cross validation model
 \examples{
 \dontrun{
 isb.splsicox_model <- cv.isb.splsicox(X, Y, max.ncomp = 10,
-spv_penalty.list = seq(0.1,1,0.1), x.center = TRUE, x.scale = TRUE)
+spv_penalty.list = seq(0.1,0.9,0.2), x.center = TRUE, x.scale = TRUE)
 }
 }

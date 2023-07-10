@@ -153,6 +153,8 @@ Instance of class "Coxmos" and model "sb.splscox". The class contains the follow
 
 \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
 
+\code{nz_coeffvar}: Variables removed by coefficient variation near zero.
+
 \code{class}: Model class.
 
 \code{time}: time consumed for running the cox analysis.
@@ -163,6 +165,6 @@ cv.isb.splsdrcox cross validation model
 \examples{
 \dontrun{
 isb.splsdrcox_model <- cv.isb.splsdrcox(X, Y, max.ncomp = 10,
-eta.list = seq(0.1,1,0.1), x.center = TRUE, x.scale = TRUE)
+eta.list = seq(0.1,0.9,0.2), x.center = TRUE, x.scale = TRUE)
 }
 }

@@ -84,9 +84,7 @@
 #'
 #' \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
 #'
-#' \code{time}: time consumed for running the cox analysis.
-#'
-#' \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
+#' \code{nz_coeffvar}: Variables removed by coefficient variation near zero.
 #'
 #' \code{time}: time consumed for running the cox analysis.
 #'
@@ -159,6 +157,11 @@ mb.splsdrcox <- function (X, Y,
                                              freqCut = FREQ_CUT)
   X <- lst_dnz$X
   variablesDeleted <- lst_dnz$variablesDeleted
+
+  #### COEF VARIATION
+  lst_dnzc <- deleteNearZeroCoefficientOfVariation.mb(X = X)
+  X <- lst_dnzc$X
+  variablesDeleted_cvar <- lst_dnzc$variablesDeleted
 
   #### SCALING
   lst_scale <- XY.mb.scale(X, Y, x.center, x.scale, y.center, y.scale)
@@ -397,6 +400,12 @@ mb.splsdrcox <- function (X, Y,
 
   survival_model <- cox_model$survival_model
 
+  if(isa(survival_model$fit,"coxph")){
+    survival_model <- getInfoCoxModel(survival_model$fit)
+  }else{
+    survival_model <- NULL
+  }
+
   #get W.star
   Tmat <- Pmat <- Cmat <- Wmat <- W.star <- B.hat <- list()
   for(i in 1:length(Xh)){
@@ -566,8 +575,9 @@ mb.splsdrcox <- function (X, Y,
                                  SCR = SCR,
                                  SCT = SCT,
                                  alpha = alpha,
-                                 removed_variables_cox = removed_variables,
+                                 nsv = removed_variables,
                                  nzv = variablesDeleted,
+                                 nz_coeffvar = variablesDeleted_cvar,
                                  class = pkg.env$mb.splsdrcox,
                                  time = time)))
 }
@@ -737,6 +747,15 @@ cv.mb.splsdrcox <- function(X, Y,
     variablesDeleted <- lst_dnz$variablesDeleted
   }else{
     variablesDeleted <- NULL
+  }
+
+  #### COEF VARIATION
+  if(!remove_variance_at_fold_level & (remove_near_zero_variance | remove_zero_variance)){
+    lst_dnzc <- deleteNearZeroCoefficientOfVariation.mb(X = X)
+    X <- lst_dnzc$X
+    variablesDeleted_cvar <- lst_dnzc$variablesDeleted
+  }else{
+    variablesDeleted_cvar <- NULL
   }
 
   #### MAX PREDICTORS

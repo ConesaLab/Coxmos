@@ -66,6 +66,8 @@
 #'
 #' \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
 #'
+#' \code{nz_coeffvar}: Variables removed by coefficient variation near zero.
+#'
 #' \code{class}: Model class.
 #'
 #' \code{time}: time consumed for running the cox analysis.
@@ -134,6 +136,11 @@ sb.splsdrcox <- function (X, Y,
                                             freqCut = FREQ_CUT)
   X <- lst_dnz$X
   variablesDeleted <- lst_dnz$variablesDeleted
+
+  #### COEF VARIATION
+  lst_dnzc <- deleteNearZeroCoefficientOfVariation.mb(X = X)
+  X <- lst_dnzc$X
+  variablesDeleted_cvar <- lst_dnzc$variablesDeleted
 
   #### SCALING
   lst_scale <- XY.mb.scale(X, Y, x.center, x.scale, y.center, y.scale)
@@ -210,6 +217,12 @@ sb.splsdrcox <- function (X, Y,
   #### ### #
   func_call <- match.call()
 
+  if(isa(cox_model$survival_model$fit,"coxph")){
+    survival_model <- getInfoCoxModel(cox_model$survival_model$fit)
+  }else{
+    survival_model <- NULL
+  }
+
   if(!returnData){
     survival_model <- removeInfoSurvivalModel(cox_model$survival_model)
   }else{
@@ -230,8 +243,9 @@ sb.splsdrcox <- function (X, Y,
                                 X_input = if(returnData) X_original else NA,
                                 Y_input = if(returnData) Y_original else NA,
                                 alpha = alpha,
-                                removed_variables_cox = removed_variables,
+                                nsv = removed_variables,
                                 nzv = variablesDeleted,
+                                nz_coeffvar = variablesDeleted_cvar,
                                 class = pkg.env$sb.splsdrcox,
                                 time = time)))
 }
@@ -306,7 +320,7 @@ sb.splsdrcox <- function (X, Y,
 #' @examples
 #' \dontrun{
 #' cv.sb.splsdrcox_model <- cv.sb.splsdrcox(X, Y, max.ncomp = 10,
-#' eta.list = seq(0.1,1,0.1), x.center = TRUE, x.scale = TRUE)
+#' eta.list = seq(0.1,0.9,0.2), x.center = TRUE, x.scale = TRUE)
 #' sb.splsdrcox_model <- sb.splsdrcox(X, Y, n.comp = cv.sb.splsdrcox_model$opt.comp,
 #' eta = cv.sb.splsdrcox_model$opt.eta, x.center = TRUE, x.scale = TRUE)
 #' }
@@ -403,6 +417,15 @@ cv.sb.splsdrcox <- function(X, Y,
     variablesDeleted <- lst_dnz$variablesDeleted
   }else{
     variablesDeleted <- NULL
+  }
+
+  #### COEF VARIATION
+  if(!remove_variance_at_fold_level & (remove_near_zero_variance | remove_zero_variance)){
+    lst_dnzc <- deleteNearZeroCoefficientOfVariation.mb(X = X)
+    X <- lst_dnzc$X
+    variablesDeleted_cvar <- lst_dnzc$variablesDeleted
+  }else{
+    variablesDeleted_cvar <- NULL
   }
 
   #### MAX PREDICTORS
@@ -695,6 +718,8 @@ cv.sb.splsdrcox <- function(X, Y,
 #'
 #' \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
 #'
+#' \code{nz_coeffvar}: Variables removed by coefficient variation near zero.
+#'
 #' \code{class}: Model class.
 #'
 #' \code{time}: time consumed for running the cox analysis.
@@ -704,7 +729,7 @@ cv.sb.splsdrcox <- function(X, Y,
 #' @examples
 #' \dontrun{
 #' isb.splsdrcox_model <- cv.isb.splsdrcox(X, Y, max.ncomp = 10,
-#' eta.list = seq(0.1,1,0.1), x.center = TRUE, x.scale = TRUE)
+#' eta.list = seq(0.1,0.9,0.2), x.center = TRUE, x.scale = TRUE)
 #' }
 
 cv.isb.splsdrcox <- function(X, Y,
@@ -815,6 +840,15 @@ cv.isb.splsdrcox <- function(X, Y,
     variablesDeleted <- NULL
   }
 
+  #### COEF VARIATION
+  if(!remove_variance_at_fold_level & (remove_near_zero_variance | remove_zero_variance)){
+    lst_dnzc <- deleteNearZeroCoefficientOfVariation.mb(X = X)
+    X <- lst_dnzc$X
+    variablesDeleted_cvar <- lst_dnzc$variablesDeleted
+  }else{
+    variablesDeleted_cvar <- NULL
+  }
+
   #### SCALING
   lst_scale <- XY.mb.scale(X, Y, x.center, x.scale, y.center, y.scale)
   Xh <- lst_scale$Xh
@@ -854,15 +888,15 @@ cv.isb.splsdrcox <- function(X, Y,
                                      pred.attr = pred.attr, pred.method = pred.method, seed = seed, PARALLEL = PARALLEL, returnData = F)
 
     lst_sb.spls[[b]] <- splsdrcox(X = Xh[[b]],
-                                 Y = Yh,
-                                 n.comp = cv.splsdrcox_res$opt.comp,
-                                 eta = cv.splsdrcox_res$opt.eta,
-                                 remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
-                                 remove_non_significant = remove_non_significant, alpha = alpha,
-                                 returnData = F,
-                                 x.center = x.center[[b]], x.scale = x.scale[[b]],
-                                 #y.scale = y.scale, y.center = y.center,
-                                 verbose = verbose)
+                                  Y = Yh,
+                                  n.comp = cv.splsdrcox_res$opt.comp,
+                                  eta = cv.splsdrcox_res$opt.eta,
+                                  remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
+                                  remove_non_significant = remove_non_significant, alpha = alpha,
+                                  returnData = F,
+                                  x.center = x.center[[b]], x.scale = x.scale[[b]],
+                                  #y.scale = y.scale, y.center = y.center,
+                                  verbose = verbose)
 
     t2 <- Sys.time()
     time <- difftime(t2,t1,units = "mins")
@@ -927,8 +961,10 @@ cv.isb.splsdrcox <- function(X, Y,
                                 X_input = if(returnData) X_original else NA,
                                 Y_input = if(returnData) Y_original else NA,
                                 alpha = alpha,
-                                removed_variables_cox = removed_variables,
-                                class = pkg.env$sb.splsdrcox,
+                                nsv = removed_variables,
+                                nzv = variablesDeleted,
+                                nz_coeffvar = variablesDeleted_cvar,
+                                class = pkg.env$isb.splsdrcox,
                                 time = time)))
 }
 

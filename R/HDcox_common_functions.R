@@ -159,7 +159,7 @@ norm01 <- function(x){
 #'
 #' @examples
 #' \dontrun{
-#' cv.model <- cv.splsicox(X,Y, max.ncomp = 10, spv_penalty.list = seq(0.1,1,0.1), n_run = 5,
+#' cv.model <- cv.splsicox(X,Y, max.ncomp = 10, spv_penalty.list = seq(0.1,0.9,0.2), n_run = 5,
 #' k_folds = 10)
 #' print.Coxmos(cv.model)
 #'
@@ -178,8 +178,8 @@ print.Coxmos <- function(x, ...){
       cat(paste0("A total of ", length(x$nzv), " variables have been removed due to Zero or Near-Zero Variance filter.\n\n"))
     }
 
-    if("removed_variables_cox" %in% names(x) && !is.null(x$removed_variables_cox)){
-      cat(paste0("A total of ", length(x$removed_variables_cox), " variables have been removed due to non-significance filter inside cox model.\n\n"))
+    if("nsv" %in% names(x) && !is.null(x$nsv)){
+      cat(paste0("A total of ", length(x$nsv), " variables have been removed due to non-significance filter inside cox model.\n\n"))
     }
 
     if(!all(is.null(x$survival_model))){
@@ -348,6 +348,27 @@ deleteZeroVarianceVariables <- function(data, mustKeep = NULL, names = NULL, inf
   #   }
   # }
   return(list(filteredData = df, variablesDeleted = df_cn_deleted))
+}
+
+#' deleteNearZeroCoefficientOfVariation
+#'
+#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
+#' @param LIMIT Numeric. Cutoff for minimum variation. If coefficient is lesser than the limit, the variables are removed because not vary enough (default: 0.1).
+#'
+#' @export
+deleteNearZeroCoefficientOfVariation <- function(X, LIMIT = 0.1){
+  variablesDeleted <- NULL
+  newX <- X
+
+  cvar <- apply(newX, 2, function(x){sd(x)/abs(mean(x))})
+  variablesDeleted <- names(cvar)[which(cvar <= LIMIT)]
+  if(length(variablesDeleted)>0){
+    newX <- newX[,!colnames(newX) %in% variablesDeleted]
+  }else{
+    variablesDeleted <- NULL
+  }
+
+  return(list("X" = newX, "variablesDeleted" = variablesDeleted))
 }
 
 #### ### ### ### ### ### #
@@ -1117,6 +1138,9 @@ getCOMPLETE_BRIER <- function(comp_index, eta_index = NULL, run, fold, X_test, Y
     # Needed - time/event/score for train and test dataframes
     # score is risk score (I do not know if survival probabilities or lp) - with lp is similar to pec
     # results changes depending which score are you selecting
+
+    # generates a cox model with train lp (sumary of your cox model) and uses test to compute the difference
+    # coment this better in the paper
 
     brier <- SURVCOMP_BRIER(model = model, X_test_mod = X_test_mod, Y_test = Y_test)
 

@@ -86,9 +86,11 @@
 #'
 #' \code{alpha}: alpha value selected
 #'
-#' \code{removed_variables_cox}: Variables removed by sparse penalty.
+#' \code{nsv}: Variables removed by cox alpha cutoff.
 #'
 #' \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
+#'
+#' \code{nz_coeffvar}: Variables removed by coefficient variation near zero.
 #'
 #' \code{class}: Model class.
 #'
@@ -168,6 +170,11 @@ splsdrcox_dynamic <- function (X, Y,
                                           freqCut = FREQ_CUT)
   X <- lst_dnz$X
   variablesDeleted <- lst_dnz$variablesDeleted
+
+  #### COEF VARIATION
+  lst_dnzc <- deleteNearZeroCoefficientOfVariation(X = X)
+  X <- lst_dnzc$X
+  variablesDeleted_cvar <- lst_dnzc$variablesDeleted
 
   #### SCALING
   lst_scale <- XY.scale(X, Y, x.center, x.scale, y.center, y.scale)
@@ -492,8 +499,9 @@ splsdrcox_dynamic <- function (X, Y,
                                       SCR = SCR,
                                       SCT = SCT,
                                       alpha = alpha,
-                                      removed_variables_cox = removed_variables,
+                                      nsv = removed_variables,
                                       nzv = variablesDeleted,
+                                      nz_coeffvar = variablesDeleted_cvar,
                                       class = pkg.env$splsdrcox_dynamic,
                                       time = time)))
 }
@@ -675,6 +683,15 @@ cv.splsdrcox_dynamic <- function (X, Y,
     variablesDeleted <- lst_dnz$variablesDeleted
   }else{
     variablesDeleted <- NULL
+  }
+
+  #### COEF VARIATION
+  if(!remove_variance_at_fold_level & (remove_near_zero_variance | remove_zero_variance)){
+    lst_dnzc <- deleteNearZeroCoefficientOfVariation(X = X)
+    X <- lst_dnzc$X
+    variablesDeleted_cvar <- lst_dnzc$variablesDeleted
+  }else{
+    variablesDeleted_cvar <- NULL
   }
 
   #### #

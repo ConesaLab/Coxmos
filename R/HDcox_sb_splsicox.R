@@ -66,6 +66,8 @@
 #'
 #' \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
 #'
+#' \code{nz_coeffvar}: Variables removed by coefficient variation near zero.
+#'
 #' \code{class}: Model class.
 #'
 #' \code{time}: time consumed for running the cox analysis.
@@ -126,7 +128,7 @@ sb.splsicox <- function(X, Y,
   time <- Y[,"time"]
   event <- Y[,"event"]
 
-  #### ZERO VARIANCE - ALWAYS
+  #### ZERO VARIANCE - ALWAYS bc run/fold
   lst_dnz <- deleteZeroOrNearZeroVariance.mb(X = X,
                                             remove_near_zero_variance = remove_near_zero_variance,
                                             remove_zero_variance = remove_zero_variance,
@@ -134,6 +136,11 @@ sb.splsicox <- function(X, Y,
                                             freqCut = FREQ_CUT)
   X <- lst_dnz$X
   variablesDeleted <- lst_dnz$variablesDeleted
+
+  #### COEF VARIATION - ALWAYS bc run/fold
+  lst_dnzc <- deleteNearZeroCoefficientOfVariation.mb(X = X)
+  X <- lst_dnzc$X
+  variablesDeleted_cvar <- lst_dnzc$variablesDeleted
 
   #### SCALING
   lst_scale <- XY.mb.scale(X = X, Y = Y, x.center = x.center, x.scale = x.scale, y.center = y.center, y.scale = y.scale)
@@ -197,16 +204,45 @@ sb.splsicox <- function(X, Y,
                    remove_near_zero_variance = F, remove_zero_variance = F,
                    remove_non_significant = remove_non_significant, FORCE = T)
 
+  # RETURN a MODEL with ALL significant Variables from complete, deleting one by one
+  removed_variables <- NULL
+  removed_variables_cor <- NULL
+  # REMOVE NA-PVAL VARIABLES
+  # p_val could be NA for some variables (if NA change to P-VAL=1)
+  # DO IT ALWAYS, we do not want problems in COX models
+  if(all(c("time", "event") %in% colnames(data))){
+    lst_model <- removeNAorINFcoxmodel(model = cox_model$survival_model$fit, data = data, time.value = NULL, event.value = NULL)
+  }else{
+    lst_model <- removeNAorINFcoxmodel(model = cox_model$survival_model$fit, data = cbind(data, Yh), time.value = NULL, event.value = NULL)
+  }
+  cox_model$survival_model$fit <- lst_model$model
+  removed_variables_cor <- c(removed_variables_cor, lst_model$removed_variables)
+
+  # RETURN a MODEL with ALL significant Variables from complete, deleting one by one in backward method
+  # already performed in cox() function
+  if(remove_non_significant){
+    removed_variables <- cox_model$nsv
+  }else{
+    removed_variables <- NULL
+  }
+
   #### ### #
   # RETURN #
   #### ### #
   func_call <- match.call()
 
-  if(!returnData){
-    survival_model <- removeInfoSurvivalModel(cox_model$survival_model)
+  if(isa(cox_model$survival_model$fit,"coxph")){
+    survival_model <- getInfoCoxModel(cox_model$survival_model$fit)
   }else{
-    survival_model <- cox_model$survival_model
+    survival_model <- NULL
   }
+
+  if(!returnData){
+    survival_model <- removeInfoSurvivalModel(survival_model)
+  }else{
+    survival_model <- survival_model
+  }
+
 
   t2 <- Sys.time()
   time <- difftime(t2,t1,units = "mins")
@@ -223,7 +259,10 @@ sb.splsicox <- function(X, Y,
                                 call = if(returnData) func_call else NA,
                                 X_input = if(returnData) X_original else NA,
                                 Y_input = if(returnData) Y_original else NA,
+                                alpha = alpha,
+                                nsv = removed_variables,
                                 nzv = variablesDeleted,
+                                nz_coeffvar = variablesDeleted_cvar,
                                 class = pkg.env$sb.splsicox,
                                 time = time)))
 }
@@ -238,7 +277,7 @@ sb.splsicox <- function(X, Y,
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
 #' @param max.ncomp Numeric. Maximum number of PLS components to compute for the cross validation (default: 10).
-#' @param spv_penalty.list Numeric vector. Penalty for variable selection for the individual cox models. Variables with a lower P-Value than 1 - "spv_penalty" in the individual cox analysis will be keep for the sPLS-ICOX approach (default: seq(0.1,1,0.1)).
+#' @param spv_penalty.list Numeric vector. Penalty for variable selection for the individual cox models. Variables with a lower P-Value than 1 - "spv_penalty" in the individual cox analysis will be keep for the sPLS-ICOX approach (default: seq(0.1,0.9,0.2)).
 #' @param n_run Numeric. Number of runs for cross validation (default: 5).
 #' @param k_folds Numeric. Number of folds for cross validation (default: 10).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
@@ -296,24 +335,23 @@ sb.splsicox <- function(X, Y,
 #'
 #' @examples
 #' \dontrun{
-#' cv.sb.splsicox_model <- cv.sb.splsicox(X, Y, max.ncomp = 10,
-#' spv_penalty.list = seq(0.1,1,0.1), x.center = TRUE, x.scale = TRUE)
+#' cv.sb.splsicox_model <- cv.sb.splsicox(X, Y, max.ncomp = 10
+#' spv_penalty.list = seq(0.1,0.9,0.2), x.center = TRUE, x.scale = TRUE)
 #' sb.splsicox_model <- sb.splsicox(X, Y, n.comp = cv.sb.splsicox_model$opt.comp,
 #' spv_penalty = cv.sb.splsicox_model$opt.spv_penalty, x.center = TRUE, x.scale = TRUE)
 #' }
 
-
 cv.sb.splsicox <- function(X, Y,
-                          max.ncomp = 10, spv_penalty.list = seq(0.1,1,0.1),
-                          n_run = 5, k_folds = 10,
-                          x.center = TRUE, x.scale = FALSE,
-                          remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL, remove_variance_at_fold_level = F,
-                          remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,
-                          w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL, max_time_points = 15,
-                          MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
-                          pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
-                          MIN_EPV = 5, return_models = F, returnData = F,
-                          PARALLEL = F, verbose = F, seed = 123){
+                           max.ncomp = 10, spv_penalty.list = seq(0.1,0.9,0.2),
+                           n_run = 5, k_folds = 10,
+                           x.center = TRUE, x.scale = FALSE,
+                           remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL, remove_variance_at_fold_level = F,
+                           remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,
+                           w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL, max_time_points = 15,
+                           MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
+                           pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
+                           MIN_EPV = 5, return_models = F, returnData = F,
+                           PARALLEL = F, verbose = F, seed = 123){
   # tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
   tol = 1e-10
 
@@ -395,6 +433,15 @@ cv.sb.splsicox <- function(X, Y,
     variablesDeleted <- lst_dnz$variablesDeleted
   }else{
     variablesDeleted <- NULL
+  }
+
+  #### COEF VARIATION
+  if(!remove_variance_at_fold_level & (remove_near_zero_variance | remove_zero_variance)){
+    lst_dnzc <- deleteNearZeroCoefficientOfVariation.mb(X = X)
+    X <- lst_dnzc$X
+    variablesDeleted_cvar <- lst_dnzc$variablesDeleted
+  }else{
+    variablesDeleted_cvar <- NULL
   }
 
   #### MAX PREDICTORS
@@ -594,9 +641,38 @@ cv.sb.splsicox <- function(X, Y,
 
   # invisible(gc())
   if(return_models){
-    return(cv.sb.splsicox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = lst_model, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.spv_penalty = best_model_info$eta, plot_AIC = ggp_AIC, plot_c_index = ggp_c_index, plot_BRIER = ggp_BRIER, plot_AUC = ggp_AUC, class = pkg.env$cv.sb.splsicox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+    return(cv.sb.splsicox_class(list(best_model_info = best_model_info,
+                                     df_results_folds = df_results_evals_fold,
+                                     df_results_runs = df_results_evals_run,
+                                     df_results_comps = df_results_evals_comp,
+                                     lst_models = lst_model,
+                                     pred.method = pred.method,
+                                     opt.comp = best_model_info$n.comps,
+                                     opt.spv_penalty = best_model_info$eta,
+                                     plot_AIC = ggp_AIC,
+                                     plot_c_index = ggp_c_index,
+                                     plot_BRIER = ggp_BRIER,
+                                     plot_AUC = ggp_AUC,
+                                     class = pkg.env$cv.sb.splsicox,
+                                     lst_train_indexes = lst_train_indexes,
+                                     lst_test_indexes = lst_test_indexes,
+                                     time = time)))
   }else{
-    return(cv.sb.splsicox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = NULL, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.spv_penalty = best_model_info$eta, plot_AIC = ggp_AIC, plot_c_index = ggp_c_index, plot_BRIER = ggp_BRIER, plot_AUC = ggp_AUC, class = pkg.env$cv.sb.splsicox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+    return(cv.sb.splsicox_class(list(best_model_info = best_model_info,
+                                     df_results_folds = df_results_evals_fold,
+                                     df_results_runs = df_results_evals_run,
+                                     df_results_comps = df_results_evals_comp,
+                                     lst_models = NULL, pred.method = pred.method,
+                                     opt.comp = best_model_info$n.comps,
+                                     opt.spv_penalty = best_model_info$eta,
+                                     plot_AIC = ggp_AIC,
+                                     plot_c_index = ggp_c_index,
+                                     plot_BRIER = ggp_BRIER,
+                                     plot_AUC = ggp_AUC,
+                                     class = pkg.env$cv.sb.splsicox,
+                                     lst_train_indexes = lst_train_indexes,
+                                     lst_test_indexes = lst_test_indexes,
+                                     time = time)))
   }
 }
 
@@ -606,7 +682,7 @@ cv.sb.splsicox <- function(X, Y,
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
 #' @param max.ncomp Numeric. Maximum number of PLS components to compute for the cross validation (default: 10).
-#' @param spv_penalty.list Numeric vector. Penalty for variable selection for the individual cox models. Variables with a lower P-Value than 1- "spv_penalty" in the individual cox analysis will be keep for the sPLS-ICOX approach (default: seq(0.1,1,0.1)).
+#' @param spv_penalty.list Numeric vector. Penalty for variable selection for the individual cox models. Variables with a lower P-Value than 1- "spv_penalty" in the individual cox analysis will be keep for the sPLS-ICOX approach (default: seq(0.1,0.9,0.2)).
 #' @param n_run Numeric. Number of runs for cross validation (default: 5).
 #' @param k_folds Numeric. Number of folds for cross validation (default: 10).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
@@ -682,6 +758,8 @@ cv.sb.splsicox <- function(X, Y,
 #'
 #' \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
 #'
+#' \code{nz_coeffvar}: Variables removed by coefficient variation near zero.
+#'
 #' \code{class}: Model class.
 #'
 #' \code{time}: time consumed for running the cox analysis.
@@ -691,11 +769,11 @@ cv.sb.splsicox <- function(X, Y,
 #' @examples
 #' \dontrun{
 #' isb.splsicox_model <- cv.isb.splsicox(X, Y, max.ncomp = 10,
-#' spv_penalty.list = seq(0.1,1,0.1), x.center = TRUE, x.scale = TRUE)
+#' spv_penalty.list = seq(0.1,0.9,0.2), x.center = TRUE, x.scale = TRUE)
 #' }
 
 cv.isb.splsicox <- function(X, Y,
-                               max.ncomp = 10, spv_penalty.list = seq(0.1,1,0.1),
+                               max.ncomp = 10, spv_penalty.list = seq(0.1,0.9,0.2),
                                n_run = 5, k_folds = 10,
                                x.center = TRUE, x.scale = FALSE,
                                remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL, remove_variance_at_fold_level = F,
@@ -800,6 +878,15 @@ cv.isb.splsicox <- function(X, Y,
     variablesDeleted <- NULL
   }
 
+  #### COEF VARIATION
+  if(!remove_variance_at_fold_level & (remove_near_zero_variance | remove_zero_variance)){
+    lst_dnzc <- deleteNearZeroCoefficientOfVariation.mb(X = X)
+    X <- lst_dnzc$X
+    variablesDeleted_cvar <- lst_dnzc$variablesDeleted
+  }else{
+    variablesDeleted_cvar <- NULL
+  }
+
   #### SCALING
   lst_scale <- XY.mb.scale(X, Y, x.center, x.scale, y.center, y.scale)
   Xh <- lst_scale$Xh
@@ -841,6 +928,7 @@ cv.isb.splsicox <- function(X, Y,
     lst_sb.pls[[b]] <- splsicox(X = Xh[[b]],
                                 Y = Yh,
                                 n.comp = cv.splsdrcox_res$opt.comp,
+                                spv_penalty = cv.splsdrcox_res$opt.spv_penalty,
                                 remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
                                 remove_non_significant = remove_non_significant, alpha = alpha,
                                 returnData = F,
@@ -919,8 +1007,10 @@ cv.isb.splsicox <- function(X, Y,
                                  X_input = if(returnData) X_original else NA,
                                  Y_input = if(returnData) Y_original else NA,
                                  alpha = alpha,
-                                 removed_variables_cox = removed_variables,
-                                 class = pkg.env$sb.splsicox,
+                                 nsv = removed_variables,
+                                 nzv = variablesDeleted,
+                                 nz_coeffvar = variablesDeleted_cvar,
+                                 class = pkg.env$isb.splsicox,
                                  time = time)))
 }
 

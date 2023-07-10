@@ -13,7 +13,13 @@ plot_pseudobeta(
   top = NULL,
   auto.limits = T,
   show_percentage = T,
-  size_percentage = 3
+  size_percentage = 3,
+  title_size_text = 15,
+  legend_size_text = 12,
+  x_axis_size_text = 10,
+  y_axis_size_text = 10,
+  label_x_axis_size = 10,
+  label_y_axis_size = 10
 )
 }
 \arguments{
@@ -21,7 +27,7 @@ plot_pseudobeta(
 
 \item{error.bar}{Logical. Show error bar (default: TRUE).}
 
-\item{onlySig}{Logical. Compute psudobetas using only significant components (default: FALSE).}
+\item{onlySig}{Logical. Compute pseudobetas using only significant components (default: FALSE).}
 
 \item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
 
@@ -34,6 +40,18 @@ plot_pseudobeta(
 \item{show_percentage}{Logical. If show_percentage = TRUE, it shows the contribution percentage for each variable to the full model (default: TRUE).}
 
 \item{size_percentage}{Numeric. Size of percentage text (default: 3).}
+
+\item{title_size_text}{Numeric. Text size for legend title (default: 15).}
+
+\item{legend_size_text}{Numeric. Text size for legend title (default: 12).}
+
+\item{x_axis_size_text}{Numeric. Text size for x axis (default: 10).}
+
+\item{y_axis_size_text}{Numeric. Text size for y axis (default: 10).}
+
+\item{label_x_axis_size}{Numeric. Text size for x label axis (default: 10).}
+
+\item{label_y_axis_size}{Numeric. Text size for y label axis (default: 10).}
 }
 \description{
 Decompose a PLS-cox model into a original variable pseudo-beta interpretation. As each component has associated a cox coeffitient, and each component has a weight related to the original variable. Cox final formula is expressed in terms of original variables.
