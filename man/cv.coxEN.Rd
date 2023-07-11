@@ -9,7 +9,7 @@ cv.coxEN(
   Y,
   EN.alpha.list = seq(0, 1, 0.1),
   max.variables = 15,
-  n_run = 5,
+  n_run = 3,
   k_folds = 10,
   x.center = TRUE,
   x.scale = FALSE,
@@ -48,7 +48,7 @@ cv.coxEN(
 
 \item{max.variables}{Numeric. Maximum number of variables you want to keep in the cox model. If MIN_EPV is not meet, the value will be change automatically (default: 20).}
 
-\item{n_run}{Numeric. Number of runs for cross validation (default: 5).}
+\item{n_run}{Numeric. Number of runs for cross validation (default: 3).}
 
 \item{k_folds}{Numeric. Number of folds for cross validation (default: 10).}
 

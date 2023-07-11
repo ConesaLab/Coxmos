@@ -152,3 +152,9 @@ mb.splsdacox(X, Y)
 mb.splsdacox(X, Y, n.comp = 3, vector = NULL, x.center = TRUE, x.scale = TRUE)
 }
 }
+\references{
+\insertRef{MixOmics}{Coxmos}
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

@@ -49,3 +49,9 @@ Performs a Kaplan-Meier plot for the Coxmos model selected. KM could be based on
 getAutoKM(type = "LP", model)
 }
 }
+\references{
+\insertRef{Kaplan_1958}{Coxmos}
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

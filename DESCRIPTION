@@ -22,6 +22,7 @@ Imports:
     MASS,
     progress,
     purrr,
+    Rdpack,
     scattermore,
     stats,
     survcomp,
@@ -43,6 +44,8 @@ Enhances:
 Depends: 
     R (>= 4.1.0),
     mixOmics (>= 6.18.1)
+RdMacros:
+    Rdpack
 LazyData: true
 NeedsCompilation: yes
 VignetteBuilder: knitr

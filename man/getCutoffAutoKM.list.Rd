@@ -17,3 +17,9 @@ Run the function "getCutoffAutoKM" for a list of models. More information in "?g
 getCutoffAutoKM.list(lst_results)
 }
 }
+\references{
+\insertRef{Kaplan_1958}{Coxmos}
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

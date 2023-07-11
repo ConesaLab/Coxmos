@@ -115,3 +115,10 @@ coxSW(X, Y)
 coxSW(X, Y, x.center = TRUE, x.scale = TRUE)
 }
 }
+\references{
+\insertRef{Efroymson_SW}{Coxmos}
+\insertRef{coxSW_CRAN}{Coxmos}
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

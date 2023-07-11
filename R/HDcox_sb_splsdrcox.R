@@ -259,9 +259,9 @@ sb.splsdrcox <- function (X, Y,
 #'
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
-#' @param max.ncomp Numeric. Maximum number of PLS components to compute for the cross validation (default: 10).
-#' @param eta.list Numeric vector. Vector of penalty values.
-#' @param n_run Numeric. Number of runs for cross validation (default: 5).
+#' @param max.ncomp Numeric. Maximum number of PLS components to compute for the cross validation (default: 8).
+#' @param eta.list Numeric vector. Vector of penalty values (default: seq(0.1,0.9,0.2)).
+#' @param n_run Numeric. Number of runs for cross validation (default: 3).
 #' @param k_folds Numeric. Number of folds for cross validation (default: 10).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
@@ -326,8 +326,8 @@ sb.splsdrcox <- function (X, Y,
 #' }
 
 cv.sb.splsdrcox <- function(X, Y,
-                           max.ncomp = 10, eta.list = seq(0.1,0.9,0.1),
-                           n_run = 5, k_folds = 10,
+                           max.ncomp = 8, eta.list = seq(0.1,0.9,0.2),
+                           n_run = 3, k_folds = 10,
                            x.center = TRUE, x.scale = FALSE,
                            remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL, remove_variance_at_fold_level = F,
                            remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,
@@ -641,9 +641,9 @@ cv.sb.splsdrcox <- function(X, Y,
 #'
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
-#' @param max.ncomp Numeric. Maximum number of PLS components to compute for the cross validation (default: 10).
-#' @param eta.list Numeric vector. Vector of penalty values.
-#' @param n_run Numeric. Number of runs for cross validation (default: 5).
+#' @param max.ncomp Numeric. Maximum number of PLS components to compute for the cross validation (default: 8).
+#' @param eta.list Numeric vector. Vector of penalty values (default: seq(0.1,0.9,0.2)).
+#' @param n_run Numeric. Number of runs for cross validation (default: 3).
 #' @param k_folds Numeric. Number of folds for cross validation (default: 10).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
@@ -733,8 +733,8 @@ cv.sb.splsdrcox <- function(X, Y,
 #' }
 
 cv.isb.splsdrcox <- function(X, Y,
-                                max.ncomp = 10, eta.list = seq(0.1,0.9,0.1),
-                                n_run = 5, k_folds = 10,
+                                max.ncomp = 8, eta.list = seq(0.1,0.9,0.2),
+                                n_run = 3, k_folds = 10,
                                 x.center = TRUE, x.scale = FALSE,
                                 remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL, remove_variance_at_fold_level = F,
                                 remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,

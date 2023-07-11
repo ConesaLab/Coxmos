@@ -95,11 +95,22 @@ This function performs a cox model (based on survival::coxph R package).
 The function returns a Coxmos model with the attribute model as "cox".
 }
 \details{
-If \code{"MIN_EPV"} condition is not meet,
+This function only can manage right-censored data.
+
+If \code{"MIN_EPV"} (ratio between number of events per variables selected in final model) condition is not meet, the cox model could no to be computed.
+Cox algorithm is not prepare to work with high dimensional data, in that case is better to perform coxEN() or PLS based cox methods.
 }
 \examples{
 \dontrun{
 cox(X, Y)
 cox(X, Y, x.center = TRUE, x.scale = TRUE)
 }
+}
+\references{
+\insertRef{Cox_1972}{Coxmos}
+\insertRef{Concato_1995}{Coxmos}
+\insertRef{survival_package}{Coxmos}
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 }

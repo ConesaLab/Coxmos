@@ -7,13 +7,13 @@
 cv.mb.splsdacox(
   X,
   Y,
-  max.ncomp = 10,
+  max.ncomp = 8,
   vector = NULL,
   MIN_NVAR = 10,
   MAX_NVAR = 10000,
   n.cut_points = 5,
   EVAL_METHOD = "AUC",
-  n_run = 5,
+  n_run = 3,
   k_folds = 10,
   x.center = TRUE,
   x.scale = FALSE,
@@ -50,7 +50,7 @@ cv.mb.splsdacox(
 
 \item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.}
 
-\item{max.ncomp}{Numeric. Maximum number of PLS components to compute for the cross validation (default: 10).}
+\item{max.ncomp}{Numeric. Maximum number of PLS components to compute for the cross validation (default: 8).}
 
 \item{vector}{Numeric vector. Used for computing best number of variables. As many values as components have to be provided. If vector = NULL, an automatic detection is perform (default: NULL).}
 
@@ -62,7 +62,7 @@ cv.mb.splsdacox(
 
 \item{EVAL_METHOD}{Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best number of variables. In other case, c-index metrix will be used (default: "AUC").}
 
-\item{n_run}{Numeric. Number of runs for cross validation (default: 5).}
+\item{n_run}{Numeric. Number of runs for cross validation (default: 3).}
 
 \item{k_folds}{Numeric. Number of folds for cross validation (default: 10).}
 
@@ -152,7 +152,7 @@ cv.mb.splsdacox cross validation model
 }
 \examples{
 \dontrun{
-cv.mb.splsdacox_model <- cv.splsdacox_dynamic(X, Y, max.ncomp = 10, vector = NULL,
+cv.mb.splsdacox_model <- cv.splsdacox_dynamic(X, Y, max.ncomp = 8, vector = NULL,
 x.center = TRUE, x.scale = TRUE)
 mb.splsdacox_model <- mb.splsdacox(X, Y, n.comp = cv.mb.splsdacox_model$opt.comp,
 vector = cv.mb.splsdacox_model$opt.nvar, x.center = TRUE, x.scale = TRUE)

@@ -67,6 +67,12 @@
 #'
 #' \code{time}: time consumed for running the cox analysis.
 #'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+#'
+#' @references
+#' \insertRef{Efroymson_SW}{Coxmos}
+#' \insertRef{coxSW_CRAN}{Coxmos}
+#'
 #' @export
 #'
 #' @examples

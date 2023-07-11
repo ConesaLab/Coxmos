@@ -113,3 +113,9 @@ splsicox(X, Y)
 splsicox(X, Y, n.comp = 3, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
 }
 }
+\references{
+\insertRef{Bastien_2005}{Coxmos}
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

@@ -17,3 +17,9 @@ Gets the cutoff value from the results of getAutoKM() functions.
 getCutoffAutoKM(result)
 }
 }
+\references{
+\insertRef{Kaplan_1958}{Coxmos}
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

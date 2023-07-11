@@ -131,3 +131,10 @@ splsdrcox(X, Y)
 splsdrcox(X, Y, n.comp = 3, eta = 0.25, x.center = TRUE, x.scale = TRUE)
 }
 }
+\references{
+\insertRef{Bastien_2008}{Coxmos}
+\insertRef{Bastien_2015}{Coxmos}
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

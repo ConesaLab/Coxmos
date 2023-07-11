@@ -18,7 +18,7 @@ it is a cross-validated model.
 }
 \examples{
 \dontrun{
-cv.model <- cv.splsicox(X,Y, max.ncomp = 10, spv_penalty.list = seq(0.1,0.9,0.2), n_run = 5,
+cv.model <- cv.splsicox(X,Y, max.ncomp = 8, spv_penalty.list = seq(0.1,0.9,0.2), n_run = 5,
 k_folds = 10)
 print.Coxmos(cv.model)
 

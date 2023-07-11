@@ -49,3 +49,9 @@ Run the function "getAutoKM" for a list of models. More information in "?getAuto
 getAutoKM.list(type = "LP", lst_models)
 }
 }
+\references{
+\insertRef{Kaplan_1958}{Coxmos}
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

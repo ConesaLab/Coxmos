@@ -2425,6 +2425,15 @@ plot_proportionalHazard.list <- function(lst_models){
 #'
 #' @param model Coxmos model.
 #' @return A ggplot2 plot.
+#'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+#'
+#' @references
+#' \insertRef{survival_package}{Coxmos}
+#' \insertRef{survminer_package}{Coxmos}
+#' \insertRef{Grambsch_1994}{Coxmos}
+#' \insertRef{Schoenfeld_1982}{Coxmos}
+#'
 #' @export
 #'
 #' @examples
@@ -3559,6 +3568,11 @@ plot_MB.pseudobeta.newPatient <- function(model, new_observation, error.bar = T,
 #' @param title Character. Kaplan-Meier plot title (default: NULL).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+#'
+#' @references
+#' \insertRef{Kaplan_1958}{Coxmos}
+#'
 #' @export
 #'
 #' @examples
@@ -3611,6 +3625,11 @@ getAutoKM.list <- function(type = "LP", lst_models, comp = 1:2, top = NULL, ori_
 #' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
 #' @param title Character. Kaplan-Meier plot title (default: NULL).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
+#'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+#'
+#' @references
+#' \insertRef{Kaplan_1958}{Coxmos}
 #'
 #' @export
 #'
@@ -4749,6 +4768,11 @@ plot_survivalplot.qual <- function(data, sdata, cn_variables, name_data = NULL, 
 #'
 #' @param lst_results List of lists. Result of getAutoKM.list() function.
 #'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+#'
+#' @references
+#' \insertRef{Kaplan_1958}{Coxmos}
+#'
 #' @export
 #'
 #' @examples
@@ -4766,6 +4790,11 @@ getCutoffAutoKM.list <- function(lst_results){
 
 #' getCutoffAutoKM
 #' @description Gets the cutoff value from the results of getAutoKM() functions.
+#'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+#'
+#' @references
+#' \insertRef{Kaplan_1958}{Coxmos}
 #'
 #' @param result List. Result of getAutoKM() function.
 #'
@@ -4820,6 +4849,11 @@ getCutoffAutoKM <- function(result){
 #' @param n.breaks Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to compute (default: 20).
 #' @param title Character. Kaplan-Meier plot title (default: NULL).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
+#'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+#'
+#' @references
+#' \insertRef{Kaplan_1958}{Coxmos}
 #'
 #' @export
 #'
@@ -4884,6 +4918,11 @@ getTestKM.list <- function(lst_models, X_test, Y_test, lst_cutoff, type = "LP", 
 #' @param BREAKTIME Numeric. Size of time to split the data into "total_time / BREAKTIME + 1" points. If BREAKTIME = NULL, "n.breaks" is used (default: NULL).
 #' @param n.breaks Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to compute (default: 20).
 #' @param title Character. Kaplan-Meier plot title (default: NULL).
+#'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+#'
+#' @references
+#' \insertRef{Kaplan_1958}{Coxmos}
 #'
 #' @export
 #'

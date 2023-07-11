@@ -21,3 +21,12 @@ It uses the functions "survival::cox.zph" and "survminer::ggcoxzph", but it retu
 plot_proportionalHazard(model)
 }
 }
+\references{
+\insertRef{survival_package}{Coxmos}
+\insertRef{survminer_package}{Coxmos}
+\insertRef{Grambsch_1994}{Coxmos}
+\insertRef{Schoenfeld_1982}{Coxmos}
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

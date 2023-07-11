@@ -75,6 +75,11 @@
 #'
 #' \code{time}: time consumed for running the cox analysis.
 #'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+#'
+#' @references
+#' \insertRef{Simon_2011}{Coxmos}
+#'
 #' @export
 #'
 #' @examples
@@ -441,7 +446,7 @@ coxEN <- function(X, Y,
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
 #' @param EN.alpha.list Numeric vector. Elastic net mixing parameter values to test in cross validation. EN.alpha = 1 is the lasso penalty, and EN.alpha = 0 the ridge penalty (default: seq(0,1,0.1)).
 #' @param max.variables Numeric. Maximum number of variables you want to keep in the cox model. If MIN_EPV is not meet, the value will be change automatically (default: 20).
-#' @param n_run Numeric. Number of runs for cross validation (default: 5).
+#' @param n_run Numeric. Number of runs for cross validation (default: 3).
 #' @param k_folds Numeric. Number of folds for cross validation (default: 10).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
@@ -504,7 +509,7 @@ coxEN <- function(X, Y,
 cv.coxEN <- function(X, Y,
                      EN.alpha.list = seq(0,1,0.1),
                      max.variables = 15,
-                     n_run = 5, k_folds = 10,
+                     n_run = 3, k_folds = 10,
                      x.center = TRUE, x.scale = FALSE,
                      remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL, remove_variance_at_fold_level = F,
                      remove_non_significant = F, alpha = 0.05,

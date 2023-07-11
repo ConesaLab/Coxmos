@@ -115,3 +115,9 @@ coxEN(X, Y)
 coxEN(X, Y, EN.alpha = 0.75, x.center = TRUE, x.scale = TRUE)
 }
 }
+\references{
+\insertRef{Simon_2011}{Coxmos}
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

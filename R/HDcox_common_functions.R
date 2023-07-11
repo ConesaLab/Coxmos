@@ -1,5 +1,6 @@
 #' @importFrom caret nearZeroVar createFolds
 #' @importFrom cowplot plot_grid
+#' @import furrr
 #' @importFrom future availableCores plan
 #' @import ggrepel
 #' @import ggplot2
@@ -8,6 +9,7 @@
 #' @importFrom MASS ginv
 #' @import progress
 #' @import purrr
+#' @importFrom Rdpack reprompt
 #' @importFrom scattermore geom_scattermore
 #' @import stats
 #' @import survival
@@ -16,7 +18,6 @@
 #' @importFrom tidyr pivot_longer starts_with
 #' @import utils
 #' @importFrom mixOmics spls plsda block.spls block.splsda tune.spls
-#' @import furrr
 
 #@importFrom survAUC predErr
 #suggest #grDevices
@@ -159,7 +160,7 @@ norm01 <- function(x){
 #'
 #' @examples
 #' \dontrun{
-#' cv.model <- cv.splsicox(X,Y, max.ncomp = 10, spv_penalty.list = seq(0.1,0.9,0.2), n_run = 5,
+#' cv.model <- cv.splsicox(X,Y, max.ncomp = 8, spv_penalty.list = seq(0.1,0.9,0.2), n_run = 5,
 #' k_folds = 10)
 #' print.Coxmos(cv.model)
 #'
@@ -4609,6 +4610,17 @@ checkTestTimesVSTrainTimes <- function(lst_models, Y_test){
 #' @param max_time_points Numeric. Maximum number of time points to use for evaluating the model (default: 15).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #' @param progress_bar Logical. If progress_bar = TRUE, progress bar is shown (default = TRUE).
+#'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+#'
+#' @references
+#' \insertRef{C_INDEX}{Coxmos}
+#' \insertRef{survcomp_IBRIER}{Coxmos}
+#' \insertRef{survivalROC}{Coxmos}
+#' \insertRef{risksetROC}{Coxmos}
+#' \insertRef{cenROC}{Coxmos}
+#' \insertRef{nsROC}{Coxmos}
+#' \insertRef{smoothROCtime_RPackage}{Coxmos}
 #'
 #' @export
 #'

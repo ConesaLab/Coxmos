@@ -2,10 +2,6 @@
 # METHODS #
 #### ### ##
 
-#y.center Logical. If y.center = TRUE, Y matrix is centered to zero means (default: FALSE).
-#y.scale Logical. If y.scale = TRUE, Y matrix is scaled to unit variances (default: FALSE).
-
-
 #' cox
 #' @description This function performs a cox model (based on survival::coxph R package).
 #' The function returns a Coxmos model with the attribute model as "cox".
@@ -24,7 +20,11 @@
 #' @param returnData Logical. Return original and normalized X and Y matrices (default: TRUE).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #'
-#' @details If \code{"MIN_EPV"} condition is not meet,
+#' @details
+#' This function only can manage right-censored data.
+#'
+#' If \code{"MIN_EPV"} (ratio between number of events per variables selected in final model) condition is not meet, the cox model could no to be computed.
+#' Cox algorithm is not prepare to work with high dimensional data, in that case is better to perform coxEN() or PLS based cox methods.
 #'
 #' @return Instance of class "Coxmos" and model "cox". The class contains the following elements:
 #'
@@ -67,6 +67,13 @@
 #' \code{class}: Model class.
 #'
 #' \code{time}: time consumed for running the cox analysis.
+#'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+#'
+#' @references
+#' \insertRef{Cox_1972}{Coxmos}
+#' \insertRef{Concato_1995}{Coxmos}
+#' \insertRef{survival_package}{Coxmos}
 #'
 #' @export
 #'

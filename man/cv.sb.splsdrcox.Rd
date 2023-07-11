@@ -7,9 +7,9 @@
 cv.sb.splsdrcox(
   X,
   Y,
-  max.ncomp = 10,
-  eta.list = seq(0.1, 0.9, 0.1),
-  n_run = 5,
+  max.ncomp = 8,
+  eta.list = seq(0.1, 0.9, 0.2),
+  n_run = 3,
   k_folds = 10,
   x.center = TRUE,
   x.scale = FALSE,
@@ -45,11 +45,11 @@ cv.sb.splsdrcox(
 
 \item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.}
 
-\item{max.ncomp}{Numeric. Maximum number of PLS components to compute for the cross validation (default: 10).}
+\item{max.ncomp}{Numeric. Maximum number of PLS components to compute for the cross validation (default: 8).}
 
-\item{eta.list}{Numeric vector. Vector of penalty values.}
+\item{eta.list}{Numeric vector. Vector of penalty values (default: seq(0.1,0.9,0.2)).}
 
-\item{n_run}{Numeric. Number of runs for cross validation (default: 5).}
+\item{n_run}{Numeric. Number of runs for cross validation (default: 3).}
 
 \item{k_folds}{Numeric. Number of folds for cross validation (default: 10).}
 

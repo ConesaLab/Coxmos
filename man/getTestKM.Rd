@@ -44,3 +44,9 @@ cutoff <- getCutoffAutoKM(KM_RES_LP)
 getTestKM(model, X_test, Y_test, cutoff)
 }
 }
+\references{
+\insertRef{Kaplan_1958}{Coxmos}
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

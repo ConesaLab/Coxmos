@@ -88,6 +88,11 @@
 #'
 #' \code{time}: time consumed for running the cox analysis.
 #'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+#'
+#' @references
+#' \insertRef{MixOmics}{Coxmos}
+#'
 #' @export
 #'
 #' @examples
@@ -591,13 +596,13 @@ mb.splsdrcox <- function (X, Y,
 #'
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
-#' @param max.ncomp Numeric. Maximum number of PLS components to compute for the cross validation (default: 10).
+#' @param max.ncomp Numeric. Maximum number of PLS components to compute for the cross validation (default: 8).
 #' @param vector Numeric vector. Used for computing best number of variables. As many values as components have to be provided. If vector = NULL, an automatic detection is perform (default: NULL).
 #' @param MIN_NVAR Numeric. Minimum range size for computing cut points to select the best number of variables to use (default: 10).
 #' @param MAX_NVAR Numeric. Maximum range size for computing cut points to select the best number of variables to use (default: 1000).
 #' @param n.cut_points Numeric. Number of cut points for searching the optimal number of variables. If only two cut points are selected, minimum and maximum size are used (default: 5)
 #' @param EVAL_METHOD Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best number of variables. In other case, c-index metrix will be used (default: "AUC").
-#' @param n_run Numeric. Number of runs for cross validation (default: 5).
+#' @param n_run Numeric. Number of runs for cross validation (default: 3).
 #' @param k_folds Numeric. Number of folds for cross validation (default: 10).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
@@ -655,16 +660,16 @@ mb.splsdrcox <- function (X, Y,
 #'
 #' @examples
 #' \dontrun{
-#' cv.mb.splsdrcox_model <- cv.splsdacox_dynamic(X, Y, max.ncomp = 10, vector = NULL,
+#' cv.mb.splsdrcox_model <- cv.splsdacox_dynamic(X, Y, max.ncomp = 8, vector = NULL,
 #' x.center = TRUE, x.scale = TRUE)
 #' mb.splsdrcox_model <- mb.splsdrcox(X, Y, n.comp = cv.mb.splsdrcox_model$opt.comp,
 #' vector = cv.mb.splsdrcox_model$opt.nvar, x.center = TRUE, x.scale = TRUE)
 #' }
 
 cv.mb.splsdrcox <- function(X, Y,
-                            max.ncomp = 10, vector = NULL,
+                            max.ncomp = 8, vector = NULL,
                             MIN_NVAR = 10, MAX_NVAR = 10000, n.cut_points = 5, EVAL_METHOD = "AUC",
-                            n_run = 5, k_folds = 10,
+                            n_run = 3, k_folds = 10,
                             x.center = TRUE, x.scale = FALSE,
                             remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL, remove_variance_at_fold_level = F,
                             remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,

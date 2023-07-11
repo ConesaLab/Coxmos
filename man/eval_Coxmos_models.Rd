@@ -56,3 +56,15 @@ lst_models <- list("splsicox" = model, "splsdrcox" = model_drcox)
 eval_Coxmos_models(lst_models, X_test, Y_test, pred.method = "cenROC")
 }
 }
+\references{
+\insertRef{C_INDEX}{Coxmos}
+\insertRef{survcomp_IBRIER}{Coxmos}
+\insertRef{survivalROC}{Coxmos}
+\insertRef{risksetROC}{Coxmos}
+\insertRef{cenROC}{Coxmos}
+\insertRef{nsROC}{Coxmos}
+\insertRef{smoothROCtime_RPackage}{Coxmos}
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

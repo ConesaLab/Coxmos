@@ -96,6 +96,13 @@
 #'
 #' \code{time}: time consumed for running the cox analysis.
 #'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+#'
+#' @references
+#' \insertRef{Bastien_2008}{Coxmos}
+#' \insertRef{Bastien_2015}{Coxmos}
+#' \insertRef{MixOmics}{Coxmos}
+#'
 #' @export
 #'
 #' @examples
@@ -515,9 +522,9 @@ splsdrcox_dynamic <- function (X, Y,
 #'
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
-#' @param max.ncomp Numeric. Maximum number of PLS components to compute for the cross validation (default: 10).
+#' @param max.ncomp Numeric. Maximum number of PLS components to compute for the cross validation (default: 8).
 #' @param vector Numeric vector. Used for computing best number of variables. As many values as components have to be provided. If vector = NULL, an automatic detection is perform (default: NULL).
-#' @param n_run Numeric. Number of runs for cross validation (default: 5).
+#' @param n_run Numeric. Number of runs for cross validation (default: 3).
 #' @param k_folds Numeric. Number of folds for cross validation (default: 10).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
@@ -579,15 +586,15 @@ splsdrcox_dynamic <- function (X, Y,
 #'
 #' @examples
 #' \dontrun{
-#' cv.splsdrcox_dynamic_model <- cv.splsdrcox_dynamic(X, Y, max.ncomp = 10, vector = NULL,
+#' cv.splsdrcox_dynamic_model <- cv.splsdrcox_dynamic(X, Y, max.ncomp = 8, vector = NULL,
 #' x.center = TRUE, x.scale = TRUE)
 #' splsdrcox_model <- splsdrcox(X, Y, n.comp = cv.splsdrcox_dynamic_model$opt.comp,
 #' vector = cv.splsdrcox_dynamic_model$opt.nvar, x.center = TRUE, x.scale = TRUE)
 #' }
 
 cv.splsdrcox_dynamic <- function (X, Y,
-                                  max.ncomp = 10, vector = NULL,
-                                  n_run = 5, k_folds = 10,
+                                  max.ncomp = 8, vector = NULL,
+                                  n_run = 3, k_folds = 10,
                                   x.center = TRUE, x.scale = FALSE,
                                   remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL, remove_variance_at_fold_level = F,
                                   remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,

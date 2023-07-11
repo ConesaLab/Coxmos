@@ -154,3 +154,11 @@ splsdrcox_dynamic(X, Y)
 splsdrcox_dynamic(X, Y, n.comp = 3, vector = NULL, x.center = TRUE, x.scale = TRUE)
 }
 }
+\references{
+\insertRef{Bastien_2008}{Coxmos}
+\insertRef{Bastien_2015}{Coxmos}
+\insertRef{MixOmics}{Coxmos}
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}
