@@ -4223,19 +4223,20 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
       vars <- list()
       vars_data <- list()
 
-      if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$isb.splsicox, pkg.env$sb.splsdrcox, pkg.env$isb.splsdrcox)){
-        aux <- model$list_spls_models[[b]]
-      }
-
       if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox, pkg.env$isb.splsicox, pkg.env$isb.splsdrcox)){
+        aux <- model$list_spls_models[[b]]
 
-        for(c in comp){
-          if(ncol(aux$X$W.star)>=c){
-            rn <- rownames(aux$X$W.star[aux$X$W.star[,c]!=0,c,drop=F])
-            vars[[c]] <- rownames(aux$X$W.star[rn,,drop=F])[order(abs(aux$X$W.star[rn,c]), decreasing = T)][1:min(top, length(rn))]
-          }else{
-            break
+        if(!is.null(aux$survival_model)){
+          for(c in comp){
+            if(ncol(aux$X$W.star)>=c){
+              rn <- rownames(aux$X$W.star[aux$X$W.star[,c]!=0,c,drop=F])
+              vars[[c]] <- rownames(aux$X$W.star[rn,,drop=F])[order(abs(aux$X$W.star[rn,c]), decreasing = T)][1:min(top, length(rn))]
+            }else{
+              break
+            }
           }
+        }else{
+          next
         }
 
       }else if(attr(model, "model") %in% c(pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
