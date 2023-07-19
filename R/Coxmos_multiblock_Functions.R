@@ -107,7 +107,7 @@ deleteNearZeroCoefficientOfVariation.mb <- function(X, LIMIT = 0.1){
 
   variablesDeleted <- purrr::map(variablesDeleted, ~{.==0;NULL})
 
-  return(list("X" = newX, "variablesDeleted" = variablesDeleted))
+  return(list("X" = newX, "variablesDeleted" = variablesDeleted, "coeff_variation" = cvar))
 }
 
 checkXY.rownames.mb <- function(X, Y, verbose = T){

@@ -132,13 +132,17 @@ coxEN <- function(X, Y,
   event <- Y[,"event"]
 
   #### ZERO VARIANCE - ALWAYS
-  lst_dnz <- deleteZeroOrNearZeroVariance(X = X,
-                                          remove_near_zero_variance = remove_near_zero_variance,
-                                          remove_zero_variance = remove_zero_variance,
-                                          toKeep.zv = toKeep.zv,
-                                          freqCut = FREQ_CUT)
-  X <- lst_dnz$X
-  variablesDeleted <- lst_dnz$variablesDeleted
+  if(remove_near_zero_variance || remove_zero_variance){
+    lst_dnz <- deleteZeroOrNearZeroVariance(X = X,
+                                            remove_near_zero_variance = remove_near_zero_variance,
+                                            remove_zero_variance = remove_zero_variance,
+                                            toKeep.zv = toKeep.zv,
+                                            freqCut = FREQ_CUT)
+    X <- lst_dnz$X
+    variablesDeleted <- lst_dnz$variablesDeleted
+  }else{
+    variablesDeleted <- NULL
+  }
 
   #### COEF VARIATION
   lst_dnzc <- deleteNearZeroCoefficientOfVariation(X = X)

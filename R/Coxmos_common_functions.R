@@ -369,7 +369,7 @@ deleteNearZeroCoefficientOfVariation <- function(X, LIMIT = 0.1){
     variablesDeleted <- NULL
   }
 
-  return(list("X" = newX, "variablesDeleted" = variablesDeleted))
+  return(list("X" = newX, "variablesDeleted" = variablesDeleted, "coeff_variation" = cvar))
 }
 
 #### ### ### ### ### ### #

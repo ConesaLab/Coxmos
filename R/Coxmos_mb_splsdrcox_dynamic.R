@@ -2,9 +2,9 @@
 # METHODS #
 #### ### ##
 
-#' MB.sPLS-DACOX
-#' @description This function performs a multi-block sparse partial least squares discriminant analysis Cox (MB.sPLS-DACOX) by dynamic variable selection methodology.
-#' The function returns a Coxmos model with the attribute model as "MB.sPLS-DACOX".
+#' MB.sPLS-DRCOX
+#' @description This function performs a multi-block sparse partial least squares deviance residual Cox (MB.sPLS-DRCOX) by dynamic variable selection methodology.
+#' The function returns a Coxmos model with the attribute model as "MB.sPLS-DRCOX".
 #'
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
@@ -12,7 +12,7 @@
 #' @param vector Numeric vector. Used for computing best number of variables. As many values as components have to be provided. If vector = NULL, an automatic detection is perform (default: NULL).
 #' @param MIN_NVAR Numeric. Minimum range size for computing cut points to select the best number of variables to use (default: 10).
 #' @param MAX_NVAR Numeric. Maximum range size for computing cut points to select the best number of variables to use (default: 1000).
-#' @param n.cut_points Numeric. Number of cut points for searching the optimal number of variables. If only two cut points are selected, minimum and maximum size are used (default: 5)
+#' @param n.cut_points Numeric. Number of cut points for searching the optimal number of variables. If only two cut points are selected, minimum and maximum size are used. For MB approaches as many as n.cut_points^n.blocks models will be computed as minimum (default: 5).
 #' @param EVAL_METHOD Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best number of variables. In other case, c-index metrix will be used (default: "AUC").
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
@@ -30,7 +30,7 @@
 #' @param returnData Logical. Return original and normalized X and Y matrices (default: TRUE).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #'
-#' @return Instance of class "Coxmos" and model "MB.sPLS-DACOX". The class contains the following elements:
+#' @return Instance of class "Coxmos" and model "MB.sPLS-DRCOX". The class contains the following elements:
 #' \code{X}: List of normalized X data information.
 #' \itemize{
 #'  \item \code{(data)}: normalized X matrix
@@ -62,7 +62,7 @@
 #'  \item \code{Yresidus}: Y residuals.
 #' }
 #'
-#' \code{mb.model}: List of splsdacox_dynamic models computed for each block.
+#' \code{mb.model}: List of sPLS-ICOX models computed for each block.
 #'
 #' \code{n.comp}: Number of components selected.
 #'
@@ -88,12 +88,6 @@
 #'
 #' \code{time}: time consumed for running the cox analysis.
 #'
-#' \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
-#'
-#' \code{nz_coeffvar}: Variables removed by coefficient variation near zero.
-#'
-#' \code{time}: time consumed for running the cox analysis.
-#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @references
@@ -103,17 +97,18 @@
 #'
 #' @examples
 #' \dontrun{
-#' mb.splsdacox(X, Y)
-#' mb.splsdacox(X, Y, n.comp = 3, vector = NULL, x.center = TRUE, x.scale = TRUE)
+#' mb.splsdrcox(X, Y)
+#' mb.splsdrcox(X, Y, n.comp = 3, vector = NULL, x.center = TRUE, x.scale = TRUE)
 #' }
 
-mb.splsdacox <- function (X, Y,
+mb.splsdrcox <- function (X, Y,
                           n.comp = 4, vector = NULL,
                           MIN_NVAR = 10, MAX_NVAR = 10000, n.cut_points = 5, EVAL_METHOD = "AUC",
                           x.center = TRUE, x.scale = FALSE,
                           remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
                           remove_non_significant = T, alpha = 0.05,
-                          MIN_AUC_INCREASE = 0.01, pred.method = "cenROC", max.iter = 200,
+                          MIN_AUC_INCREASE = 0.01,
+                          pred.method = "cenROC", max.iter = 200,
                           times = NULL, max_time_points = 15,
                           MIN_EPV = 5, returnData = T, verbose = F){
   # tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
@@ -161,10 +156,10 @@ mb.splsdacox <- function (X, Y,
 
   #### ZERO VARIANCE - ALWAYS
   lst_dnz <- deleteZeroOrNearZeroVariance.mb(X = X,
-                                            remove_near_zero_variance = remove_near_zero_variance,
-                                            remove_zero_variance = remove_zero_variance,
-                                            toKeep.zv = toKeep.zv,
-                                            freqCut = FREQ_CUT)
+                                             remove_near_zero_variance = remove_near_zero_variance,
+                                             remove_zero_variance = remove_zero_variance,
+                                             toKeep.zv = toKeep.zv,
+                                             freqCut = FREQ_CUT)
   X <- lst_dnz$X
   variablesDeleted <- lst_dnz$variablesDeleted
 
@@ -195,9 +190,36 @@ mb.splsdacox <- function (X, Y,
   XXNA <- purrr::map(Xh, ~is.na(.)) #T is NA
   YNA <- is.na(Y) #T is NA
 
-  #### ### ### ### ### ### ### ### ### ### ### ##
-  ### ##         MB.sPLSDA-COX             ### ##
-  #### ### ### ### ### ### ### ### ### ### ### ##
+  #### ### ### ### ### ### ### ### ### ### ###
+  # ##          MB:sPLS-COX              ## ##
+  #### ### ### ### ### ### ### ### ### ### ###
+
+  #2. Surv function - NULL model
+  coxDR <- survival::coxph(survival::Surv(time = time, event = event, type = "right") ~ 1, as.data.frame(Xh))
+
+  #3. Residuals - Default is deviance because eval type="deviance"
+  DR_coxph <- residuals(coxDR, type = "deviance") #"martingale", "deviance", "score", "schoenfeld", "dfbeta"', "dfbetas", "scaledsch" and "partial"
+
+  #### ### ### ### ### ### ### ### ### ### ### ###
+  #### ### ### ### ### ### ### ### ### ### ### ###
+  ##                                            ##
+  ##  Beginning of the loop for the components  ##
+  ##                                            ##
+  #### ### ### ### ### ### ### ### ### ### ### ###
+  #### ### ### ### ### ### ### ### ### ### ### ###
+
+  #4. MO-sPLS Algorithm
+  n_var <- purrr::map(Xh, ~ncol(.))
+  n_dr <- purrr::map(DR_coxph, ~ncol(.))
+
+  if(any(unlist(purrr::map(n_dr, ~is.null(.))))){
+    n_dr[unlist(purrr::map(n_dr, ~is.null(.)))==T] = 1
+  }
+
+  #CENTER DEVIANCE RESIUDALS
+  mu <- mean(DR_coxph) #equivalent because Y it is not normalized
+  DR_coxph <- scale(DR_coxph, center = mu, scale = FALSE) #center DR to DR / patients
+  DR_coxph_ori <- DR_coxph
 
   # set up a full design where every block is connected
   design = matrix(1, ncol = length(Xh), nrow = length(Xh),
@@ -212,12 +234,10 @@ mb.splsdacox <- function (X, Y,
     times <- getTimesVector(Yh, max_time_points)
   }
 
-  DR_coxph = NULL #not used in plsda
-
   if(is.null(vector)){
     lst_BV <- getBestVectorMB(Xh = Xh, DR_coxph = DR_coxph, Yh = Yh, n.comp = n.comp, max.iter = max.iter, vector = vector,
                               MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, cut_points = n.cut_points,
-                              EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = F, mode = "splsda", times = times,
+                              EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = F, mode = "spls", times = times,
                               max_time_points = max_time_points, verbose = verbose)
     keepX <- lst_BV$best.keepX
     plotVAR <- plot_VAR_eval(lst_BV, EVAL_METHOD = EVAL_METHOD)
@@ -231,8 +251,8 @@ mb.splsdacox <- function (X, Y,
         #more than one value... just take the first one
         keepX <- purrr::map(keepX, ~rep(.[[1]], n.comp))
       }
+
     }else{
-      #vector is the same length of blocks in X (so each value correspond to each vector)
       if(length(vector)==length(X)){
         keepX <- list()
         for(e in 1:length(vector)){
@@ -243,7 +263,7 @@ mb.splsdacox <- function (X, Y,
         message("Vector does not has the proper structure. Optimizing best n.variables by using your vector as start vector.")
         lst_BV <- getBestVectorMB(Xh = Xh, DR_coxph = DR_coxph, Yh = Yh, n.comp = n.comp, max.iter = max.iter, vector = vector,
                                   MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, cut_points = n.cut_points,
-                                  EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = F, mode = "splsda", times = times,
+                                  EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = F, mode = "spls", times = times,
                                   max_time_points = max_time_points, verbose = verbose)
         keepX <- lst_BV$best.keepX
         plotVAR <- plot_VAR_eval(lst_BV, EVAL_METHOD = EVAL_METHOD)
@@ -251,7 +271,7 @@ mb.splsdacox <- function (X, Y,
     }
   }
 
-  mb.splsda <- mixOmics::block.splsda(Xh, Yh[,"event"], scale=F, ncomp = n.comp, keepX = keepX, max.iter = max.iter, near.zero.var = F, all.outputs = T)
+  mb.spls <- mixOmics::block.spls(Xh, DR_coxph_ori, ncomp = n.comp, keepX = keepX, scale = F, all.outputs = T, near.zero.var = F)
 
   #PREDICTION
   #both methods return same values
@@ -260,7 +280,7 @@ mb.splsdacox <- function (X, Y,
     # Specifying expression
     # pmax - coefficients to be non-zero
     expr = {
-      predict(mb.splsda, newdata=Xh) #mixomics
+      predict(mb.spls, newdata=Xh) #mixomics
     },
     error = function(e){
       if(verbose){
@@ -268,13 +288,13 @@ mb.splsdacox <- function (X, Y,
       }
       # Estimation matrix W, P and C
       predict <- list()
-      for(block in names(mb.splsda$X)){
+      for(block in names(mb.spls$X)){
         if(block == "Y"){
           next
         }
-        Pmat = crossprod(mb.splsda$X[[block]], mb.splsda$variates[[block]])
-        Cmat = crossprod(mb.splsda$ind.mat, mb.splsda$variates[[block]]) #if DA analysis, the unmap Y is in ind.mat
-        Wmat = mb.splsda$loadings[[block]]
+        Pmat = crossprod(mb.spls$X[[block]], mb.spls$variates[[block]])
+        Cmat = crossprod(mb.spls$X$Y, mb.spls$variates[[block]])
+        Wmat = mb.spls$loadings[[block]]
         # PW <- tryCatch(expr = {MASS::ginv(t(Pmat) %*% Wmat)},
         #                error = function(e){
         #                  if(verbose){
@@ -297,7 +317,7 @@ mb.splsdacox <- function (X, Y,
 
         Ypred = lapply(1:n.comp, function(x){Xh[[block]] %*% Wmat[, 1:x] %*% PW[[x]] %*% t(Cmat)[1:x, ]})
         Ypred = sapply(Ypred, function(x){x}, simplify = "array")
-        predict[[block]] = array(Ypred, c(nrow(mb.splsda$X[[block]]), ncol(mb.splsda$ind.mat), n.comp)) # in case one observation and only one Y, we need array() to keep it an array with a third dimension being ncomp
+        predict[[block]] = array(Ypred, c(nrow(mb.spls$X[[block]]), ncol(mb.spls$X$Y), n.comp)) # in case one observation and only one Y, we need array() to keep it an array with a third dimension being ncomp
       }
 
       predplsfit <- list()
@@ -312,54 +332,54 @@ mb.splsdacox <- function (X, Y,
     SCT[[block]] <- list()
     R2[[block]] <- list()
     for(h in 1:n.comp){
-      E[[block]][[h]] <- Yh[,"event"] - predplsfit$predict[[block]][,,h]
+      E[[block]][[h]] <- DR_coxph_ori - predplsfit$predict[[block]][,,h]
 
       SCR[[block]][[h]] = sum(apply(E[[block]][[h]],2,function(x) sum(x**2)))
-      SCT[[block]][[h]] = sum(apply(as.matrix(Yh[,"event"]),2,function(x) sum(x**2))) #equivalent sum((Yh[,"event"] - mean(Yh[,"event"]))**2)
+      SCT[[block]][[h]] = sum(apply(as.matrix(DR_coxph_ori),2,function(x) sum(x**2))) #equivalent sum((DR_coxph_ori - mean(DR_coxph_ori))**2)
 
       R2[[block]][[h]] = 1 - (SCR[[block]][[h]]/SCT[[block]][[h]]) #deviance residuals explanation
     }
-    R2[[block]] = mb.splsda$prop_expl_var[[block]]
+    R2[[block]] = mb.spls$prop_expl_var[[block]]
   }
 
-  #### ### ### ### ### ### ### ### ### ### ### #
+  #### ### ### ### ### ### #### ### ### ### ###
   #                                            #
   #      Computation of the coefficients       #
   #      of the model with kk components       #
   #                                            #
-  #### ### ### ### ### ### ### ### ### ### ### #
+  #### ### ### ### ### ### #### ### ### ### ###
 
-  #### ### ### ### ### ### ### ### ### ### ### ###
-  ### ###         MB:sPLSDA-COX            ### ###
-  #### ### ### ### ### ### ### ### ### ### ### ###
-  n.comp_used <- ncol(mb.splsda$variates$Y) #can be lesser than expected because we have lesser variables to select because penalization
+  #### ### ### ### ### ### #### ### ### ### ##
+  ### ##              PLS-COX            ### ##
+  #### ### ### ### ### ### #### ### ### ### ##
+  n.comp_used <- ncol(mb.spls$variates$Y) #can be lesser than expected because we have lesser variables to select because penalization
 
   n.varX_used <- list()
   for(i in names(Xh)){
     aux <- list()
     for(j in 1:n.comp){
-      aux[[j]] <- rownames(mb.splsda$loadings[[i]][which(mb.splsda$loadings[[i]][,j]!=0),j,drop=F])
+      aux[[j]] <- rownames(mb.spls$loadings[[i]][which(mb.spls$loadings[[i]][,j]!=0),j,drop=F])
     }
-    names(aux) <- colnames(mb.splsda$loadings[[i]])
+    names(aux) <- colnames(mb.spls$loadings[[i]])
     n.varX_used[[i]] <- aux
   }
 
-  data <- as.data.frame(mb.splsda$variates[[1]][,,drop=F])
+  data <- as.data.frame(mb.spls$variates[[1]][,,drop=F])
   for(b in names(Xh)[2:length(Xh)]){
-    data <- cbind(data, as.data.frame(mb.splsda$variates[[b]][,,drop=F]))
+    data <- cbind(data, as.data.frame(mb.spls$variates[[b]][,,drop=F]))
   }
 
-  update_colnames <- paste0("comp_", 1:ncol(mb.splsda$variates[[1]]))
+  update_colnames <- paste0("comp_", 1:ncol(mb.spls$variates[[1]]))
   colnames(data) <- apply(expand.grid(update_colnames, names(Xh)), 1, paste, collapse="_")
+
   cox_model <- cox(X = data, Y = Yh,
                    x.center = F, x.scale = F,
                    #y.center = F, y.scale = F,
-                   alpha = alpha, remove_non_significant = F, FORCE = T)
+                   remove_non_significant = F, alpha = alpha, FORCE = T)
 
   # RETURN a MODEL with ALL significant Variables from complete, deleting one by one
   removed_variables <- NULL
   removed_variables_cor <- NULL
-
   # REMOVE NA-PVAL VARIABLES
   # p_val could be NA for some variables (if NA change to P-VAL=1)
   # DO IT ALWAYS, we do not want problems in COX models
@@ -395,23 +415,23 @@ mb.splsdacox <- function (X, Y,
   Tmat <- Pmat <- Cmat <- Wmat <- W.star <- B.hat <- list()
   for(i in 1:length(Xh)){
     #select just features != 0 (selected features)
-    names <- purrr::map(1:n.comp_used, ~rownames(mb.splsda$loadings[[i]])[which(mb.splsda$loadings[[i]][,.,drop=F]!=0)])
+    names <- purrr::map(1:n.comp_used, ~rownames(mb.spls$loadings[[i]])[which(mb.spls$loadings[[i]][,.,drop=F]!=0)])
     all_names <- unique(unlist(names))
 
     aux_Pmat = matrix(data = 0, nrow = ncol(Xh[[i]]), ncol = n.comp_used)
     rownames(aux_Pmat) <- colnames(Xh[[i]])
-    colnames(aux_Pmat) <- colnames(mb.splsda$loadings[[i]])
+    colnames(aux_Pmat) <- colnames(mb.spls$loadings[[i]])
 
     for(c in 1:n.comp_used){
-      names <- rownames(mb.splsda$loadings[[i]])[which(mb.splsda$loadings[[i]][,c,drop=F]!=0)]
-      aux <- crossprod(Xh[[i]][,names,drop=F], mb.splsda$variates[[i]][,c])
+      names <- rownames(mb.spls$loadings[[i]])[which(mb.spls$loadings[[i]][,c,drop=F]!=0)]
+      aux <- crossprod(Xh[[i]][,names,drop=F], mb.spls$variates[[i]][,c])
       aux_Pmat[names,c] = aux
     }
 
     Pmat[[i]] = aux_Pmat
-    Cmat[[i]] = crossprod(Yh[,"event"], mb.splsda$variates[[i]])
-    Wmat[[i]] = mb.splsda$loadings[[i]]
-    Tmat[[i]] = mb.splsda$variates[[i]]
+    Cmat[[i]] = crossprod(Yh[,"event"], mb.spls$variates[[i]])
+    Wmat[[i]] = mb.spls$loadings[[i]]
+    Tmat[[i]] = mb.spls$variates[[i]]
 
     colnames(Wmat[[i]]) <- paste0("comp_", 1:ncol(Wmat[[i]]))
     colnames(Pmat[[i]]) <- paste0("comp_", 1:ncol(Pmat[[i]]))
@@ -422,13 +442,13 @@ mb.splsdacox <- function (X, Y,
 
     aux_W.star = matrix(data = 0, nrow = ncol(Xh[[i]]), ncol = n.comp_used)
     rownames(aux_W.star) <- colnames(Xh[[i]])
-    colnames(aux_W.star) <- colnames(mb.splsda$loadings[[i]])
+    colnames(aux_W.star) <- colnames(mb.spls$loadings[[i]])
 
     for(c in 1:n.comp_used){
-      names <- rownames(mb.splsda$loadings[[i]])[which(mb.splsda$loadings[[i]][,c,drop=F]!=0)]
+      names <- rownames(mb.spls$loadings[[i]])[which(mb.spls$loadings[[i]][,c,drop=F]!=0)]
 
       if(is.null(Pmat[[i]][names,c,drop=F]) | is.null(Wmat[[i]][names,c,drop=F])){
-        message(paste0(pkg.env$mb.splsdacox, " model cannot be computed because P or W vectors are NULL. Returning NA."))
+        message(paste0(pkg.env$mb.splsdrcox, " model cannot be computed because P or W vectors are NULL. Returning NA."))
         # invisible(gc())
         return(NA)
       }
@@ -453,7 +473,7 @@ mb.splsdacox <- function (X, Y,
                      })
 
       if(all(is.na(PW))){
-        message(paste0(pkg.env$mb.splsdacox," model cannot be computed due to ginv(t(P) %*% W). Multicollineality could be present in your data. Returning NA."))
+        message(paste0(pkg.env$mb.splsdrcox," model cannot be computed due to ginv(t(P) %*% W). Multicollineality could be present in your data. Returning NA."))
         # invisible(gc())
         return(NA)
       }
@@ -472,17 +492,17 @@ mb.splsdacox <- function (X, Y,
   # #get W.star
   # Tmat <- Pmat <- Cmat <- Wmat <- W.star <- B.hat <- list()
   # for(i in 1:length(Xh)){
-  #   Pmat[[i]] = crossprod(Xh[[i]], mb.splsda$variates[[i]])
-  #   Cmat[[i]] = crossprod(Yh[,"event"], mb.splsda$variates[[i]])
-  #   Wmat[[i]] = mb.splsda$loadings[[i]]
-  #   Tmat[[i]] = mb.splsda$variates[[i]]
+  #   Pmat[[i]] = crossprod(Xh[[i]], mb.spls$variates[[i]])
+  #   Cmat[[i]] = crossprod(DR_coxph_ori, mb.spls$variates[[i]])
+  #   Wmat[[i]] = mb.spls$loadings[[i]]
+  #   Tmat[[i]] = mb.spls$variates[[i]]
   #
   #   colnames(Wmat[[i]]) <- paste0("comp_", 1:ncol(Wmat[[i]]))
   #   colnames(Pmat[[i]]) <- paste0("comp_", 1:ncol(Pmat[[i]]))
   #   colnames(Tmat[[i]]) <- paste0("comp_", 1:ncol(Tmat[[i]]))
   #
   #   # W.star[[i]] <- lapply(1:n.comp, function(x){Wmat[[i]][,1:x,drop=F] %*% solve(t(Pmat[[i]][,1:x,drop=F]) %*% Wmat[[i]][, 1:x,drop=F])})
-  #   # B.hat[[i]] <- lapply(1:n.comp, function(x){W.star[[i]][[x]][,1:x,drop=F] %*% t(Cmat[[i]][,1:x,drop=F])})
+  #   # B.hat[[i]] <- lapply(1:n.comp, function(x){Wmat[[i]][,1:x,drop=F] %*% solve(t(Pmat[[i]][,1:x,drop=F]) %*% Wmat[[i]][,1:x,drop=F]) %*% t(Cmat)[[i]][,1:x,drop=F]})
   #
   #   W.star[[i]] <- Wmat[[i]][,1:n.comp_used,drop=F] %*% solve(t(Pmat[[i]][,1:n.comp_used,drop=F]) %*% Wmat[[i]][, 1:n.comp_used,drop=F])
   #   B.hat[[i]] <- W.star[[i]] %*% t(Cmat[[i]][,1:n.comp_used,drop=F])
@@ -496,35 +516,35 @@ mb.splsdacox <- function (X, Y,
   names(B.hat) <- names(Xh)
 
   #MIX Omics, a la hora de generar los nuevos scores para nuevas X (o las mismas de entrenamiento),
-  #a parte de realizar la multiplicacion X*W.STAR, realiza luego una normalización de los scores en base a la norma de la propia X usada,
+  #a parte de realizar la multiplicacion X*W.STAR, realiza luego una normalizacion de los scores en base a la norma de la propia X usada,
   #de esa manera, en el multiblock de SPLS los resultados no coinciden con los de la funcion predict de MIXOMICS. La siguiente linea es
   #la que se ejecuta una vez realizado el calculo de los nuevos SCORES.
 
   # head(predplsfit$variates$genes)
-  # head(mb.splsda$X$genes %*% W.star[[1]][[n.comp]])
-  # head(mb.splsda$X$genes %*% W.star[[1]][[n.comp]])
-  # head(mb.splsda$X$genes %*% Wmat[[1]] %*% solve(t(Pmat[[1]]) %*% Wmat[[1]]))
+  # head(mb.spls$X$genes %*% W.star[[1]][[n.comp]])
+  # head(mb.spls$X$genes %*% W.star[[1]][[n.comp]])
+  # head(mb.spls$X$genes %*% Wmat[[1]] %*% solve(t(Pmat[[1]]) %*% Wmat[[1]]))
   # #
   # Pmat[[1]] = crossprod(Xh$genes, tt_mbsplsDR[[1]])
-  # Wmat[[1]] = mb.splsda$AVE$AVE_inner
-  # head(mb.splsda$X$genes %*% Wmat[[1]] %*% solve(t(Pmat[[1]]) %*% Wmat[[1]]))
+  # Wmat[[1]] = mb.spls$AVE$AVE_inner
+  # head(mb.spls$X$genes %*% Wmat[[1]] %*% solve(t(Pmat[[1]]) %*% Wmat[[1]]))
   #
-  # new_t <- mb.splsda$X$genes %*% W.star$genes[[n.comp_used]]
+  # new_t <- mb.spls$X$genes %*% W.star$genes
   # new_t2 <- matrix(data = sapply(1:ncol(new_t),
-  #                                function(x) {new_t[, x] * apply(mb.splsda$variates$genes, 2,
+  #                                function(x) {new_t[, x] * apply(mb.spls$variates$genes, 2,
   #                                                                function(y){(norm(y, type = "2"))^2})[x]}), nrow = nrow(Xh$genes), ncol = ncol(new_t))
   # head(new_t2)
 
-  # Si lo aplicamos a SPLS normal, también falla el cáclulo de la W*. Puede ser que sea debido a que los cálculos de
-  # los loadings de X se estén realizando con la normalización de la C y por tanto la corrección de la norma soluciona el problema.
-  # Sin embargo, hubiera sido más sencillo trabajar directamente con una metodología correcta. En mi caso, si utilizo mixomics, debo usar
-  # su función siempre para predecir los scores de las nuevas X y NO LO ESTOY HACIENDO!
+  # Si lo aplicamos a SPLS normal, tambien falla el calculo de la W*. Puede ser que sea debido a que los calculos de
+  # los loadings de X se estan realizando con la normalizacion de la C y por tanto la correccion de la norma soluciona el problema.
+  # Sin embargo, hubiera sido mas sencillo trabajar directamente con una metodologia correcta. En mi caso, si utilizo mixomics, debo usar
+  # su funcion siempre para predecir los scores de las nuevas X y NO LO ESTOY HACIENDO!
 
   #get W.star
   W <- Wmat
   P <- Pmat
   W.star <- W.star
-  B.hat <- B.hat
+  B.hat <- B.hat #no se si ocurre lo mismo con B!!!
   Ts <- Tmat
 
   func_call <- match.call()
@@ -537,17 +557,19 @@ mb.splsdacox <- function (X, Y,
   time <- difftime(t2,t1,units = "mins")
 
   # invisible(gc())
-  return(mb.splsdacox_class(list(X = list("data" = if(returnData) X_norm else NA,
+  return(mb.splsdrcox_class(list(X = list("data" = if(returnData) X_norm else NA,
                                           "loadings" = P,
                                           "weightings" = if(returnData) W else NA,
                                           "W.star" = W.star,
                                           "scores" = Ts,
                                           "E" = if(returnData) E else NA,
                                           "x.mean" = xmeans, "x.sd" = xsds),
-                                 Y = list("data" = Yh,
+                                 Y = list("deviance_residuals" = if(returnData) DR_coxph_ori else NA,
+                                          "dr.mean" = NULL, "dr.sd" = NULL, #deviance_residuals object already centered
+                                          "data" = Yh,
                                           "y.mean" = ymeans, "y.sd" = ysds),
                                  survival_model = survival_model,
-                                 mb.model = mb.splsda,
+                                 mb.model = mb.spls,
                                  n.comp = n.comp_used, #number of components
                                  n.varX = n.varX_used,
                                  call = if(returnData) func_call else NA,
@@ -561,7 +583,7 @@ mb.splsdacox <- function (X, Y,
                                  nsv = removed_variables,
                                  nzv = variablesDeleted,
                                  nz_coeffvar = variablesDeleted_cvar,
-                                 class = pkg.env$mb.splsdacox,
+                                 class = pkg.env$mb.splsdrcox,
                                  time = time)))
 }
 
@@ -569,8 +591,8 @@ mb.splsdacox <- function (X, Y,
 # CROSS-EVALUATION #
 #### ### ### ### ###
 
-#' MB.sPLS-DACOX Cross-Validation
-#' @description cv.mb.splsdacox cross validation model
+#' MB.sPLS-DRCOX Cross-Validation
+#' @description cv.mb.splsdrcox cross validation model
 #'
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
@@ -578,7 +600,7 @@ mb.splsdacox <- function (X, Y,
 #' @param vector Numeric vector. Used for computing best number of variables. As many values as components have to be provided. If vector = NULL, an automatic detection is perform (default: NULL).
 #' @param MIN_NVAR Numeric. Minimum range size for computing cut points to select the best number of variables to use (default: 10).
 #' @param MAX_NVAR Numeric. Maximum range size for computing cut points to select the best number of variables to use (default: 1000).
-#' @param n.cut_points Numeric. Number of cut points for searching the optimal number of variables. If only two cut points are selected, minimum and maximum size are used (default: 5)
+#' @param n.cut_points Numeric. Number of cut points for searching the optimal number of variables. If only two cut points are selected, minimum and maximum size are used. For MB approaches as many as n.cut_points^n.blocks models will be computed as minimum (default: 5).
 #' @param EVAL_METHOD Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best number of variables. In other case, c-index metrix will be used (default: "AUC").
 #' @param n_run Numeric. Number of runs for cross validation (default: 3).
 #' @param k_folds Numeric. Number of folds for cross validation (default: 10).
@@ -611,7 +633,7 @@ mb.splsdacox <- function (X, Y,
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #' @param seed Number. Seed value for performing runs/folds divisions (default: 123).
 #'
-#' @return Instance of class "Coxmos" and model "cv.MB.sPLS-DACOX".
+#' @return Instance of class "Coxmos" and model "cv.MB.sPLS-DRCOX".
 #' \code{best_model_info}: A data.frame with the information for the best model.
 #' \code{df_results_folds}: A data.frame with fold-level information.
 #' \code{df_results_runs}: A data.frame with run-level information.
@@ -638,13 +660,13 @@ mb.splsdacox <- function (X, Y,
 #'
 #' @examples
 #' \dontrun{
-#' cv.mb.splsdacox_model <- cv.splsdacox_dynamic(X, Y, max.ncomp = 8, vector = NULL,
+#' cv.mb.splsdrcox_model <- cv.splsdacox_dynamic(X, Y, max.ncomp = 8, vector = NULL,
 #' x.center = TRUE, x.scale = TRUE)
-#' mb.splsdacox_model <- mb.splsdacox(X, Y, n.comp = cv.mb.splsdacox_model$opt.comp,
-#' vector = cv.mb.splsdacox_model$opt.nvar, x.center = TRUE, x.scale = TRUE)
+#' mb.splsdrcox_model <- mb.splsdrcox(X, Y, n.comp = cv.mb.splsdrcox_model$opt.comp,
+#' vector = cv.mb.splsdrcox_model$opt.nvar, x.center = TRUE, x.scale = TRUE)
 #' }
 
-cv.mb.splsdacox <- function(X, Y,
+cv.mb.splsdrcox <- function(X, Y,
                             max.ncomp = 8, vector = NULL,
                             MIN_NVAR = 10, MAX_NVAR = 10000, n.cut_points = 5, EVAL_METHOD = "AUC",
                             n_run = 3, k_folds = 10,
@@ -708,6 +730,8 @@ cv.mb.splsdacox <- function(X, Y,
   #### REQUIREMENTS
   checkY.colnames(Y)
   lst_check <- checkXY.mb.class(X, Y, verbose = verbose)
+  X <- lst_check$X
+  Y <- lst_check$Y
 
   check.cv.weights(c(w_AIC, w_c.index, w_BRIER, w_AUC))
   # if(!pred.method %in% c("risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I")){
@@ -754,6 +778,7 @@ cv.mb.splsdacox <- function(X, Y,
   # lst_Y_train <- lst_data$lst_Y_train
   # lst_X_test <- lst_data$lst_X_test
   # lst_Y_test <- lst_data$lst_Y_test
+  # k_folds <- lst_data$k_folds
   #
   # lst_train_indexes <- lst_data$lst_train_index
   # lst_test_indexes <- lst_data$lst_test_index
@@ -767,9 +792,8 @@ cv.mb.splsdacox <- function(X, Y,
   # TRAIN MODELS #
   #### ### ### ###
   total_models <- 1 * k_folds * n_run
-  #total_models <- max.ncomp * k_folds * n_run
 
-  comp_model_lst <- get_HDCOX_models2.0(method = pkg.env$mb.splsdacox,
+  comp_model_lst <- get_HDCOX_models2.0(method = pkg.env$mb.splsdrcox,
                                         X_train = X, Y_train = Y,
                                         lst_X_train = lst_train_indexes, lst_Y_train = lst_train_indexes,
                                         max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL, max.variables = NULL, vector = vector,
@@ -791,9 +815,9 @@ cv.mb.splsdacox <- function(X, Y,
   #   t2 <- Sys.time()
   #   time <- difftime(t2,t1,units = "mins")
   #   if(return_models){
-  #     return(cv.mb.splsdacox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = lst_model, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.mb.splsdacox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+  #     return(cv.mb.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = lst_model, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.mb.splsdrcox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
   #   }else{
-  #     return(cv.mb.splsdacox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.mb.splsdacox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+  #     return(cv.mb.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.mb.splsdrcox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
   #   }
   # }
 
@@ -811,9 +835,9 @@ cv.mb.splsdacox <- function(X, Y,
     t2 <- Sys.time()
     time <- difftime(t2,t1,units = "mins")
     if(return_models){
-      return(cv.mb.splsdacox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.mb.splsdacox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+      return(cv.mb.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.mb.splsdrcox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
     }else{
-      return(cv.mb.splsdacox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.mb.splsdacox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+      return(cv.mb.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.nvar = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.mb.splsdrcox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
     }
   }
 
@@ -843,7 +867,7 @@ cv.mb.splsdacox <- function(X, Y,
                                        pred.method = pred.method, pred.attr = pred.attr,
                                        max.ncomp = max.ncomp, n_run = n_run, k_folds = k_folds,
                                        MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                       w_BRIER = w_BRIER, method.train = pkg.env$mb.splsdacox, PARALLEL = F, verbose = verbose)
+                                       w_BRIER = w_BRIER, method.train = pkg.env$mb.splsdrcox, PARALLEL = F, verbose = verbose)
 
     df_results_evals_comp <- lst_df$df_results_evals_comp
     df_results_evals_run <- lst_df$df_results_evals_run
@@ -870,7 +894,7 @@ cv.mb.splsdacox <- function(X, Y,
                                      fast_mode = fast_mode, pred.method = pred.method, pred.attr = pred.attr,
                                      max.ncomp = max.ncomp, n_run = n_run, k_folds = k_folds,
                                      MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                     w_AUC = w_AUC, method.train = pkg.env$mb.splsdacox, PARALLEL = F, verbose = verbose)
+                                     w_AUC = w_AUC, method.train = pkg.env$mb.splsdrcox, PARALLEL = F, verbose = verbose)
 
     if(is.null(df_results_evals_comp)){
       df_results_evals_comp <- lst_df$df_results_evals_comp
@@ -935,7 +959,6 @@ cv.mb.splsdacox <- function(X, Y,
   #### ### #
   # RETURN #
   #### ### #
-
   message(paste0("Best model obtained."))
 
   t2 <- Sys.time()
@@ -943,9 +966,9 @@ cv.mb.splsdacox <- function(X, Y,
 
   # invisible(gc())
   if(return_models){
-    return(cv.mb.splsdacox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.nvar = best_n_var, plot_AIC = ggp_AIC, plot_c_index = ggp_c_index, plot_BRIER = ggp_BRIER, plot_AUC = ggp_AUC, class = pkg.env$cv.mb.splsdacox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+    return(cv.mb.splsdrcox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = comp_model_lst, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.nvar = best_n_var, plot_AIC = ggp_AIC, plot_c_index = ggp_c_index, plot_BRIER = ggp_BRIER, plot_AUC = ggp_AUC, class = pkg.env$cv.mb.splsdrcox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
   }else{
-    return(cv.mb.splsdacox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = NULL, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.nvar = best_n_var, plot_AIC = ggp_AIC, plot_c_index = ggp_c_index, plot_BRIER = ggp_BRIER, plot_AUC = ggp_AUC, class = pkg.env$cv.mb.splsdacox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+    return(cv.mb.splsdrcox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = NULL, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.nvar = best_n_var, plot_AIC = ggp_AIC, plot_c_index = ggp_c_index, plot_BRIER = ggp_BRIER, plot_AUC = ggp_AUC, class = pkg.env$cv.mb.splsdrcox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
   }
 }
 
@@ -953,14 +976,14 @@ cv.mb.splsdacox <- function(X, Y,
 # CLASS #
 ### ## ##
 
-mb.splsdacox_class = function(pls_model, ...) {
+mb.splsdrcox_class = function(pls_model, ...) {
   model = structure(pls_model, class = pkg.env$model_class,
-                    model = pkg.env$mb.splsdacox)
+                    model = pkg.env$mb.splsdrcox)
   return(model)
 }
 
-cv.mb.splsdacox_class = function(pls_model, ...) {
+cv.mb.splsdrcox_class = function(pls_model, ...) {
   model = structure(pls_model, class = pkg.env$model_class,
-                    model = pkg.env$cv.mb.splsdacox)
+                    model = pkg.env$cv.mb.splsdrcox)
   return(model)
 }
