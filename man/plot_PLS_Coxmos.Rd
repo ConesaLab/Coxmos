@@ -45,10 +45,27 @@ plot_PLS_Coxmos(
 \item{overlaps}{Numeric. Number of overlaps to show when plotting loading names (default: 10).}
 }
 \description{
-plot_PLS_Coxmos
+Visualizes the Coxmos models based on partial least squares (PLS) or Multi-block PLS approaches. This function offers various plotting modes, including scores, loadings, and biplot visualizations, to provide insights into the model's structure and relationships.
+}
+\details{
+The plot_Coxmos.PLS.model function is designed to generate comprehensive visualizations of the Coxmos models. It leverages the inherent structure of the model to produce plots that can aid in the interpretation of the model's components and their relationships.
+
+Depending on the chosen mode, the function can display:
+\itemize{
+\item Scores: This mode visualizes the scores of the model, which represent the projections of the original data onto the PLS components. The scores can be colored by a factor variable, and ellipses can be added to represent the distribution of the scores.
+\item Loadings: This mode displays the loadings of the model, which indicate the contribution of each variable to the PLS components. The loadings can be filtered by a specified threshold (top or radius), and arrows can be added to represent the direction and magnitude of the loadings.
+\item Biplot: A biplot combines both scores and loadings in a single plot, providing a comprehensive view of the relationships between the observations and variables in the model.
+}
+
+The function also offers various customization options, such as adjusting the text size, reversing the color palette, and specifying the number of overlaps for loading names. It ensures that the visualizations are informative and tailored to the user's preferences and the specific characteristics of the data.
+
+It's important to note that the function performs checks to ensure the input model is of the correct class and provides informative messages for any inconsistencies detected.
 }
 \examples{
 \dontrun{
 plot_PLS_Coxmos(model, comp = c(1,2), mode = "scores")
 }
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 }

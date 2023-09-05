@@ -33,10 +33,18 @@ plot_LP.multiplePatients(
 \item{top}{Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: NULL).}
 }
 \description{
-plot_LP.multiplePatients
+Visualizes the linear predictors for multiple patients based on a given Coxmos model.
+}
+\details{
+The function \code{plot_LP.multiplePatients} is designed to visualize the linear predictors for multiple patients based on the provided Coxmos model. The function takes into account various parameters to customize the visualization, such as the significance level, error bars, and the number of top variables to display.
+
+The function works by first checking the class of the provided model. Depending on the model type, it delegates the plotting task to one of the three methods: classical models, PLS models, or multi-block PLS models. Each of these methods is tailored to handle specific model types and produce the desired plots.
 }
 \examples{
 \dontrun{
 plot_LP.multiplePatients(model, new_data)
 }
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 }

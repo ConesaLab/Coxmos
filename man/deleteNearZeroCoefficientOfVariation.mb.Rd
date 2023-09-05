@@ -14,3 +14,6 @@ deleteNearZeroCoefficientOfVariation.mb(X, LIMIT = 0.1)
 \description{
 deleteNearZeroCoefficientOfVariation.mb
 }
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

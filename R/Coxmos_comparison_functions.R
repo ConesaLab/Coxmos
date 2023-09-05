@@ -289,7 +289,9 @@ getSurvivalSubset <- function(X, Y, event.val = TRUE, EPV, p.censored, n.patient
 #' @param MIN_EPV Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).
 #' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).
 #'
-#'  @export
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+#'
+#' @export
 
 super.trainAllModels <- function(lst_subdata, methods,
                                  comp_calculation = "manual",
@@ -364,6 +366,8 @@ super.trainAllModels <- function(lst_subdata, methods,
 #' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).
 #' @param progress_bar Logical. If progress_bar = TRUE, progress bar is shown (default = FALSE).
 #'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+#'
 #' @export
 super.evalAllModels <- function(lst_subdata, lst_subdata_models, lst_evaluations,
                                 pred.attr = "mean", times = NULL, max_time_points = 15,
@@ -432,6 +436,8 @@ super.evalAllModels <- function(lst_subdata, lst_subdata_models, lst_evaluations
 #' super.evalResults2DataFrame
 #'
 #' @param eval_results Eval results
+#'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 super.evalResults2DataFrame <- function(eval_results){

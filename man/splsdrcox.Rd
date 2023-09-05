@@ -125,6 +125,17 @@ Instance of class "Coxmos" and model "sPLS-DRCOX". The class contains the follow
 This function performs a sparse partial least squares deviance residual Cox (sPLS-DRCOX) (based on plsRcox R package).
 The function returns a Coxmos model with the attribute model as "sPLS-DRCOX".
 }
+\details{
+The \code{sPLS-DRCOX} function implements the sparse partial least squares deviance residual Cox (sPLS-DRCOX) model, a specialized approach tailored for survival analysis. This method integrates the strengths of the sparse partial least squares (sPLS) technique with the Cox proportional hazards model, leveraging deviance residuals as a bridge.
+
+The function's core lies in its ability to handle high-dimensional data, often encountered in genomics or other omics studies. By incorporating the \code{eta} parameter, which governs the sparsity level, the function offers a fine-grained control over variable selection. This ensures that only the most informative predictors contribute to the model, enhancing interpretability and reducing overfitting.
+
+Data preprocessing is seamlessly integrated, with options to center and scale the predictors, and to remove variables exhibiting near-zero or zero variance. The function also provides a mechanism to retain specific variables, regardless of their variance, ensuring that domain-specific knowledge can be incorporated.
+
+The output is comprehensive, detailing both the sPLS and Cox model components. It provides insights into the selected variables, their contributions across latent components, and the overall fit of the survival model. This rich output aids in understanding the underlying relationships between predictors and survival outcomes.
+
+The \code{sPLS-DRCOX} function is grounded in established methodologies and is a valuable tool for researchers aiming to unravel complex survival associations in high-dimensional datasets.
+}
 \examples{
 \dontrun{
 splsdrcox(X, Y)

@@ -37,3 +37,6 @@ Allows to save ggplot2 objects in .tiff format based on an specific resolution.
 save_ggplot(plot, folder)
 }
 }
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

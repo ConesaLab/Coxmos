@@ -107,6 +107,14 @@ Instance of class "Coxmos" and model "sPLS-ICOX". The class contains the followi
 This function performs a sparse partial least squares individual Cox (sPLS-ICOX) (based on plsRcox R package).
 The function returns a Coxmos model with the attribute model as "sPLS-ICOX".
 }
+\details{
+The \code{sPLS-ICOX} function is an advanced analytical tool tailored for the elucidation of high-dimensional survival data. It amalgamates the principles of sparse partial least squares (sPLS) regression with individual Cox regression, thereby offering a robust mechanism for both dimension reduction and variable selection in the context of survival analysis.
+Rooted in the methodologies of the \code{plsRcox} R package, this function operationalizes the sPLS-ICOX model by leveraging the inherent sparsity introduced via the \code{spv_penalty} parameter. This parameter delineates a stringent criterion for variable retention, wherein only those variables that manifest a P-Value inferior to the threshold defined by \code{1 - spv_penalty} in the individual Cox analysis are assimilated into the sPLS-ICOX model framework.
+The parameter \code{n.comp} demarcates the number of latent components to be computed for the sPLS model. These latent components, which encapsulate salient patterns within the data, subsequently underpin the Cox regression analysis. It is imperative to underscore the necessity of meticulous data preprocessing, especially in the context of qualitative variables. Such variables necessitate binary transformation prior to their integration into the function. Moreover, the function is equipped with options for data centering and scaling, pivotal operations that can significantly influence model performance.
+Designed with a predilection for right-censored survival data, the function mandates the structuring of the outcome or response variable \code{Y} into two distinct columns: "time", which chronicles the survival time, and "event", which catalogues the occurrence or non-occurrence of the event of interest.
+
+Upon execution, the function yields a comprehensive list encapsulating a plethora of elements germane to the sPLS-ICOX model, inclusive of the normalized data matrices, sPLS weight vectors, loadings, scores, and an exhaustive compilation of survival model metrics.
+}
 \examples{
 \dontrun{
 splsicox(X, Y)

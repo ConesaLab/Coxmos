@@ -136,6 +136,19 @@ Instance of class "Coxmos" and model "cv.sPLS-DRCOX".
 \description{
 sPLS-DRCOX cross validation model
 }
+\details{
+The \verb{sPLS-DRCOX Cross-Validation} function offers a robust approach to fine-tune the hyperparameters of the sPLS-DRCOX model, ensuring optimal performance in survival analysis tasks. By systematically evaluating different combinations of hyperparameters, this function identifies the best model configuration that minimizes prediction error.
+
+Cross-validation is a crucial step in survival analysis, especially when dealing with high-dimensional datasets. It provides an unbiased assessment of the model's generalization capability, safeguarding against overfitting. This function employs a k-fold cross-validation strategy, partitioning the data into multiple subsets (folds) and iteratively using each fold as a test set while the remaining folds serve as training data.
+
+One of the primary strengths of this function is its flexibility. Users can specify a range of values for the number of PLS components and the penalty parameter \code{eta}. The function then evaluates all possible combinations, returning the optimal configuration that yields the best predictive performance.
+
+Additionally, the function offers advanced features like parallel processing for faster computation, and the ability to return all models from the cross-validation process. This is particularly useful for in-depth analysis and comparisons.
+
+The output provides comprehensive insights, including performance metrics for each fold, run, and hyperparameter combination. Visualization plots like AIC, C-Index, Brier Score, and AUC plots further aid in understanding the model's performance across different configurations.
+
+In summary, the \verb{sPLS-DRCOX Cross-Validation} function is an indispensable tool for researchers and practitioners aiming to harness the full potential of the sPLS-DRCOX model in survival analysis.
+}
 \examples{
 \dontrun{
 cv.splsdrcox_model <- cv.splsdrcox(X, Y, max.ncomp = 10,
@@ -143,4 +156,7 @@ eta.list = seq(0.1,0.9,0.2), x.center = TRUE, x.scale = TRUE)
 splsdrcox_model <- splsdrcox(X, Y, n.comp = cv.splsdrcox_model$opt.comp,
 eta = cv.splsdrcox_model$opt.eta, x.center = TRUE, x.scale = TRUE)
 }
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 }

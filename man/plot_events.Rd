@@ -27,10 +27,18 @@ plot_events(
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
 \description{
-plot_events
+Generates a bar plot visualizing the distribution of events over time, categorizing observations as either censored or non-censored.
+}
+\details{
+The \code{plot_events} function is meticulously crafted to provide a visualization of event occurrences over a specified time frame. The primary objective of this function is to elucidate the distribution of events, distinguishing between censored and non-censored observations. The input response matrix, "Y", is expected to encompass two pivotal columns: "time" and "event". The "time" column delineates the temporal occurrence of each observation, while the "event" column demarcates whether an observation is censored or an event, with accepted binary representations being 0/1 or FALSE/TRUE.
+
+The function employs a systematic approach to categorize the time variable into distinct intervals or "breaks". The number of these intervals is determined by the "max.breaks" parameter, and their size is influenced by the "roundTo" parameter. Each interval represents a range of time values, and the resulting plot showcases the number of censored and non-censored observations within each interval. The bars in the plot are color-coded based on the event type, offering a clear visual distinction between the two categories.
 }
 \examples{
 \dontrun{
 plot_events(Y, categories = c("Censored","Death"))
 }
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 }

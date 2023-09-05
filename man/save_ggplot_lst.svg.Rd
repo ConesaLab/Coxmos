@@ -43,3 +43,6 @@ Allows to save a list of ggplot2 objects in .svg format based on an specific res
 save_ggplot_lst.svg(plot_lst, folder)
 }
 }
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

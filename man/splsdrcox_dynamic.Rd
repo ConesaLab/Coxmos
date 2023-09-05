@@ -2,7 +2,7 @@
 % Please edit documentation in R/Coxmos_splsdrcox_dynamic.R
 \name{splsdrcox_dynamic}
 \alias{splsdrcox_dynamic}
-\title{sPLS-DRCOX}
+\title{sPLS-DRCOX Dynamic}
 \usage{
 splsdrcox_dynamic(
   X,

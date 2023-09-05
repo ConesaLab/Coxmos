@@ -54,11 +54,23 @@ plot_evaluation(
 \item{label_y_axis_size}{Numeric. Text size for y label axis (default: 10).}
 }
 \description{
-Perform a evaluation test for the result object provided. It includes test comparison as "t.test", "anova", "wilcoxon", "kruscal-wallis". Furthermore, it generates plots for comparing the results.
+Generates a comprehensive evaluation of the performance of a given Coxmos evaluation object, offering both statistical tests and visual plots for assessment.
+}
+\details{
+The \code{plot_evaluation} function is designed to facilitate a rigorous evaluation of the performance of models, specifically in the context of survival analysis. This function is tailored to work with a Coxmos evaluation object, which encapsulates the results of survival models. The primary objective is to provide both statistical and visual insights into the model's performance.
+
+The function offers flexibility in the evaluation metric, allowing users to choose between the Area Under the Curve (AUC) and the Brier score. The chosen metric is then evaluated based on either its mean or median value, as specified by the "pred.attr" parameter. The resulting plots can be tailored to display continuous performance over time or aggregated mean performance, based on the "type" parameter.
+
+A salient feature of this function is its ability to conduct statistical tests to compare the performance across different methods. Supported tests include the t-test, ANOVA, Wilcoxon rank-sum test, and Kruskal-Wallis test. These tests provide a quantitative measure of the differences in performance, aiding in the objective assessment of the models.
+
+The visual outputs are generated using the ggplot2 package, ensuring high-quality and interpretable plots. The function also offers extensive customization options for the plots, including axis labels, title, and text sizes, ensuring that the outputs align with the user's preferences and the intended audience's expectations.
 }
 \examples{
 \dontrun{
 eval_results <- eval_Coxmos_models(lst_models, X_test, Y_test, pred.method)
 plot_evaluation(eval_results)
 }
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 }

@@ -106,9 +106,25 @@ Instance of class "Coxmos" and model "sb.splsicox". The class contains the follo
 This function performs a single-block sparse partial least squares individual Cox (SB.sPLS-ICOX).
 The function returns a Coxmos model with the attribute model as "SB.sPLS-ICOX".
 }
+\details{
+The \code{SB.sPLS-ICOX} function is designed to perform a single-block sparse partial least squares individual Cox analysis. This method is particularly suited for high-dimensional datasets where the number of variables (features) significantly exceeds the number of observations. The "single-block" in its name indicates that while the function can handle datasets with multiple blocks, it processes each block individually rather than in a multiblock manner where all blocks are analyzed simultaneously.
+
+By analyzing one block at a time, the function ensures a focused and detailed examination of each block's contribution to the survival outcome. This approach is especially beneficial when different blocks represent distinct types or sources of data, allowing for a granular understanding of each block's significance.
+
+The analysis begins by applying a penalty to select significant variables based on individual Cox models. This step ensures that only the most relevant features from the current block contribute to the subsequent sPLS analysis. The sPLS method then identifies latent components that capture the maximum covariance between the explanatory variables (X) from the block and the response (Y), which are the deviance residuals from the Cox models.
+
+Users have the flexibility to specify various hyperparameters, including the number of latent components and the penalty for variable selection. The function also offers options for data preprocessing, such as centering, scaling, and removing variables with near-zero or zero variance.
+
+The output provides a comprehensive overview of the analysis for the processed block, including normalized data information, survival model details, and the sPLS-ICOX model. Visualization tools and metrics such as AIC and BIC further aid in understanding the model's performance and significance for the given block.
+
+In summary, the \code{SB.sPLS-ICOX} function offers a powerful approach for survival analysis in high-dimensional settings, ensuring optimal feature selection, dimensionality reduction, and predictive modeling for each individual block in the dataset.
+}
 \examples{
 \dontrun{
 sb.splsicox(X, Y)
 sb.splsicox(X, Y, n.comp = 3, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
 }
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 }

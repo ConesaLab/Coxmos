@@ -46,3 +46,6 @@ Run the function "plot_pseudobeta_newPatient" for a list of models. More informa
 plot_pseudobeta_newPatient.list(lst_models, new_observation)
 }
 }
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

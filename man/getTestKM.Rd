@@ -36,7 +36,21 @@ getTestKM(
 \item{title}{Character. Kaplan-Meier plot title (default: NULL).}
 }
 \description{
-Perform a new Kaplan-Meier curve for test data, but using the same cutoff computed in the original model.
+This function computes and visualizes the Kaplan-Meier survival curve for a given test dataset, utilizing the cutoff derived from the original model. The function offers flexibility in terms of the type of Kaplan-Meier estimation, whether it's based on the linear predictor, PLS components, or original variables.
+}
+\details{
+The \code{getTestKM} function is designed to evaluate the survival probabilities of a test dataset based on a pre-trained Coxmos model. The function ensures that the test times are consistent with the training times. Depending on the specified \code{type}, the function can compute the Kaplan-Meier curve using:
+\itemize{
+\item The complete model's linear predictor (\code{LP}).
+\item The PLS components (\code{COMP}).
+\item The original variables (\code{VAR}).
+}
+
+For the \code{LP} type, the function predicts scores for the \code{X_test} and subsequently predicts the linear predictor using these scores. For the \code{COMP} type, the function predicts scores for each component in the model and computes the Kaplan-Meier curve for each. For the \code{VAR} type, the function computes the Kaplan-Meier curve for each variable in the test dataset.
+
+The function also provides the flexibility to compute the Kaplan-Meier plot using raw data or normalized data, which can be useful for determining the optimal cut-point for data segmentation. The time intervals for the Kaplan-Meier estimation can be defined using either the \code{BREAKTIME} or \code{n.breaks} parameters.
+
+The resulting Kaplan-Meier plot provides a visual representation of the survival probabilities over time, segmented based on the specified cutoff. This allows for a comprehensive evaluation of the test dataset's survival characteristics in the context of the original model.
 }
 \examples{
 \dontrun{

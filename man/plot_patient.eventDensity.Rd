@@ -27,10 +27,16 @@ plot_patient.eventDensity(
 \item{color}{String. R Color.}
 }
 \description{
-patient.eventDensity
+Visualizes the event density for a given patient's data using the Coxmos model.
+}
+\details{
+The \code{plot_patient.eventDensity} function provides a graphical representation of the event density for a specific patient's data, based on the Coxmos model. The function computes the density of events and non-events and plots them, highlighting the predicted value for the given patient's data. The density is determined using density estimation, and the predicted value is obtained from the Coxmos model. The function allows customization of the plot aesthetics, such as point size and color. The resulting plot provides a visual comparison of the patient's predicted event density against the overall event density distribution, aiding in the interpretation of the patient's risk profile.
 }
 \examples{
 \dontrun{
 plot_patient.eventDensity(patient, time = NULL, model)
 }
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 }

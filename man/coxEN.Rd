@@ -109,6 +109,11 @@ Instance of class "Coxmos" and model "coxEN". The class contains the following e
 This function performs a cox elastic net model (based on glmnet R package).
 The function returns a Coxmos model with the attribute model as "coxEN".
 }
+\details{
+The coxEN function is designed to handle survival data using the elastic net regularization. The function is particularly useful when dealing with high-dimensional datasets where the number of predictors exceeds the number of observations.
+The elastic net regularization combines the strengths of both lasso and ridge regression. The \code{EN.alpha} parameter controls the balance between lasso and ridge penalties.
+It's important to note that when using the ridge penalty (\code{EN.alpha = 0}), the EVP and \code{max.variables} parameters will not be considered.
+}
 \examples{
 \dontrun{
 coxEN(X, Y)

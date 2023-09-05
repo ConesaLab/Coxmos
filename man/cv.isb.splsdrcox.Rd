@@ -162,9 +162,23 @@ Instance of class "Coxmos" and model "sb.splscox". The class contains the follow
 \description{
 cv.isb.splsdrcox cross validation model
 }
+\details{
+The \code{cv.isb.splsdrcox} function performs cross-validation for the integrative single-block sparse partial least squares deviance residual Cox analysis. Unlike the single-block (SB) approach, the integrative single-block (ISB) method allows for the consideration of multiple blocks of data, potentially from different sources or types, to be integrated into a single model. A key distinction of the ISB approach is its ability to compute and optimize hyperparameters individually for each block, rather than applying a uniform set of hyperparameters across all blocks. This ensures that each block's unique characteristics are taken into account, leading to a more tailored and potentially more accurate model.
+
+Cross-validation is essential for assessing the generalizability of the model and avoiding overfitting. By partitioning the original dataset into training and test sets multiple times, the function evaluates the model's performance across different subsets of the data. This iterative process ensures that the model's performance is robust and not overly reliant on a specific partition of the data.
+
+The function evaluates a range of hyperparameters, including the number of latent components (\code{max.ncomp}) and the penalty for variable selection (\code{eta.list}). For each combination of hyperparameters, the dataset is divided into training and test sets based on the specified number of folds (\code{k_folds}). The model is then trained on the training set and its performance is assessed on the test set. This process is repeated for the specified number of runs (\code{n_run}), providing a comprehensive evaluation of the model's performance.
+
+Various evaluation metrics, such as AIC, C-Index, Brier Score, and AUC, are computed for each combination of hyperparameters. These metrics provide insights into the model's accuracy, discriminative ability, and calibration. The function then identifies the optimal hyperparameters that yield the best performance based on these metrics.
+
+In summary, the \code{cv.isb.splsdrcox} function offers a robust and integrative approach for hyperparameter tuning and model evaluation for the sparse partial least squares deviance residual Cox analysis. By allowing individualized hyperparameter optimization for each block, the ISB approach ensures a more nuanced and potentially more accurate model compared to the traditional SB method.
+}
 \examples{
 \dontrun{
 isb.splsdrcox_model <- cv.isb.splsdrcox(X, Y, max.ncomp = 10,
 eta.list = seq(0.1,0.9,0.2), x.center = TRUE, x.scale = TRUE)
 }
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 }

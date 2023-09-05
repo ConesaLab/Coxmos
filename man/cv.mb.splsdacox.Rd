@@ -158,3 +158,6 @@ mb.splsdacox_model <- mb.splsdacox(X, Y, n.comp = cv.mb.splsdacox_model$opt.comp
 vector = cv.mb.splsdacox_model$opt.nvar, x.center = TRUE, x.scale = TRUE)
 }
 }
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

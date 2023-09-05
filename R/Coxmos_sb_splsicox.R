@@ -21,6 +21,19 @@
 #' @param returnData Logical. Return original and normalized X and Y matrices (default: TRUE).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #'
+#' @details
+#' The `SB.sPLS-ICOX` function is designed to perform a single-block sparse partial least squares individual Cox analysis. This method is particularly suited for high-dimensional datasets where the number of variables (features) significantly exceeds the number of observations. The "single-block" in its name indicates that while the function can handle datasets with multiple blocks, it processes each block individually rather than in a multiblock manner where all blocks are analyzed simultaneously.
+#'
+#' By analyzing one block at a time, the function ensures a focused and detailed examination of each block's contribution to the survival outcome. This approach is especially beneficial when different blocks represent distinct types or sources of data, allowing for a granular understanding of each block's significance.
+#'
+#' The analysis begins by applying a penalty to select significant variables based on individual Cox models. This step ensures that only the most relevant features from the current block contribute to the subsequent sPLS analysis. The sPLS method then identifies latent components that capture the maximum covariance between the explanatory variables (X) from the block and the response (Y), which are the deviance residuals from the Cox models.
+#'
+#' Users have the flexibility to specify various hyperparameters, including the number of latent components and the penalty for variable selection. The function also offers options for data preprocessing, such as centering, scaling, and removing variables with near-zero or zero variance.
+#'
+#' The output provides a comprehensive overview of the analysis for the processed block, including normalized data information, survival model details, and the sPLS-ICOX model. Visualization tools and metrics such as AIC and BIC further aid in understanding the model's performance and significance for the given block.
+#'
+#' In summary, the `SB.sPLS-ICOX` function offers a powerful approach for survival analysis in high-dimensional settings, ensuring optimal feature selection, dimensionality reduction, and predictive modeling for each individual block in the dataset.
+#'
 #' @return Instance of class "Coxmos" and model "sb.splsicox". The class contains the following elements:
 #' \code{X}: List of normalized X data information.
 #' \itemize{
@@ -71,6 +84,8 @@
 #' \code{class}: Model class.
 #'
 #' \code{time}: time consumed for running the cox analysis.
+#'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
@@ -308,6 +323,17 @@ sb.splsicox <- function(X, Y,
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #' @param seed Number. Seed value for performing runs/folds divisions (default: 123).
 #'
+#' @details
+#' The `cv.sb.splsicox` function performs cross-validation for the single-block sparse partial least squares individual Cox analysis. While the function can handle datasets with multiple blocks, it processes each block individually, ensuring a detailed examination of each block's contribution to the survival outcome. This is distinct from multiblock methods where all blocks are analyzed simultaneously.
+#'
+#' In the context of this function, "single-block" means that each block of data is analyzed separately, one at a time. This approach is beneficial when different blocks represent distinct types or sources of data, allowing for a granular understanding of each block's significance without the interference of other blocks.
+#'
+#' The cross-validation process involves partitioning the dataset into multiple subsets (folds) and then iteratively training the model on a subset of the data while validating it on the remaining data. This helps in determining the optimal hyperparameters for the model, such as the number of latent components and the penalty for variable selection.
+#'
+#' The function offers flexibility in specifying various hyperparameters and options for data preprocessing. The output provides a comprehensive overview of the cross-validation results, including metrics like AIC, C-Index, Brier Score, and AUC for each hyper-parameter combination. Visualization tools are also provided to aid in understanding the model's performance across different hyperparameters.
+#'
+#' In summary, the `cv.sb.splsicox` function offers a robust approach for determining the optimal parameters for the single-block sparse partial least squares individual Cox analysis, ensuring optimal feature selection, dimensionality reduction, and predictive modeling for each individual block in the dataset.
+#'
 #' @return Instance of class "Coxmos" and model "cv.SB.sPLS-ICOX".
 #' \code{best_model_info}: A data.frame with the information for the best model.
 #' \code{df_results_folds}: A data.frame with fold-level information.
@@ -331,6 +357,9 @@ sb.splsicox <- function(X, Y,
 #' \code{lst_test_indexes}: List (of lists) of indexes for the observations used in each run/fold for test the models.
 #'
 #' \code{time}: time consumed for running the cross-validated function.
+#'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+#'
 #' @export
 #'
 #' @examples
@@ -713,6 +742,21 @@ cv.sb.splsicox <- function(X, Y,
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #' @param seed Number. Seed value for performing runs/folds divisions (default: 123).
 #'
+#' @details
+#' The `cv.isb.splsicox` function performs cross-validation for the iterative single-block sparse partial least squares individual Cox analysis. Unlike the single-block (`sb`) approach, where each block is analyzed with the same number of components and penalties, the iterative single-block (`isb`) approach allows for the specification of different numbers of components and penalties for each block. This provides a more tailored analysis for each block, recognizing that different blocks may have varying complexities and relationships with the outcome.
+#'
+#' The function is designed to handle datasets with multiple blocks, processing each block individually in an iterative manner. This ensures a detailed examination of each block's contribution to the survival outcome without the interference of other blocks. This approach is distinct from multiblock methods where all blocks are analyzed simultaneously.
+#'
+#' In the context of this function, "iterative single-block" means that each block of data is analyzed separately, one after the other. This approach is beneficial when different blocks represent distinct types or sources of data, allowing for a granular understanding of each block's significance.
+#'
+#' The cross-validation process involves partitioning the dataset into multiple subsets (folds) and then iteratively training the model on a subset of the data while validating it on the remaining data. This helps in determining the optimal hyperparameters for the model, such as the number of latent components and the penalty for variable selection.
+#'
+#' Unlike the `sb` approach, which returns the optimal hyperparameters for further model training, the `isb` approach directly returns the final model. This model is constructed using the best-performing hyperparameters for each block, ensuring a more customized and potentially more accurate model.
+#'
+#' The function offers flexibility in specifying various hyperparameters and options for data preprocessing. The output provides a comprehensive overview of the cross-validation results, including metrics like AIC, C-Index, Brier Score, and AUC for each hyper-parameter combination. Visualization tools are also provided to aid in understanding the model's performance across different hyperparameters.
+#'
+#' In summary, the `cv.isb.splsicox` function offers a robust and tailored approach for determining the optimal parameters for the iterative single-block sparse partial least squares individual Cox analysis, ensuring optimal feature selection, dimensionality reduction, and predictive modeling for each individual block in the dataset.
+#'
 #' @return Instance of class "Coxmos" and model "sb.splsicox". The class contains the following elements:
 #' \code{X}: List of normalized X data information.
 #' \itemize{
@@ -764,6 +808,8 @@ cv.sb.splsicox <- function(X, Y,
 #'
 #' \code{time}: time consumed for running the cox analysis.
 #'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+#'
 #' @export
 #'
 #' @examples
@@ -773,16 +819,16 @@ cv.sb.splsicox <- function(X, Y,
 #' }
 
 cv.isb.splsicox <- function(X, Y,
-                               max.ncomp = 8, spv_penalty.list = seq(0.1,0.9,0.2),
-                               n_run = 3, k_folds = 10,
-                               x.center = TRUE, x.scale = FALSE,
-                               remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL, remove_variance_at_fold_level = F,
-                               remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,
-                               w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL, max_time_points = 15,
-                               MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
-                               pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
-                               MIN_EPV = 5, returnData = T, return_models = F,
-                               PARALLEL = F, verbose = F, seed = 123){
+                           max.ncomp = 8, spv_penalty.list = seq(0.1,0.9,0.2),
+                           n_run = 3, k_folds = 10,
+                           x.center = TRUE, x.scale = FALSE,
+                           remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL, remove_variance_at_fold_level = F,
+                           remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,
+                           w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL, max_time_points = 15,
+                           MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
+                           pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
+                           MIN_EPV = 5, returnData = T, return_models = F,
+                           PARALLEL = F, verbose = F, seed = 123){
   # tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
   tol = 1e-10
 

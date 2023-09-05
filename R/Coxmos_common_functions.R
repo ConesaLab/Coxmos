@@ -81,11 +81,14 @@ assign(x = 'Brier', value = c("Brier_score"), pkg.env)
 assign(x = 'IllegalChars', value = c("`"), pkg.env)
 
 #' factorToBinary
-#' @description Returns a new X matrix where the factor variables have been change to dummy variables.
-#' The function allows the user to generate k-1 or k dummy variables per where k is the quantity of levels for a specific variable.
+#' @description Transforms factor variables within a matrix or data frame into binary dummy variables, facilitating numerical representation for subsequent statistical analyses. The function provides an option to generate either k or k-1 dummy variables for each factor, contingent on its levels.
+#'
+#' @details The `factorToBinary` function addresses a recurrent challenge in data preprocessing: the conversion of factor variables into a numerical format suitable for a plethora of statistical and machine learning algorithms. Factors, inherently categorical in nature, often necessitate transformation into a binary format, commonly referred to as dummy or one-hot encoding. This function adeptly performs this transformation, iterating over each column of the provided matrix or data frame. When encountering factor variables, it employs the `model.matrix` function to generate the requisite dummy variables. The user's discretion is paramount in determining the number of dummy variables: either k, equivalent to the number of levels for the factor, or k-1, where the omitted level serves as a reference or "default" state. This choice is particularly salient in regression contexts to circumvent multicollinearity issues. The naming convention for the resultant dummy variables amalgamates the original factor's name with its respective level, separated by a user-defined character, ensuring clarity and interpretability. Non-factor variables remain unaltered, preserving the integrity of the original data structure.
 #' @param X Numeric matrix or data.frame. Only qualitative variables (factor class) will be transformed into binary variables.
 #' @param all Logical. If all = TRUE, as many variables as levels will be returned in the new matrix. Otherwise, k-1 variables will be used where the first level will be use as "default" state (default: TRUE).
 #' @param sep Character. Character symbol to generate new colnames. Ex. If variable name is "sex" and sep = "_". Dummy variables will be "sex_male" and "sex_female".
+#'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
@@ -150,11 +153,13 @@ norm01 <- function(x){
 }
 
 #' print.Coxmos
-#' @description The function is used to print the output of an object of class Coxmos. The function
-#' prints the final cox model if it is a survival model, or the characteristics of the best model if
-#' it is a cross-validated model.
+#' @description Provides a structured print output for objects of class Coxmos, detailing either the final Cox survival model or the attributes of the optimal model from cross-validation.
+#'
+#' @details The `print.Coxmos` function serves as a diagnostic tool, offering a comprehensive display of the Coxmos object's attributes. Depending on the nature of the Coxmos object—whether it's derived from a survival model or a cross-validated model—the function tailors its output accordingly. For survival models, it elucidates the method employed, any variables removed due to high correlation, zero or near-zero variance, or non-significance within the Cox model, and presents a summary of the survival model itself. In the context of cross-validated models, the function delineates the cross-validation method utilized and, if ascertainable, details of the best model. For evaluation objects, it systematically enumerates the methods evaluated and provides a summary of metrics for each method.
 #' @param x Coxmos object
 #' @param ... further arguments passed to or from other methods.
+#'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
@@ -174,6 +179,10 @@ print.Coxmos <- function(x, ...){
 
     method <- attr(x, "model")
     cat(paste0("The method used is ", method, ".\n\n"))
+
+    if("removed_variables_correlation" %in% names(x) && !is.null(x$removed_variables_correlation)){
+      cat(paste0("A total of ", length(x$removed_variables_correlation), " variables have been removed due to high correlation filter.\n\n"))
+    }
 
     if("removed_variables" %in% names(x) && !is.null(x$removed_variables)){
       cat(paste0("A total of ", length(x$nzv), " variables have been removed due to Zero or Near-Zero Variance filter.\n\n"))
@@ -238,11 +247,13 @@ print.Coxmos <- function(x, ...){
 }
 
 #' getEPV
-#' @description The function computes the (Events per Variable) EPV value for a given dataset.
-#' The function calculates the ratio of events in the Y matrix and the number of variables in the X
-#' matrix.
-#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
+#' @description Provides a quantitative assessment of the dataset by computing the Events per Variable (EPV) metric, which gauges the proportionality between observed events and the number of explanatory variables.
+#'
+#' @details In the realm of survival analysis, the balance between observed events and explanatory variables is paramount. The `getEPV` function serves as a tool for researchers to ascertain this balance, which can be pivotal in determining the robustness and interpretability of subsequent statistical models. By evaluating the ratio of events in the `Y` matrix to the variables in the `X` matrix, the function yields the EPV metric. It is of utmost importance that the `Y` matrix encompasses two distinct columns, namely "time" and "event". The latter, "event", should strictly encapsulate binary values, delineating censored (either 0 or FALSE) and event (either 1 or TRUE) observations. To ensure the integrity of the data and the precision of the computation, the function is equipped with an error mechanism that activates if the "event" column remains undetected.
+#' #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
+#'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
@@ -261,16 +272,17 @@ getEPV <- function(X,Y){
   return(EPV)
 }
 
-
 #' deleteZeroOrNearZeroVariance
-#' @description The function allows users to delete variables with near-zero or zero variance in a
-#' given dataset. The function has parameters to control whether near-zero variance variables should
-#' be removed or just zero variance variables. The function is based on the package and function caret::nearZeroVar().
+#' @description Provides a robust mechanism to filter out variables from a dataset that exhibit zero or near-zero variance, thereby enhancing the quality and interpretability of subsequent statistical analyses.
+#'
+#' @details The `deleteZeroOrNearZeroVariance` function is an indispensable tool in the preprocessing phase of statistical modeling. In many datasets, especially high-dimensional ones, certain variables might exhibit zero or near-zero variance. Such variables can be problematic as they offer limited information variance and can potentially distort the results of statistical models, leading to issues like overfitting. By leveraging the `caret::nearZeroVar()` function, this tool offers a rigorous method to identify and exclude these variables. Users are afforded flexibility in their choices, with options to remove only zero variance variables, near-zero variance variables, or both. The function also provides the capability to set a frequency cutoff, `freqCut`, which determines the threshold for near-zero variance based on the ratio of the most frequent value to the second most frequent value. For scenarios where certain variables are deemed essential and should not be removed regardless of their variance, the `toKeep.zv` parameter allows users to specify a list of such variables.
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
 #' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
 #' @param freqCut Numeric. Cutoff for the ratio of the most common value to the second most common value (default: 95/5).
+#'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
@@ -352,9 +364,14 @@ deleteZeroVarianceVariables <- function(data, mustKeep = NULL, names = NULL, inf
 }
 
 #' deleteNearZeroCoefficientOfVariation
+#' @description Filters out variables from a dataset that exhibit a coefficient of variation below a specified threshold, ensuring the retention of variables with meaningful variability.
+#'
+#' @details The `deleteNearZeroCoefficientOfVariation` function is a pivotal tool in data preprocessing, especially when dealing with high-dimensional datasets. The coefficient of variation (CoV) is a normalized measure of data dispersion, calculated as the ratio of the standard deviation to the mean. In many scientific investigations, variables with a low CoV might be considered as offering limited discriminative information, potentially leading to noise in subsequent statistical analyses. By setting a threshold through the `LIMIT` parameter, this function provides a systematic approach to identify and exclude variables that do not meet the desired variability criteria. The underlying rationale is that variables with a CoV below the set threshold might not contribute significantly to the variability of the dataset and could be redundant or even detrimental for certain analyses. The function returns a modified dataset, a list of deleted variables, and the computed coefficients of variation for each variable. This comprehensive output ensures that researchers are well-informed about the preprocessing steps and can make subsequent analytical decisions with confidence.
 #'
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param LIMIT Numeric. Cutoff for minimum variation. If coefficient is lesser than the limit, the variables are removed because not vary enough (default: 0.1).
+#'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 deleteNearZeroCoefficientOfVariation <- function(X, LIMIT = 0.1){
@@ -1216,15 +1233,18 @@ getCOMPLETE_LP_AUC <- function(Y_test_full, lst_linear.predictors, df_results_ev
 }
 
 #' predict.Coxmos
-#' @description The function is used to generate the prediction score matrix for PLS Survival models.
-#' The score matrix is required for the final survival prediction of the data, as dimensional reduction
-#' is performed before running the cox survival analysis.
+#' @description Generates the prediction score matrix for Partial Least Squares (PLS) Survival models, facilitating the transformation of high-dimensional data into a reduced space while preserving the most relevant information for survival analysis.
+#'
+#' @details The `predict.Coxmos` function is designed to compute the prediction scores for new data based on a previously trained PLS Survival model. The function leverages the dimensional reduction capabilities of PLS to project the new data into a lower-dimensional space, which is particularly beneficial when dealing with high-dimensional datasets in survival analysis. The score matrix obtained serves as a compact representation of the original data, capturing the most salient features that influence survival outcomes.
 #'
 #' @param object Coxmos model
 #' @param ... additional arguments affecting the predictions produced.
 #' @param newdata Numeric matrix or data.frame. New data for explanatory variables (raw data). Qualitative variables must be transform into binary variables.
 #'
 #' @return Score values for new data using the Coxmos model selected.
+#'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+#'
 #' @export
 #'
 #' @examples
@@ -4595,10 +4615,15 @@ checkTestTimesVSTrainTimes <- function(lst_models, Y_test){
 }
 
 #' eval_Coxmos_models
-#' @description The function is used to evaluate multiple Coxmos models simultaneously. The function
-#' returns all the data needed for plotting the information, including the AUC per model and for each
-#' time point selected for the predictions. After their used, it is recommended to run the plot_evaluation()
-#' function.
+#' @description
+#' The `eval_Coxmos_models` function facilitates the comprehensive evaluation of multiple Coxmos models in a concurrent manner. It is designed to provide a detailed assessment of the models' performance by calculating the Area Under the Curve (AUC) for each model at specified time points. The results generated by this function are primed for visualization using the `plot_evaluation()` function.
+#'
+#' @details
+#' The function begins by validating the names of the models provided in the `lst_models` list and ensures that there are at least two events present in the dataset. It then checks for the availability of the specified evaluation method and ensures that the test times are consistent with the training times of the models.
+#'
+#' The core of the function revolves around the evaluation of each model. Depending on the user's preference, the evaluations can be executed in parallel, which can significantly expedite the process, especially when dealing with a large number of models. The function employs various evaluation methods, as specified by the `pred.method` parameter, to compute the AUC values. These methods include but are not limited to "risksetROC", "survivalROC", and "cenROC".
+#'
+#' Post-evaluation, the function collates the results, including training times, AIC values, c-index, Brier scores, and AUC values for each time point. The results are then transformed into a structured data frame, making it conducive for further analysis and visualization. It's worth noting that potential issues in AUC computation, often arising from sparse samples, are flagged to the user for further inspection.
 #'
 #' @param lst_models List of Coxmos models. Each object of the list must be named.
 #' @param X_test Numeric matrix or data.frame. Explanatory variables for test data (raw format). Qualitative variables must be transform into binary variables.
@@ -4852,10 +4877,15 @@ evaluation_Coxmos_class = function(object, ...) {
 }
 
 #' eval_Coxmos_model_per_variable
-#' @description The function is used to evaluate how each variable/component affect the prediction for an specific Coxmos model. The function
-#' returns all the data needed for plotting the information, including the AUC per model and for each
-#' time point selected for the predictions. After their used, it is recommended to run the plot_evaluation()
-#' function.
+#' @description
+#' The `eval_Coxmos_model_per_variable` function offers a granular evaluation of a specific Coxmos model, focusing on the influence of individual variables or components on the model's predictive performance. It computes the Area Under the Curve (AUC) for each variable at designated time points, providing insights into the relative importance of each variable in the model's predictions. For a visual representation of the results, it is advisable to utilize the `plot_evaluation()` function post-evaluation.
+#'
+#' @details
+#' Upon invocation, the function initiates by verifying the consistency between test times and the training times of the provided model. Subsequently, linear predictors for each variable are derived using the `predict.Coxmos` function. These linear predictors serve as the foundation for the AUC computation, which is executed for each variable across the specified time points.
+#'
+#' The function employs various evaluation methods, as determined by the `pred.method` parameter, to calculate the AUC values. These methods encompass options such as "risksetROC", "survivalROC", and "cenROC", among others. The results are systematically organized into a structured data frame, segregating AUC values for each variable at different time points. This structured output not only facilitates easy interpretation but also sets the stage for subsequent visualization or further analysis.
+#'
+#' It's noteworthy that the function is equipped to handle parallel processing, contingent on the user's preference, which can expedite the evaluation process, especially when dealing with extensive datasets or multiple time points.
 #'
 #' @param model Coxmos model.
 #' @param X_test Numeric matrix or data.frame. Explanatory variables for test data (raw format). Qualitative variables must be transform into binary variables.
@@ -4866,6 +4896,8 @@ evaluation_Coxmos_class = function(object, ...) {
 #' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).
 #' @param max_time_points Numeric. Maximum number of time points to use for evaluating the model (default: 15).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
+#'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
@@ -4917,8 +4949,15 @@ eval_Coxmos_model_per_variable <- function(model,
 }
 
 #' cox.prediction
-#' @description The function is used to perform a predict.cox() for a Coxmos model from raw data. The function
-#' automatically generates the score matrix if a PLS Survival is performed and then performs the cox prediction.
+#' @description
+#' The `cox.prediction` function facilitates Cox predictions based on a given Coxmos model, specifically tailored for raw data input. It seamlessly integrates the generation of a score matrix, especially when a PLS Survival analysis has been executed, and subsequently conducts the Cox prediction. The function offers flexibility in prediction types and methods, catering to diverse analytical requirements.
+#'
+#' @details
+#' The function initiates by determining the prediction method specified by the user. If the "cox" method is chosen, the function computes the score matrix using the `predict.Coxmos` function. This score matrix serves as a foundation for subsequent predictions. It's imperative to note that for prediction types "expected" and "survival", a specific time point must be provided to ensure accurate predictions. The function then leverages the `predict` function from the Cox model to compute the desired prediction metric.
+#'
+#' Alternatively, if the "W.star" method is selected, the function computes the prediction values based on the W* matrix and the Cox model's coefficients. This involves normalization of the input data, ensuring it aligns with the training data's distribution. The normalization process considers mean and standard deviation values from the model, ensuring consistency in predictions. The resultant prediction values are then computed as a linear combination of the normalized data and the derived coefficients.
+#'
+#' It's worth noting that the function is meticulously designed to handle potential inconsistencies or missing components in the model, ensuring robustness in predictions and minimizing potential errors during execution.
 #'
 #' @param model Coxmos model.
 #' @param new_data Numeric matrix or data.frame. New explanatory variables (raw data). Qualitative variables must be transform into binary variables.
@@ -4927,6 +4966,9 @@ eval_Coxmos_model_per_variable <- function(model,
 #' @param method Character. Prediction method. It can be compute by using the cox model "cox" or by using W.star "W.star" (default: "cox"). (not implemented for MB approaches)!!!
 #'
 #' @return Return the lp or other metric for the patient
+#'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+#'
 #' @export
 #'
 #' @examples

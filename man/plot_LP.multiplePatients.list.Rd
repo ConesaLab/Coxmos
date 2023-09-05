@@ -40,3 +40,6 @@ Run the function "plot_LP.multiplePatients" for a list of models. More informati
 plot_LP.multiplePatients.list(lst_models, new_data)
 }
 }
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

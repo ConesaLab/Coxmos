@@ -17,9 +17,10 @@
 Score values for new data using the Coxmos model selected.
 }
 \description{
-The function is used to generate the prediction score matrix for PLS Survival models.
-The score matrix is required for the final survival prediction of the data, as dimensional reduction
-is performed before running the cox survival analysis.
+Generates the prediction score matrix for Partial Least Squares (PLS) Survival models, facilitating the transformation of high-dimensional data into a reduced space while preserving the most relevant information for survival analysis.
+}
+\details{
+The \code{predict.Coxmos} function is designed to compute the prediction scores for new data based on a previously trained PLS Survival model. The function leverages the dimensional reduction capabilities of PLS to project the new data into a lower-dimensional space, which is particularly beneficial when dealing with high-dimensional datasets in survival analysis. The score matrix obtained serves as a compact representation of the original data, capturing the most salient features that influence survival outcomes.
 }
 \examples{
 \dontrun{
@@ -29,4 +30,7 @@ X_test <- data[-train_index,]
 model <- splsicox(X, Y)
 predict.Coxmos(object = model, newdata = X_test)
 }
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 }

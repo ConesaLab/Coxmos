@@ -21,6 +21,8 @@ checkColnamesIllegalChars.mb <- function(X){
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
 #'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+#'
 #' @export
 #'
 #' @examples
@@ -48,6 +50,8 @@ getEPV.mb <- function(X,Y){
 #' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
 #' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
 #' @param freqCut Numeric. Cutoff for the ratio of the most common value to the second most common value (default: 95/5).
+#'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 
@@ -90,6 +94,8 @@ deleteZeroOrNearZeroVariance.mb <- function(X, remove_near_zero_variance = F, re
 #'
 #' @param X List of numeric matrices or data.frames. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param LIMIT Numeric. Cutoff for minimum variation. If coefficient is lesser than the limit, the variables are removed because not vary enough (default: 0.1).
+#'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 deleteNearZeroCoefficientOfVariation.mb <- function(X, LIMIT = 0.1){

@@ -12,9 +12,10 @@
 \item{...}{further arguments passed to or from other methods.}
 }
 \description{
-The function is used to print the output of an object of class Coxmos. The function
-prints the final cox model if it is a survival model, or the characteristics of the best model if
-it is a cross-validated model.
+Provides a structured print output for objects of class Coxmos, detailing either the final Cox survival model or the attributes of the optimal model from cross-validation.
+}
+\details{
+The \code{print.Coxmos} function serves as a diagnostic tool, offering a comprehensive display of the Coxmos object's attributes. Depending on the nature of the Coxmos object—whether it's derived from a survival model or a cross-validated model—the function tailors its output accordingly. For survival models, it elucidates the method employed, any variables removed due to high correlation, zero or near-zero variance, or non-significance within the Cox model, and presents a summary of the survival model itself. In the context of cross-validated models, the function delineates the cross-validation method utilized and, if ascertainable, details of the best model. For evaluation objects, it systematically enumerates the methods evaluated and provides a summary of metrics for each method.
 }
 \examples{
 \dontrun{
@@ -25,4 +26,7 @@ print.Coxmos(cv.model)
 model <- splsicox(X,Y)
 print.Coxmos(model)
 }
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 }

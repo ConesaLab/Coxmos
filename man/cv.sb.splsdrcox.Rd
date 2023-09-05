@@ -136,6 +136,19 @@ Instance of class "Coxmos" and model "cv.SB.sPLS-DRCOX".
 \description{
 cv.sb.splsdrcox cross validation model
 }
+\details{
+The \code{cv.sb.splsdrcox} function performs cross-validation for the single-block sparse partial least squares deviance residual Cox analysis. Cross-validation is a robust method to evaluate the performance of a statistical model by partitioning the original sample into a training set to train the model, and a test set to evaluate it. This helps in selecting the optimal hyperparameters for the model, such as the number of latent components (\code{max.ncomp}) and the penalty for variable selection (\code{eta.list}).
+
+The function systematically evaluates different combinations of hyperparameters by performing multiple runs and folds. For each combination, the dataset is divided into training and test sets based on the specified number of folds (\code{k_folds}). The model is then trained on the training set and evaluated on the test set. This process is repeated for the specified number of runs (\code{n_run}), ensuring a comprehensive evaluation of the model's performance across different partitions of the data.
+
+Various evaluation metrics, such as AIC, C-Index, Brier Score, and AUC, are computed for each combination of hyperparameters. These metrics provide insights into the model's accuracy, discriminative ability, and calibration. The function then identifies the optimal hyperparameters that yield the best performance based on the specified evaluation metrics.
+
+The function also offers flexibility in data preprocessing, such as centering and scaling of the explanatory variables, removal of near-zero variance variables, and more. Additionally, users can specify the AUC evaluation algorithm method (\code{pred.method}) and control the verbosity of the output (\code{verbose}).
+
+The output provides a comprehensive overview of the cross-validation results, including detailed information at the fold, run, and component levels. Visualization tools, such as plots for AIC, C-Index, Brier Score, and AUC, are also provided to aid in understanding the model's performance across different hyperparameters.
+
+In summary, the \code{cv.sb.splsdrcox} function offers a robust approach for hyperparameter tuning and model evaluation for the single-block sparse partial least squares deviance residual Cox analysis. It ensures that the final model is both accurate and generalizable to new data.
+}
 \examples{
 \dontrun{
 cv.sb.splsdrcox_model <- cv.sb.splsdrcox(X, Y, max.ncomp = 10,
@@ -143,4 +156,7 @@ eta.list = seq(0.1,0.9,0.2), x.center = TRUE, x.scale = TRUE)
 sb.splsdrcox_model <- sb.splsdrcox(X, Y, n.comp = cv.sb.splsdrcox_model$opt.comp,
 eta = cv.sb.splsdrcox_model$opt.eta, x.center = TRUE, x.scale = TRUE)
 }
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 }

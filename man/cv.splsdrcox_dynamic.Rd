@@ -155,3 +155,6 @@ splsdrcox_model <- splsdrcox(X, Y, n.comp = cv.splsdrcox_dynamic_model$opt.comp,
 vector = cv.splsdrcox_dynamic_model$opt.nvar, x.center = TRUE, x.scale = TRUE)
 }
 }
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

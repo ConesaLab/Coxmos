@@ -54,10 +54,20 @@ plot_pseudobeta(
 \item{label_y_axis_size}{Numeric. Text size for y label axis (default: 10).}
 }
 \description{
-Decompose a PLS-cox model into a original variable pseudo-beta interpretation. As each component has associated a cox coeffitient, and each component has a weight related to the original variable. Cox final formula is expressed in terms of original variables.
+This function decomposes a PLS-Cox model, translating it into a pseudo-beta interpretation with respect to the original variables. The decomposition is based on the relationship between the Cox coefficients associated with each component and the weights corresponding to the original variables. The final Cox formula is thus expressed in terms of these original variables.
+}
+\details{
+The \code{plot_pseudobeta} function offers a comprehensive visualization and interpretation of a PLS-Cox model in terms of the original variables. The function begins by validating the model's class and type. For single block models, the function computes the pseudo-betas by multiplying the loading weights (\code{W.star}) with the Cox coefficients. For multiblock models, this computation is performed for each block separately.
+
+The function provides flexibility in terms of visualization. Users can opt to display error bars, filter out non-significant components based on a significance threshold (\code{alpha}), and remove variables with a pseudo-beta of zero. Additionally, the function allows for automatic limit detection for the plot and displays the contribution percentage of each variable to the full model. The resulting plot can be customized further with various text size parameters for different plot elements.
+
+It's worth noting that the function supports both single block and multiblock PLS-Cox models. For multiblock models, the function returns a list of plots, one for each block, whereas for single block models, a single plot is returned.
 }
 \examples{
 \dontrun{
 plot_pseudobeta(model)
 }
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 }

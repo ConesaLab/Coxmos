@@ -12,3 +12,6 @@ super.evalResults2DataFrame(eval_results)
 \description{
 super.evalResults2DataFrame
 }
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

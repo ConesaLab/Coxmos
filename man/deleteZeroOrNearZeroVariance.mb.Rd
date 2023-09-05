@@ -26,3 +26,6 @@ deleteZeroOrNearZeroVariance.mb(
 \description{
 deleteZeroOrNearZeroVariance.mb
 }
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

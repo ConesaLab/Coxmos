@@ -21,3 +21,6 @@ object
 getEPV.mb(X,Y)
 }
 }
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

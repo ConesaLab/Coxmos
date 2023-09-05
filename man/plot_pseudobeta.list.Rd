@@ -46,3 +46,6 @@ Run the function "plot_pseudobeta" for a list of models. More information in "?p
 plot_pseudobeta.list(lst_models)
 }
 }
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

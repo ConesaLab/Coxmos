@@ -2,7 +2,7 @@
 # METHODS #
 #### ### ##
 
-#' sPLSDA-COX
+#' sPLSDA-COX Dynamic
 #' @description This function performs a sparse partial least squares discriminant analysis Cox (sPLSDA-COX) by dynamic variable selection methodology.
 #' The function returns a Coxmos model with the attribute model as "sPLSDA-COX".
 #'
@@ -465,6 +465,9 @@ splsdacox_dynamic <- function (X, Y,
 #' \code{lst_test_indexes}: List (of lists) of indexes for the observations used in each run/fold for test the models.
 #'
 #' \code{time}: time consumed for running the cross-validated function.
+#'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+#'
 #' @export
 #'
 #' @examples

@@ -37,3 +37,6 @@ Allows to save ggplot2 objects in .svg format based on an specific resolution.
 save_ggplot.svg(plot, folder)
 }
 }
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

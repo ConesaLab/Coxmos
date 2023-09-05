@@ -35,3 +35,6 @@ super.evalAllModels(
 \description{
 super.evalAllModels
 }
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

@@ -34,3 +34,6 @@ Run the function "plot_forest" for a list of models. More information in "?plot_
 plot_forest.list(lst_models)
 }
 }
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

@@ -21,6 +21,13 @@
 #' @param returnData Logical. Return original and normalized X and Y matrices (default: TRUE).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #'
+#' @details
+#' The `sPLS-ICOX` function is an advanced analytical tool tailored for the elucidation of high-dimensional survival data. It amalgamates the principles of sparse partial least squares (sPLS) regression with individual Cox regression, thereby offering a robust mechanism for both dimension reduction and variable selection in the context of survival analysis.
+#' Rooted in the methodologies of the `plsRcox` R package, this function operationalizes the sPLS-ICOX model by leveraging the inherent sparsity introduced via the `spv_penalty` parameter. This parameter delineates a stringent criterion for variable retention, wherein only those variables that manifest a P-Value inferior to the threshold defined by `1 - spv_penalty` in the individual Cox analysis are assimilated into the sPLS-ICOX model framework.
+#' The parameter `n.comp` demarcates the number of latent components to be computed for the sPLS model. These latent components, which encapsulate salient patterns within the data, subsequently underpin the Cox regression analysis. It is imperative to underscore the necessity of meticulous data preprocessing, especially in the context of qualitative variables. Such variables necessitate binary transformation prior to their integration into the function. Moreover, the function is equipped with options for data centering and scaling, pivotal operations that can significantly influence model performance.
+#' Designed with a predilection for right-censored survival data, the function mandates the structuring of the outcome or response variable `Y` into two distinct columns: "time", which chronicles the survival time, and "event", which catalogues the occurrence or non-occurrence of the event of interest.
+#'
+#' Upon execution, the function yields a comprehensive list encapsulating a plethora of elements germane to the sPLS-ICOX model, inclusive of the normalized data matrices, sPLS weight vectors, loadings, scores, and an exhaustive compilation of survival model metrics.
 #' @return Instance of class "Coxmos" and model "sPLS-ICOX". The class contains the following elements:
 #' \code{X}: List of normalized X data information.
 #' \itemize{
@@ -612,6 +619,17 @@ splsicox <- function(X, Y,
 #' The performance could be based on multiple metrics as Area Under the Curve (AUC), Brier Score or C-Index.
 #' Furthermore, the user could establish more than one metric simultaneously.
 #'
+#' @details
+#' The `sPLS-ICOX Cross-Validation` function offers a systematic approach to determine the optimal hyperparameters for the sparse partial least squares Cox (sPLS-ICOX) model through cross-validation. This function aims to identify the best combination of the number of PLS components (`max.ncomp`) and the sparsity penalty (`spv_penalty.list`) by evaluating model performance across multiple metrics such as Area Under the Curve (AUC), Brier Score, and C-Index.
+#'
+#' Cross-validation is executed through a series of runs (`n_run`) and folds (`k_folds`), ensuring a robust assessment of model performance. The function provides flexibility in defining the evaluation criteria, allowing users to set weights for different metrics (`w_AIC`, `w_c.index`, `w_AUC`, `w_BRIER`) and to specify the desired evaluation method (`pred.method`).
+#'
+#' An essential feature of this function is its ability to halt the evaluation process based on predefined conditions. If the improvement in AUC across successive models does not surpass the `MIN_AUC_INCREASE` threshold or if the desired AUC (`MIN_AUC`) is achieved, the evaluation can be terminated early, optimizing computational efficiency.
+#'
+#' The function also incorporates various data preprocessing options, emphasizing the importance of data quality in model performance. For instance, near-zero and zero variance variables can be removed either globally or at the fold level. Additionally, the function can handle multicore processing (`PARALLEL` option) to expedite the cross-validation process.
+#'
+#' Upon completion, the function returns a comprehensive output, including detailed information about the best model, performance metrics at various levels (fold, run, component), and optionally, all cross-validated models.
+#'
 #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 #' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
 #' @param max.ncomp Numeric. Maximum number of PLS components to compute for the cross validation (default: 8).
@@ -669,6 +687,9 @@ splsicox <- function(X, Y,
 #' \code{lst_test_indexes}: List (of lists) of indexes for the observations used in each run/fold for test the models.
 #'
 #' \code{time}: time consumed for running the cross-validated function.
+#'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+#'
 #' @export
 #'
 #' @examples

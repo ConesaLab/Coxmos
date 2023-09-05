@@ -21,6 +21,11 @@
 #' @param returnData Logical. Return original and normalized X and Y matrices (default: TRUE).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #'
+#' @details
+#' The coxEN function is designed to handle survival data using the elastic net regularization. The function is particularly useful when dealing with high-dimensional datasets where the number of predictors exceeds the number of observations.
+#' The elastic net regularization combines the strengths of both lasso and ridge regression. The `EN.alpha` parameter controls the balance between lasso and ridge penalties.
+#' It's important to note that when using the ridge penalty (`EN.alpha = 0`), the EVP and `max.variables` parameters will not be considered.
+#'
 #' @return Instance of class "Coxmos" and model "coxEN". The class contains the following elements:
 #' \code{X}: List of normalized X data information.
 #' \itemize{
@@ -479,6 +484,17 @@ coxEN <- function(X, Y,
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #' @param seed Number. Seed value for performing runs/folds divisions (default: 123).
 #'
+#' @details
+#' The `coxEN Cross-Validation` function provides a robust mechanism to optimize the hyperparameters of the cox elastic net model through cross-validation. By systematically evaluating a range of elastic net mixing parameters (`EN.alpha.list`), this function identifies the optimal balance between lasso and ridge penalties for survival analysis.
+#'
+#' The cross-validation process is structured across multiple runs (`n_run`) and folds (`k_folds`), ensuring a comprehensive assessment of model performance. Users can prioritize specific evaluation metrics, such as AUC, Brier Score, or C-Index, by assigning weights (`w_AIC`, `w_c.index`, `w_AUC`, `w_BRIER`). The function also offers flexibility in the AUC evaluation method (`pred.method`) and the attribute for metric evaluation (`pred.attr`).
+#'
+#' One of the distinguishing features of this function is its adaptive evaluation process. The function can terminate the cross-validation early if the improvement in AUC does not exceed the `MIN_AUC_INCREASE` threshold or if a predefined AUC (`MIN_AUC`) is achieved. This adaptive approach ensures computational efficiency without compromising the quality of the results.
+#'
+#' Data preprocessing options are integrated into the function, emphasizing the significance of data quality. Options to remove near-zero and zero variance variables, either globally or at the fold level, are available. The function also supports multicore processing (`PARALLEL` option) to expedite the cross-validation process.
+#'
+#' Upon execution, the function returns a detailed output, encompassing information about the best model, performance metrics at various granularities (fold, run, component), and if desired, all cross-validated models.
+#'
 #' @return Instance of class "Coxmos" and model "cv.coxEN". The class contains the following elements:
 #' \code{best_model_info}: A data.frame with the information for the best model.
 #' \code{df_results_folds}: A data.frame with fold-level information.
@@ -502,6 +518,9 @@ coxEN <- function(X, Y,
 #' \code{lst_test_indexes}: List (of lists) of indexes for the observations used in each run/fold for test the models.
 #'
 #' \code{time}: time consumed for running the cross-validated function.
+#'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+#'
 #' @export
 #'
 #' @examples

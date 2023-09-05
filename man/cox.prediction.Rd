@@ -21,8 +21,14 @@ cox.prediction(model, new_data, time = NULL, type = "lp", method = "cox")
 Return the lp or other metric for the patient
 }
 \description{
-The function is used to perform a predict.cox() for a Coxmos model from raw data. The function
-automatically generates the score matrix if a PLS Survival is performed and then performs the cox prediction.
+The \code{cox.prediction} function facilitates Cox predictions based on a given Coxmos model, specifically tailored for raw data input. It seamlessly integrates the generation of a score matrix, especially when a PLS Survival analysis has been executed, and subsequently conducts the Cox prediction. The function offers flexibility in prediction types and methods, catering to diverse analytical requirements.
+}
+\details{
+The function initiates by determining the prediction method specified by the user. If the "cox" method is chosen, the function computes the score matrix using the \code{predict.Coxmos} function. This score matrix serves as a foundation for subsequent predictions. It's imperative to note that for prediction types "expected" and "survival", a specific time point must be provided to ensure accurate predictions. The function then leverages the \code{predict} function from the Cox model to compute the desired prediction metric.
+
+Alternatively, if the "W.star" method is selected, the function computes the prediction values based on the W* matrix and the Cox model's coefficients. This involves normalization of the input data, ensuring it aligns with the training data's distribution. The normalization process considers mean and standard deviation values from the model, ensuring consistency in predictions. The resultant prediction values are then computed as a linear combination of the normalized data and the derived coefficients.
+
+It's worth noting that the function is meticulously designed to handle potential inconsistencies or missing components in the model, ensuring robustness in predictions and minimizing potential errors during execution.
 }
 \examples{
 \dontrun{
@@ -31,4 +37,7 @@ X_test <- data[-train_index,]
 model <- plsicox(X, Y)
 cox.prediction(model = model, new_data = X_test)
 }
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 }

@@ -275,6 +275,7 @@ coxen_model <- coxEN(X = X_train, Y = Y_train,
 ```{r}
 coxen_model
 ```
+
 After obtaining the model, if we print it we could see the cox model with all the variables have been selected. However, some of the selected variables have not been significant. If we wish to calculate a model where all selected variables are significant, we should update the **remove_non_significant** parameter to **TRUE**.
 
 ```{r, warning=F}
@@ -388,7 +389,7 @@ splsdrcox_model <- splsdrcox(X = X_train, Y = Y_train,
 splsdrcox_model
 ```
 
-## sPLS-DRCOX MixOmics Penalty
+## sPLS-DRCOX Dynamic
 
 For sPLS-DRCOX methodology we implemented another kind of penalty based on an heuristic variable selection and the MixOmics algorithms. In this case, the penalty is based on a vector of number of variables to test. We can select a specific value to select that number of variables, but if we keep the value to NULL, the number of variable will be selected automatically. 
 

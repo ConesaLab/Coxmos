@@ -138,6 +138,17 @@ The function returns the optimal number of components and the optimal sparsity p
 The performance could be based on multiple metrics as Area Under the Curve (AUC), Brier Score or C-Index.
 Furthermore, the user could establish more than one metric simultaneously.
 }
+\details{
+The \verb{sPLS-ICOX Cross-Validation} function offers a systematic approach to determine the optimal hyperparameters for the sparse partial least squares Cox (sPLS-ICOX) model through cross-validation. This function aims to identify the best combination of the number of PLS components (\code{max.ncomp}) and the sparsity penalty (\code{spv_penalty.list}) by evaluating model performance across multiple metrics such as Area Under the Curve (AUC), Brier Score, and C-Index.
+
+Cross-validation is executed through a series of runs (\code{n_run}) and folds (\code{k_folds}), ensuring a robust assessment of model performance. The function provides flexibility in defining the evaluation criteria, allowing users to set weights for different metrics (\code{w_AIC}, \code{w_c.index}, \code{w_AUC}, \code{w_BRIER}) and to specify the desired evaluation method (\code{pred.method}).
+
+An essential feature of this function is its ability to halt the evaluation process based on predefined conditions. If the improvement in AUC across successive models does not surpass the \code{MIN_AUC_INCREASE} threshold or if the desired AUC (\code{MIN_AUC}) is achieved, the evaluation can be terminated early, optimizing computational efficiency.
+
+The function also incorporates various data preprocessing options, emphasizing the importance of data quality in model performance. For instance, near-zero and zero variance variables can be removed either globally or at the fold level. Additionally, the function can handle multicore processing (\code{PARALLEL} option) to expedite the cross-validation process.
+
+Upon completion, the function returns a comprehensive output, including detailed information about the best model, performance metrics at various levels (fold, run, component), and optionally, all cross-validated models.
+}
 \examples{
 \dontrun{
 cv.splsicox_model <- cv.splsicox(X, Y, max.ncomp = 8, spv_penalty.list = c(0.1,0.5,0.8),
@@ -145,4 +156,7 @@ x.center = TRUE, x.scale = TRUE)
 splsicox_model <- splsicox(X, Y, n.comp = cv.splsicox_model$opt.comp,
 spv_penalty = cv.splsicox_model$opt.spv_penalty, x.center = TRUE, x.scale = TRUE)
 }
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 }

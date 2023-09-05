@@ -7,17 +7,20 @@
 getEPV(X, Y)
 }
 \arguments{
-\item{X}{Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.}
-
 \item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.}
 }
 \description{
-The function computes the (Events per Variable) EPV value for a given dataset.
-The function calculates the ratio of events in the Y matrix and the number of variables in the X
-matrix.
+Provides a quantitative assessment of the dataset by computing the Events per Variable (EPV) metric, which gauges the proportionality between observed events and the number of explanatory variables.
+}
+\details{
+In the realm of survival analysis, the balance between observed events and explanatory variables is paramount. The \code{getEPV} function serves as a tool for researchers to ascertain this balance, which can be pivotal in determining the robustness and interpretability of subsequent statistical models. By evaluating the ratio of events in the \code{Y} matrix to the variables in the \code{X} matrix, the function yields the EPV metric. It is of utmost importance that the \code{Y} matrix encompasses two distinct columns, namely "time" and "event". The latter, "event", should strictly encapsulate binary values, delineating censored (either 0 or FALSE) and event (either 1 or TRUE) observations. To ensure the integrity of the data and the precision of the computation, the function is equipped with an error mechanism that activates if the "event" column remains undetected.
+#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
 }
 \examples{
 \dontrun{
 getEPV(X,Y)
 }
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 }

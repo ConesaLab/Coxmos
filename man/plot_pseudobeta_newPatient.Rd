@@ -36,10 +36,22 @@ plot_pseudobeta_newPatient(
 \item{show.betas}{Logical. Show original betas (default: FALSE).}
 }
 \description{
-Generates a ggplot2 to compare the pseudobeta direction from de Coxmos model and the values of the new observation.
+Generates a visual representation comparing the pseudobeta values derived from the Coxmos model with the values of a new observation. This function provides insights into how the new observation aligns with the established model, offering a graphical comparison of the pseudobeta directions.
+}
+\details{
+The function \code{plot_pseudobeta.newPatient} is designed to visually compare the pseudobeta values from the Coxmos model with those of a new observation. The generated plot is based on the ggplot2 framework and offers a comprehensive view of the relationship between the model's pseudobeta values and the new observation's values.
+
+The function first checks the validity of the provided model and ensures that it belongs to the appropriate class. Depending on the type of the model (either PLS or MB Coxmos methods).
+
+For the actual plotting, the function computes the linear predictor values for the new observation and juxtaposes them with the pseudobeta values from the model. If the \code{show.betas} parameter is set to TRUE, the original beta values are also displayed on the plot. Error bars can be included to represent the variability in the pseudobeta values, providing a more comprehensive view of the data's distribution.
+
+The resulting plot serves as a valuable tool for researchers and statisticians to visually assess the alignment of a new observation with an established Coxmos model, facilitating better interpretation and understanding of the data in the context of the model.
 }
 \examples{
 \dontrun{
 plot_pseudobeta_newPatient(model, new_observation)
 }
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 }

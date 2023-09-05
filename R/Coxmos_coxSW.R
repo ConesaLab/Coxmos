@@ -25,6 +25,12 @@
 #' @param returnData Logical. Return original and normalized X and Y matrices (default: TRUE).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #'
+#' @details
+#' The coxSW function is designed to perform stepwise regression on survival data. The stepwise approach can be either forward, backward, or a combination of both, depending on the parameters set. The function uses criteria like P-Values to decide which variables should enter or leave the model during the stepwise process.
+#'
+#' The function is particularly useful when there's a need to simplify a model by selecting only the most significant predictors. The stepwise method iteratively adds or removes predictors based on their significance in the model.
+#'
+#'
 #' @return Instance of class "Coxmos" and model "coxSW". The class contains the following elements:
 #'
 #' \code{X}: List of normalized X data information.

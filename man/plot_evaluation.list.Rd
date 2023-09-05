@@ -62,3 +62,6 @@ Run the function "plot_evaluation" for a list of results. More information in "?
 plot_evaluation.list(lst_eval_results)
 }
 }
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

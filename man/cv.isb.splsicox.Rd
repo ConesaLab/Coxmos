@@ -162,9 +162,27 @@ Instance of class "Coxmos" and model "sb.splsicox". The class contains the follo
 \description{
 cv.isb.splsicox cross validation model
 }
+\details{
+The \code{cv.isb.splsicox} function performs cross-validation for the iterative single-block sparse partial least squares individual Cox analysis. Unlike the single-block (\code{sb}) approach, where each block is analyzed with the same number of components and penalties, the iterative single-block (\code{isb}) approach allows for the specification of different numbers of components and penalties for each block. This provides a more tailored analysis for each block, recognizing that different blocks may have varying complexities and relationships with the outcome.
+
+The function is designed to handle datasets with multiple blocks, processing each block individually in an iterative manner. This ensures a detailed examination of each block's contribution to the survival outcome without the interference of other blocks. This approach is distinct from multiblock methods where all blocks are analyzed simultaneously.
+
+In the context of this function, "iterative single-block" means that each block of data is analyzed separately, one after the other. This approach is beneficial when different blocks represent distinct types or sources of data, allowing for a granular understanding of each block's significance.
+
+The cross-validation process involves partitioning the dataset into multiple subsets (folds) and then iteratively training the model on a subset of the data while validating it on the remaining data. This helps in determining the optimal hyperparameters for the model, such as the number of latent components and the penalty for variable selection.
+
+Unlike the \code{sb} approach, which returns the optimal hyperparameters for further model training, the \code{isb} approach directly returns the final model. This model is constructed using the best-performing hyperparameters for each block, ensuring a more customized and potentially more accurate model.
+
+The function offers flexibility in specifying various hyperparameters and options for data preprocessing. The output provides a comprehensive overview of the cross-validation results, including metrics like AIC, C-Index, Brier Score, and AUC for each hyper-parameter combination. Visualization tools are also provided to aid in understanding the model's performance across different hyperparameters.
+
+In summary, the \code{cv.isb.splsicox} function offers a robust and tailored approach for determining the optimal parameters for the iterative single-block sparse partial least squares individual Cox analysis, ensuring optimal feature selection, dimensionality reduction, and predictive modeling for each individual block in the dataset.
+}
 \examples{
 \dontrun{
 isb.splsicox_model <- cv.isb.splsicox(X, Y, max.ncomp = 10,
 spv_penalty.list = seq(0.1,0.9,0.2), x.center = TRUE, x.scale = TRUE)
 }
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 }

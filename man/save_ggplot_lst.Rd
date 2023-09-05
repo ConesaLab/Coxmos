@@ -43,3 +43,6 @@ Allows to save a list of ggplot2 objects in .tiff format based on an specific re
 save_ggplot_lst(plot_lst, folder)
 }
 }
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

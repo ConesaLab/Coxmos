@@ -132,9 +132,23 @@ Instance of class "Coxmos" and model "cv.coxEN". The class contains the followin
 \description{
 coxEN Cross-Validation
 }
+\details{
+The \verb{coxEN Cross-Validation} function provides a robust mechanism to optimize the hyperparameters of the cox elastic net model through cross-validation. By systematically evaluating a range of elastic net mixing parameters (\code{EN.alpha.list}), this function identifies the optimal balance between lasso and ridge penalties for survival analysis.
+
+The cross-validation process is structured across multiple runs (\code{n_run}) and folds (\code{k_folds}), ensuring a comprehensive assessment of model performance. Users can prioritize specific evaluation metrics, such as AUC, Brier Score, or C-Index, by assigning weights (\code{w_AIC}, \code{w_c.index}, \code{w_AUC}, \code{w_BRIER}). The function also offers flexibility in the AUC evaluation method (\code{pred.method}) and the attribute for metric evaluation (\code{pred.attr}).
+
+One of the distinguishing features of this function is its adaptive evaluation process. The function can terminate the cross-validation early if the improvement in AUC does not exceed the \code{MIN_AUC_INCREASE} threshold or if a predefined AUC (\code{MIN_AUC}) is achieved. This adaptive approach ensures computational efficiency without compromising the quality of the results.
+
+Data preprocessing options are integrated into the function, emphasizing the significance of data quality. Options to remove near-zero and zero variance variables, either globally or at the fold level, are available. The function also supports multicore processing (\code{PARALLEL} option) to expedite the cross-validation process.
+
+Upon execution, the function returns a detailed output, encompassing information about the best model, performance metrics at various granularities (fold, run, component), and if desired, all cross-validated models.
+}
 \examples{
 \dontrun{
 cv.coxEN_model <- cv.coxEN(X, Y, EN.alpha.list = c(0.1,0.5,0.1), x.center = TRUE, x.scale = TRUE)
 coxEN_model <- coxEN(X, Y, EN.alpha = cv.coxEN_model$opt.EN.alpha, x.center = TRUE, x.scale = TRUE)
 }
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 }

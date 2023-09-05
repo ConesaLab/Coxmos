@@ -17,3 +17,6 @@ Run the function "plot_proportionalHazard" for a list of models. More informatio
 plot_proportionalHazard.list(lst_models)
 }
 }
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+}

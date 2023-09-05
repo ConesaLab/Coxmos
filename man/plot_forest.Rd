@@ -27,10 +27,20 @@ plot_forest(
 \item{noDigits}{Numeric. Number of digits for estimates and p-values in the plot (default: 2).}
 }
 \description{
-Forest plot for Coxmos models using the R library plot_forest. For more information check ?survminer::ggforest.
+Generates a forest plot for Coxmos models, visualizing the hazard ratios and their confidence intervals. The function leverages the capabilities of the \code{survminer::ggforest} function to produce a comprehensive representation of the model's coefficients.
+}
+\details{
+The forest plot is a graphical representation of the point estimates and confidence intervals of the hazard ratios derived from a Coxmos model. Each row in the plot corresponds to a variable or component from the model, with a point representing the hazard ratio and horizontal lines indicating the confidence intervals. The plot provides a visual assessment of the significance and magnitude of each variable's effect on the outcome.
+
+The function starts by validating the provided model to ensure it belongs to the Coxmos class and is among the recognized Coxmos models. If the model is valid, the function then proceeds to generate the forest plot using the \code{survminer::ggforest} function. Several customization options are available, including adjusting the title, column positions, font size, reference label, and the number of digits displayed for estimates and p-values.
+
+Forest plots are instrumental in the field of survival analysis, offering a concise visualization of the model's results, making them easier to interpret and communicate.
 }
 \examples{
 \dontrun{
 plot_forest(model)
 }
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 }

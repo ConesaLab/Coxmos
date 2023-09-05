@@ -36,10 +36,14 @@ eval_Coxmos_model_per_variable(
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
 \description{
-The function is used to evaluate how each variable/component affect the prediction for an specific Coxmos model. The function
-returns all the data needed for plotting the information, including the AUC per model and for each
-time point selected for the predictions. After their used, it is recommended to run the plot_evaluation()
-function.
+The \code{eval_Coxmos_model_per_variable} function offers a granular evaluation of a specific Coxmos model, focusing on the influence of individual variables or components on the model's predictive performance. It computes the Area Under the Curve (AUC) for each variable at designated time points, providing insights into the relative importance of each variable in the model's predictions. For a visual representation of the results, it is advisable to utilize the \code{plot_evaluation()} function post-evaluation.
+}
+\details{
+Upon invocation, the function initiates by verifying the consistency between test times and the training times of the provided model. Subsequently, linear predictors for each variable are derived using the \code{predict.Coxmos} function. These linear predictors serve as the foundation for the AUC computation, which is executed for each variable across the specified time points.
+
+The function employs various evaluation methods, as determined by the \code{pred.method} parameter, to calculate the AUC values. These methods encompass options such as "risksetROC", "survivalROC", and "cenROC", among others. The results are systematically organized into a structured data frame, segregating AUC values for each variable at different time points. This structured output not only facilitates easy interpretation but also sets the stage for subsequent visualization or further analysis.
+
+It's noteworthy that the function is equipped to handle parallel processing, contingent on the user's preference, which can expedite the evaluation process, especially when dealing with extensive datasets or multiple time points.
 }
 \examples{
 \dontrun{
@@ -50,4 +54,7 @@ Y_test <- data_Y[-train_index,]
 model_icox <- splsicox(X, Y)
 eval_Coxmos_model_per_variable(model_icox, X_test, Y_test, pred.method = "cenROC")
 }
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 }

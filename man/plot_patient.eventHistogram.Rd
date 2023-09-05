@@ -27,10 +27,16 @@ plot_patient.eventHistogram(
 \item{color}{String. R Color.}
 }
 \description{
-patient.eventHistogram
+Generates a histogram plot for patient event data based on a given Coxmos model. The function visualizes the distribution of predicted values and highlights the prediction for a specific patient.
+}
+\details{
+The \code{plot_patient.eventHistogram} function is designed to provide a visual representation of the distribution of predicted event values based on a Coxmos model. The function takes in patient data, a specified time point, and a Coxmos model to compute the prediction. The resulting histogram plot displays the distribution of these predictions, with a specific emphasis on the prediction for the provided patient data. The prediction is represented as a point on the histogram, allowing for easy comparison between the specific patient's prediction and the overall distribution of predictions. The type of prediction ("lp", "risk", "expected", or "survival") can be specified, offering flexibility in the kind of insights one wishes to derive from the visualization. The appearance of the point representing the patient's prediction can be customized using the \code{size} and \code{color} parameters.
 }
 \examples{
 \dontrun{
 plot_patient.eventHistogram(patient, time = NULL, model)
 }
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 }

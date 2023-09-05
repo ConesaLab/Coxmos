@@ -30,10 +30,12 @@ plot_divergent.biplot(
 A ggplot2 two side bar plot. X axis represent the number of samples per each NAMEVAR1 factor levels and Y axis, the X NAMEVAR2 numerical variables categorize in groups of breaks.
 }
 \description{
-Two side plot by a qualitative and a quantitative variable and Y event matrix.
+Generates a divergent biplot visualizing the distribution of a qualitative variable against a quantitative variable, further categorized by an event matrix.
 }
 \details{
-For time comparison between best models, use the cross validation objects instead the final models. The training has to be taken into account.
+The function \code{plot_divergent.biplot} is designed to offer a comprehensive visualization of the relationship between a qualitative and a quantitative variable, while also taking into account an associated event matrix. The qualitative variable, denoted by "NAMEVAR1", is expected to be a factor with two levels, and the quantitative variable, "NAMEVAR2", is numerically represented. The event matrix, "Y", consists of two columns: "time" and "event". The "event" column indicates whether an observation is censored or an event, represented by binary values (0/1 or FALSE/TRUE).
+
+The function processes the input data to categorize the quantitative variable into groups based on the specified "BREAKTIME" parameter. Each group represents a range of values for the quantitative variable. The resulting plot displays the number of samples for each level of the qualitative variable on the X-axis, while the Y-axis represents the categorized groups of the quantitative variable. The bars in the plot are further colored based on the event type, providing a clear distinction between censored and event observations.
 }
 \examples{
 \dontrun{
@@ -41,4 +43,7 @@ For time comparison between best models, use the cross validation objects instea
   NAMEVAR2 = "age"
   plot_divergent.biplot(X, Y, NAMEVAR1, NAMEVAR2, BREAKTIME = 5, x.text = "N. of Patients")
 }
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 }

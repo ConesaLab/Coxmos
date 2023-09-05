@@ -24,9 +24,10 @@ deleteZeroOrNearZeroVariance(
 \item{freqCut}{Numeric. Cutoff for the ratio of the most common value to the second most common value (default: 95/5).}
 }
 \description{
-The function allows users to delete variables with near-zero or zero variance in a
-given dataset. The function has parameters to control whether near-zero variance variables should
-be removed or just zero variance variables. The function is based on the package and function caret::nearZeroVar().
+Provides a robust mechanism to filter out variables from a dataset that exhibit zero or near-zero variance, thereby enhancing the quality and interpretability of subsequent statistical analyses.
+}
+\details{
+The \code{deleteZeroOrNearZeroVariance} function is an indispensable tool in the preprocessing phase of statistical modeling. In many datasets, especially high-dimensional ones, certain variables might exhibit zero or near-zero variance. Such variables can be problematic as they offer limited information variance and can potentially distort the results of statistical models, leading to issues like overfitting. By leveraging the \code{caret::nearZeroVar()} function, this tool offers a rigorous method to identify and exclude these variables. Users are afforded flexibility in their choices, with options to remove only zero variance variables, near-zero variance variables, or both. The function also provides the capability to set a frequency cutoff, \code{freqCut}, which determines the threshold for near-zero variance based on the ratio of the most frequent value to the second most frequent value. For scenarios where certain variables are deemed essential and should not be removed regardless of their variance, the \code{toKeep.zv} parameter allows users to specify a list of such variables.
 }
 \examples{
 \dontrun{
@@ -35,4 +36,7 @@ deleteZeroOrNearZeroVariance(X, remove_near_zero_variance = F, remove_zero_varia
 # near-zero-variance variables
 deleteZeroOrNearZeroVariance(X, remove_near_zero_variance = T, remove_zero_variance = T)
 }
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 }

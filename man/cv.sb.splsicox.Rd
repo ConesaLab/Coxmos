@@ -135,6 +135,17 @@ Instance of class "Coxmos" and model "cv.SB.sPLS-ICOX".
 \description{
 cv.sb.splsicox cross validation model
 }
+\details{
+The \code{cv.sb.splsicox} function performs cross-validation for the single-block sparse partial least squares individual Cox analysis. While the function can handle datasets with multiple blocks, it processes each block individually, ensuring a detailed examination of each block's contribution to the survival outcome. This is distinct from multiblock methods where all blocks are analyzed simultaneously.
+
+In the context of this function, "single-block" means that each block of data is analyzed separately, one at a time. This approach is beneficial when different blocks represent distinct types or sources of data, allowing for a granular understanding of each block's significance without the interference of other blocks.
+
+The cross-validation process involves partitioning the dataset into multiple subsets (folds) and then iteratively training the model on a subset of the data while validating it on the remaining data. This helps in determining the optimal hyperparameters for the model, such as the number of latent components and the penalty for variable selection.
+
+The function offers flexibility in specifying various hyperparameters and options for data preprocessing. The output provides a comprehensive overview of the cross-validation results, including metrics like AIC, C-Index, Brier Score, and AUC for each hyper-parameter combination. Visualization tools are also provided to aid in understanding the model's performance across different hyperparameters.
+
+In summary, the \code{cv.sb.splsicox} function offers a robust approach for determining the optimal parameters for the single-block sparse partial least squares individual Cox analysis, ensuring optimal feature selection, dimensionality reduction, and predictive modeling for each individual block in the dataset.
+}
 \examples{
 \dontrun{
 cv.sb.splsicox_model <- cv.sb.splsicox(X, Y, max.ncomp = 10
@@ -142,4 +153,7 @@ spv_penalty.list = seq(0.1,0.9,0.2), x.center = TRUE, x.scale = TRUE)
 sb.splsicox_model <- sb.splsicox(X, Y, n.comp = cv.sb.splsicox_model$opt.comp,
 spv_penalty = cv.sb.splsicox_model$opt.spv_penalty, x.center = TRUE, x.scale = TRUE)
 }
+}
+\author{
+Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 }

@@ -42,7 +42,19 @@ getAutoKM(
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
 \description{
-Performs a Kaplan-Meier plot for the Coxmos model selected. KM could be based on model Linear Predictor value ("LP"), based on PLS-COX component ("COMP") or at original variable level ("VAR").
+Generates a Kaplan-Meier plot for the specified Coxmos model. The plot can be constructed based on the model's Linear Predictor value, the PLS-COX component, or the original variable level.
+}
+\details{
+The \code{getAutoKM} function offers a flexible approach to visualize survival analysis results using the Kaplan-Meier method. Depending on the \code{type} parameter, the function can generate plots based on different aspects of the Coxmos model:
+\itemize{
+\item "LP": Uses the Linear Predictor value of the model.
+\item "COMP": Utilizes the PLS-COX component.
+\item "VAR": Operates at the original variable level.
+}
+
+The function provides options to customize the number of components (\code{comp}), the number of top variables (\code{top}), and whether to use raw or normalized data (\code{ori_data}). Additionally, users can specify the time intervals (\code{BREAKTIME} and \code{n.breaks}) for the Kaplan-Meier plot. If significance testing is desired, the function can filter out non-significant variables based on the log-rank test (\code{only_sig} and \code{alpha} parameters).
+
+It's essential to ensure that the provided \code{model} is of the correct class (\code{Coxmos}). The function will return an error message if an incompatible model is supplied.
 }
 \examples{
 \dontrun{

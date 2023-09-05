@@ -13,8 +13,16 @@ plot_proportionalHazard(model)
 A ggplot2 plot.
 }
 \description{
-Perform the proportional hazard assumption for a specific Coxmos model.
-It uses the functions "survival::cox.zph" and "survminer::ggcoxzph", but it returns a ggplot2 graph.
+Generates a visual assessment of the proportional hazards assumption for a given Coxmos model. The function integrates the capabilities of the \code{survival::cox.zph} and \code{survminer::ggcoxzph} functions to produce a \code{ggplot2} graph that visualizes the validity of the proportional hazards assumption.
+}
+\details{
+The proportional hazards assumption is a fundamental tenet of the Cox proportional hazards regression model. It posits that the hazard ratios between groups remain constant over time. Violations of this assumption can lead to biased or misleading results. Thus, assessing the validity of this assumption is crucial in survival analysis.
+
+The function begins by validating the provided model to ensure it belongs to the Coxmos class. If the model is valid, the function then evaluates the proportional hazards assumption using the \code{survival::cox.zph} function. The results of this evaluation are then visualized using the \code{survminer::ggcoxzph} function, producing a \code{ggplot2} graph.
+
+The resulting plot provides a visual representation of the Schoenfeld residuals against time, allowing for an intuitive assessment of the proportional hazards assumption. Each variable or factor level from the model is represented in the plot, and the global test for the proportional hazards assumption is also provided.
+
+This function is instrumental in ensuring the robustness and validity of survival analysis results, offering a comprehensive visualization that aids in the interpretation and validation of the Coxmos model's assumptions.
 }
 \examples{
 \dontrun{

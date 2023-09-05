@@ -634,6 +634,9 @@ mb.splsdacox <- function (X, Y,
 #' \code{lst_test_indexes}: List (of lists) of indexes for the observations used in each run/fold for test the models.
 #'
 #' \code{time}: time consumed for running the cross-validated function.
+#'
+#' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+#'
 #' @export
 #'
 #' @examples
