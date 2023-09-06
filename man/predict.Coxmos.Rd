@@ -11,16 +11,24 @@
 
 \item{...}{additional arguments affecting the predictions produced.}
 
-\item{newdata}{Numeric matrix or data.frame. New data for explanatory variables (raw data). Qualitative variables must be transform into binary variables.}
+\item{newdata}{Numeric matrix or data.frame. New data for explanatory variables (raw data).
+Qualitative variables must be transform into binary variables.}
 }
 \value{
 Score values for new data using the Coxmos model selected.
 }
 \description{
-Generates the prediction score matrix for Partial Least Squares (PLS) Survival models, facilitating the transformation of high-dimensional data into a reduced space while preserving the most relevant information for survival analysis.
+Generates the prediction score matrix for Partial Least Squares (PLS) Survival models,
+facilitating the transformation of high-dimensional data into a reduced space while preserving the
+most relevant information for survival analysis.
 }
 \details{
-The \code{predict.Coxmos} function is designed to compute the prediction scores for new data based on a previously trained PLS Survival model. The function leverages the dimensional reduction capabilities of PLS to project the new data into a lower-dimensional space, which is particularly beneficial when dealing with high-dimensional datasets in survival analysis. The score matrix obtained serves as a compact representation of the original data, capturing the most salient features that influence survival outcomes.
+The \code{predict.Coxmos} function is designed to compute the prediction scores for new data
+based on a previously trained PLS Survival model. The function leverages the dimensional reduction
+capabilities of PLS to project the new data into a lower-dimensional space, which is particularly
+beneficial when dealing with high-dimensional datasets in survival analysis. The score matrix
+obtained serves as a compact representation of the original data, capturing the most salient
+features that influence survival outcomes.
 }
 \examples{
 \dontrun{

@@ -20,15 +20,20 @@ super.evalAllModels(
 
 \item{lst_subdata_models}{List of model per each data}
 
-\item{lst_evaluations}{List of which evaluators to use: "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I", "risksetROC"}
+\item{lst_evaluations}{List of which evaluators to use: "survivalROC", "cenROC", "nsROC",
+"smoothROCtime_C", "smoothROCtime_I", "risksetROC"}
 
-\item{pred.attr}{Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").}
+\item{pred.attr}{Character. Way to evaluate the metric selected. Must be one of the following:
+"mean" or "median" (default: "mean").}
 
-\item{times}{Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 'max_time_points' points will be selected equally distributed (default: NULL).}
+\item{times}{Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of
+'max_time_points' points will be selected equally distributed (default: NULL).}
 
-\item{max_time_points}{Numeric. Maximum number of time points to use for evaluating the model (default: 15).}
+\item{max_time_points}{Numeric. Maximum number of time points to use for evaluating the model
+(default: 15).}
 
-\item{PARALLEL}{Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).}
+\item{PARALLEL}{Logical. Run the cross validation with multicore option. As many cores as your
+total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).}
 
 \item{progress_bar}{Logical. If progress_bar = TRUE, progress bar is shown (default = FALSE).}
 }

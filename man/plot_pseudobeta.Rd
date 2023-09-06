@@ -29,15 +29,18 @@ plot_pseudobeta(
 
 \item{onlySig}{Logical. Compute pseudobetas using only significant components (default: FALSE).}
 
-\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
+\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold
+(default: 0.05).}
 
 \item{zero.rm}{Logical. Remove variables with a pseudobeta equal to 0 (default: TRUE).}
 
-\item{top}{Numeric. Show "top" first variables with the higher pseudobetas in absolute value. If top = NULL, all variables are shown (default: NULL).}
+\item{top}{Numeric. Show "top" first variables with the higher pseudobetas in absolute value. If
+top = NULL, all variables are shown (default: NULL).}
 
 \item{auto.limits}{Logical. If "auto.limits" = TRUE, limits are detected automatically (default: TRUE).}
 
-\item{show_percentage}{Logical. If show_percentage = TRUE, it shows the contribution percentage for each variable to the full model (default: TRUE).}
+\item{show_percentage}{Logical. If show_percentage = TRUE, it shows the contribution percentage
+for each variable to the full model (default: TRUE).}
 
 \item{size_percentage}{Numeric. Size of percentage text (default: 3).}
 
@@ -54,14 +57,29 @@ plot_pseudobeta(
 \item{label_y_axis_size}{Numeric. Text size for y label axis (default: 10).}
 }
 \description{
-This function decomposes a PLS-Cox model, translating it into a pseudo-beta interpretation with respect to the original variables. The decomposition is based on the relationship between the Cox coefficients associated with each component and the weights corresponding to the original variables. The final Cox formula is thus expressed in terms of these original variables.
+This function decomposes a PLS-Cox model, translating it into a pseudo-beta
+interpretation with respect to the original variables. The decomposition is based on the
+relationship between the Cox coefficients associated with each component and the weights
+corresponding to the original variables. The final Cox formula is thus expressed in terms of
+these original variables.
 }
 \details{
-The \code{plot_pseudobeta} function offers a comprehensive visualization and interpretation of a PLS-Cox model in terms of the original variables. The function begins by validating the model's class and type. For single block models, the function computes the pseudo-betas by multiplying the loading weights (\code{W.star}) with the Cox coefficients. For multiblock models, this computation is performed for each block separately.
+The \code{plot_pseudobeta} function offers a comprehensive visualization and interpretation
+of a PLS-Cox model in terms of the original variables. The function begins by validating the model's
+class and type. For single block models, the function computes the pseudo-betas by multiplying
+the loading weights (\code{W.star}) with the Cox coefficients. For multiblock models, this computation
+is performed for each block separately.
 
-The function provides flexibility in terms of visualization. Users can opt to display error bars, filter out non-significant components based on a significance threshold (\code{alpha}), and remove variables with a pseudo-beta of zero. Additionally, the function allows for automatic limit detection for the plot and displays the contribution percentage of each variable to the full model. The resulting plot can be customized further with various text size parameters for different plot elements.
+The function provides flexibility in terms of visualization. Users can opt to display error bars,
+filter out non-significant components based on a significance threshold (\code{alpha}), and remove
+variables with a pseudo-beta of zero. Additionally, the function allows for automatic limit
+detection for the plot and displays the contribution percentage of each variable to the full model.
+The resulting plot can be customized further with various text size parameters for different plot
+elements.
 
-It's worth noting that the function supports both single block and multiblock PLS-Cox models. For multiblock models, the function returns a list of plots, one for each block, whereas for single block models, a single plot is returned.
+It's worth noting that the function supports both single block and multiblock PLS-Cox models. For
+multiblock models, the function returns a list of plots, one for each block, whereas for single
+block models, a single plot is returned.
 }
 \examples{
 \dontrun{

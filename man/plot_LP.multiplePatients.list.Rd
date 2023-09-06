@@ -18,13 +18,15 @@ plot_LP.multiplePatients.list(
 \arguments{
 \item{lst_models}{List of Coxmos models.}
 
-\item{new_data}{Numeric matrix or data.frame. New explanatory variables (raw data). Qualitative variables must be transform into binary variables.}
+\item{new_data}{Numeric matrix or data.frame. New explanatory variables (raw data). Qualitative
+variables must be transform into binary variables.}
 
 \item{error.bar}{Logical. Show error bar (default: FALSE).}
 
 \item{onlySig}{Logical. Compute plot using only significant components (default: TRUE).}
 
-\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
+\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the
+threshold (default: 0.05).}
 
 \item{zero.rm}{Logical. Remove variables equal to 0 (default: TRUE).}
 
@@ -33,7 +35,8 @@ plot_LP.multiplePatients.list(
 \item{top}{Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: NULL).}
 }
 \description{
-Run the function "plot_LP.multiplePatients" for a list of models. More information in "?plot_LP.multiplePatients".
+Run the function "plot_LP.multiplePatients" for a list of models. More information
+in "?plot_LP.multiplePatients".
 }
 \examples{
 \dontrun{

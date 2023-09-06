@@ -14,7 +14,8 @@ plot_patient.eventDensity(
 )
 }
 \arguments{
-\item{patient}{Numeric matrix or data.frame. New explanatory variables (raw data) for one observation. Qualitative variables must be transform into binary variables.}
+\item{patient}{Numeric matrix or data.frame. New explanatory variables (raw data) for one observation.
+Qualitative variables must be transform into binary variables.}
 
 \item{time}{Numeric. Time point where the AUC will be evaluated (default: NULL).}
 
@@ -30,7 +31,14 @@ plot_patient.eventDensity(
 Visualizes the event density for a given patient's data using the Coxmos model.
 }
 \details{
-The \code{plot_patient.eventDensity} function provides a graphical representation of the event density for a specific patient's data, based on the Coxmos model. The function computes the density of events and non-events and plots them, highlighting the predicted value for the given patient's data. The density is determined using density estimation, and the predicted value is obtained from the Coxmos model. The function allows customization of the plot aesthetics, such as point size and color. The resulting plot provides a visual comparison of the patient's predicted event density against the overall event density distribution, aiding in the interpretation of the patient's risk profile.
+The \code{plot_patient.eventDensity} function provides a graphical representation of the event
+density for a specific patient's data, based on the Coxmos model. The function computes the density
+of events and non-events and plots them, highlighting the predicted value for the given patient's
+data. The density is determined using density estimation, and the predicted value is obtained from
+the Coxmos model. The function allows customization of the plot aesthetics, such as point size and
+color. The resulting plot provides a visual comparison of the patient's predicted event density
+against the overall event density distribution, aiding in the interpretation of the patient's risk
+profile.
 }
 \examples{
 \dontrun{

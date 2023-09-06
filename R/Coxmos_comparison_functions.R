@@ -1,4 +1,5 @@
-getSurvivalSubset <- function(X, Y, event.val = TRUE, EPV, p.censored, n.patients = NULL, num.subsets = 1, perc.test = 0.2, seed = 123){
+getSurvivalSubset <- function(X, Y, event.val = TRUE, EPV, p.censored, n.patients = NULL,
+                              num.subsets = 1, perc.test = 0.2, seed = 123){
 
   set.seed(seed)
 
@@ -286,8 +287,11 @@ getSurvivalSubset <- function(X, Y, event.val = TRUE, EPV, p.censored, n.patient
 #' @param eta Eta for manual detection,
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
-#' @param MIN_EPV Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).
-#' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).
+#' @param MIN_EPV Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final
+#' cox model. Used to restrict the number of variables/components can be computed in final cox models.
+#' If the minimum is not meet, the model cannot be computed (default: 5).
+#' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your
+#' total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).
 #'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
@@ -359,11 +363,16 @@ super.trainAllModels <- function(lst_subdata, methods,
 #'
 #' @param lst_subdata List of data
 #' @param lst_subdata_models List of model per each data
-#' @param lst_evaluations List of which evaluators to use: "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I", "risksetROC"
-#' @param pred.attr Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").
-#' @param times Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 'max_time_points' points will be selected equally distributed (default: NULL).
-#' @param max_time_points Numeric. Maximum number of time points to use for evaluating the model (default: 15).
-#' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).
+#' @param lst_evaluations List of which evaluators to use: "survivalROC", "cenROC", "nsROC",
+#' "smoothROCtime_C", "smoothROCtime_I", "risksetROC"
+#' @param pred.attr Character. Way to evaluate the metric selected. Must be one of the following:
+#' "mean" or "median" (default: "mean").
+#' @param times Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of
+#' 'max_time_points' points will be selected equally distributed (default: NULL).
+#' @param max_time_points Numeric. Maximum number of time points to use for evaluating the model
+#' (default: 15).
+#' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your
+#' total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).
 #' @param progress_bar Logical. If progress_bar = TRUE, progress bar is shown (default = FALSE).
 #'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
@@ -512,7 +521,8 @@ super.evalResults2DataFrame <- function(eval_results){
 }
 
 train_all_models2.5 <- function(lst_X_train, lst_Y_train,
-                                methods = c("cox", "coxSW", "coxEN", "sPLS-ICOX", "sPLS-DRCOX", "sPLS-DRCOX-Dynamic", "sPLS-DACOX-Dynamic"),
+                                methods = c("cox", "coxSW", "coxEN", "sPLS-ICOX", "sPLS-DRCOX",
+                                            "sPLS-DRCOX-Dynamic", "sPLS-DACOX-Dynamic"),
                                 ncomp = 5, EN.alpha = 0.5, eta = 0.5, comp_calculation = "manual",
                                 n_run = 2, k_folds = 10, fast_mode = F, pred.method = "cenROC",
                                 x.center = TRUE, x.scale = FALSE,
@@ -856,7 +866,12 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
   return(lst_res)
 }
 
-boxplot.performance <- function(df, x.var, y.var, x.fill = NULL, x.alpha = NULL, x.lab = NULL, y.lab = NULL, fill.lab = NULL, alpha.lab = NULL, title = NULL, y.limit = NULL, y.limit.exception = NULL, jitter = T, test = "anova", eval_method = "auto", show.median = T, round.median = 3, legend_title = "Method", legend_size_text = 12, x_axis_size_text = 10, y_axis_size_text = 10){
+boxplot.performance <- function(df, x.var, y.var, x.fill = NULL, x.alpha = NULL, x.lab = NULL,
+                                y.lab = NULL, fill.lab = NULL, alpha.lab = NULL, title = NULL,
+                                y.limit = NULL, y.limit.exception = NULL, jitter = T,
+                                test = "anova", eval_method = "auto", show.median = T,
+                                round.median = 3, legend_title = "Method", legend_size_text = 12,
+                                x_axis_size_text = 10, y_axis_size_text = 10){
 
   if(!eval_method %in% c("median", "mean", "auto")){
     stop("Eval_method must be one of: 'mean' or 'median'.")
@@ -1026,7 +1041,9 @@ boxplot.performance <- function(df, x.var, y.var, x.fill = NULL, x.alpha = NULL,
   return(ggp)
 }
 
-lineplot.performace <- function(df, x.var = "time", y.var = "AUC", x.color = "method", x.lab = NULL, y.lab = NULL, y.limit = NULL, point = T, legend_title = "Method", legend_size_text = 12, x_axis_size_text = 10, y_axis_size_text = 10){
+lineplot.performace <- function(df, x.var = "time", y.var = "AUC", x.color = "method", x.lab = NULL,
+                                y.lab = NULL, y.limit = NULL, point = T, legend_title = "Method",
+                                legend_size_text = 12, x_axis_size_text = 10, y_axis_size_text = 10){
   MAX_X_ELEMENTS = 20
 
   if(point){

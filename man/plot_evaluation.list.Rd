@@ -27,15 +27,19 @@ plot_evaluation.list(
 
 \item{evaluation}{Character. Perform the evaluation using the "AUC" or "Brier" metric (default: "AUC").}
 
-\item{pred.attr}{Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").}
+\item{pred.attr}{Character. Way to evaluate the metric selected. Must be one of the following:
+"mean" or "median" (default: "mean").}
 
-\item{y.min}{Numeric. Minimum Y value for establish the Y axis value. If y.min = NULL, automatic detection is performed (default: NULL).}
+\item{y.min}{Numeric. Minimum Y value for establish the Y axis value. If y.min = NULL, automatic
+detection is performed (default: NULL).}
 
-\item{type}{Character. Plot type. Must be one of the following: "both", "line" or "mean". In other case, "both" will be selected (default: "both").}
+\item{type}{Character. Plot type. Must be one of the following: "both", "line" or "mean". In other
+case, "both" will be selected (default: "both").}
 
 \item{round_times}{Logical. Whether times x value should be rounded (default: FALSE).}
 
-\item{decimals}{Numeric. Number of decimals to use in round times. Must be a value greater or equal zero (default = 2).}
+\item{decimals}{Numeric. Number of decimals to use in round times. Must be a value greater or
+equal zero (default = 2).}
 
 \item{title}{Character. Plot title (default: NULL).}
 
@@ -54,7 +58,8 @@ plot_evaluation.list(
 \item{label_y_axis_size}{Numeric. Text size for y label axis (default: 10).}
 }
 \description{
-Run the function "plot_evaluation" for a list of results. More information in "?plot_evaluation".
+Run the function "plot_evaluation" for a list of results. More information in
+"?plot_evaluation".
 }
 \examples{
 \dontrun{

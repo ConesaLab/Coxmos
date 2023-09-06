@@ -13,18 +13,39 @@ deleteZeroOrNearZeroVariance.mb(
 )
 }
 \arguments{
-\item{X}{List of numeric matrices or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.}
+\item{X}{List of numeric matrices or data.frame. Explanatory variables. Qualitative variables must
+be transform into binary variables.}
 
-\item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).}
+\item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, near zero variance
+variables will be removed (default: TRUE).}
 
-\item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).}
+\item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, zero variance variables will
+be removed (default: TRUE).}
 
-\item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).}
+\item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance
+filtering (default: NULL).}
 
-\item{freqCut}{Numeric. Cutoff for the ratio of the most common value to the second most common value (default: 95/5).}
+\item{freqCut}{Numeric. Cutoff for the ratio of the most common value to the second most common
+value (default: 95/5).}
 }
 \description{
-deleteZeroOrNearZeroVariance.mb
+Provides a robust mechanism to filter out variables from a dataset that exhibit zero
+or near-zero variance, thereby enhancing the quality and interpretability of subsequent statistical
+analyses.
+}
+\details{
+The \code{deleteZeroOrNearZeroVariance} function is an indispensable tool in the preprocessing
+phase of statistical modeling. In many datasets, especially high-dimensional ones, certain variables
+might exhibit zero or near-zero variance. Such variables can be problematic as they offer limited
+information variance and can potentially distort the results of statistical models, leading to
+issues like overfitting. By leveraging the \code{caret::nearZeroVar()} function, this tool offers a
+rigorous method to identify and exclude these variables. Users are afforded flexibility in their
+choices, with options to remove only zero variance variables, near-zero variance variables, or
+both. The function also provides the capability to set a frequency cutoff, \code{freqCut}, which
+determines the threshold for near-zero variance based on the ratio of the most frequent value to
+the second most frequent value. For scenarios where certain variables are deemed essential and
+should not be removed regardless of their variance, the \code{toKeep.zv} parameter allows users to specify
+a list of such variables.
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

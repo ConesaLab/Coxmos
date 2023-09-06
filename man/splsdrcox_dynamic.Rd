@@ -31,54 +31,79 @@ splsdrcox_dynamic(
 )
 }
 \arguments{
-\item{X}{Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.}
+\item{X}{Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be
+transform into binary variables.}
 
-\item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.}
+\item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as
+"time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and
+event observations.}
 
 \item{n.comp}{Numeric. Number of latent components to compute for the (s)PLS model (default: 10).}
 
-\item{vector}{Numeric vector. Used for computing best number of variables. As many values as components have to be provided. If vector = NULL, an automatic detection is perform (default: NULL).}
+\item{vector}{Numeric vector. Used for computing best number of variables. As many values as
+components have to be provided. If vector = NULL, an automatic detection is perform (default: NULL).}
 
-\item{MIN_NVAR}{Numeric. Minimum range size for computing cut points to select the best number of variables to use (default: 10).}
+\item{MIN_NVAR}{Numeric. Minimum range size for computing cut points to select the best number of
+variables to use (default: 10).}
 
-\item{MAX_NVAR}{Numeric. Maximum range size for computing cut points to select the best number of variables to use (default: 1000).}
+\item{MAX_NVAR}{Numeric. Maximum range size for computing cut points to select the best number of
+variables to use (default: 1000).}
 
-\item{n.cut_points}{Numeric. Number of cut points for searching the optimal number of variables. If only two cut points are selected, minimum and maximum size are used. For MB approaches as many as n.cut_points^n.blocks models will be computed as minimum (default: 5).}
+\item{n.cut_points}{Numeric. Number of cut points for searching the optimal number of variables.
+If only two cut points are selected, minimum and maximum size are used. For MB approaches as many
+as n.cut_points^n.blocks models will be computed as minimum (default: 5).}
 
-\item{MIN_AUC_INCREASE}{Numeric. Minimum improvement between different cross validation models to continue evaluating higher values in the multiple tested parameters. If it is not reached for next 'MIN_COMP_TO_CHECK' models and the minimum 'MIN_AUC' value is reached, the evaluation stops (default: 0.01).}
+\item{MIN_AUC_INCREASE}{Numeric. Minimum improvement between different cross validation models to
+continue evaluating higher values in the multiple tested parameters. If it is not reached for next
+'MIN_COMP_TO_CHECK' models and the minimum 'MIN_AUC' value is reached, the evaluation stops
+(default: 0.01).}
 
 \item{x.center}{Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).}
 
 \item{x.scale}{Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).}
 
-\item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).}
+\item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, near zero variance
+variables will be removed (default: TRUE).}
 
-\item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).}
+\item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, zero variance variables will
+be removed (default: TRUE).}
 
-\item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).}
+\item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance
+filtering (default: NULL).}
 
-\item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).}
+\item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant
+variables/components in final cox model will be removed until all variables are significant by
+forward selection (default: FALSE).}
 
-\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
+\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the
+threshold (default: 0.05).}
 
-\item{EVAL_METHOD}{Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best number of variables. In other case, c-index metrix will be used (default: "AUC").}
+\item{EVAL_METHOD}{Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best
+number of variables. In other case, c-index metrix will be used (default: "AUC").}
 
-\item{pred.method}{Character. AUC evaluation algorithm method for evaluate the model performance. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC").}
+\item{pred.method}{Character. AUC evaluation algorithm method for evaluate the model performance.
+Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C",
+"smoothROCtime_I" (default: "cenROC").}
 
 \item{max.iter}{Numeric. Maximum number of iterations for PLS convergence (default: 200).}
 
-\item{times}{Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 'max_time_points' points will be selected equally distributed (default: NULL).}
+\item{times}{Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of
+'max_time_points' points will be selected equally distributed (default: NULL).}
 
-\item{max_time_points}{Numeric. Maximum number of time points to use for evaluating the model (default: 15).}
+\item{max_time_points}{Numeric. Maximum number of time points to use for evaluating the model
+(default: 15).}
 
-\item{MIN_EPV}{Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).}
+\item{MIN_EPV}{Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final
+cox model. Used to restrict the number of variables/components can be computed in final cox models.
+If the minimum is not meet, the model cannot be computed (default: 5).}
 
 \item{returnData}{Logical. Return original and normalized X and Y matrices (default: TRUE).}
 
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
 \value{
-Instance of class "Coxmos" and model "sPLS-DRCOX-Dynamic". The class contains the following elements:
+Instance of class "Coxmos" and model "sPLS-DRCOX-Dynamic". The class contains the following
+elements:
 \code{X}: List of normalized X data information.
 \itemize{
 \item \code{(data)}: normalized X matrix
@@ -116,7 +141,8 @@ Instance of class "Coxmos" and model "sPLS-DRCOX-Dynamic". The class contains th
 
 \code{var_by_component}: Variables selected in each PLS component.
 
-\code{plot_accuracyPerVariable}: If NULL vector is selected, return a plot for understanding the number of variable selection.
+\code{plot_accuracyPerVariable}: If NULL vector is selected, return a plot for understanding the
+number of variable selection.
 
 \code{call}: call function
 
@@ -145,8 +171,31 @@ Instance of class "Coxmos" and model "sPLS-DRCOX-Dynamic". The class contains th
 \code{time}: time consumed for running the cox analysis.
 }
 \description{
-This function performs a sparse partial least squares deviance residual Cox (sPLS-DRCOX) by dynamic variable selection methodology.
-The function returns a Coxmos model with the attribute model as "sPLS-DRCOX".
+The sPLS-DRCOX Dynamic function conducts a sparse partial least squares deviance residual Cox
+regression analysis using a dynamic variable selection approach. This method is particularly
+useful for high-dimensional survival data where variable selection is crucial. The function returns
+a model of class "Coxmos" with the attribute model specified as "sPLS-DRCOX".
+}
+\details{
+The function employs a sparse partial least squares (sPLS) approach combined with deviance
+residuals from a Cox model to handle survival data. The dynamic variable selection methodology
+ensures that only the most relevant predictors are included in the model, enhancing interpretability
+and potentially improving predictive performance.
+
+The input matrices X and Y represent the explanatory and response variables, respectively. It is
+essential to note that qualitative variables in X should be transformed into binary format. The
+response matrix Y should have two columns named "time" and "event", where the "event" column can
+take values 0/1 or FALSE/TRUE, representing censored and event observations.
+
+Several parameters allow users to fine-tune the model. For instance, n.comp determines the number
+of latent components for the PLS model, and vector aids in computing the optimal number of variables.
+Parameters like MIN_NVAR and MAX_NVAR define the range for computing cut points to select the best
+number of variables. The function also provides options for data preprocessing, such as centering
+and scaling the X matrix and removing variables with near-zero or zero variance.
+
+The evaluation metric for determining the best number of variables can be specified using the
+EVAL_METHOD parameter. The function supports various evaluation algorithms for assessing model
+performance, as indicated by the pred.method parameter.
 }
 \examples{
 \dontrun{

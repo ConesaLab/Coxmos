@@ -10,7 +10,8 @@ getCutoffAutoKM.list(lst_results)
 \item{lst_results}{List of lists. Result of getAutoKM.list() function.}
 }
 \description{
-Run the function "getCutoffAutoKM" for a list of models. More information in "?getCutoffAutoKM".
+Run the function "getCutoffAutoKM" for a list of models. More information in
+"?getCutoffAutoKM".
 }
 \examples{
 \dontrun{

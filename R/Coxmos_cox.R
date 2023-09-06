@@ -3,28 +3,58 @@
 #### ### ##
 
 #' cox
-#' @description This function performs a cox model (based on survival::coxph R package).
-#' The function returns a Coxmos model with the attribute model as "cox".
+#' @description
+#' The `cox` function conducts a Cox proportional hazards regression analysis, a type of survival
+#' analysis. It is designed to handle right-censored data and is built upon the `coxph` function from
+#' the `survival` package. The function returns an object of class "Coxmos" with the attribute model
+#' labeled as "cox".
 #'
-#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
-#' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
+#' @details
+#' The Cox proportional hazards regression model is a linear model that describes the relationship
+#' between the hazard rate and one or more predictor variables. The function provided here offers
+#' several preprocessing steps to ensure the quality and robustness of the model.
+#'
+#' The function allows for the centering and scaling of predictor variables, which can be essential
+#' for the stability and interpretability of the model. It also provides options to remove variables
+#' with near-zero or zero variance, which can be problematic in regression analyses. Such variables
+#' offer little to no information and can lead to overfitting.
+#'
+#' Another notable feature is the ability to remove non-significant predictors from the final model
+#' through a backward selection process. This ensures that only variables that contribute significantly
+#' to the model are retained.
+#'
+#' The function also checks for the minimum number of events per variable (EPV) to ensure the
+#' robustness of the model. If the specified EPV is not met, the function can either halt the
+#' computation or proceed based on user preference.
+#'
+#' It's important to note that while this function is tailored for standard Cox regression, it might
+#' not be suitable for high-dimensional data. In such cases, users are advised to consider alternative
+#' methods like `coxEN()` or PLS-based Cox methods.
+#'
+#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be
+#' transform into binary variables.
+#' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as
+#' "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and
+#' event observations.
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
-#' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
-#' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
-#' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
-#' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).
-#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
-#' @param MIN_EPV Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).
+#' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance
+#' variables will be removed (default: TRUE).
+#' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will
+#' be removed (default: TRUE).
+#' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance
+#' filtering (default: NULL).
+#' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant
+#' variables/components in final cox model will be removed until all variables are significant by
+#' forward selection (default: FALSE).
+#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold
+#' (default: 0.05).
+#' @param MIN_EPV Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final
+#' cox model. Used to restrict the number of variables/components can be computed in final cox models.
+#' If the minimum is not meet, the model cannot be computed (default: 5).
 #' @param FORCE Logical. In case the MIN_EPV is not meet, it allows to compute the model (default: FALSE).
 #' @param returnData Logical. Return original and normalized X and Y matrices (default: TRUE).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
-#'
-#' @details
-#' This function only can manage right-censored data.
-#'
-#' If \code{"MIN_EPV"} (ratio between number of events per variables selected in final model) condition is not meet, the cox model could no to be computed.
-#' Cox algorithm is not prepare to work with high dimensional data, in that case is better to perform coxEN() or PLS based cox methods.
 #'
 #' @return Instance of class "Coxmos" and model "cox". The class contains the following elements:
 #'
@@ -62,7 +92,8 @@
 #'
 #' \code{nz_coeffvar}: Variables removed by coefficient variation near zero.
 #'
-#' \code{removed_variables_correlation}: Variables removed by being high correlated with other variables.
+#' \code{removed_variables_correlation}: Variables removed by being high correlated with other
+#' variables.
 #'
 #' \code{class}: Model class.
 #'

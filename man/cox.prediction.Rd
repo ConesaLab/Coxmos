@@ -9,26 +9,44 @@ cox.prediction(model, new_data, time = NULL, type = "lp", method = "cox")
 \arguments{
 \item{model}{Coxmos model.}
 
-\item{new_data}{Numeric matrix or data.frame. New explanatory variables (raw data). Qualitative variables must be transform into binary variables.}
+\item{new_data}{Numeric matrix or data.frame. New explanatory variables (raw data). Qualitative
+variables must be transform into binary variables.}
 
 \item{time}{Numeric. Time point where the AUC will be evaluated (default: NULL).}
 
 \item{type}{Character. Prediction type: "lp", "risk", "expected" or "survival" (default: "lp").}
 
-\item{method}{Character. Prediction method. It can be compute by using the cox model "cox" or by using W.star "W.star" (default: "cox"). (not implemented for MB approaches)!!!}
+\item{method}{Character. Prediction method. It can be compute by using the cox model "cox" or by
+using W.star "W.star" (default: "cox"). (not implemented for MB approaches)!!!}
 }
 \value{
 Return the lp or other metric for the patient
 }
 \description{
-The \code{cox.prediction} function facilitates Cox predictions based on a given Coxmos model, specifically tailored for raw data input. It seamlessly integrates the generation of a score matrix, especially when a PLS Survival analysis has been executed, and subsequently conducts the Cox prediction. The function offers flexibility in prediction types and methods, catering to diverse analytical requirements.
+The \code{cox.prediction} function facilitates Cox predictions based on a given Coxmos model,
+specifically tailored for raw data input. It seamlessly integrates the generation of a score
+matrix, especially when a PLS Survival analysis has been executed, and subsequently conducts the
+Cox prediction. The function offers flexibility in prediction types and methods, catering to
+diverse analytical requirements.
 }
 \details{
-The function initiates by determining the prediction method specified by the user. If the "cox" method is chosen, the function computes the score matrix using the \code{predict.Coxmos} function. This score matrix serves as a foundation for subsequent predictions. It's imperative to note that for prediction types "expected" and "survival", a specific time point must be provided to ensure accurate predictions. The function then leverages the \code{predict} function from the Cox model to compute the desired prediction metric.
+The function initiates by determining the prediction method specified by the user. If the "cox"
+method is chosen, the function computes the score matrix using the \code{predict.Coxmos} function.
+This score matrix serves as a foundation for subsequent predictions. It's imperative to note that
+for prediction types "expected" and "survival", a specific time point must be provided to ensure
+accurate predictions. The function then leverages the \code{predict} function from the Cox model to
+compute the desired prediction metric.
 
-Alternatively, if the "W.star" method is selected, the function computes the prediction values based on the W* matrix and the Cox model's coefficients. This involves normalization of the input data, ensuring it aligns with the training data's distribution. The normalization process considers mean and standard deviation values from the model, ensuring consistency in predictions. The resultant prediction values are then computed as a linear combination of the normalized data and the derived coefficients.
+Alternatively, if the "W.star" method is selected, the function computes the prediction values
+based on the W* matrix and the Cox model's coefficients. This involves normalization of the input
+data, ensuring it aligns with the training data's distribution. The normalization process considers
+mean and standard deviation values from the model, ensuring consistency in predictions. The
+resultant prediction values are then computed as a linear combination of the normalized data and
+the derived coefficients.
 
-It's worth noting that the function is meticulously designed to handle potential inconsistencies or missing components in the model, ensuring robustness in predictions and minimizing potential errors during execution.
+It's worth noting that the function is meticulously designed to handle potential inconsistencies
+or missing components in the model, ensuring robustness in predictions and minimizing potential
+errors during execution.
 }
 \examples{
 \dontrun{

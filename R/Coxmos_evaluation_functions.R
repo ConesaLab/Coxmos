@@ -1,4 +1,7 @@
-cv.getScoreFromWeight <- function(lst_cox_mean, w_AIC, w_c.index, w_BRIER, w_AUC, colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC", colname_BRIER = "BRIER"){
+cv.getScoreFromWeight <- function(lst_cox_mean, w_AIC, w_c.index, w_BRIER, w_AUC,
+                                  colname_AIC = "AIC",
+                                  colname_c_index = "c_index", colname_AUC = "AUC",
+                                  colname_BRIER = "BRIER"){
 
   all_metrics <- c(colname_AIC, colname_c_index, colname_BRIER, colname_AUC)
   all_metrics_weight <- c(w_AIC, w_c.index, w_BRIER, w_AUC)
@@ -93,8 +96,8 @@ deleteColumn <- function(data, lst_cn){
   return(data)
 }
 
-#return a run/fold list where each fold is a full model to train - k-1 folds of train and 1 fold of test
-#difference between folds will be 1 fold of patients
+# return a run/fold list where each fold is a full model to train - k-1 folds of train and 1 fold of test
+# difference between folds will be 1 fold of patients
 splitData_Iterations_Folds <- function(X, Y, n_run, k_folds, seed = 123){
 
   set.seed(seed)
@@ -161,8 +164,9 @@ splitData_Iterations_Folds <- function(X, Y, n_run, k_folds, seed = 123){
   return(list(lst_X_train = lst_X_train, lst_Y_train = lst_Y_train, lst_X_test = lst_X_test, lst_Y_test = lst_Y_test, lst_train_index = lst_obs_index_train, lst_test_index = lst_obs_index_test, k_folds = k_folds))
 }
 
-#return a run/fold list where each fold are the indexes to select for train/test wehre train = k-1 folds and 1 fold of test
-#difference between folds will be 1 fold of patients
+# return a run/fold list where each fold are the indexes to select for train/test wehre train = k-1 folds
+# and 1 fold of test
+# difference between folds will be 1 fold of patients
 splitData_Iterations_Folds_indexes <- function(Y, n_run, k_folds, seed = 123){
 
   set.seed(seed)
@@ -204,7 +208,8 @@ splitData_Iterations_Folds_indexes <- function(Y, n_run, k_folds, seed = 123){
   return(list(lst_train_index = lst_obs_index_train, lst_test_index = lst_obs_index_test, k_folds = k_folds))
 }
 
-getAUC_from_LP_2.0 <- function(linear.predictors, Y, times, bestModel = NULL, method = "cenROC", eval = "median", PARALLEL = F, verbose = F){
+getAUC_from_LP_2.0 <- function(linear.predictors, Y, times, bestModel = NULL, method = "cenROC",
+                               eval = "median", PARALLEL = F, verbose = F){
 
   # if(!method %in% c("risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I")){
   #   stop_quietly(paste0("Method must be one of the following: ", paste0(c("risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I"), collapse = ", ")))
@@ -779,7 +784,8 @@ smoothROCtime_tryCatch <- function(data, times, tcr = "C", meth = "1", verbose =
   return(out)
 }
 
-nsROC_tryCatch <- function(stime, status, marker, predict.time, method, kernel, ci, boot.n, conf.level, seed, verbose = F){
+nsROC_tryCatch <- function(stime, status, marker, predict.time, method, kernel, ci, boot.n,
+                           conf.level, seed, verbose = F){
   invisible(utils::capture.output(out <- tryCatch(
     # Specifying expression
     expr = {
@@ -831,7 +837,8 @@ cenROC_tryCatch <- function(Y, censor, M, t, method, ktype, alpha, plot, verbose
   return(out)
 }
 
-survivalROC_tryCatch <- function(Stime, status, marker, predict.time, method = "NNE", span = NULL, verbose = F){
+survivalROC_tryCatch <- function(Stime, status, marker, predict.time, method = "NNE", span = NULL,
+                                 verbose = F){
   invisible(utils::capture.output(out <- tryCatch(
     # Specifying expression
     expr = {

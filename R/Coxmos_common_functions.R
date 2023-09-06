@@ -36,7 +36,8 @@ assign(x = 'splsicox', value = c("sPLS-ICOX"), pkg.env)
 assign(x = 'splsdrcox', value = c("sPLS-DRCOX"), pkg.env)
 assign(x = 'splsdrcox_dynamic', value = c("sPLS-DRCOX-Dynamic"), pkg.env)
 assign(x = 'splsdacox_dynamic', value = c("sPLS-DACOX-Dynamic"), pkg.env)
-assign(x = 'pls_methods', value = c(pkg.env$splsicox, pkg.env$splsdrcox, pkg.env$splsdrcox_dynamic, pkg.env$splsdacox_dynamic), pkg.env)
+assign(x = 'pls_methods', value = c(pkg.env$splsicox, pkg.env$splsdrcox, pkg.env$splsdrcox_dynamic,
+                                    pkg.env$splsdacox_dynamic), pkg.env)
 
 assign(x = 'sb.splsicox', value = c("SB.sPLS-ICOX"), pkg.env)
 assign(x = 'sb.splsdrcox', value = c("SB.sPLS-DRCOX"), pkg.env)
@@ -49,7 +50,8 @@ assign(x = 'mb.splsdacox', value = c("MB.sPLS-DACOX"), pkg.env)
 assign(x = 'multiblock_methods', value = c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox,
                                            pkg.env$isb.splsicox, pkg.env$isb.splsdrcox,
                                            pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox), pkg.env)
-assign(x = 'all_methods', value = c(pkg.env$classical_methods, pkg.env$pls_methods, pkg.env$multiblock_methods), pkg.env)
+assign(x = 'all_methods', value = c(pkg.env$classical_methods, pkg.env$pls_methods,
+                                    pkg.env$multiblock_methods), pkg.env)
 
 assign(x = 'cv.coxEN', value = c("cv.coxEN"), pkg.env)
 assign(x = 'classical_cv', value = pkg.env$cv.coxEN, pkg.env)
@@ -58,13 +60,15 @@ assign(x = 'cv.splsicox', value = c("cv.sPLS-ICOX"), pkg.env)
 assign(x = 'cv.splsdrcox', value = c("cv.sPLS-DRCOX"), pkg.env)
 assign(x = 'cv.splsdrcox_dynamic', value = c("cv.sPLS-DRCOX-Dynamic"), pkg.env)
 assign(x = 'cv.splsdacox_dynamic', value = c("cv.sPLS-DACOX-Dynamic"), pkg.env)
-assign(x = 'pls_cv', value = c(pkg.env$cv.splsicox, pkg.env$cv.splsdrcox, pkg.env$cv.splsdrcox_dynamic, pkg.env$cv.splsdacox_dynamic), pkg.env)
+assign(x = 'pls_cv', value = c(pkg.env$cv.splsicox, pkg.env$cv.splsdrcox, pkg.env$cv.splsdrcox_dynamic,
+                               pkg.env$cv.splsdacox_dynamic), pkg.env)
 
 assign(x = 'cv.sb.splsicox', value = c("cv.SB.sPLS-ICOX"), pkg.env)
 assign(x = 'cv.sb.splsdrcox', value = c("cv.SB.sPLS-DRCOX"), pkg.env)
 assign(x = 'cv.mb.splsdrcox', value = c("cv.MB.sPLS-DRCOX"), pkg.env)
 assign(x = 'cv.mb.splsdacox', value = c("cv.MB.sPLS-DACOX"), pkg.env)
-assign(x = 'multiblock_cv', value = c(pkg.env$cv.sb.splsicox, pkg.env$cv.sb.splsdrcox, pkg.env$cv.mb.splsdrcox, pkg.env$cv.mb.splsdacox), pkg.env)
+assign(x = 'multiblock_cv', value = c(pkg.env$cv.sb.splsicox, pkg.env$cv.sb.splsdrcox,
+                                      pkg.env$cv.mb.splsdrcox, pkg.env$cv.mb.splsdacox), pkg.env)
 assign(x = 'all_cv', value = c(pkg.env$classical_cv, pkg.env$pls_cv, pkg.env$multiblock_cv), pkg.env)
 
 assign(x = 'AUC_survivalROC', value = c("survivalROC"), pkg.env)
@@ -73,7 +77,9 @@ assign(x = 'AUC_nsROC', value = c("nsROC"), pkg.env)
 assign(x = 'AUC_smoothROCtime_C', value = c("smoothROCtime_C"), pkg.env)
 assign(x = 'AUC_smoothROCtime_I', value = c("smoothROCtime_I"), pkg.env)
 assign(x = 'AUC_risksetROC', value = c("risksetROC"), pkg.env)
-assign(x = 'AUC_evaluators', value = c(pkg.env$AUC_survivalROC, pkg.env$AUC_cenROC, pkg.env$AUC_nsROC, pkg.env$AUC_smoothROCtime_C, pkg.env$AUC_smoothROCtime_I, pkg.env$AUC_risksetROC), pkg.env)
+assign(x = 'AUC_evaluators', value = c(pkg.env$AUC_survivalROC, pkg.env$AUC_cenROC, pkg.env$AUC_nsROC,
+                                       pkg.env$AUC_smoothROCtime_C, pkg.env$AUC_smoothROCtime_I,
+                                       pkg.env$AUC_risksetROC), pkg.env)
 
 assign(x = 'Brier', value = c("Brier_score"), pkg.env)
 
@@ -81,12 +87,30 @@ assign(x = 'Brier', value = c("Brier_score"), pkg.env)
 assign(x = 'IllegalChars', value = c("`"), pkg.env)
 
 #' factorToBinary
-#' @description Transforms factor variables within a matrix or data frame into binary dummy variables, facilitating numerical representation for subsequent statistical analyses. The function provides an option to generate either k or k-1 dummy variables for each factor, contingent on its levels.
+#' @description Transforms factor variables within a matrix or data frame into binary dummy variables,
+#' facilitating numerical representation for subsequent statistical analyses. The function provides
+#' an option to generate either k or k-1 dummy variables for each factor, contingent on its levels.
 #'
-#' @details The `factorToBinary` function addresses a recurrent challenge in data preprocessing: the conversion of factor variables into a numerical format suitable for a plethora of statistical and machine learning algorithms. Factors, inherently categorical in nature, often necessitate transformation into a binary format, commonly referred to as dummy or one-hot encoding. This function adeptly performs this transformation, iterating over each column of the provided matrix or data frame. When encountering factor variables, it employs the `model.matrix` function to generate the requisite dummy variables. The user's discretion is paramount in determining the number of dummy variables: either k, equivalent to the number of levels for the factor, or k-1, where the omitted level serves as a reference or "default" state. This choice is particularly salient in regression contexts to circumvent multicollinearity issues. The naming convention for the resultant dummy variables amalgamates the original factor's name with its respective level, separated by a user-defined character, ensuring clarity and interpretability. Non-factor variables remain unaltered, preserving the integrity of the original data structure.
-#' @param X Numeric matrix or data.frame. Only qualitative variables (factor class) will be transformed into binary variables.
-#' @param all Logical. If all = TRUE, as many variables as levels will be returned in the new matrix. Otherwise, k-1 variables will be used where the first level will be use as "default" state (default: TRUE).
-#' @param sep Character. Character symbol to generate new colnames. Ex. If variable name is "sex" and sep = "_". Dummy variables will be "sex_male" and "sex_female".
+#' @details The `factorToBinary` function addresses a recurrent challenge in data preprocessing: the
+#' conversion of factor variables into a numerical format suitable for a plethora of statistical and
+#' machine learning algorithms. Factors, inherently categorical in nature, often necessitate
+#' transformation into a binary format, commonly referred to as dummy or one-hot encoding. This
+#' function adeptly performs this transformation, iterating over each column of the provided matrix
+#' or data frame. When encountering factor variables, it employs the `model.matrix` function to
+#' generate the requisite dummy variables. The user's discretion is paramount in determining the
+#' number of dummy variables: either k, equivalent to the number of levels for the factor, or k-1,
+#' where the omitted level serves as a reference or "default" state. This choice is particularly
+#' salient in regression contexts to circumvent multicollinearity issues. The naming convention for
+#' the resultant dummy variables amalgamates the original factor's name with its respective level,
+#' separated by a user-defined character, ensuring clarity and interpretability. Non-factor variables
+#' remain unaltered, preserving the integrity of the original data structure.
+#' @param X Numeric matrix or data.frame. Only qualitative variables (factor class) will be
+#' transformed into binary variables.
+#' @param all Logical. If all = TRUE, as many variables as levels will be returned in the new matrix.
+#' Otherwise, k-1 variables will be used where the first level will be use as "default" state
+#' (default: TRUE).
+#' @param sep Character. Character symbol to generate new colnames. Ex. If variable name is "sex" and
+#' sep = "_". Dummy variables will be "sex_male" and "sex_female".
 #'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
@@ -143,7 +167,8 @@ factorToBinary <- function(X, all = T, sep = "_"){
 
 #' norm01
 #' @description Normalize all values into 0-1 range.
-#' @param x Numeric matrix or data.frame. Explanatory variables. Only qualitative variables will be transformed into binary variables.
+#' @param x Numeric matrix or data.frame. Explanatory variables. Only qualitative variables will be
+#' transformed into binary variables.
 norm01 <- function(x){
   if(max(x)-min(x) != 0){
     return((x-min(x))/(max(x)-min(x)))
@@ -153,9 +178,18 @@ norm01 <- function(x){
 }
 
 #' print.Coxmos
-#' @description Provides a structured print output for objects of class Coxmos, detailing either the final Cox survival model or the attributes of the optimal model from cross-validation.
+#' @description Provides a structured print output for objects of class Coxmos, detailing either the
+#' final Cox survival model or the attributes of the optimal model from cross-validation.
 #'
-#' @details The `print.Coxmos` function serves as a diagnostic tool, offering a comprehensive display of the Coxmos object's attributes. Depending on the nature of the Coxmos object—whether it's derived from a survival model or a cross-validated model—the function tailors its output accordingly. For survival models, it elucidates the method employed, any variables removed due to high correlation, zero or near-zero variance, or non-significance within the Cox model, and presents a summary of the survival model itself. In the context of cross-validated models, the function delineates the cross-validation method utilized and, if ascertainable, details of the best model. For evaluation objects, it systematically enumerates the methods evaluated and provides a summary of metrics for each method.
+#' @details The `print.Coxmos` function serves as a diagnostic tool, offering a comprehensive display
+#' of the Coxmos object's attributes. Depending on the nature of the Coxmos object—whether it's derived
+#' from a survival model or a cross-validated model—the function tailors its output accordingly. For
+#' survival models, it elucidates the method employed, any variables removed due to high correlation,
+#' zero or near-zero variance, or non-significance within the Cox model, and presents a summary of
+#' the survival model itself. In the context of cross-validated models, the function delineates the
+#' cross-validation method utilized and, if ascertainable, details of the best model. For evaluation
+#' objects, it systematically enumerates the methods evaluated and provides a summary of metrics for
+#' each method.
 #' @param x Coxmos object
 #' @param ... further arguments passed to or from other methods.
 #'
@@ -247,11 +281,24 @@ print.Coxmos <- function(x, ...){
 }
 
 #' getEPV
-#' @description Provides a quantitative assessment of the dataset by computing the Events per Variable (EPV) metric, which gauges the proportionality between observed events and the number of explanatory variables.
+#' @description Provides a quantitative assessment of the dataset by computing the Events per Variable
+#' (EPV) metric, which gauges the proportionality between observed events and the number of explanatory
+#' variables.
 #'
-#' @details In the realm of survival analysis, the balance between observed events and explanatory variables is paramount. The `getEPV` function serves as a tool for researchers to ascertain this balance, which can be pivotal in determining the robustness and interpretability of subsequent statistical models. By evaluating the ratio of events in the `Y` matrix to the variables in the `X` matrix, the function yields the EPV metric. It is of utmost importance that the `Y` matrix encompasses two distinct columns, namely "time" and "event". The latter, "event", should strictly encapsulate binary values, delineating censored (either 0 or FALSE) and event (either 1 or TRUE) observations. To ensure the integrity of the data and the precision of the computation, the function is equipped with an error mechanism that activates if the "event" column remains undetected.
-#' #' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
-#' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
+#' @details In the realm of survival analysis, the balance between observed events and explanatory
+#' variables is paramount. The `getEPV` function serves as a tool for researchers to ascertain this
+#' balance, which can be pivotal in determining the robustness and interpretability of subsequent
+#' statistical models. By evaluating the ratio of events in the `Y` matrix to the variables in the `X`
+#' matrix, the function yields the EPV metric. It is of utmost importance that the `Y` matrix
+#' encompasses two distinct columns, namely "time" and "event". The latter, "event", should strictly
+#' encapsulate binary values, delineating censored (either 0 or FALSE) and event (either 1 or TRUE)
+#' observations. To ensure the integrity of the data and the precision of the computation, the function
+#' is equipped with an error mechanism that activates if the "event" column remains undetected.
+#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be
+#' transform into binary variables.
+#' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as
+#' "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and
+#' event observations.
 #'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
@@ -273,14 +320,32 @@ getEPV <- function(X,Y){
 }
 
 #' deleteZeroOrNearZeroVariance
-#' @description Provides a robust mechanism to filter out variables from a dataset that exhibit zero or near-zero variance, thereby enhancing the quality and interpretability of subsequent statistical analyses.
+#' @description Provides a robust mechanism to filter out variables from a dataset that exhibit zero
+#' or near-zero variance, thereby enhancing the quality and interpretability of subsequent statistical
+#' analyses.
 #'
-#' @details The `deleteZeroOrNearZeroVariance` function is an indispensable tool in the preprocessing phase of statistical modeling. In many datasets, especially high-dimensional ones, certain variables might exhibit zero or near-zero variance. Such variables can be problematic as they offer limited information variance and can potentially distort the results of statistical models, leading to issues like overfitting. By leveraging the `caret::nearZeroVar()` function, this tool offers a rigorous method to identify and exclude these variables. Users are afforded flexibility in their choices, with options to remove only zero variance variables, near-zero variance variables, or both. The function also provides the capability to set a frequency cutoff, `freqCut`, which determines the threshold for near-zero variance based on the ratio of the most frequent value to the second most frequent value. For scenarios where certain variables are deemed essential and should not be removed regardless of their variance, the `toKeep.zv` parameter allows users to specify a list of such variables.
-#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
-#' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
-#' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
-#' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
-#' @param freqCut Numeric. Cutoff for the ratio of the most common value to the second most common value (default: 95/5).
+#' @details The `deleteZeroOrNearZeroVariance` function is an indispensable tool in the preprocessing
+#' phase of statistical modeling. In many datasets, especially high-dimensional ones, certain variables
+#' might exhibit zero or near-zero variance. Such variables can be problematic as they offer limited
+#' information variance and can potentially distort the results of statistical models, leading to
+#' issues like overfitting. By leveraging the `caret::nearZeroVar()` function, this tool offers a
+#' rigorous method to identify and exclude these variables. Users are afforded flexibility in their
+#' choices, with options to remove only zero variance variables, near-zero variance variables, or
+#' both. The function also provides the capability to set a frequency cutoff, `freqCut`, which
+#' determines the threshold for near-zero variance based on the ratio of the most frequent value to
+#' the second most frequent value. For scenarios where certain variables are deemed essential and
+#' should not be removed regardless of their variance, the `toKeep.zv` parameter allows users to
+#' specify a list of such variables.
+#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be
+#' transform into binary variables.
+#' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance
+#' variables will be removed (default: TRUE).
+#' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will
+#' be removed (default: TRUE).
+#' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance
+#' filtering (default: NULL).
+#' @param freqCut Numeric. Cutoff for the ratio of the most common value to the second most common
+#' value (default: 95/5).
 #'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
@@ -294,7 +359,8 @@ getEPV <- function(X,Y){
 #' deleteZeroOrNearZeroVariance(X, remove_near_zero_variance = T, remove_zero_variance = T)
 #' }
 
-deleteZeroOrNearZeroVariance <- function(X, remove_near_zero_variance = F, remove_zero_variance = T, toKeep.zv = NULL, freqCut = 95/5){
+deleteZeroOrNearZeroVariance <- function(X, remove_near_zero_variance = F, remove_zero_variance = T,
+                                         toKeep.zv = NULL, freqCut = 95/5){
 
   auxX <- X
 
@@ -312,7 +378,8 @@ deleteZeroOrNearZeroVariance <- function(X, remove_near_zero_variance = F, remov
 
 }
 
-deleteZeroVarianceVariables <- function(data, mustKeep = NULL, names = NULL, info=T, freqCut = 95/5, onlyZero = F){
+deleteZeroVarianceVariables <- function(data, mustKeep = NULL, names = NULL, info=T, freqCut = 95/5,
+                                        onlyZero = F){
 
   if(!is.null(names)){
     df <- data[[names]]
@@ -364,12 +431,26 @@ deleteZeroVarianceVariables <- function(data, mustKeep = NULL, names = NULL, inf
 }
 
 #' deleteNearZeroCoefficientOfVariation
-#' @description Filters out variables from a dataset that exhibit a coefficient of variation below a specified threshold, ensuring the retention of variables with meaningful variability.
+#' @description Filters out variables from a dataset that exhibit a coefficient of variation below a
+#' specified threshold, ensuring the retention of variables with meaningful variability.
 #'
-#' @details The `deleteNearZeroCoefficientOfVariation` function is a pivotal tool in data preprocessing, especially when dealing with high-dimensional datasets. The coefficient of variation (CoV) is a normalized measure of data dispersion, calculated as the ratio of the standard deviation to the mean. In many scientific investigations, variables with a low CoV might be considered as offering limited discriminative information, potentially leading to noise in subsequent statistical analyses. By setting a threshold through the `LIMIT` parameter, this function provides a systematic approach to identify and exclude variables that do not meet the desired variability criteria. The underlying rationale is that variables with a CoV below the set threshold might not contribute significantly to the variability of the dataset and could be redundant or even detrimental for certain analyses. The function returns a modified dataset, a list of deleted variables, and the computed coefficients of variation for each variable. This comprehensive output ensures that researchers are well-informed about the preprocessing steps and can make subsequent analytical decisions with confidence.
+#' @details The `deleteNearZeroCoefficientOfVariation` function is a pivotal tool in data preprocessing,
+#' especially when dealing with high-dimensional datasets. The coefficient of variation (CoV) is a
+#' normalized measure of data dispersion, calculated as the ratio of the standard deviation to the mean.
+#' In many scientific investigations, variables with a low CoV might be considered as offering
+#' limited discriminative information, potentially leading to noise in subsequent statistical analyses.
+#' By setting a threshold through the `LIMIT` parameter, this function provides a systematic approach
+#' to identify and exclude variables that do not meet the desired variability criteria. The underlying
+#' rationale is that variables with a CoV below the set threshold might not contribute significantly
+#' to the variability of the dataset and could be redundant or even detrimental for certain analyses.
+#' The function returns a modified dataset, a list of deleted variables, and the computed coefficients
+#' of variation for each variable. This comprehensive output ensures that researchers are well-informed
+#' about the preprocessing steps and can make subsequent analytical decisions with confidence.
 #'
-#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
-#' @param LIMIT Numeric. Cutoff for minimum variation. If coefficient is lesser than the limit, the variables are removed because not vary enough (default: 0.1).
+#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform
+#' into binary variables.
+#' @param LIMIT Numeric. Cutoff for minimum variation. If coefficient is lesser than the limit, the
+#' variables are removed because not vary enough (default: 0.1).
 #'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
@@ -392,7 +473,8 @@ deleteNearZeroCoefficientOfVariation <- function(X, LIMIT = 0.1){
 #### ### ### ### ### ### #
 # Individual Cox results #
 #### ### ### ### ### ### #
-getIndividualCox <- function(data, time_var = "time", event_var = "event", score_data = NULL, verbose = FALSE){
+getIndividualCox <- function(data, time_var = "time", event_var = "event", score_data = NULL,
+                             verbose = FALSE){
   set.seed(123)
 
   time <- data[,time_var]
@@ -471,7 +553,8 @@ getIndividualCox <- function(data, time_var = "time", event_var = "event", score
   return(wh)
 }
 
-removeNAorINFcoxmodel <- function(model, data, time.value = NULL, event.value = NULL, max.iter = 200){
+removeNAorINFcoxmodel <- function(model, data, time.value = NULL, event.value = NULL,
+                                  max.iter = 200){
   # REMOVE NA-PVAL VARIABLES
   # p_val could be NA for some variables (if NA change to P-VAL=1)
   # DO IT ALWAYS, we do not want problems in COX models
@@ -1027,7 +1110,9 @@ removeNonSignificativeCox <- function(cox, alpha, cox_input, time.value = NULL, 
 
 }
 
-getFAST_LP_AUC <- function(fast_mode, comp_index, eta_index = NULL, run, fold, X_test, Y_test, lst_X_test, lst_Y_test, comp_model_lst, times = NULL, lst_linear.predictors, df_results_evals_AUC, pred.method, pred.attr, PARALLEL = F, verbose = F){
+getFAST_LP_AUC <- function(fast_mode, comp_index, eta_index = NULL, run, fold, X_test, Y_test,
+                           lst_X_test, lst_Y_test, comp_model_lst, times = NULL, lst_linear.predictors,
+                           df_results_evals_AUC, pred.method, pred.attr, PARALLEL = F, verbose = F){
   lst_linear.predictors <- NULL
   Y_test_full <- NULL
   lst_resCOMPLETE_LP <- getCOMPLETE_LP(comp_index = comp_index, eta_index = eta_index, run = run, fold = fold,
@@ -1055,7 +1140,8 @@ getFAST_LP_AUC <- function(fast_mode, comp_index, eta_index = NULL, run, fold, X
   return(list(lst_AUC_values = lst_AUC_values, df_results_evals_AUC = df_results_evals_AUC))
 }
 
-getCOMPLETE_LP <- function(comp_index, eta_index = NULL, run, fold, X_test, Y_test, lst_X_test, lst_Y_test, Y_test_full, comp_model_lst, lst_linear.predictors){
+getCOMPLETE_LP <- function(comp_index, eta_index = NULL, run, fold, X_test, Y_test, lst_X_test,
+                           lst_Y_test, Y_test_full, comp_model_lst, lst_linear.predictors){
 
   #classical/sPLS
   if(!isa(X_test, "list")){
@@ -1096,7 +1182,8 @@ getCOMPLETE_LP <- function(comp_index, eta_index = NULL, run, fold, X_test, Y_te
   }
 }
 
-getCOMPLETE_BRIER <- function(comp_index, eta_index = NULL, run, fold, X_test, Y_test, lst_X_test, lst_Y_test, comp_model_lst, times, verbose = verbose){
+getCOMPLETE_BRIER <- function(comp_index, eta_index = NULL, run, fold, X_test, Y_test, lst_X_test,
+                              lst_Y_test, comp_model_lst, times, verbose = verbose){
 
   #classical/sPLS
   if(!isa(X_test, "list")){
@@ -1177,7 +1264,8 @@ getCOMPLETE_BRIER <- function(comp_index, eta_index = NULL, run, fold, X_test, Y
   }
 }
 
-# If more than 2 events, get the maximum and the minimum time for event patients and compute X time points between them (equally distributed)
+# If more than 2 events, get the maximum and the minimum time for event patients and compute X time
+# points between them (equally distributed)
 # else, do it by the censored patients
 getTimesVector <- function(Y, max_time_points = 15, ACCURACY = 0.001){
 
@@ -1206,7 +1294,8 @@ getTimesVector <- function(Y, max_time_points = 15, ACCURACY = 0.001){
   return(times)
 }
 
-getCOMPLETE_LP_AUC <- function(Y_test_full, lst_linear.predictors, df_results_evals_AUC, times = NULL, pred.method, pred.attr, PARALLEL = F, max_time_points = 15, verbose = F){
+getCOMPLETE_LP_AUC <- function(Y_test_full, lst_linear.predictors, df_results_evals_AUC, times = NULL,
+                               pred.method, pred.attr, PARALLEL = F, max_time_points = 15, verbose = F){
   #times
 
   ACCURACY <- 0.001 #!!! think to a best mode to select the best accuracy for each possible time
@@ -1233,13 +1322,21 @@ getCOMPLETE_LP_AUC <- function(Y_test_full, lst_linear.predictors, df_results_ev
 }
 
 #' predict.Coxmos
-#' @description Generates the prediction score matrix for Partial Least Squares (PLS) Survival models, facilitating the transformation of high-dimensional data into a reduced space while preserving the most relevant information for survival analysis.
+#' @description Generates the prediction score matrix for Partial Least Squares (PLS) Survival models,
+#' facilitating the transformation of high-dimensional data into a reduced space while preserving the
+#' most relevant information for survival analysis.
 #'
-#' @details The `predict.Coxmos` function is designed to compute the prediction scores for new data based on a previously trained PLS Survival model. The function leverages the dimensional reduction capabilities of PLS to project the new data into a lower-dimensional space, which is particularly beneficial when dealing with high-dimensional datasets in survival analysis. The score matrix obtained serves as a compact representation of the original data, capturing the most salient features that influence survival outcomes.
+#' @details The `predict.Coxmos` function is designed to compute the prediction scores for new data
+#' based on a previously trained PLS Survival model. The function leverages the dimensional reduction
+#' capabilities of PLS to project the new data into a lower-dimensional space, which is particularly
+#' beneficial when dealing with high-dimensional datasets in survival analysis. The score matrix
+#' obtained serves as a compact representation of the original data, capturing the most salient
+#' features that influence survival outcomes.
 #'
 #' @param object Coxmos model
 #' @param ... additional arguments affecting the predictions produced.
-#' @param newdata Numeric matrix or data.frame. New data for explanatory variables (raw data). Qualitative variables must be transform into binary variables.
+#' @param newdata Numeric matrix or data.frame. New data for explanatory variables (raw data).
+#' Qualitative variables must be transform into binary variables.
 #'
 #' @return Score values for new data using the Coxmos model selected.
 #'
@@ -1605,7 +1702,9 @@ predict.Coxmos <- function(object, ..., newdata = NULL){
   return(predicted_scores)
 }
 
-check_AUC_improvement_spls1 <- function(fast_mode, pred.attr, df_results_evals_AUC, comp_index, eta_index, eta.list, n_run, k_folds, lst_comp_AUC, MIN_COMP_TO_CHECK, MIN_AUC, max.ncomp){
+check_AUC_improvement_spls1 <- function(fast_mode, pred.attr, df_results_evals_AUC, comp_index,
+                                        eta_index, eta.list, n_run, k_folds, lst_comp_AUC,
+                                        MIN_COMP_TO_CHECK, MIN_AUC, max.ncomp){
   #CHECK AUC EVOLUTION PER COMPONENT
   comp_AUC <- NULL
 
@@ -1629,7 +1728,9 @@ check_AUC_improvement_spls1 <- function(fast_mode, pred.attr, df_results_evals_A
   return(lst_comp_AUC)
 }
 
-check_AUC_improvement_spls2 <- function(fast_mode, pred.attr, df_results_evals_AUC, comp_index, eta_index, eta.list, n_run, k_folds, lst_comp_AUC, MIN_COMP_TO_CHECK, MIN_AUC, MIN_AUC_INCREASE, max.ncomp){
+check_AUC_improvement_spls2 <- function(fast_mode, pred.attr, df_results_evals_AUC, comp_index,
+                                        eta_index, eta.list, n_run, k_folds, lst_comp_AUC,
+                                        MIN_COMP_TO_CHECK, MIN_AUC, MIN_AUC_INCREASE, max.ncomp){
   optimal_comp_index <- NULL
   optimal_eta_index <- NULL
   optimal_eta <- NULL
@@ -1673,7 +1774,9 @@ check_AUC_improvement_spls2 <- function(fast_mode, pred.attr, df_results_evals_A
 
 }
 
-check_AUC_improvement <- function(fast_mode, pred.attr, df_results_evals_AUC, comp_index, n_run, k_folds, lst_comp_AUC, MIN_COMP_TO_CHECK, MIN_AUC, MIN_AUC_INCREASE, max.ncomp, method.train = "pls"){
+check_AUC_improvement <- function(fast_mode, pred.attr, df_results_evals_AUC, comp_index, n_run,
+                                  k_folds, lst_comp_AUC, MIN_COMP_TO_CHECK, MIN_AUC,
+                                  MIN_AUC_INCREASE, max.ncomp, method.train = "pls"){
   #CHECK AUC EVOLUTION PER COMPONENT
   comp_AUC <- NULL
   if(fast_mode){
@@ -2066,8 +2169,10 @@ getAUC_RUN_AND_COMP <- function(mode = "AUC", fast_mode, max.ncomp, n_run,
   return(list(df_results_evals_comp = df_results_evals_comp, df_results_evals_run = df_results_evals_run))
 }
 
-getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.list, n_run, df_results_evals, optimal_comp_flag, optimal_comp_index,
-                                     MIN_COMP_TO_CHECK, lst_AUC_component, df_results_evals_run, df_results_evals_comp, method.train){
+getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.list, n_run,
+                                     df_results_evals, optimal_comp_flag, optimal_comp_index,
+                                     MIN_COMP_TO_CHECK, lst_AUC_component, df_results_evals_run,
+                                     df_results_evals_comp, method.train){
 
   if(is.null(optimal_comp_flag)){
     optimal_comp_flag <- F
@@ -2283,7 +2388,10 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
   return(list(df_results_evals_comp = df_results_evals_comp, df_results_evals_run = df_results_evals_run))
 }
 
-get_EVAL_PLOTS <- function(fast_mode, best_model_info, w_AUC, w_BRIER, max.ncomp, eta.list = NULL, df_results_evals_fold, df_results_evals_run, df_results_evals_comp, x.text = "Component", colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC", colname_BRIER = "BRIER"){
+get_EVAL_PLOTS <- function(fast_mode, best_model_info, w_AUC, w_BRIER, max.ncomp, eta.list = NULL,
+                           df_results_evals_fold, df_results_evals_run, df_results_evals_comp,
+                           x.text = "Component", colname_AIC = "AIC", colname_c_index = "c_index",
+                           colname_AUC = "AUC", colname_BRIER = "BRIER"){
 
   df_results_evals_comp_aux <- df_results_evals_comp
 
@@ -2411,7 +2519,8 @@ get_EVAL_PLOTS <- function(fast_mode, best_model_info, w_AUC, w_BRIER, max.ncomp
 #### ### ### ### ### ##
 get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = NULL,
                                           n_run, k_folds, total_models,
-                                          remove_non_significant_models, alpha = 0.05, verbose = F){
+                                          remove_non_significant_models, alpha = 0.05,
+                                          verbose = F){
 
   if(length(max.ncomp)==1){
     max.ncomp <- 1:max.ncomp
@@ -2818,7 +2927,8 @@ get_COX_evaluation_BRIER_sPLS <- function(comp_model_lst,
                                           pred.method, pred.attr,
                                           max.ncomp, eta.list, n_run, k_folds,
                                           w_BRIER,
-                                          MIN_AUC_INCREASE, MIN_AUC, MIN_COMP_TO_CHECK, method.train, PARALLEL = F, verbose = F){
+                                          MIN_AUC_INCREASE, MIN_AUC, MIN_COMP_TO_CHECK, method.train,
+                                          PARALLEL = F, verbose = F){
 
   if(length(max.ncomp)==1 & !method.train==pkg.env$coxEN){
     max.ncomp <- 1:max.ncomp
@@ -3082,7 +3192,8 @@ get_COX_evaluation_AUC <- function(comp_model_lst,
                                    fast_mode, pred.method, pred.attr,
                                    max.ncomp, n_run, k_folds,
                                    w_AUC,
-                                   MIN_AUC_INCREASE, MIN_AUC, MIN_COMP_TO_CHECK, method.train, PARALLEL = F, verbose = F){
+                                   MIN_AUC_INCREASE, MIN_AUC, MIN_COMP_TO_CHECK, method.train,
+                                   PARALLEL = F, verbose = F){
 
   if(length(max.ncomp)==1 & !method.train==pkg.env$coxEN){
     max.ncomp <- 1:max.ncomp
@@ -3773,13 +3884,16 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                 lst_X_train, lst_Y_train, vector = NULL,
                                 max.ncomp, eta.list = NULL, EN.alpha.list = NULL, max.variables = 50,
                                 n_run, k_folds,
-                                MIN_NVAR = 10, MAX_NVAR = 10000, MIN_AUC_INCREASE = 0.01, n.cut_points = 5, EVAL_METHOD = "AUC",
+                                MIN_NVAR = 10, MAX_NVAR = 10000, MIN_AUC_INCREASE = 0.01,
+                                n.cut_points = 5, EVAL_METHOD = "AUC",
                                 x.center, x.scale,
                                 y.center, y.scale,
-                                remove_near_zero_variance = F, remove_zero_variance = F,  toKeep.zv = NULL,
+                                remove_near_zero_variance = F, remove_zero_variance = F,
+                                toKeep.zv = NULL,
                                 remove_non_significant = F,
                                 alpha = 0.05, max.iter = 500, returnData = F,
-                                total_models, MIN_EPV = 0, tol = 1e-10, PARALLEL = F, verbose = F){
+                                total_models, MIN_EPV = 0, tol = 1e-10, PARALLEL = F,
+                                verbose = F){
 
   comp_model_lst <- list()
   fold_list <- list()
@@ -4386,7 +4500,8 @@ getBetasFromCOXNET <- function(fit, bestFitModelIndex){
   return(betas)
 }
 
-getLinealPredictors <- function(cox, data, bestModel = NULL, lp_per_variable = F, center=T, scale=F){
+getLinealPredictors <- function(cox, data, bestModel = NULL, lp_per_variable = F, center=T,
+                                scale=F){
 
   if(all(is.na(cox)) | all(is.null(cox))){
     return(rep(NA, nrow(data)))
@@ -4616,23 +4731,47 @@ checkTestTimesVSTrainTimes <- function(lst_models, Y_test){
 
 #' eval_Coxmos_models
 #' @description
-#' The `eval_Coxmos_models` function facilitates the comprehensive evaluation of multiple Coxmos models in a concurrent manner. It is designed to provide a detailed assessment of the models' performance by calculating the Area Under the Curve (AUC) for each model at specified time points. The results generated by this function are primed for visualization using the `plot_evaluation()` function.
+#' The `eval_Coxmos_models` function facilitates the comprehensive evaluation of multiple Coxmos
+#' models in a concurrent manner. It is designed to provide a detailed assessment of the models'
+#' performance by calculating the Area Under the Curve (AUC) for each model at specified time points.
+#' The results generated by this function are primed for visualization using the `plot_evaluation()`
+#' function.
 #'
 #' @details
-#' The function begins by validating the names of the models provided in the `lst_models` list and ensures that there are at least two events present in the dataset. It then checks for the availability of the specified evaluation method and ensures that the test times are consistent with the training times of the models.
+#' The function begins by validating the names of the models provided in the `lst_models` list and
+#' ensures that there are at least two events present in the dataset. It then checks for the
+#' availability of the specified evaluation method and ensures that the test times are consistent
+#' with the training times of the models.
 #'
-#' The core of the function revolves around the evaluation of each model. Depending on the user's preference, the evaluations can be executed in parallel, which can significantly expedite the process, especially when dealing with a large number of models. The function employs various evaluation methods, as specified by the `pred.method` parameter, to compute the AUC values. These methods include but are not limited to "risksetROC", "survivalROC", and "cenROC".
+#' The core of the function revolves around the evaluation of each model. Depending on the user's
+#' preference, the evaluations can be executed in parallel, which can significantly expedite the
+#' process, especially when dealing with a large number of models. The function employs various
+#' evaluation methods, as specified by the `pred.method` parameter, to compute the AUC values. These
+#' methods include but are not limited to "risksetROC", "survivalROC", and "cenROC".
 #'
-#' Post-evaluation, the function collates the results, including training times, AIC values, c-index, Brier scores, and AUC values for each time point. The results are then transformed into a structured data frame, making it conducive for further analysis and visualization. It's worth noting that potential issues in AUC computation, often arising from sparse samples, are flagged to the user for further inspection.
+#' Post-evaluation, the function collates the results, including training times, AIC values, c-index,
+#' Brier scores, and AUC values for each time point. The results are then transformed into a
+#' structured data frame, making it conducive for further analysis and visualization. It's worth
+#' noting that potential issues in AUC computation, often arising from sparse samples, are flagged
+#' to the user for further inspection.
 #'
 #' @param lst_models List of Coxmos models. Each object of the list must be named.
-#' @param X_test Numeric matrix or data.frame. Explanatory variables for test data (raw format). Qualitative variables must be transform into binary variables.
-#' @param Y_test Numeric matrix or data.frame. Response variables for test data. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
-#' @param pred.method Character. AUC evaluation algorithm method for evaluate the model performance. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC").
-#' @param pred.attr Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").
-#' @param times Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 'max_time_points' points will be selected equally distributed (default: NULL).
-#' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).
-#' @param max_time_points Numeric. Maximum number of time points to use for evaluating the model (default: 15).
+#' @param X_test Numeric matrix or data.frame. Explanatory variables for test data (raw format).
+#' Qualitative variables must be transform into binary variables.
+#' @param Y_test Numeric matrix or data.frame. Response variables for test data. Object must have
+#' two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE
+#' for censored and event observations.
+#' @param pred.method Character. AUC evaluation algorithm method for evaluate the model performance.
+#' Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C",
+#' "smoothROCtime_I" (default: "cenROC").
+#' @param pred.attr Character. Way to evaluate the metric selected. Must be one of the following:
+#' "mean" or "median" (default: "mean").
+#' @param times Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of
+#' 'max_time_points' points will be selected equally distributed (default: NULL).
+#' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your
+#' total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).
+#' @param max_time_points Numeric. Maximum number of time points to use for evaluating the model
+#' (default: 15).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #' @param progress_bar Logical. If progress_bar = TRUE, progress bar is shown (default = TRUE).
 #'
@@ -4662,7 +4801,9 @@ checkTestTimesVSTrainTimes <- function(lst_models, Y_test){
 #' }
 
 ## Eval all models by the pred.methods the user defined
-eval_Coxmos_models <- function(lst_models, X_test, Y_test, pred.method, pred.attr = "mean", times = NULL, PARALLEL = F, max_time_points = 15, verbose = F, progress_bar = T){
+eval_Coxmos_models <- function(lst_models, X_test, Y_test, pred.method, pred.attr = "mean",
+                               times = NULL, PARALLEL = F, max_time_points = 15, verbose = F,
+                               progress_bar = T){
 
   #check names in lst_models
   lst_models <- checkModelNames(lst_models)
@@ -4822,7 +4963,8 @@ eval_Coxmos_models <- function(lst_models, X_test, Y_test, pred.method, pred.att
   return(evaluation_Coxmos_class(list(df = new_df, lst_AUC = lst_AUC, lst_BRIER = lst_BRIER, time = time)))
 }
 
-evaluation_list_Coxmos <- function(model, X_test, Y_test, pred.method, pred.attr = "mean", times = NULL, PARALLEL = F, verbose = F, progress_bar = F){
+evaluation_list_Coxmos <- function(model, X_test, Y_test, pred.method, pred.attr = "mean",
+                                   times = NULL, PARALLEL = F, verbose = F, progress_bar = F){
 
   t3 <- Sys.time()
 
@@ -4878,23 +5020,46 @@ evaluation_Coxmos_class = function(object, ...) {
 
 #' eval_Coxmos_model_per_variable
 #' @description
-#' The `eval_Coxmos_model_per_variable` function offers a granular evaluation of a specific Coxmos model, focusing on the influence of individual variables or components on the model's predictive performance. It computes the Area Under the Curve (AUC) for each variable at designated time points, providing insights into the relative importance of each variable in the model's predictions. For a visual representation of the results, it is advisable to utilize the `plot_evaluation()` function post-evaluation.
+#' The `eval_Coxmos_model_per_variable` function offers a granular evaluation of a specific Coxmos
+#' model, focusing on the influence of individual variables or components on the model's predictive
+#' performance. It computes the Area Under the Curve (AUC) for each variable at designated time
+#' points, providing insights into the relative importance of each variable in the model's predictions.
+#' For a visual representation of the results, it is advisable to utilize the `plot_evaluation()`
+#' function post-evaluation.
 #'
 #' @details
-#' Upon invocation, the function initiates by verifying the consistency between test times and the training times of the provided model. Subsequently, linear predictors for each variable are derived using the `predict.Coxmos` function. These linear predictors serve as the foundation for the AUC computation, which is executed for each variable across the specified time points.
+#' Upon invocation, the function initiates by verifying the consistency between test times and the
+#' training times of the provided model. Subsequently, linear predictors for each variable are derived
+#' using the `predict.Coxmos` function. These linear predictors serve as the foundation for the AUC
+#' computation, which is executed for each variable across the specified time points.
 #'
-#' The function employs various evaluation methods, as determined by the `pred.method` parameter, to calculate the AUC values. These methods encompass options such as "risksetROC", "survivalROC", and "cenROC", among others. The results are systematically organized into a structured data frame, segregating AUC values for each variable at different time points. This structured output not only facilitates easy interpretation but also sets the stage for subsequent visualization or further analysis.
+#' The function employs various evaluation methods, as determined by the `pred.method` parameter, to
+#' calculate the AUC values. These methods encompass options such as "risksetROC", "survivalROC", and
+#' "cenROC", among others. The results are systematically organized into a structured data frame,
+#' segregating AUC values for each variable at different time points. This structured output not only
+#' facilitates easy interpretation but also sets the stage for subsequent visualization or further analysis.
 #'
-#' It's noteworthy that the function is equipped to handle parallel processing, contingent on the user's preference, which can expedite the evaluation process, especially when dealing with extensive datasets or multiple time points.
+#' It's noteworthy that the function is equipped to handle parallel processing, contingent on the user's
+#' preference, which can expedite the evaluation process, especially when dealing with extensive datasets
+#' or multiple time points.
 #'
 #' @param model Coxmos model.
-#' @param X_test Numeric matrix or data.frame. Explanatory variables for test data (raw format). Qualitative variables must be transform into binary variables.
-#' @param Y_test Numeric matrix or data.frame. Response variables for test data. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
-#' @param pred.method Character. AUC evaluation algorithm method for evaluate the model performance. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC").
-#' @param pred.attr Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").
-#' @param times Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 'max_time_points' points will be selected equally distributed (default: NULL).
-#' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).
-#' @param max_time_points Numeric. Maximum number of time points to use for evaluating the model (default: 15).
+#' @param X_test Numeric matrix or data.frame. Explanatory variables for test data (raw format).
+#' Qualitative variables must be transform into binary variables.
+#' @param Y_test Numeric matrix or data.frame. Response variables for test data. Object must have two
+#' columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for
+#' censored and event observations.
+#' @param pred.method Character. AUC evaluation algorithm method for evaluate the model performance.
+#' Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C",
+#' "smoothROCtime_I" (default: "cenROC").
+#' @param pred.attr Character. Way to evaluate the metric selected. Must be one of the following:
+#' "mean" or "median" (default: "mean").
+#' @param times Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of
+#' 'max_time_points' points will be selected equally distributed (default: NULL).
+#' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your
+#' total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).
+#' @param max_time_points Numeric. Maximum number of time points to use for evaluating the model
+#' (default: 15).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
@@ -4950,20 +5115,38 @@ eval_Coxmos_model_per_variable <- function(model,
 
 #' cox.prediction
 #' @description
-#' The `cox.prediction` function facilitates Cox predictions based on a given Coxmos model, specifically tailored for raw data input. It seamlessly integrates the generation of a score matrix, especially when a PLS Survival analysis has been executed, and subsequently conducts the Cox prediction. The function offers flexibility in prediction types and methods, catering to diverse analytical requirements.
+#' The `cox.prediction` function facilitates Cox predictions based on a given Coxmos model,
+#' specifically tailored for raw data input. It seamlessly integrates the generation of a score
+#' matrix, especially when a PLS Survival analysis has been executed, and subsequently conducts the
+#' Cox prediction. The function offers flexibility in prediction types and methods, catering to
+#' diverse analytical requirements.
 #'
 #' @details
-#' The function initiates by determining the prediction method specified by the user. If the "cox" method is chosen, the function computes the score matrix using the `predict.Coxmos` function. This score matrix serves as a foundation for subsequent predictions. It's imperative to note that for prediction types "expected" and "survival", a specific time point must be provided to ensure accurate predictions. The function then leverages the `predict` function from the Cox model to compute the desired prediction metric.
+#' The function initiates by determining the prediction method specified by the user. If the "cox"
+#' method is chosen, the function computes the score matrix using the `predict.Coxmos` function.
+#' This score matrix serves as a foundation for subsequent predictions. It's imperative to note that
+#' for prediction types "expected" and "survival", a specific time point must be provided to ensure
+#' accurate predictions. The function then leverages the `predict` function from the Cox model to
+#' compute the desired prediction metric.
 #'
-#' Alternatively, if the "W.star" method is selected, the function computes the prediction values based on the W* matrix and the Cox model's coefficients. This involves normalization of the input data, ensuring it aligns with the training data's distribution. The normalization process considers mean and standard deviation values from the model, ensuring consistency in predictions. The resultant prediction values are then computed as a linear combination of the normalized data and the derived coefficients.
+#' Alternatively, if the "W.star" method is selected, the function computes the prediction values
+#' based on the W* matrix and the Cox model's coefficients. This involves normalization of the input
+#' data, ensuring it aligns with the training data's distribution. The normalization process considers
+#' mean and standard deviation values from the model, ensuring consistency in predictions. The
+#' resultant prediction values are then computed as a linear combination of the normalized data and
+#' the derived coefficients.
 #'
-#' It's worth noting that the function is meticulously designed to handle potential inconsistencies or missing components in the model, ensuring robustness in predictions and minimizing potential errors during execution.
+#' It's worth noting that the function is meticulously designed to handle potential inconsistencies
+#' or missing components in the model, ensuring robustness in predictions and minimizing potential
+#' errors during execution.
 #'
 #' @param model Coxmos model.
-#' @param new_data Numeric matrix or data.frame. New explanatory variables (raw data). Qualitative variables must be transform into binary variables.
+#' @param new_data Numeric matrix or data.frame. New explanatory variables (raw data). Qualitative
+#' variables must be transform into binary variables.
 #' @param time Numeric. Time point where the AUC will be evaluated (default: NULL).
 #' @param type Character. Prediction type: "lp", "risk", "expected" or "survival" (default: "lp").
-#' @param method Character. Prediction method. It can be compute by using the cox model "cox" or by using W.star "W.star" (default: "cox"). (not implemented for MB approaches)!!!
+#' @param method Character. Prediction method. It can be compute by using the cox model "cox" or by
+#' using W.star "W.star" (default: "cox"). (not implemented for MB approaches)!!!
 #'
 #' @return Return the lp or other metric for the patient
 #'
@@ -5028,7 +5211,10 @@ cox.prediction <- function(model, new_data, time = NULL, type = "lp", method = "
 
 }
 
-getBestVector <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN_AUC_INCREASE, MIN_NVAR = 10, MAX_NVAR = 10000, cut_points = 5, EVAL_METHOD = "AUC", EVAL_EVALUATOR = "cenROC", PARALLEL = F, mode = "spls", times = NULL, max_time_points = 15, verbose = F){
+getBestVector <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN_AUC_INCREASE,
+                          MIN_NVAR = 10, MAX_NVAR = 10000, cut_points = 5, EVAL_METHOD = "AUC",
+                          EVAL_EVALUATOR = "cenROC", PARALLEL = F, mode = "spls", times = NULL,
+                          max_time_points = 15, verbose = F){
 
   if(!mode %in% c("spls", "splsda")){
     stop("Mode must be one of: 'spls' or 'splsda'")
@@ -5265,7 +5451,9 @@ getBestVector <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN
   return(list(best.keepX = keepX, p_val = p_val))
 }
 
-getCIndex_AUC_CoxModel_spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keepX, scale = F, near.zero.var = F, EVAL_EVALUATOR = "cenROC", max.iter = 200, verbose = F, times = NULL, max_time_points = 15){
+getCIndex_AUC_CoxModel_spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keepX, scale = F,
+                                        near.zero.var = F, EVAL_EVALUATOR = "cenROC", max.iter = 200,
+                                        verbose = F, times = NULL, max_time_points = 15){
 
   FLAG_ERROR = FALSE
   model <- tryCatch(
@@ -5325,7 +5513,9 @@ getCIndex_AUC_CoxModel_spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keepX, sca
   return(list("c_index" = cox_model$fit$concordance["concordance"], "AUC" = lst_AUC_values$AUC, "BRIER" = lst_BRIER_values$ierror))
 }
 
-getCIndex_AUC_CoxModel_splsda <- function(Xh, Yh, n.comp, keepX, scale = F, near.zero.var = F, EVAL_EVALUATOR = "cenROC", max.iter = 100, verbose = F, times = NULL, max_time_points = 15){
+getCIndex_AUC_CoxModel_splsda <- function(Xh, Yh, n.comp, keepX, scale = F, near.zero.var = F,
+                                          EVAL_EVALUATOR = "cenROC", max.iter = 100, verbose = F,
+                                          times = NULL, max_time_points = 15){
 
   FLAG_ERROR = FALSE
   model <- tryCatch(

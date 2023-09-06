@@ -41,13 +41,19 @@ cv.splsdrcox(
 )
 }
 \arguments{
-\item{X}{Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.}
+\item{X}{Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be
+transform into binary variables.}
 
-\item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.}
+\item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as
+"time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and
+event observations.}
 
-\item{max.ncomp}{Numeric. Maximum number of PLS components to compute for the cross validation (default: 8).}
+\item{max.ncomp}{Numeric. Maximum number of PLS components to compute for the cross validation
+(default: 8).}
 
-\item{eta.list}{Numeric vector. Vector of penalty values. Penalty for sPLS. If eta = 0 no penalty is applied and 1 maximum penalty (no variables are selected). Equal or greater than 1 cannot be selected (default: seq(0.1,0.9,0.2)).}
+\item{eta.list}{Numeric vector. Vector of penalty values. Penalty for sPLS. If eta = 0 no penalty
+is applied and 1 maximum penalty (no variables are selected). Equal or greater than 1 cannot be
+selected (default: seq(0.1,0.9,0.2)).}
 
 \item{n_run}{Numeric. Number of runs for cross validation (default: 3).}
 
@@ -57,19 +63,28 @@ cv.splsdrcox(
 
 \item{x.scale}{Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).}
 
-\item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).}
+\item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, near zero variance
+variables will be removed (default: TRUE).}
 
-\item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).}
+\item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, zero variance variables will
+be removed (default: TRUE).}
 
-\item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).}
+\item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance
+filtering (default: NULL).}
 
-\item{remove_variance_at_fold_level}{Logical. If remove_variance_at_fold_level = TRUE, (near) zero variance will be removed at fold level (default: FALSE).}
+\item{remove_variance_at_fold_level}{Logical. If remove_variance_at_fold_level = TRUE, (near) zero
+variance will be removed at fold level (default: FALSE).}
 
-\item{remove_non_significant_models}{Logical. If remove_non_significant_models = TRUE, non-significant models are removed before computing the evaluation. A non-significant model is a model with at least one component/variable with a P-Value higher than the alpha cutoff. @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
+\item{remove_non_significant_models}{Logical. If remove_non_significant_models = TRUE,
+non-significant models are removed before computing the evaluation. A non-significant model is a
+model with at least one component/variable with a P-Value higher than the alpha cutoff.}
 
-\item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).}
+\item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant
+variables/components in final cox model will be removed until all variables are significant by
+forward selection (default: FALSE).}
 
-\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
+\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the
+threshold (default: 0.05).}
 
 \item{w_AIC}{Numeric. Weight for AIC evaluator. All weights must sum 1 (default: 0).}
 
@@ -79,29 +94,47 @@ cv.splsdrcox(
 
 \item{w_BRIER}{Numeric. Weight for BRIER SCORE evaluator. All weights must sum 1 (default: 0).}
 
-\item{times}{Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 'max_time_points' points will be selected equally distributed (default: NULL).}
+\item{times}{Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of
+'max_time_points' points will be selected equally distributed (default: NULL).}
 
-\item{max_time_points}{Numeric. Maximum number of time points to use for evaluating the model (default: 15).}
+\item{max_time_points}{Numeric. Maximum number of time points to use for evaluating the model
+(default: 15).}
 
-\item{MIN_AUC_INCREASE}{Numeric. Minimum improvement between different cross validation models to continue evaluating higher values in the multiple tested parameters. If it is not reached for next 'MIN_COMP_TO_CHECK' models and the minimum 'MIN_AUC' value is reached, the evaluation stops (default: 0.01).}
+\item{MIN_AUC_INCREASE}{Numeric. Minimum improvement between different cross validation models
+to continue evaluating higher values in the multiple tested parameters. If it is not reached for
+next 'MIN_COMP_TO_CHECK' models and the minimum 'MIN_AUC' value is reached, the evaluation stops
+(default: 0.01).}
 
-\item{MIN_AUC}{Numeric. Minimum AUC desire to reach cross-validation models. If the minimum is reached, the evaluation could stop if the improvement does not reach an AUC higher than adding the 'MIN_AUC_INCREASE' value (default: 0.8).}
+\item{MIN_AUC}{Numeric. Minimum AUC desire to reach cross-validation models. If the minimum is
+reached, the evaluation could stop if the improvement does not reach an AUC higher than adding
+the 'MIN_AUC_INCREASE' value (default: 0.8).}
 
-\item{MIN_COMP_TO_CHECK}{Numeric. Number of penalties/components to evaluate to check if the AUC improves. If for the next 'MIN_COMP_TO_CHECK' the AUC is not better and the 'MIN_AUC' is meet, the evaluation could stop (default: 3).}
+\item{MIN_COMP_TO_CHECK}{Numeric. Number of penalties/components to evaluate to check if the AUC
+improves. If for the next 'MIN_COMP_TO_CHECK' the AUC is not better and the 'MIN_AUC' is meet,
+the evaluation could stop (default: 3).}
 
-\item{pred.attr}{Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").}
+\item{pred.attr}{Character. Way to evaluate the metric selected. Must be one of the following:
+"mean" or "median" (default: "mean").}
 
-\item{pred.method}{Character. AUC evaluation algorithm method for evaluate the model performance. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC").}
+\item{pred.method}{Character. AUC evaluation algorithm method for evaluate the model performance.
+Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C",
+"smoothROCtime_I" (default: "cenROC").}
 
-\item{fast_mode}{Logical. If fast_mode = TRUE, for each run, only one fold is evaluated simultaneously. If fast_mode = FALSE, for each run, all linear predictors are computed for test observations. Once all have their linear predictors, the evaluation is perform across all the observations together (default: FALSE).}
+\item{fast_mode}{Logical. If fast_mode = TRUE, for each run, only one fold is evaluated
+simultaneously. If fast_mode = FALSE, for each run, all linear predictors are computed for test
+observations. Once all have their linear predictors, the evaluation is perform across all the
+observations together (default: FALSE).}
 
-\item{MIN_EPV}{Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).}
+\item{MIN_EPV}{Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final
+cox model. Used to restrict the number of variables/components can be computed in final cox models.
+If the minimum is not meet, the model cannot be computed (default: 5).}
 
 \item{return_models}{Logical. Return all models computed in cross validation (default: FALSE).}
 
 \item{returnData}{Logical. Return original and normalized X and Y matrices (default: TRUE).}
 
-\item{PARALLEL}{Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).}
+\item{PARALLEL}{Logical. Run the cross validation with multicore option. As many cores as your
+total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).}
 
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 
@@ -112,7 +145,8 @@ Instance of class "Coxmos" and model "cv.sPLS-DRCOX".
 \code{best_model_info}: A data.frame with the information for the best model.
 \code{df_results_folds}: A data.frame with fold-level information.
 \code{df_results_runs}: A data.frame with run-level information.
-\code{df_results_comps}: A data.frame with component-level information (for cv.coxEN, EN.alpha information).
+\code{df_results_comps}: A data.frame with component-level information (for cv.coxEN, EN.alpha
+information).
 
 \code{lst_models}: If return_models = TRUE, return a the list of all cross-validated models.
 \code{pred.method}: AUC evaluation algorithm method for evaluate the model performance.
@@ -128,26 +162,44 @@ Instance of class "Coxmos" and model "cv.sPLS-DRCOX".
 
 \code{class}: Cross-Validated model class.
 
-\code{lst_train_indexes}: List (of lists) of indexes for the observations used in each run/fold for train the models.
-\code{lst_test_indexes}: List (of lists) of indexes for the observations used in each run/fold for test the models.
+\code{lst_train_indexes}: List (of lists) of indexes for the observations used in each run/fold
+for train the models.
+\code{lst_test_indexes}: List (of lists) of indexes for the observations used in each run/fold
+for test the models.
 
 \code{time}: time consumed for running the cross-validated function.
 }
 \description{
-sPLS-DRCOX cross validation model
+This function performs cross-validated sparse partial least squares DRCox (sPLS-DRCOX).
+The function returns the optimal number of components and the optimal sparsity penalty value based
+on cross-validation. The performance could be based on multiple metrics as Area Under the Curve
+(AUC), Brier Score or C-Index. Furthermore, the user could establish more than one metric
+simultaneously.
 }
 \details{
-The \verb{sPLS-DRCOX Cross-Validation} function offers a robust approach to fine-tune the hyperparameters of the sPLS-DRCOX model, ensuring optimal performance in survival analysis tasks. By systematically evaluating different combinations of hyperparameters, this function identifies the best model configuration that minimizes prediction error.
+The \verb{sPLS-DRCOX Cross-Validation} function offers a robust approach to fine-tune the hyperparameters
+of the sPLS-DRCOX model, ensuring optimal performance in survival analysis tasks. By systematically
+evaluating different combinations of hyperparameters, this function identifies the best model
+configuration that minimizes prediction error.
 
-Cross-validation is a crucial step in survival analysis, especially when dealing with high-dimensional datasets. It provides an unbiased assessment of the model's generalization capability, safeguarding against overfitting. This function employs a k-fold cross-validation strategy, partitioning the data into multiple subsets (folds) and iteratively using each fold as a test set while the remaining folds serve as training data.
+Cross-validation is a crucial step in survival analysis, especially when dealing with
+high-dimensional datasets. It provides an unbiased assessment of the model's generalization
+capability, safeguarding against overfitting. This function employs a k-fold cross-validation
+strategy, partitioning the data into multiple subsets (folds) and iteratively using each fold as
+a test set while the remaining folds serve as training data.
 
-One of the primary strengths of this function is its flexibility. Users can specify a range of values for the number of PLS components and the penalty parameter \code{eta}. The function then evaluates all possible combinations, returning the optimal configuration that yields the best predictive performance.
+One of the primary strengths of this function is its flexibility. Users can specify a range of
+values for the number of PLS components and the penalty parameter \code{eta}. The function then
+evaluates all possible combinations, returning the optimal configuration that yields the best
+predictive performance.
 
-Additionally, the function offers advanced features like parallel processing for faster computation, and the ability to return all models from the cross-validation process. This is particularly useful for in-depth analysis and comparisons.
+Additionally, the function offers advanced features like parallel processing for faster computation,
+and the ability to return all models from the cross-validation process. This is particularly
+useful for in-depth analysis and comparisons.
 
-The output provides comprehensive insights, including performance metrics for each fold, run, and hyperparameter combination. Visualization plots like AIC, C-Index, Brier Score, and AUC plots further aid in understanding the model's performance across different configurations.
-
-In summary, the \verb{sPLS-DRCOX Cross-Validation} function is an indispensable tool for researchers and practitioners aiming to harness the full potential of the sPLS-DRCOX model in survival analysis.
+The output provides comprehensive insights, including performance metrics for each fold, run, and
+hyperparameter combination. Visualization plots like AIC, C-Index, Brier Score, and AUC plots
+further aid in understanding the model's performance across different configurations.
 }
 \examples{
 \dontrun{

@@ -18,13 +18,15 @@ plot_LP.multiplePatients(
 \arguments{
 \item{model}{Coxmos model.}
 
-\item{new_data}{Numeric matrix or data.frame. New explanatory variables (raw data). Qualitative variables must be transform into binary variables.}
+\item{new_data}{Numeric matrix or data.frame. New explanatory variables (raw data). Qualitative
+variables must be transform into binary variables.}
 
 \item{error.bar}{Logical. Show error bar (default: FALSE).}
 
 \item{onlySig}{Logical. Compute plot using only significant components (default: TRUE).}
 
-\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
+\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the
+threshold (default: 0.05).}
 
 \item{zero.rm}{Logical. Remove variables equal to 0 (default: TRUE).}
 
@@ -36,9 +38,15 @@ plot_LP.multiplePatients(
 Visualizes the linear predictors for multiple patients based on a given Coxmos model.
 }
 \details{
-The function \code{plot_LP.multiplePatients} is designed to visualize the linear predictors for multiple patients based on the provided Coxmos model. The function takes into account various parameters to customize the visualization, such as the significance level, error bars, and the number of top variables to display.
+The function \code{plot_LP.multiplePatients} is designed to visualize the linear predictors for multiple
+patients based on the provided Coxmos model. The function takes into account various parameters to
+customize the visualization, such as the significance level, error bars, and the number of top
+variables to display.
 
-The function works by first checking the class of the provided model. Depending on the model type, it delegates the plotting task to one of the three methods: classical models, PLS models, or multi-block PLS models. Each of these methods is tailored to handle specific model types and produce the desired plots.
+The function works by first checking the class of the provided model. Depending on the model type,
+it delegates the plotting task to one of the three methods: classical models, PLS models, or
+multi-block PLS models. Each of these methods is tailored to handle specific model types and
+produce the desired plots.
 }
 \examples{
 \dontrun{

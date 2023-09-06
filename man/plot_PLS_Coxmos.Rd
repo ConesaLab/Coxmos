@@ -24,19 +24,24 @@ plot_PLS_Coxmos(
 
 \item{comp}{Numeric vector. Vector of length two. Select which components to plot (default: c(1,2)).}
 
-\item{mode}{Character. Choose one of the following plots: "scores", "loadings" o "biplot" (default: "scores").}
+\item{mode}{Character. Choose one of the following plots: "scores", "loadings" o "biplot"
+(default: "scores").}
 
-\item{factor}{Factor. Factor variable to color the observations. If factor = NULL, event will be used (default: NULL).}
+\item{factor}{Factor. Factor variable to color the observations. If factor = NULL, event will be
+used (default: NULL).}
 
 \item{legend_title}{Character. Legend title (default: NULL).}
 
 \item{top}{Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: NULL).}
 
-\item{only_top}{Logical. If "only_top" = TRUE, then only top/radius loading variables will be shown in loading or biplot graph (default: FALSE).}
+\item{only_top}{Logical. If "only_top" = TRUE, then only top/radius loading variables will be
+shown in loading or biplot graph (default: FALSE).}
 
-\item{radius}{Numeric. Radius size (loading/scale value) to plot variable names that are greater than the radius value (default: NULL).}
+\item{radius}{Numeric. Radius size (loading/scale value) to plot variable names that are greater
+than the radius value (default: NULL).}
 
-\item{names}{Logical. Show loading names for top variables or for those that are outside the radius size (default: TRUE).}
+\item{names}{Logical. Show loading names for top variables or for those that are outside the radius
+size (default: TRUE).}
 
 \item{colorReverse}{Logical. Reverse palette colors (default: FALSE).}
 
@@ -45,21 +50,34 @@ plot_PLS_Coxmos(
 \item{overlaps}{Numeric. Number of overlaps to show when plotting loading names (default: 10).}
 }
 \description{
-Visualizes the Coxmos models based on partial least squares (PLS) or Multi-block PLS approaches. This function offers various plotting modes, including scores, loadings, and biplot visualizations, to provide insights into the model's structure and relationships.
+Visualizes the Coxmos models based on partial least squares (PLS) or Multi-block PLS approaches.
+This function offers various plotting modes, including scores, loadings, and biplot visualizations,
+to provide insights into the model's structure and relationships.
 }
 \details{
-The plot_Coxmos.PLS.model function is designed to generate comprehensive visualizations of the Coxmos models. It leverages the inherent structure of the model to produce plots that can aid in the interpretation of the model's components and their relationships.
+The plot_Coxmos.PLS.model function is designed to generate comprehensive visualizations of the
+Coxmos models. It leverages the inherent structure of the model to produce plots that can aid in
+the interpretation of the model's components and their relationships.
 
 Depending on the chosen mode, the function can display:
 \itemize{
-\item Scores: This mode visualizes the scores of the model, which represent the projections of the original data onto the PLS components. The scores can be colored by a factor variable, and ellipses can be added to represent the distribution of the scores.
-\item Loadings: This mode displays the loadings of the model, which indicate the contribution of each variable to the PLS components. The loadings can be filtered by a specified threshold (top or radius), and arrows can be added to represent the direction and magnitude of the loadings.
-\item Biplot: A biplot combines both scores and loadings in a single plot, providing a comprehensive view of the relationships between the observations and variables in the model.
+\item Scores: This mode visualizes the scores of the model, which represent the projections of the
+original data onto the PLS components. The scores can be colored by a factor variable, and
+ellipses can be added to represent the distribution of the scores.
+\item Loadings: This mode displays the loadings of the model, which indicate the contribution of each
+variable to the PLS components. The loadings can be filtered by a specified threshold
+(top or radius), and arrows can be added to represent the direction and magnitude of the loadings.
+\item Biplot: A biplot combines both scores and loadings in a single plot, providing a comprehensive
+view of the relationships between the observations and variables in the model.
 }
 
-The function also offers various customization options, such as adjusting the text size, reversing the color palette, and specifying the number of overlaps for loading names. It ensures that the visualizations are informative and tailored to the user's preferences and the specific characteristics of the data.
+The function also offers various customization options, such as adjusting the text size, reversing
+the color palette, and specifying the number of overlaps for loading names. It ensures that the
+visualizations are informative and tailored to the user's preferences and the specific
+characteristics of the data.
 
-It's important to note that the function performs checks to ensure the input model is of the correct class and provides informative messages for any inconsistencies detected.
+It's important to note that the function performs checks to ensure the input model is of the
+correct class and provides informative messages for any inconsistencies detected.
 }
 \examples{
 \dontrun{

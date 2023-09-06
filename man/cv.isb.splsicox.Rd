@@ -41,13 +41,19 @@ cv.isb.splsicox(
 )
 }
 \arguments{
-\item{X}{Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.}
+\item{X}{Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be
+transform into binary variables.}
 
-\item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.}
+\item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as
+"time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and
+event observations.}
 
-\item{max.ncomp}{Numeric. Maximum number of PLS components to compute for the cross validation (default: 8).}
+\item{max.ncomp}{Numeric. Maximum number of PLS components to compute for the cross validation
+(default: 8).}
 
-\item{spv_penalty.list}{Numeric vector. Penalty for variable selection for the individual cox models. Variables with a lower P-Value than 1- "spv_penalty" in the individual cox analysis will be keep for the sPLS-ICOX approach (default: seq(0.1,0.9,0.2)).}
+\item{spv_penalty.list}{Numeric vector. Penalty for variable selection for the individual cox models.
+Variables with a lower P-Value than 1- "spv_penalty" in the individual cox analysis will be keep
+for the sPLS-ICOX approach (default: seq(0.1,0.9,0.2)).}
 
 \item{n_run}{Numeric. Number of runs for cross validation (default: 3).}
 
@@ -57,19 +63,27 @@ cv.isb.splsicox(
 
 \item{x.scale}{Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).}
 
-\item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).}
+\item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, near zero variance
+variables will be removed (default: TRUE).}
 
-\item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).}
+\item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, zero variance variables will
+be removed (default: TRUE).}
 
-\item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).}
+\item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance
+filtering (default: NULL).}
 
-\item{remove_variance_at_fold_level}{Logical. If remove_variance_at_fold_level = TRUE, (near) zero variance will be removed at fold level (default: FALSE).}
+\item{remove_variance_at_fold_level}{Logical. If remove_variance_at_fold_level = TRUE, (near) zero
+variance will be removed at fold level (default: FALSE).}
 
-\item{remove_non_significant_models}{Logical. If remove_non_significant_models = TRUE, non-significant models are removed before computing the evaluation.}
+\item{remove_non_significant_models}{Logical. If remove_non_significant_models = TRUE,
+non-significant models are removed before computing the evaluation.}
 
-\item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).}
+\item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant
+variables/components in final cox model will be removed until all variables are significant by
+forward selection (default: FALSE).}
 
-\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
+\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the
+threshold (default: 0.05).}
 
 \item{w_AIC}{Numeric. Weight for AIC evaluator. All weights must sum 1 (default: 0).}
 
@@ -79,36 +93,55 @@ cv.isb.splsicox(
 
 \item{w_BRIER}{Numeric. Weight for BRIER SCORE evaluator. All weights must sum 1 (default: 0).}
 
-\item{times}{Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 'max_time_points' points will be selected equally distributed (default: NULL).}
+\item{times}{Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of
+'max_time_points' points will be selected equally distributed (default: NULL).}
 
-\item{max_time_points}{Numeric. Maximum number of time points to use for evaluating the model (default: 15).}
+\item{max_time_points}{Numeric. Maximum number of time points to use for evaluating the model
+(default: 15).}
 
-\item{MIN_AUC_INCREASE}{Numeric. Minimum improvement between different cross validation models to continue evaluating higher values in the multiple tested parameters. If it is not reached for next 'MIN_COMP_TO_CHECK' models and the minimum 'MIN_AUC' value is reached, the evaluation stops (default: 0.01).}
+\item{MIN_AUC_INCREASE}{Numeric. Minimum improvement between different cross validation models to
+continue evaluating higher values in the multiple tested parameters. If it is not reached for next
+'MIN_COMP_TO_CHECK' models and the minimum 'MIN_AUC' value is reached, the evaluation stops
+(default: 0.01).}
 
-\item{MIN_AUC}{Numeric. Minimum AUC desire to reach cross-validation models. If the minimum is reached, the evaluation could stop if the improvement does not reach an AUC higher than adding the 'MIN_AUC_INCREASE' value (default: 0.8).}
+\item{MIN_AUC}{Numeric. Minimum AUC desire to reach cross-validation models. If the minimum is
+reached, the evaluation could stop if the improvement does not reach an AUC higher than adding the
+'MIN_AUC_INCREASE' value (default: 0.8).}
 
-\item{MIN_COMP_TO_CHECK}{Numeric. Number of penalties/components to evaluate to check if the AUC improves. If for the next 'MIN_COMP_TO_CHECK' the AUC is not better and the 'MIN_AUC' is meet, the evaluation could stop (default: 3).}
+\item{MIN_COMP_TO_CHECK}{Numeric. Number of penalties/components to evaluate to check if the AUC
+improves. If for the next 'MIN_COMP_TO_CHECK' the AUC is not better and the 'MIN_AUC' is meet, the
+evaluation could stop (default: 3).}
 
-\item{pred.attr}{Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").}
+\item{pred.attr}{Character. Way to evaluate the metric selected. Must be one of the following:
+"mean" or "median" (default: "mean").}
 
-\item{pred.method}{Character. AUC evaluation algorithm method for evaluate the model performance. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC").}
+\item{pred.method}{Character. AUC evaluation algorithm method for evaluate the model performance.
+Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C",
+"smoothROCtime_I" (default: "cenROC").}
 
-\item{fast_mode}{Logical. If fast_mode = TRUE, for each run, only one fold is evaluated simultaneously. If fast_mode = FALSE, for each run, all linear predictors are computed for test observations. Once all have their linear predictors, the evaluation is perform across all the observations together (default: FALSE).}
+\item{fast_mode}{Logical. If fast_mode = TRUE, for each run, only one fold is evaluated
+simultaneously. If fast_mode = FALSE, for each run, all linear predictors are computed for test
+observations. Once all have their linear predictors, the evaluation is perform across all the
+observations together (default: FALSE).}
 
-\item{MIN_EPV}{Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).}
+\item{MIN_EPV}{Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final
+cox model. Used to restrict the number of variables/components can be computed in final cox models.
+If the minimum is not meet, the model cannot be computed (default: 5).}
 
 \item{returnData}{Logical. Return original and normalized X and Y matrices (default: TRUE).}
 
 \item{return_models}{Logical. Return all models computed in cross validation (default: FALSE).}
 
-\item{PARALLEL}{Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).}
+\item{PARALLEL}{Logical. Run the cross validation with multicore option. As many cores as your
+total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).}
 
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 
 \item{seed}{Number. Seed value for performing runs/folds divisions (default: 123).}
 }
 \value{
-Instance of class "Coxmos" and model "sb.splsicox". The class contains the following elements:
+Instance of class "Coxmos" and model "sb.splsicox". The class contains the following
+elements:
 \code{X}: List of normalized X data information.
 \itemize{
 \item \code{(data)}: normalized X matrix
@@ -160,22 +193,45 @@ Instance of class "Coxmos" and model "sb.splsicox". The class contains the follo
 \code{time}: time consumed for running the cox analysis.
 }
 \description{
-cv.isb.splsicox cross validation model
+This function performs cross-validated sparse partial least squares iterative single
+block for splsicox. The function returns the optimal number of components and the optimal sparsity
+penalty value based on cross-validation. The performance could be based on multiple metrics as
+Area Under the Curve (AUC), Brier Score or C-Index. Furthermore, the user could establish more
+than one metric simultaneously.
 }
 \details{
-The \code{cv.isb.splsicox} function performs cross-validation for the iterative single-block sparse partial least squares individual Cox analysis. Unlike the single-block (\code{sb}) approach, where each block is analyzed with the same number of components and penalties, the iterative single-block (\code{isb}) approach allows for the specification of different numbers of components and penalties for each block. This provides a more tailored analysis for each block, recognizing that different blocks may have varying complexities and relationships with the outcome.
+The \code{cv.isb.splsicox} function performs cross-validation for the iterative single-block sparse
+partial least squares individual Cox analysis. Unlike the single-block (\code{sb}) approach, where
+each block is analyzed with the same number of components and penalties, the iterative
+single-block (\code{isb}) approach allows for the specification of different numbers of components and
+penalties for each block. This provides a more tailored analysis for each block, recognizing that
+different blocks may have varying complexities and relationships with the outcome.
 
-The function is designed to handle datasets with multiple blocks, processing each block individually in an iterative manner. This ensures a detailed examination of each block's contribution to the survival outcome without the interference of other blocks. This approach is distinct from multiblock methods where all blocks are analyzed simultaneously.
+The function is designed to handle datasets with multiple blocks, processing each block
+individually in an iterative manner. This ensures a detailed examination of each block's
+contribution to the survival outcome without the interference of other blocks. This approach is
+distinct from multiblock methods where all blocks are analyzed simultaneously.
 
-In the context of this function, "iterative single-block" means that each block of data is analyzed separately, one after the other. This approach is beneficial when different blocks represent distinct types or sources of data, allowing for a granular understanding of each block's significance.
+In the context of this function, "iterative single-block" means that each block of data is
+analyzed separately, one after the other. This approach is beneficial when different blocks
+represent distinct types or sources of data, allowing for a granular understanding of each block's
+significance.
 
-The cross-validation process involves partitioning the dataset into multiple subsets (folds) and then iteratively training the model on a subset of the data while validating it on the remaining data. This helps in determining the optimal hyperparameters for the model, such as the number of latent components and the penalty for variable selection.
+The cross-validation process involves partitioning the dataset into multiple subsets (folds) and
+then iteratively training the model on a subset of the data while validating it on the remaining
+data. This helps in determining the optimal hyperparameters for the model, such as the number of
+latent components and the penalty for variable selection.
 
-Unlike the \code{sb} approach, which returns the optimal hyperparameters for further model training, the \code{isb} approach directly returns the final model. This model is constructed using the best-performing hyperparameters for each block, ensuring a more customized and potentially more accurate model.
+Unlike the \code{sb} approach, which returns the optimal hyperparameters for further model training,
+the \code{isb} approach directly returns the final model. This model is constructed using the
+best-performing hyperparameters for each block, ensuring a more customized and potentially more
+accurate model.
 
-The function offers flexibility in specifying various hyperparameters and options for data preprocessing. The output provides a comprehensive overview of the cross-validation results, including metrics like AIC, C-Index, Brier Score, and AUC for each hyper-parameter combination. Visualization tools are also provided to aid in understanding the model's performance across different hyperparameters.
-
-In summary, the \code{cv.isb.splsicox} function offers a robust and tailored approach for determining the optimal parameters for the iterative single-block sparse partial least squares individual Cox analysis, ensuring optimal feature selection, dimensionality reduction, and predictive modeling for each individual block in the dataset.
+The function offers flexibility in specifying various hyperparameters and options for data
+preprocessing. The output provides a comprehensive overview of the cross-validation results,
+including metrics like AIC, C-Index, Brier Score, and AUC for each hyper-parameter combination.
+Visualization tools are also provided to aid in understanding the model's performance across
+different hyperparameters.
 }
 \examples{
 \dontrun{

@@ -15,11 +15,24 @@ checkColnamesIllegalChars.mb <- function(X){
 }
 
 #' getEPV.mb
-#' @description The function computes the (Events per Variable) EPV value for a given multiblock dataset.
-#' The function calculates the ratio of events in the Y matrix and the number of variables in the list X
-#' object
-#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
-#' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
+#' @description Provides a quantitative assessment of the dataset by computing the Events per Variable
+#' (EPV) metric for multi-block data, which gauges the proportionality between observed events and the
+#' number of explanatory variables.
+#'
+#' @details In the realm of survival analysis, the balance between observed events and explanatory
+#' variables is paramount. The `getEPV` function serves as a tool for researchers to ascertain this
+#' balance, which can be pivotal in determining the robustness and interpretability of subsequent
+#' statistical models. By evaluating the ratio of events in the `Y` matrix to the variables in the `X`
+#' matrix, the function yields the EPV metric. It is of utmost importance that the `Y` matrix encompasses
+#' two distinct columns, namely "time" and "event". The latter, "event", should strictly encapsulate
+#' binary values, delineating censored (either 0 or FALSE) and event (either 1 or TRUE) observations.
+#' To ensure the integrity of the data and the precision of the computation, the function is equipped
+#' with an error mechanism that activates if the "event" column remains undetected.
+#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform
+#' into binary variables.
+#' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as
+#' "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event
+#' observations.
 #'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
@@ -44,18 +57,39 @@ getEPV.mb <- function(X,Y){
 }
 
 #' deleteZeroOrNearZeroVariance.mb
+#' @description Provides a robust mechanism to filter out variables from a dataset that exhibit zero
+#' or near-zero variance, thereby enhancing the quality and interpretability of subsequent statistical
+#' analyses.
 #'
-#' @param X List of numeric matrices or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
-#' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
-#' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
-#' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
-#' @param freqCut Numeric. Cutoff for the ratio of the most common value to the second most common value (default: 95/5).
+#' @details The `deleteZeroOrNearZeroVariance` function is an indispensable tool in the preprocessing
+#' phase of statistical modeling. In many datasets, especially high-dimensional ones, certain variables
+#' might exhibit zero or near-zero variance. Such variables can be problematic as they offer limited
+#' information variance and can potentially distort the results of statistical models, leading to
+#' issues like overfitting. By leveraging the `caret::nearZeroVar()` function, this tool offers a
+#' rigorous method to identify and exclude these variables. Users are afforded flexibility in their
+#' choices, with options to remove only zero variance variables, near-zero variance variables, or
+#' both. The function also provides the capability to set a frequency cutoff, `freqCut`, which
+#' determines the threshold for near-zero variance based on the ratio of the most frequent value to
+#' the second most frequent value. For scenarios where certain variables are deemed essential and
+#' should not be removed regardless of their variance, the `toKeep.zv` parameter allows users to specify
+#' a list of such variables.
+#' @param X List of numeric matrices or data.frame. Explanatory variables. Qualitative variables must
+#' be transform into binary variables.
+#' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance
+#' variables will be removed (default: TRUE).
+#' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will
+#' be removed (default: TRUE).
+#' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance
+#' filtering (default: NULL).
+#' @param freqCut Numeric. Cutoff for the ratio of the most common value to the second most common
+#' value (default: 95/5).
 #'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 
-deleteZeroOrNearZeroVariance.mb <- function(X, remove_near_zero_variance = F, remove_zero_variance = T, toKeep.zv = NULL, freqCut = 95/5){
+deleteZeroOrNearZeroVariance.mb <- function(X, remove_near_zero_variance = F, remove_zero_variance = T,
+                                            toKeep.zv = NULL, freqCut = 95/5){
 
   auxX <- X
 
@@ -91,9 +125,26 @@ deleteZeroOrNearZeroVariance.mb <- function(X, remove_near_zero_variance = F, re
 }
 
 #' deleteNearZeroCoefficientOfVariation.mb
+#' @description Filters out variables from a dataset that exhibit a coefficient of variation below a
+#' specified threshold, ensuring the retention of variables with meaningful variability.
 #'
-#' @param X List of numeric matrices or data.frames. Explanatory variables. Qualitative variables must be transform into binary variables.
-#' @param LIMIT Numeric. Cutoff for minimum variation. If coefficient is lesser than the limit, the variables are removed because not vary enough (default: 0.1).
+#' @details The `deleteNearZeroCoefficientOfVariation` function is a pivotal tool in data preprocessing,
+#' especially when dealing with high-dimensional datasets. The coefficient of variation (CoV) is a
+#' normalized measure of data dispersion, calculated as the ratio of the standard deviation to the mean.
+#' In many scientific investigations, variables with a low CoV might be considered as offering limited
+#' discriminative information, potentially leading to noise in subsequent statistical analyses. By
+#' setting a threshold through the `LIMIT` parameter, this function provides a systematic approach to
+#' identify and exclude variables that do not meet the desired variability criteria. The underlying
+#' rationale is that variables with a CoV below the set threshold might not contribute significantly
+#' to the variability of the dataset and could be redundant or even detrimental for certain analyses.
+#' The function returns a modified dataset, a list of deleted variables, and the computed coefficients
+#' of variation for each variable. This comprehensive output ensures that researchers are well-informed
+#' about the preprocessing steps and can make subsequent analytical decisions with confidence.
+#'
+#' @param X List of numeric matrices or data.frames. Explanatory variables. Qualitative variables must
+#' be transform into binary variables.
+#' @param LIMIT Numeric. Cutoff for minimum variation. If coefficient is lesser than the limit, the
+#' variables are removed because not vary enough (default: 0.1).
 #'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
@@ -363,7 +414,10 @@ Xh_XXNA <- function(Xh, XXNA, value = 0){
   return(Xh)
 }
 
-getCIndex_AUC_CoxModel_block.spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keepX, scale = F, near.zero.var = F, EVAL_EVALUATOR = "cenROC", max.iter = 100, verbose = F, times = NULL, max_time_points = 15){
+getCIndex_AUC_CoxModel_block.spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keepX, scale = F,
+                                              near.zero.var = F, EVAL_EVALUATOR = "cenROC",
+                                              max.iter = 100, verbose = F, times = NULL,
+                                              max_time_points = 15){
   model <- mixOmics::block.spls(X = Xh, Y = DR_coxph_ori, ncomp = n.comp, keepX = keepX, scale = scale, near.zero.var = near.zero.var, max.iter = max.iter)
   tt_mbsplsDR = model$variates[names(Xh)]
 
@@ -409,7 +463,10 @@ getCIndex_AUC_CoxModel_block.spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keep
   return(list("c_index" = cox_model$fit$concordance["concordance"], "AUC" = lst_AUC_values$AUC, "BRIER" = lst_BRIER_values$ierror))
 }
 
-getCIndex_AUC_CoxModel_block.splsda <- function(Xh, Yh, n.comp, keepX, scale = F, near.zero.var = F, EVAL_EVALUATOR = "cenROC", max.iter = 100, verbose = verbose, times = NULL, max_time_points = 15){
+getCIndex_AUC_CoxModel_block.splsda <- function(Xh, Yh, n.comp, keepX, scale = F, near.zero.var = F,
+                                                EVAL_EVALUATOR = "cenROC", max.iter = 100,
+                                                verbose = verbose, times = NULL,
+                                                max_time_points = 15){
   model <- mixOmics::block.splsda(X = Xh, Y = Yh[,"event"], ncomp = n.comp, keepX = keepX, scale = scale, near.zero.var = near.zero.var, max.iter = max.iter)
   tt_mbsplsDR = model$variates[names(Xh)]
 
@@ -460,7 +517,10 @@ getVarExpModel_block.spls <- function(Xh, DR_coxph_ori, n.comp, keepX, scale = F
   var_exp <- data.frame(lapply(model$prop_expl_var, sum))
 }
 
-getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN_AUC_INCREASE, MIN_NVAR = 10, MAX_NVAR = 10000, cut_points = 5, EVAL_METHOD = "AUC", EVAL_EVALUATOR = "cenROC", PARALLEL = F, mode = "spls", times = NULL, max_time_points = 15, verbose = F){
+getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN_AUC_INCREASE,
+                            MIN_NVAR = 10, MAX_NVAR = 10000, cut_points = 5, EVAL_METHOD = "AUC",
+                            EVAL_EVALUATOR = "cenROC", PARALLEL = F, mode = "spls", times = NULL,
+                            max_time_points = 15, verbose = F){
 
   if(!mode %in% c("spls", "splsda")){
     stop("Mode must be one of: 'spls' or 'splsda'")

@@ -7,7 +7,8 @@
 plot_time.list(lst_models, x.text = "Method", y.text = NULL)
 }
 \arguments{
-\item{lst_models}{List of Coxmos models. Each HDCox object has the attribute time measured in minutes (cross-validation models could be also added to this function).}
+\item{lst_models}{List of Coxmos models. Each HDCox object has the attribute time measured in
+minutes (cross-validation models could be also added to this function).}
 
 \item{x.text}{Character. X axis title.}
 
@@ -17,14 +18,25 @@ plot_time.list(lst_models, x.text = "Method", y.text = NULL)
 A ggplot2 bar plot.
 }
 \description{
-Produces a visual representation, using ggplot2, of the computational time consumed by each model encapsulated within the provided list of Coxmos models. This visualization aids in the comparative assessment of computational efficiency across different models.
+Produces a visual representation, using ggplot2, of the computational time consumed
+by each model encapsulated within the provided list of Coxmos models. This visualization aids in
+the comparative assessment of computational efficiency across different models.
 }
 \details{
-The \code{plot_time.list} function objective is to offer a clear and concise visual representation of the computational time expended by each model during its execution.
+The \code{plot_time.list} function objective is to offer a clear and concise visual
+representation of the computational time expended by each model during its execution.
 
-The function expects a list of Coxmos models, each of which should inherently possess a time attribute indicating the computational time it consumed. This time attribute is then extracted, aggregated, and visualized in a bar plot format. The function is versatile enough to handle both individual models and cross-validation models, summing up the computational times in the latter case to provide an aggregate view.
+The function expects a list of Coxmos models, each of which should inherently possess a time
+attribute indicating the computational time it consumed. This time attribute is then extracted,
+aggregated, and visualized in a bar plot format. The function is versatile enough to handle both
+individual models and cross-validation models, summing up the computational times in the latter
+case to provide an aggregate view.
 
-The resultant plot is generated using the ggplot2 package, ensuring a high-quality and interpretable visualization. The Y-axis of the plot represents the computational time, typically in minutes, while the X-axis enumerates the different models. The function also offers customization options for axis labels, ensuring that the resultant plot aligns with the user's preferences and the intended audience's expectations.
+The resultant plot is generated using the ggplot2 package, ensuring a high-quality and interpretable
+visualization. The Y-axis of the plot represents the computational time, typically in minutes, while
+the X-axis enumerates the different models. The function also offers customization options for axis
+labels, ensuring that the resultant plot aligns with the user's preferences and the intended audience's
+expectations.
 }
 \examples{
 \dontrun{

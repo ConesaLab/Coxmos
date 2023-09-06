@@ -19,31 +19,54 @@ eval_Coxmos_model_per_variable(
 \arguments{
 \item{model}{Coxmos model.}
 
-\item{X_test}{Numeric matrix or data.frame. Explanatory variables for test data (raw format). Qualitative variables must be transform into binary variables.}
+\item{X_test}{Numeric matrix or data.frame. Explanatory variables for test data (raw format).
+Qualitative variables must be transform into binary variables.}
 
-\item{Y_test}{Numeric matrix or data.frame. Response variables for test data. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.}
+\item{Y_test}{Numeric matrix or data.frame. Response variables for test data. Object must have two
+columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for
+censored and event observations.}
 
-\item{pred.method}{Character. AUC evaluation algorithm method for evaluate the model performance. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC").}
+\item{pred.method}{Character. AUC evaluation algorithm method for evaluate the model performance.
+Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C",
+"smoothROCtime_I" (default: "cenROC").}
 
-\item{pred.attr}{Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").}
+\item{pred.attr}{Character. Way to evaluate the metric selected. Must be one of the following:
+"mean" or "median" (default: "mean").}
 
-\item{times}{Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 'max_time_points' points will be selected equally distributed (default: NULL).}
+\item{times}{Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of
+'max_time_points' points will be selected equally distributed (default: NULL).}
 
-\item{max_time_points}{Numeric. Maximum number of time points to use for evaluating the model (default: 15).}
+\item{max_time_points}{Numeric. Maximum number of time points to use for evaluating the model
+(default: 15).}
 
-\item{PARALLEL}{Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).}
+\item{PARALLEL}{Logical. Run the cross validation with multicore option. As many cores as your
+total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).}
 
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
 \description{
-The \code{eval_Coxmos_model_per_variable} function offers a granular evaluation of a specific Coxmos model, focusing on the influence of individual variables or components on the model's predictive performance. It computes the Area Under the Curve (AUC) for each variable at designated time points, providing insights into the relative importance of each variable in the model's predictions. For a visual representation of the results, it is advisable to utilize the \code{plot_evaluation()} function post-evaluation.
+The \code{eval_Coxmos_model_per_variable} function offers a granular evaluation of a specific Coxmos
+model, focusing on the influence of individual variables or components on the model's predictive
+performance. It computes the Area Under the Curve (AUC) for each variable at designated time
+points, providing insights into the relative importance of each variable in the model's predictions.
+For a visual representation of the results, it is advisable to utilize the \code{plot_evaluation()}
+function post-evaluation.
 }
 \details{
-Upon invocation, the function initiates by verifying the consistency between test times and the training times of the provided model. Subsequently, linear predictors for each variable are derived using the \code{predict.Coxmos} function. These linear predictors serve as the foundation for the AUC computation, which is executed for each variable across the specified time points.
+Upon invocation, the function initiates by verifying the consistency between test times and the
+training times of the provided model. Subsequently, linear predictors for each variable are derived
+using the \code{predict.Coxmos} function. These linear predictors serve as the foundation for the AUC
+computation, which is executed for each variable across the specified time points.
 
-The function employs various evaluation methods, as determined by the \code{pred.method} parameter, to calculate the AUC values. These methods encompass options such as "risksetROC", "survivalROC", and "cenROC", among others. The results are systematically organized into a structured data frame, segregating AUC values for each variable at different time points. This structured output not only facilitates easy interpretation but also sets the stage for subsequent visualization or further analysis.
+The function employs various evaluation methods, as determined by the \code{pred.method} parameter, to
+calculate the AUC values. These methods encompass options such as "risksetROC", "survivalROC", and
+"cenROC", among others. The results are systematically organized into a structured data frame,
+segregating AUC values for each variable at different time points. This structured output not only
+facilitates easy interpretation but also sets the stage for subsequent visualization or further analysis.
 
-It's noteworthy that the function is equipped to handle parallel processing, contingent on the user's preference, which can expedite the evaluation process, especially when dealing with extensive datasets or multiple time points.
+It's noteworthy that the function is equipped to handle parallel processing, contingent on the user's
+preference, which can expedite the evaluation process, especially when dealing with extensive datasets
+or multiple time points.
 }
 \examples{
 \dontrun{

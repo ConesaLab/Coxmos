@@ -18,7 +18,8 @@ plot_forest.list(
 
 \item{title}{Character. Forest plot title (default: "Hazard Ratio").}
 
-\item{cpositions}{Numeric vector. Relative positions of first three columns in the OX scale (default: c(0.02, 0.22, 0.4)).}
+\item{cpositions}{Numeric vector. Relative positions of first three columns in the OX scale
+(default: c(0.02, 0.22, 0.4)).}
 
 \item{fontsize}{Numeric. Elative size of annotations in the plot (default: 0.7).}
 

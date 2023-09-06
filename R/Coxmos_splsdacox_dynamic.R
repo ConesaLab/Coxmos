@@ -3,34 +3,84 @@
 #### ### ##
 
 #' sPLSDA-COX Dynamic
-#' @description This function performs a sparse partial least squares discriminant analysis Cox (sPLSDA-COX) by dynamic variable selection methodology.
-#' The function returns a Coxmos model with the attribute model as "sPLSDA-COX".
+#' @description
+#' The splsdacox_dynamic function conducts a sparse partial least squares discriminant analysis Cox
+#' (sPLSDA-COX) using dynamic variable selection methodology. This method is particularly useful for
+#' high-dimensional survival data where the goal is to identify a subset of variables that are most
+#' predictive of survival outcomes. The function integrates the power of sPLSDA with the Cox
+#' proportional hazards model to provide a robust tool for survival analysis in the context of large
+#' datasets.
 #'
-#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
-#' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
+#' @details
+#' The function begins by checking the input parameters for consistency and ensuring that the response
+#' variable Y has the required columns "time" and "event". It then preprocesses the data by centering
+#' and scaling (if specified), and removing variables with zero or near-zero variance. The function
+#' also checks for multicollinearity in the data and addresses it if detected.
+#'
+#' The core of the function involves determining the optimal number of variables to retain in the model.
+#' If the vector parameter is not provided, the function employs a strategy to identify the best number
+#' of variables for each latent component. This is achieved by evaluating different combinations of
+#' variables and selecting the one that maximizes the model's performance, as determined by the
+#' specified evaluation metric (EVAL_METHOD).
+#'
+#' Once the optimal number of variables is determined, the function proceeds to compute the sPLSDA-COX
+#' model. It employs the mixOmics::splsda function to compute the sPLSDA model, which is then
+#' integrated with the Cox proportional hazards model. The resulting model provides insights into the
+#' relationship between the predictor variables and survival outcomes.
+#'
+#' The function also offers the flexibility to refine the model further by removing non-significant
+#' variables based on a specified alpha threshold.
+#'
+#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be
+#' transform into binary variables.
+#' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as
+#' "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and
+#' event observations.
 #' @param n.comp Numeric. Number of latent components to compute for the (s)PLS model (default: 10).
-#' @param vector Numeric vector. Used for computing best number of variables. As many values as components have to be provided. If vector = NULL, an automatic detection is perform (default: NULL).
-#' @param MIN_NVAR Numeric. Minimum range size for computing cut points to select the best number of variables to use (default: 10).
-#' @param MAX_NVAR Numeric. Maximum range size for computing cut points to select the best number of variables to use (default: 1000).
-#' @param n.cut_points Numeric. Number of cut points for searching the optimal number of variables. If only two cut points are selected, minimum and maximum size are used. For MB approaches as many as n.cut_points^n.blocks models will be computed as minimum (default: 5).
-#' @param MIN_AUC_INCREASE Numeric. Minimum improvement between different cross validation models to continue evaluating higher values in the multiple tested parameters. If it is not reached for next 'MIN_COMP_TO_CHECK' models and the minimum 'MIN_AUC' value is reached, the evaluation stops (default: 0.01).
+#' @param vector Numeric vector. Used for computing best number of variables. As many values as
+#' components have to be provided. If vector = NULL, an automatic detection is perform (default: NULL).
+#' @param MIN_NVAR Numeric. Minimum range size for computing cut points to select the best number of
+#' variables to use (default: 10).
+#' @param MAX_NVAR Numeric. Maximum range size for computing cut points to select the best number of
+#' variables to use (default: 1000).
+#' @param n.cut_points Numeric. Number of cut points for searching the optimal number of variables.
+#' If only two cut points are selected, minimum and maximum size are used. For MB approaches as many
+#' as n.cut_points^n.blocks models will be computed as minimum (default: 5).
+#' @param MIN_AUC_INCREASE Numeric. Minimum improvement between different cross validation models to
+#' continue evaluating higher values in the multiple tested parameters. If it is not reached for next
+#' 'MIN_COMP_TO_CHECK' models and the minimum 'MIN_AUC' value is reached, the evaluation stops
+#' (default: 0.01).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
-#' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
-#' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
-#' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
-#' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).
-#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
-#' @param EVAL_METHOD Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best number of variables. In other case, c-index metrix will be used (default: "AUC").
-#' @param pred.method Character. AUC evaluation algorithm method for evaluate the model performance. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC").
+#' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance
+#' variables will be removed (default: TRUE).
+#' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will
+#' be removed (default: TRUE).
+#' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance
+#' filtering (default: NULL).
+#' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant
+#' variables/components in final cox model will be removed until all variables are significant by
+#' forward selection (default: FALSE).
+#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the
+#' threshold (default: 0.05).
+#' @param EVAL_METHOD Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best
+#' number of variables. In other case, c-index metrix will be used (default: "AUC").
+#' @param pred.method Character. AUC evaluation algorithm method for evaluate the model performance.
+#' Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C",
+#' "smoothROCtime_I" (default: "cenROC").
 #' @param max.iter Numeric. Maximum number of iterations for PLS convergence (default: 200).
-#' @param times Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 'max_time_points' points will be selected equally distributed (default: NULL).
-#' @param max_time_points Numeric. Maximum number of time points to use for evaluating the model (default: 15).
-#' @param MIN_EPV Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).
+#' @param times Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of
+#' 'max_time_points' points will be selected equally distributed (default: NULL).
+#' @param max_time_points Numeric. Maximum number of time points to use for evaluating the model
+#' (default: 15).
+#' @param MIN_EPV Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final
+#' cox model. Used to restrict the number of variables/components can be computed in final cox models.
+#' If the minimum is not meet, the model cannot be computed (default: 5).
 #' @param returnData Logical. Return original and normalized X and Y matrices (default: TRUE).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #'
-#' @return Instance of class "Coxmos" and model "sPLS-DACOX-Dynamic". The class contains the following elements:
+#' @return Instance of class "Coxmos" and model "sPLS-DACOX-Dynamic". The class contains the
+#' following elements:
 #' \code{X}: List of normalized X data information.
 #' \itemize{
 #'  \item \code{(data)}: normalized X matrix
@@ -66,7 +116,8 @@
 #'
 #' \code{var_by_component}: Variables selected in each PLS component.
 #'
-#' \code{plot_accuracyPerVariable}: If NULL vector is selected, return a plot for understanding the number of variable selection.
+#' \code{plot_accuracyPerVariable}: If NULL vector is selected, return a plot for understanding the
+#' number of variable selection.
 #'
 #' \code{call}: call function
 #'
@@ -104,7 +155,8 @@ splsdacox_dynamic <- function (X, Y,
                                MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 5,
                                MIN_AUC_INCREASE = 0.01,
                                x.center = TRUE, x.scale = FALSE,
-                               remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
+                               remove_near_zero_variance = T, remove_zero_variance = T,
+                               toKeep.zv = NULL,
                                remove_non_significant = F, alpha = 0.05,
                                EVAL_METHOD = "AUC", pred.method = "cenROC", max.iter = 200,
                                times = NULL, max_time_points = 15,
@@ -400,45 +452,104 @@ splsdacox_dynamic <- function (X, Y,
 #### ### ### ### ###
 
 #' Cross validation splsdacox_dynamic
-#' @description plsdacox_dynamic cross validation model
+#' @description
+#' The cv.splsdacox_dynamic function performs cross-validation for the sPLS-DA-COX-Dynamic model.
+#' This model is designed to handle survival data, where the response variables are time-to-event
+#' and event/censoring indicators. The function offers a comprehensive set of parameters to fine-tune
+#' the cross-validation process, including options for data preprocessing, model evaluation, and
+#' parallel processing.
 #'
-#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
-#' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
-#' @param max.ncomp Numeric. Maximum number of PLS components to compute for the cross validation (default: 8).
-#' @param vector Numeric vector. Used for computing best number of variables. As many values as components have to be provided. If vector = NULL, an automatic detection is perform (default: NULL).
+#' @details
+#' The function begins by ensuring that the required libraries for evaluation metrics are installed.
+#' It then checks the validity of the input parameters, such as ensuring that the response variables
+#' have the appropriate column names ("time" and "event") and that the evaluation weights sum to 1.
+#'
+#' Data preprocessing steps include the potential removal of variables with zero or near-zero variance,
+#' and the transformation of explanatory variables to ensure they are centered or scaled as specified.
+#' The function also provides an option to remove variables based on their coefficient of variation.
+#'
+#' The core of the function revolves around the cross-validation process. Data is split into training
+#' and test sets for each run and fold. For each combination of run, fold, and specified number of PLS
+#' components, a sPLS-DA-COX-Dynamic model is trained. The performance of these models is then evaluated
+#' using a combination of metrics, including the Akaike Information Criterion (AIC), C-index, Brier Score,
+#' and Area Under the Curve (AUC). The function provides flexibility in choosing the evaluation metric
+#' and its method.
+#'
+#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be
+#' transform into binary variables.
+#' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as
+#' "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event
+#' observations.
+#' @param max.ncomp Numeric. Maximum number of PLS components to compute for the cross validation
+#' (default: 8).
+#' @param vector Numeric vector. Used for computing best number of variables. As many values as
+#' components have to be provided. If vector = NULL, an automatic detection is perform (default: NULL).
 #' @param n_run Numeric. Number of runs for cross validation (default: 3).
 #' @param k_folds Numeric. Number of folds for cross validation (default: 10).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
-#' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
-#' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
-#' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
-#' @param remove_variance_at_fold_level Logical. If remove_variance_at_fold_level = TRUE, (near) zero variance will be removed at fold level (default: FALSE).
-#' @param remove_non_significant_models Logical. If remove_non_significant_models = TRUE, non-significant models are removed before computing the evaluation.
-#' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).
-#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
-#' @param MIN_NVAR Numeric. Minimum range size for computing cut points to select the best number of variables to use (default: 10).
-#' @param MAX_NVAR Numeric. Maximum range size for computing cut points to select the best number of variables to use (default: 1000).
-#' @param n.cut_points Numeric. Number of cut points for searching the optimal number of variables. If only two cut points are selected, minimum and maximum size are used. For MB approaches as many as n.cut_points^n.blocks models will be computed as minimum (default: 5).
-#' @param MIN_AUC_INCREASE Numeric. Minimum improvement between different cross validation models to continue evaluating higher values in the multiple tested parameters. If it is not reached for next 'MIN_COMP_TO_CHECK' models and the minimum 'MIN_AUC' value is reached, the evaluation stops (default: 0.01).
-#' @param EVAL_METHOD Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best number of variables. In other case, c-index metrix will be used (default: "AUC").
-#' @param pred.method Character. AUC evaluation algorithm method for evaluate the model performance. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC").
+#' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance
+#' variables will be removed (default: TRUE).
+#' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will
+#' be removed (default: TRUE).
+#' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero
+#' variance filtering (default: NULL).
+#' @param remove_variance_at_fold_level Logical. If remove_variance_at_fold_level = TRUE, (near)
+#' zero variance will be removed at fold level (default: FALSE).
+#' @param remove_non_significant_models Logical. If remove_non_significant_models = TRUE,
+#' non-significant models are removed before computing the evaluation.
+#' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant
+#' variables/components in final cox model will be removed until all variables are significant by
+#' forward selection (default: FALSE).
+#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the
+#' threshold (default: 0.05).
+#' @param MIN_NVAR Numeric. Minimum range size for computing cut points to select the best number of
+#' variables to use (default: 10).
+#' @param MAX_NVAR Numeric. Maximum range size for computing cut points to select the best number of
+#' variables to use (default: 1000).
+#' @param n.cut_points Numeric. Number of cut points for searching the optimal number of variables.
+#' If only two cut points are selected, minimum and maximum size are used. For MB approaches as many
+#' as n.cut_points^n.blocks models will be computed as minimum (default: 5).
+#' @param MIN_AUC_INCREASE Numeric. Minimum improvement between different cross validation models to
+#' continue evaluating higher values in the multiple tested parameters. If it is not reached for next
+#' 'MIN_COMP_TO_CHECK' models and the minimum 'MIN_AUC' value is reached, the evaluation stops
+#' (default: 0.01).
+#' @param EVAL_METHOD Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best
+#' number of variables. In other case, c-index metrix will be used (default: "AUC").
+#' @param pred.method Character. AUC evaluation algorithm method for evaluate the model performance.
+#' Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C",
+#' "smoothROCtime_I" (default: "cenROC").
 #' @param w_AIC Numeric. Weight for AIC evaluator. All weights must sum 1 (default: 0).
 #' @param w_c.index Numeric. Weight for C-Index evaluator. All weights must sum 1 (default: 0).
 #' @param w_AUC Numeric. Weight for AUC evaluator. All weights must sum 1 (default: 1).
 #' @param w_BRIER Numeric. Weight for BRIER SCORE evaluator. All weights must sum 1 (default: 0).
-#' @param times Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 'max_time_points' points will be selected equally distributed (default: NULL).
-#' @param max_time_points Numeric. Maximum number of time points to use for evaluating the model (default: 15).
-#' @param MIN_AUC Numeric. Minimum AUC desire to reach cross-validation models. If the minimum is reached, the evaluation could stop if the improvement does not reach an AUC higher than adding the 'MIN_AUC_INCREASE' value (default: 0.8).
-#' @param MIN_COMP_TO_CHECK Numeric. Number of penalties/components to evaluate to check if the AUC improves. If for the next 'MIN_COMP_TO_CHECK' the AUC is not better and the 'MIN_AUC' is meet, the evaluation could stop (default: 3).
-#' @param pred.attr Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").
-#' @param pred.method Character. AUC evaluation algorithm method for evaluate the model performance. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC").
-#' @param fast_mode Logical. If fast_mode = TRUE, for each run, only one fold is evaluated simultaneously. If fast_mode = FALSE, for each run, all linear predictors are computed for test observations. Once all have their linear predictors, the evaluation is perform across all the observations together (default: FALSE).
+#' @param times Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of
+#' 'max_time_points' points will be selected equally distributed (default: NULL).
+#' @param max_time_points Numeric. Maximum number of time points to use for evaluating the model
+#' (default: 15).
+#' @param MIN_AUC Numeric. Minimum AUC desire to reach cross-validation models. If the minimum is
+#' reached, the evaluation could stop if the improvement does not reach an AUC higher than adding the
+#' 'MIN_AUC_INCREASE' value (default: 0.8).
+#' @param MIN_COMP_TO_CHECK Numeric. Number of penalties/components to evaluate to check if the AUC
+#' improves. If for the next 'MIN_COMP_TO_CHECK' the AUC is not better and the 'MIN_AUC' is meet, the
+#' evaluation could stop (default: 3).
+#' @param pred.attr Character. Way to evaluate the metric selected. Must be one of the following:
+#' "mean" or "median" (default: "mean").
+#' @param pred.method Character. AUC evaluation algorithm method for evaluate the model performance.
+#' Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C",
+#' "smoothROCtime_I" (default: "cenROC").
+#' @param fast_mode Logical. If fast_mode = TRUE, for each run, only one fold is evaluated
+#' simultaneously. If fast_mode = FALSE, for each run, all linear predictors are computed for test
+#' observations. Once all have their linear predictors, the evaluation is perform across all the
+#' observations together (default: FALSE).
 #' @param max.iter Numeric. Maximum number of iterations for PLS convergence (default: 200).
-#' @param MIN_EPV Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).
+#' @param MIN_EPV Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final
+#' cox model. Used to restrict the number of variables/components can be computed in final cox models.
+#' If the minimum is not meet, the model cannot be computed (default: 5).
 #' @param return_models Logical. Return all models computed in cross validation (default: FALSE).
 #' @param returnData Logical. Return original and normalized X and Y matrices (default: TRUE).
-#' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).
+#' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your
+#' total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #' @param seed Number. Seed value for performing runs/folds divisions (default: 123).
 #'
@@ -446,7 +557,8 @@ splsdacox_dynamic <- function (X, Y,
 #' \code{best_model_info}: A data.frame with the information for the best model.
 #' \code{df_results_folds}: A data.frame with fold-level information.
 #' \code{df_results_runs}: A data.frame with run-level information.
-#' \code{df_results_comps}: A data.frame with component-level information (for cv.coxEN, EN.alpha information).
+#' \code{df_results_comps}: A data.frame with component-level information (for cv.coxEN, EN.alpha
+#' information).
 #'
 #' \code{lst_models}: If return_models = TRUE, return a the list of all cross-validated models.
 #' \code{pred.method}: AUC evaluation algorithm method for evaluate the model performance.
@@ -461,8 +573,10 @@ splsdacox_dynamic <- function (X, Y,
 #'
 #' \code{class}: Cross-Validated model class.
 #'
-#' \code{lst_train_indexes}: List (of lists) of indexes for the observations used in each run/fold for train the models.
-#' \code{lst_test_indexes}: List (of lists) of indexes for the observations used in each run/fold for test the models.
+#' \code{lst_train_indexes}: List (of lists) of indexes for the observations used in each run/fold
+#' for train the models.
+#' \code{lst_test_indexes}: List (of lists) of indexes for the observations used in each run/fold
+#' for test the models.
 #'
 #' \code{time}: time consumed for running the cross-validated function.
 #'
@@ -482,12 +596,14 @@ cv.splsdacox_dynamic <- function(X, Y,
                         max.ncomp = 8, vector = NULL,
                         n_run = 3, k_folds = 10,
                         x.center = TRUE, x.scale = FALSE,
-                        remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL, remove_variance_at_fold_level = F,
+                        remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
+                        remove_variance_at_fold_level = F,
                         remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,
                         MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 5,
                         MIN_AUC_INCREASE = 0.01,
                         EVAL_METHOD = "AUC",
-                        w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL, max_time_points = 15,
+                        w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL,
+                        max_time_points = 15,
                         MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                         pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                         max.iter = 500,

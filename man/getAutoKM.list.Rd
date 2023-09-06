@@ -19,7 +19,8 @@ getAutoKM.list(
 )
 }
 \arguments{
-\item{type}{Character. Kaplan Meier for complete model linear predictor ("LP"), for PLS components ("COMP") or for original variables ("VAR") (default: LP).}
+\item{type}{Character. Kaplan Meier for complete model linear predictor ("LP"), for PLS
+components ("COMP") or for original variables ("VAR") (default: LP).}
 
 \item{lst_models}{List of Coxmos models.}
 
@@ -27,15 +28,21 @@ getAutoKM.list(
 
 \item{top}{Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: 10).}
 
-\item{ori_data}{Logical. Compute the Kaplan-Meier plot with the raw-data or the normalize-data to compute the best cut-point for splitting the data into two groups. Only used when type = "VAR" (default: TRUE).}
+\item{ori_data}{Logical. Compute the Kaplan-Meier plot with the raw-data or the normalize-data to
+compute the best cut-point for splitting the data into two groups. Only used when type = "VAR"
+(default: TRUE).}
 
-\item{BREAKTIME}{Numeric. Size of time to split the data into "total_time / BREAKTIME + 1" points. If BREAKTIME = NULL, "n.breaks" is used (default: NULL).}
+\item{BREAKTIME}{Numeric. Size of time to split the data into "total_time / BREAKTIME + 1" points.
+If BREAKTIME = NULL, "n.breaks" is used (default: NULL).}
 
-\item{n.breaks}{Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to compute (default: 20).}
+\item{n.breaks}{Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to
+compute (default: 20).}
 
-\item{only_sig}{Logical. If "only_sig" = TRUE, then only significant log-rank test variables are returned (default: FALSE).}
+\item{only_sig}{Logical. If "only_sig" = TRUE, then only significant log-rank test variables are
+returned (default: FALSE).}
 
-\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
+\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the
+threshold (default: 0.05).}
 
 \item{title}{Character. Kaplan-Meier plot title (default: NULL).}
 

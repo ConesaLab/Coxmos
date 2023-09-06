@@ -11,19 +11,31 @@ plot_cox.event(model, type = "lp", n.breaks = 20)
 
 \item{type}{Character. Prediction type: "lp", "risk", "expected" or "survival" (default: "lp").}
 
-\item{n.breaks}{Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to compute (default: 20).}
+\item{n.breaks}{Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to
+compute (default: 20).}
 }
 \description{
-Visualizes the distribution of events based on a Coxmos model's predictions. The function provides both density and histogram plots to elucidate the event distribution, which can be instrumental in understanding the model's behavior across different prediction types.
+Visualizes the distribution of events based on a Coxmos model's predictions. The function provides
+both density and histogram plots to elucidate the event distribution, which can be instrumental in
+understanding the model's behavior across different prediction types.
 }
 \details{
-The function takes in a Coxmos model and, based on the specified prediction type (\code{lp}, \code{risk}, \code{expected}, or \code{survival}), computes the respective predictions. The \code{lp} (linear predictor) is the default prediction type. The density and histogram plots are then generated to represent the distribution of events (censored or occurred) concerning these predictions.
+The function takes in a Coxmos model and, based on the specified prediction type (\code{lp}, \code{risk},
+\code{expected}, or \code{survival}), computes the respective predictions. The \code{lp} (linear predictor) is the
+default prediction type. The density and histogram plots are then generated to represent the
+distribution of events (censored or occurred) concerning these predictions.
 
-The density plot provides a smoothed representation of the event distribution, with separate curves for censored and occurred events. This visualization can be particularly useful to discern the overall distribution and overlap between the two event types.
+The density plot provides a smoothed representation of the event distribution, with separate curves
+for censored and occurred events. This visualization can be particularly useful to discern the
+overall distribution and overlap between the two event types.
 
-The histogram, on the other hand, offers a binned representation of the event distribution. Each bin's height represents the count of observations falling within that prediction range, stacked by event type. This visualization provides a more granular view of the event distribution across different prediction values.
+The histogram, on the other hand, offers a binned representation of the event distribution. Each
+bin's height represents the count of observations falling within that prediction range, stacked by
+event type. This visualization provides a more granular view of the event distribution across
+different prediction values.
 
-It's imperative to note that the models should be run with the \code{returnData = TRUE} option to ensure the necessary data is available for plotting.
+It's imperative to note that the models should be run with the \code{returnData = TRUE} option to ensure
+the necessary data is available for plotting.
 }
 \examples{
 \dontrun{

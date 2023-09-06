@@ -46,13 +46,18 @@ cv.splsdacox_dynamic(
 )
 }
 \arguments{
-\item{X}{Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.}
+\item{X}{Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be
+transform into binary variables.}
 
-\item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.}
+\item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as
+"time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event
+observations.}
 
-\item{max.ncomp}{Numeric. Maximum number of PLS components to compute for the cross validation (default: 8).}
+\item{max.ncomp}{Numeric. Maximum number of PLS components to compute for the cross validation
+(default: 8).}
 
-\item{vector}{Numeric vector. Used for computing best number of variables. As many values as components have to be provided. If vector = NULL, an automatic detection is perform (default: NULL).}
+\item{vector}{Numeric vector. Used for computing best number of variables. As many values as
+components have to be provided. If vector = NULL, an automatic detection is perform (default: NULL).}
 
 \item{n_run}{Numeric. Number of runs for cross validation (default: 3).}
 
@@ -62,29 +67,45 @@ cv.splsdacox_dynamic(
 
 \item{x.scale}{Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).}
 
-\item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).}
+\item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, near zero variance
+variables will be removed (default: TRUE).}
 
-\item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).}
+\item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, zero variance variables will
+be removed (default: TRUE).}
 
-\item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).}
+\item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero
+variance filtering (default: NULL).}
 
-\item{remove_variance_at_fold_level}{Logical. If remove_variance_at_fold_level = TRUE, (near) zero variance will be removed at fold level (default: FALSE).}
+\item{remove_variance_at_fold_level}{Logical. If remove_variance_at_fold_level = TRUE, (near)
+zero variance will be removed at fold level (default: FALSE).}
 
-\item{remove_non_significant_models}{Logical. If remove_non_significant_models = TRUE, non-significant models are removed before computing the evaluation.}
+\item{remove_non_significant_models}{Logical. If remove_non_significant_models = TRUE,
+non-significant models are removed before computing the evaluation.}
 
-\item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).}
+\item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant
+variables/components in final cox model will be removed until all variables are significant by
+forward selection (default: FALSE).}
 
-\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
+\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the
+threshold (default: 0.05).}
 
-\item{MIN_NVAR}{Numeric. Minimum range size for computing cut points to select the best number of variables to use (default: 10).}
+\item{MIN_NVAR}{Numeric. Minimum range size for computing cut points to select the best number of
+variables to use (default: 10).}
 
-\item{MAX_NVAR}{Numeric. Maximum range size for computing cut points to select the best number of variables to use (default: 1000).}
+\item{MAX_NVAR}{Numeric. Maximum range size for computing cut points to select the best number of
+variables to use (default: 1000).}
 
-\item{n.cut_points}{Numeric. Number of cut points for searching the optimal number of variables. If only two cut points are selected, minimum and maximum size are used. For MB approaches as many as n.cut_points^n.blocks models will be computed as minimum (default: 5).}
+\item{n.cut_points}{Numeric. Number of cut points for searching the optimal number of variables.
+If only two cut points are selected, minimum and maximum size are used. For MB approaches as many
+as n.cut_points^n.blocks models will be computed as minimum (default: 5).}
 
-\item{MIN_AUC_INCREASE}{Numeric. Minimum improvement between different cross validation models to continue evaluating higher values in the multiple tested parameters. If it is not reached for next 'MIN_COMP_TO_CHECK' models and the minimum 'MIN_AUC' value is reached, the evaluation stops (default: 0.01).}
+\item{MIN_AUC_INCREASE}{Numeric. Minimum improvement between different cross validation models to
+continue evaluating higher values in the multiple tested parameters. If it is not reached for next
+'MIN_COMP_TO_CHECK' models and the minimum 'MIN_AUC' value is reached, the evaluation stops
+(default: 0.01).}
 
-\item{EVAL_METHOD}{Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best number of variables. In other case, c-index metrix will be used (default: "AUC").}
+\item{EVAL_METHOD}{Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best
+number of variables. In other case, c-index metrix will be used (default: "AUC").}
 
 \item{w_AIC}{Numeric. Weight for AIC evaluator. All weights must sum 1 (default: 0).}
 
@@ -94,29 +115,44 @@ cv.splsdacox_dynamic(
 
 \item{w_BRIER}{Numeric. Weight for BRIER SCORE evaluator. All weights must sum 1 (default: 0).}
 
-\item{times}{Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 'max_time_points' points will be selected equally distributed (default: NULL).}
+\item{times}{Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of
+'max_time_points' points will be selected equally distributed (default: NULL).}
 
-\item{max_time_points}{Numeric. Maximum number of time points to use for evaluating the model (default: 15).}
+\item{max_time_points}{Numeric. Maximum number of time points to use for evaluating the model
+(default: 15).}
 
-\item{MIN_AUC}{Numeric. Minimum AUC desire to reach cross-validation models. If the minimum is reached, the evaluation could stop if the improvement does not reach an AUC higher than adding the 'MIN_AUC_INCREASE' value (default: 0.8).}
+\item{MIN_AUC}{Numeric. Minimum AUC desire to reach cross-validation models. If the minimum is
+reached, the evaluation could stop if the improvement does not reach an AUC higher than adding the
+'MIN_AUC_INCREASE' value (default: 0.8).}
 
-\item{MIN_COMP_TO_CHECK}{Numeric. Number of penalties/components to evaluate to check if the AUC improves. If for the next 'MIN_COMP_TO_CHECK' the AUC is not better and the 'MIN_AUC' is meet, the evaluation could stop (default: 3).}
+\item{MIN_COMP_TO_CHECK}{Numeric. Number of penalties/components to evaluate to check if the AUC
+improves. If for the next 'MIN_COMP_TO_CHECK' the AUC is not better and the 'MIN_AUC' is meet, the
+evaluation could stop (default: 3).}
 
-\item{pred.attr}{Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").}
+\item{pred.attr}{Character. Way to evaluate the metric selected. Must be one of the following:
+"mean" or "median" (default: "mean").}
 
-\item{pred.method}{Character. AUC evaluation algorithm method for evaluate the model performance. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC").}
+\item{pred.method}{Character. AUC evaluation algorithm method for evaluate the model performance.
+Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C",
+"smoothROCtime_I" (default: "cenROC").}
 
-\item{fast_mode}{Logical. If fast_mode = TRUE, for each run, only one fold is evaluated simultaneously. If fast_mode = FALSE, for each run, all linear predictors are computed for test observations. Once all have their linear predictors, the evaluation is perform across all the observations together (default: FALSE).}
+\item{fast_mode}{Logical. If fast_mode = TRUE, for each run, only one fold is evaluated
+simultaneously. If fast_mode = FALSE, for each run, all linear predictors are computed for test
+observations. Once all have their linear predictors, the evaluation is perform across all the
+observations together (default: FALSE).}
 
 \item{max.iter}{Numeric. Maximum number of iterations for PLS convergence (default: 200).}
 
-\item{MIN_EPV}{Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).}
+\item{MIN_EPV}{Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final
+cox model. Used to restrict the number of variables/components can be computed in final cox models.
+If the minimum is not meet, the model cannot be computed (default: 5).}
 
 \item{return_models}{Logical. Return all models computed in cross validation (default: FALSE).}
 
 \item{returnData}{Logical. Return original and normalized X and Y matrices (default: TRUE).}
 
-\item{PARALLEL}{Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).}
+\item{PARALLEL}{Logical. Run the cross validation with multicore option. As many cores as your
+total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).}
 
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 
@@ -127,7 +163,8 @@ Instance of class "Coxmos" and model "cv.sPLS-DACOX-Dynamic".
 \code{best_model_info}: A data.frame with the information for the best model.
 \code{df_results_folds}: A data.frame with fold-level information.
 \code{df_results_runs}: A data.frame with run-level information.
-\code{df_results_comps}: A data.frame with component-level information (for cv.coxEN, EN.alpha information).
+\code{df_results_comps}: A data.frame with component-level information (for cv.coxEN, EN.alpha
+information).
 
 \code{lst_models}: If return_models = TRUE, return a the list of all cross-validated models.
 \code{pred.method}: AUC evaluation algorithm method for evaluate the model performance.
@@ -142,13 +179,35 @@ Instance of class "Coxmos" and model "cv.sPLS-DACOX-Dynamic".
 
 \code{class}: Cross-Validated model class.
 
-\code{lst_train_indexes}: List (of lists) of indexes for the observations used in each run/fold for train the models.
-\code{lst_test_indexes}: List (of lists) of indexes for the observations used in each run/fold for test the models.
+\code{lst_train_indexes}: List (of lists) of indexes for the observations used in each run/fold
+for train the models.
+\code{lst_test_indexes}: List (of lists) of indexes for the observations used in each run/fold
+for test the models.
 
 \code{time}: time consumed for running the cross-validated function.
 }
 \description{
-plsdacox_dynamic cross validation model
+The cv.splsdacox_dynamic function performs cross-validation for the sPLS-DA-COX-Dynamic model.
+This model is designed to handle survival data, where the response variables are time-to-event
+and event/censoring indicators. The function offers a comprehensive set of parameters to fine-tune
+the cross-validation process, including options for data preprocessing, model evaluation, and
+parallel processing.
+}
+\details{
+The function begins by ensuring that the required libraries for evaluation metrics are installed.
+It then checks the validity of the input parameters, such as ensuring that the response variables
+have the appropriate column names ("time" and "event") and that the evaluation weights sum to 1.
+
+Data preprocessing steps include the potential removal of variables with zero or near-zero variance,
+and the transformation of explanatory variables to ensure they are centered or scaled as specified.
+The function also provides an option to remove variables based on their coefficient of variation.
+
+The core of the function revolves around the cross-validation process. Data is split into training
+and test sets for each run and fold. For each combination of run, fold, and specified number of PLS
+components, a sPLS-DA-COX-Dynamic model is trained. The performance of these models is then evaluated
+using a combination of metrics, including the Akaike Information Criterion (AIC), C-index, Brier Score,
+and Area Under the Curve (AUC). The function provides flexibility in choosing the evaluation metric
+and its method.
 }
 \examples{
 \dontrun{

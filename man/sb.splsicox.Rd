@@ -22,36 +22,50 @@ sb.splsicox(
 )
 }
 \arguments{
-\item{X}{Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.}
+\item{X}{Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be
+transform into binary variables.}
 
-\item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.}
+\item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as
+"time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and
+event observations.}
 
 \item{n.comp}{Numeric. Number of latent components to compute for the (s)PLS model (default: 10).}
 
-\item{spv_penalty}{Numeric. Penalty for variable selection for the individual cox models. Variables with a lower P-Value than 1 - "spv_penalty" in the individual cox analysis will be keep for the sPLS-ICOX approach (default: 1).}
+\item{spv_penalty}{Numeric. Penalty for variable selection for the individual cox models. Variables
+with a lower P-Value than 1 - "spv_penalty" in the individual cox analysis will be keep for the
+sPLS-ICOX approach (default: 1).}
 
 \item{x.center}{Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).}
 
 \item{x.scale}{Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).}
 
-\item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).}
+\item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, near zero variance
+variables will be removed (default: TRUE).}
 
-\item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).}
+\item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, zero variance variables will
+be removed (default: TRUE).}
 
-\item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).}
+\item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance
+filtering (default: NULL).}
 
-\item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).}
+\item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant
+variables/components in final cox model will be removed until all variables are significant by
+forward selection (default: FALSE).}
 
-\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
+\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the
+threshold (default: 0.05).}
 
-\item{MIN_EPV}{Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).}
+\item{MIN_EPV}{Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final
+cox model. Used to restrict the number of variables/components can be computed in final cox models.
+If the minimum is not meet, the model cannot be computed (default: 5).}
 
 \item{returnData}{Logical. Return original and normalized X and Y matrices (default: TRUE).}
 
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
 \value{
-Instance of class "Coxmos" and model "sb.splsicox". The class contains the following elements:
+Instance of class "Coxmos" and model "sb.splsicox". The class contains the following
+elements:
 \code{X}: List of normalized X data information.
 \itemize{
 \item \code{(data)}: normalized X matrix
@@ -103,21 +117,40 @@ Instance of class "Coxmos" and model "sb.splsicox". The class contains the follo
 \code{time}: time consumed for running the cox analysis.
 }
 \description{
-This function performs a single-block sparse partial least squares individual Cox (SB.sPLS-ICOX).
-The function returns a Coxmos model with the attribute model as "SB.sPLS-ICOX".
+This function performs a single-block sparse partial least squares individual Cox
+(SB.sPLS-ICOX). The function returns a Coxmos model with the attribute model as "SB.sPLS-ICOX".
 }
 \details{
-The \code{SB.sPLS-ICOX} function is designed to perform a single-block sparse partial least squares individual Cox analysis. This method is particularly suited for high-dimensional datasets where the number of variables (features) significantly exceeds the number of observations. The "single-block" in its name indicates that while the function can handle datasets with multiple blocks, it processes each block individually rather than in a multiblock manner where all blocks are analyzed simultaneously.
+The \code{SB.sPLS-ICOX} function is designed to perform a single-block sparse partial least squares
+individual Cox analysis. This method is particularly suited for high-dimensional datasets where
+the number of variables (features) significantly exceeds the number of observations. The
+"single-block" in its name indicates that while the function can handle datasets with multiple
+blocks, it processes each block individually rather than in a multiblock manner where all blocks
+are analyzed simultaneously.
 
-By analyzing one block at a time, the function ensures a focused and detailed examination of each block's contribution to the survival outcome. This approach is especially beneficial when different blocks represent distinct types or sources of data, allowing for a granular understanding of each block's significance.
+By analyzing one block at a time, the function ensures a focused and detailed examination of each
+block's contribution to the survival outcome. This approach is especially beneficial when different
+blocks represent distinct types or sources of data, allowing for a granular understanding of each
+block's significance.
 
-The analysis begins by applying a penalty to select significant variables based on individual Cox models. This step ensures that only the most relevant features from the current block contribute to the subsequent sPLS analysis. The sPLS method then identifies latent components that capture the maximum covariance between the explanatory variables (X) from the block and the response (Y), which are the deviance residuals from the Cox models.
+The analysis begins by applying a penalty to select significant variables based on individual Cox
+models. This step ensures that only the most relevant features from the current block contribute
+to the subsequent sPLS analysis. The sPLS method then identifies latent components that capture
+the maximum covariance between the explanatory variables (X) from the block and the response (Y),
+which are the deviance residuals from the Cox models.
 
-Users have the flexibility to specify various hyperparameters, including the number of latent components and the penalty for variable selection. The function also offers options for data preprocessing, such as centering, scaling, and removing variables with near-zero or zero variance.
+Users have the flexibility to specify various hyperparameters, including the number of latent
+components and the penalty for variable selection. The function also offers options for data
+preprocessing, such as centering, scaling, and removing variables with near-zero or zero variance.
 
-The output provides a comprehensive overview of the analysis for the processed block, including normalized data information, survival model details, and the sPLS-ICOX model. Visualization tools and metrics such as AIC and BIC further aid in understanding the model's performance and significance for the given block.
+The output provides a comprehensive overview of the analysis for the processed block, including
+normalized data information, survival model details, and the sPLS-ICOX model. Visualization tools
+and metrics such as AIC and BIC further aid in understanding the model's performance and
+significance for the given block.
 
-In summary, the \code{SB.sPLS-ICOX} function offers a powerful approach for survival analysis in high-dimensional settings, ensuring optimal feature selection, dimensionality reduction, and predictive modeling for each individual block in the dataset.
+In summary, the \code{SB.sPLS-ICOX} function offers a powerful approach for survival analysis in
+high-dimensional settings, ensuring optimal feature selection, dimensionality reduction, and
+predictive modeling for each individual block in the dataset.
 }
 \examples{
 \dontrun{

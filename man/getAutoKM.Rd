@@ -19,7 +19,8 @@ getAutoKM(
 )
 }
 \arguments{
-\item{type}{Character. Kaplan Meier for complete model linear predictor ("LP"), for PLS components ("COMP") or for original variables ("VAR") (default: LP).}
+\item{type}{Character. Kaplan Meier for complete model linear predictor ("LP"), for PLS components
+("COMP") or for original variables ("VAR") (default: LP).}
 
 \item{model}{Coxmos model.}
 
@@ -27,34 +28,49 @@ getAutoKM(
 
 \item{top}{Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: 10).}
 
-\item{ori_data}{Logical. Compute the Kaplan-Meier plot with the raw-data or the normalize-data to compute the best cut-point for splitting the data into two groups. Only used when type = "VAR" (default: TRUE).}
+\item{ori_data}{Logical. Compute the Kaplan-Meier plot with the raw-data or the normalize-data to
+compute the best cut-point for splitting the data into two groups. Only used when type = "VAR"
+(default: TRUE).}
 
-\item{BREAKTIME}{Numeric. Size of time to split the data into "total_time / BREAKTIME + 1" points. If BREAKTIME = NULL, "n.breaks" is used (default: NULL).}
+\item{BREAKTIME}{Numeric. Size of time to split the data into "total_time / BREAKTIME + 1" points.
+If BREAKTIME = NULL, "n.breaks" is used (default: NULL).}
 
-\item{n.breaks}{Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to compute (default: 20).}
+\item{n.breaks}{Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to
+compute (default: 20).}
 
-\item{only_sig}{Logical. If "only_sig" = TRUE, then only significant log-rank test variables are returned (default: FALSE).}
+\item{only_sig}{Logical. If "only_sig" = TRUE, then only significant log-rank test variables are
+returned (default: FALSE).}
 
-\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
+\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the
+threshold (default: 0.05).}
 
 \item{title}{Character. Kaplan-Meier plot title (default: NULL).}
 
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
 \description{
-Generates a Kaplan-Meier plot for the specified Coxmos model. The plot can be constructed based on the model's Linear Predictor value, the PLS-COX component, or the original variable level.
+Generates a Kaplan-Meier plot for the specified Coxmos model. The plot can be
+constructed based on the model's Linear Predictor value, the PLS-COX component, or the original
+variable level.
 }
 \details{
-The \code{getAutoKM} function offers a flexible approach to visualize survival analysis results using the Kaplan-Meier method. Depending on the \code{type} parameter, the function can generate plots based on different aspects of the Coxmos model:
+The \code{getAutoKM} function offers a flexible approach to visualize survival analysis
+results using the Kaplan-Meier method. Depending on the \code{type} parameter, the function can
+generate plots based on different aspects of the Coxmos model:
 \itemize{
 \item "LP": Uses the Linear Predictor value of the model.
 \item "COMP": Utilizes the PLS-COX component.
 \item "VAR": Operates at the original variable level.
 }
 
-The function provides options to customize the number of components (\code{comp}), the number of top variables (\code{top}), and whether to use raw or normalized data (\code{ori_data}). Additionally, users can specify the time intervals (\code{BREAKTIME} and \code{n.breaks}) for the Kaplan-Meier plot. If significance testing is desired, the function can filter out non-significant variables based on the log-rank test (\code{only_sig} and \code{alpha} parameters).
+The function provides options to customize the number of components (\code{comp}), the number of top
+variables (\code{top}), and whether to use raw or normalized data (\code{ori_data}). Additionally, users can
+specify the time intervals (\code{BREAKTIME} and \code{n.breaks}) for the Kaplan-Meier plot. If significance
+testing is desired, the function can filter out non-significant variables based on the log-rank
+test (\code{only_sig} and \code{alpha} parameters).
 
-It's essential to ensure that the provided \code{model} is of the correct class (\code{Coxmos}). The function will return an error message if an incompatible model is supplied.
+It's essential to ensure that the provided \code{model} is of the correct class (\code{Coxmos}). The function
+will return an error message if an incompatible model is supplied.
 }
 \examples{
 \dontrun{

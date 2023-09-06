@@ -7,7 +7,8 @@
 norm01(x)
 }
 \arguments{
-\item{x}{Numeric matrix or data.frame. Explanatory variables. Only qualitative variables will be transformed into binary variables.}
+\item{x}{Numeric matrix or data.frame. Explanatory variables. Only qualitative variables will be
+transformed into binary variables.}
 }
 \description{
 Normalize all values into 0-1 range.

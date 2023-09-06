@@ -22,29 +22,42 @@ splsicox(
 )
 }
 \arguments{
-\item{X}{Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.}
+\item{X}{Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be
+transform into binary variables.}
 
-\item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.}
+\item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as
+"time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and
+event observations.}
 
 \item{n.comp}{Numeric. Number of latent components to compute for the (s)PLS model (default: 10).}
 
-\item{spv_penalty}{Numeric. Penalty for variable selection for the individual cox models. Variables with a lower P-Value than 1 - "spv_penalty" in the individual cox analysis will be keep for the sPLS-ICOX approach (default: 0).}
+\item{spv_penalty}{Numeric. Penalty for variable selection for the individual cox models. Variables
+with a lower P-Value than 1 - "spv_penalty" in the individual cox analysis will be keep for the
+sPLS-ICOX approach (default: 0).}
 
 \item{x.center}{Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).}
 
 \item{x.scale}{Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).}
 
-\item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).}
+\item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, near zero variance
+variables will be removed (default: TRUE).}
 
-\item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).}
+\item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, zero variance variables will
+be removed (default: TRUE).}
 
-\item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).}
+\item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance
+filtering (default: NULL).}
 
-\item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).}
+\item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant
+variables/components in final cox model will be removed until all variables are significant by
+forward selection (default: FALSE).}
 
-\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
+\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the
+threshold (default: 0.05).}
 
-\item{MIN_EPV}{Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).}
+\item{MIN_EPV}{Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final
+cox model. Used to restrict the number of variables/components can be computed in final cox models.
+If the minimum is not meet, the model cannot be computed (default: 5).}
 
 \item{returnData}{Logical. Return original and normalized X and Y matrices (default: TRUE).}
 
@@ -104,16 +117,34 @@ Instance of class "Coxmos" and model "sPLS-ICOX". The class contains the followi
 \code{time}: time consumed for running the cox analysis.
 }
 \description{
-This function performs a sparse partial least squares individual Cox (sPLS-ICOX) (based on plsRcox R package).
-The function returns a Coxmos model with the attribute model as "sPLS-ICOX".
+This function performs a sparse partial least squares individual Cox (sPLS-ICOX)
+(based on plsRcox R package). The function returns a Coxmos model with the attribute model as
+"sPLS-ICOX".
 }
 \details{
-The \code{sPLS-ICOX} function is an advanced analytical tool tailored for the elucidation of high-dimensional survival data. It amalgamates the principles of sparse partial least squares (sPLS) regression with individual Cox regression, thereby offering a robust mechanism for both dimension reduction and variable selection in the context of survival analysis.
-Rooted in the methodologies of the \code{plsRcox} R package, this function operationalizes the sPLS-ICOX model by leveraging the inherent sparsity introduced via the \code{spv_penalty} parameter. This parameter delineates a stringent criterion for variable retention, wherein only those variables that manifest a P-Value inferior to the threshold defined by \code{1 - spv_penalty} in the individual Cox analysis are assimilated into the sPLS-ICOX model framework.
-The parameter \code{n.comp} demarcates the number of latent components to be computed for the sPLS model. These latent components, which encapsulate salient patterns within the data, subsequently underpin the Cox regression analysis. It is imperative to underscore the necessity of meticulous data preprocessing, especially in the context of qualitative variables. Such variables necessitate binary transformation prior to their integration into the function. Moreover, the function is equipped with options for data centering and scaling, pivotal operations that can significantly influence model performance.
-Designed with a predilection for right-censored survival data, the function mandates the structuring of the outcome or response variable \code{Y} into two distinct columns: "time", which chronicles the survival time, and "event", which catalogues the occurrence or non-occurrence of the event of interest.
+The \code{sPLS-ICOX} function is an advanced analytical tool tailored for the elucidation of
+high-dimensional survival data. It amalgamates the principles of sparse partial least squares
+(sPLS) regression with individual Cox regression, thereby offering a robust mechanism for both
+dimension reduction and variable selection in the context of survival analysis.
+Rooted in the methodologies of the \code{plsRcox} R package, this function operationalizes the
+sPLS-ICOX model by leveraging the inherent sparsity introduced via the \code{spv_penalty} parameter.
+This parameter delineates a stringent criterion for variable retention, wherein only those
+variables that manifest a P-Value inferior to the threshold defined by \code{1 - spv_penalty} in the
+individual Cox analysis are assimilated into the sPLS-ICOX model framework.
+The parameter \code{n.comp} demarcates the number of latent components to be computed for the sPLS
+model. These latent components, which encapsulate salient patterns within the data, subsequently
+underpin the Cox regression analysis. It is imperative to underscore the necessity of meticulous
+data preprocessing, especially in the context of qualitative variables. Such variables necessitate
+binary transformation prior to their integration into the function. Moreover, the function is
+equipped with options for data centering and scaling, pivotal operations that can significantly
+influence model performance.
+Designed with a predilection for right-censored survival data, the function mandates the structuring
+of the outcome or response variable \code{Y} into two distinct columns: "time", which chronicles the
+survival time, and "event", which catalogues the occurrence or non-occurrence of the event of interest.
 
-Upon execution, the function yields a comprehensive list encapsulating a plethora of elements germane to the sPLS-ICOX model, inclusive of the normalized data matrices, sPLS weight vectors, loadings, scores, and an exhaustive compilation of survival model metrics.
+Upon execution, the function yields a comprehensive list encapsulating a plethora of elements
+germane to the sPLS-ICOX model, inclusive of the normalized data matrices, sPLS weight vectors,
+loadings, scores, and an exhaustive compilation of survival model metrics.
 }
 \examples{
 \dontrun{

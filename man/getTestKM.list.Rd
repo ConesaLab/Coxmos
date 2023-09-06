@@ -20,19 +20,28 @@ getTestKM.list(
 \arguments{
 \item{lst_models}{List of Coxmos model}
 
-\item{X_test}{Numeric matrix or data.frame. Explanatory variables for test data (raw format). Qualitative variables must be transform into binary variables.}
+\item{X_test}{Numeric matrix or data.frame. Explanatory variables for test data (raw format).
+Qualitative variables must be transform into binary variables.}
 
-\item{Y_test}{Numeric matrix or data.frame. Response variables for test data. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.}
+\item{Y_test}{Numeric matrix or data.frame. Response variables for test data. Object must have
+two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE
+for censored and event observations.}
 
-\item{lst_cutoff}{Numeric vector. Cutoff vector to split the observations into two groups for each model. Recommended to compute optimal cutoff value with getAutoKM() or getAutoKM.list() functions.}
+\item{lst_cutoff}{Numeric vector. Cutoff vector to split the observations into two groups for each
+model. Recommended to compute optimal cutoff value with getAutoKM() or getAutoKM.list() functions.}
 
-\item{type}{Character. Kaplan Meier for complete model linear predictor ("LP"), for PLS components ("COMP") or for original variables ("VAR") (default: LP).}
+\item{type}{Character. Kaplan Meier for complete model linear predictor ("LP"), for PLS components
+("COMP") or for original variables ("VAR") (default: LP).}
 
-\item{ori_data}{Logical. Compute the Kaplan-Meier plot with the raw-data or the normalize-data to compute the best cut-point for splitting the data into two groups. Only used when type = "VAR" (default: TRUE).}
+\item{ori_data}{Logical. Compute the Kaplan-Meier plot with the raw-data or the normalize-data to
+compute the best cut-point for splitting the data into two groups. Only used when type = "VAR"
+(default: TRUE).}
 
-\item{BREAKTIME}{Numeric. Size of time to split the data into "total_time / BREAKTIME + 1" points. If BREAKTIME = NULL, "n.breaks" is used (default: NULL).}
+\item{BREAKTIME}{Numeric. Size of time to split the data into "total_time / BREAKTIME + 1" points.
+If BREAKTIME = NULL, "n.breaks" is used (default: NULL).}
 
-\item{n.breaks}{Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to compute (default: 20).}
+\item{n.breaks}{Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to
+compute (default: 20).}
 
 \item{title}{Character. Kaplan-Meier plot title (default: NULL).}
 

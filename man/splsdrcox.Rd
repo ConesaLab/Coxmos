@@ -22,36 +22,49 @@ splsdrcox(
 )
 }
 \arguments{
-\item{X}{Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.}
+\item{X}{Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be
+transform into binary variables.}
 
-\item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.}
+\item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as
+"time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event
+observations.}
 
 \item{n.comp}{Numeric. Number of latent components to compute for the (s)PLS model (default: 10).}
 
-\item{eta}{Numeric (0-1). Penalty for sPLS. If eta = 0 no penalty is applied and 1 maximum penalty (no variables are selected). Equal or greater than 1 cannot be selected (default: 0.5).}
+\item{eta}{Numeric (0-1). Penalty for sPLS. If eta = 0 no penalty is applied and 1 maximum penalty
+(no variables are selected). Equal or greater than 1 cannot be selected (default: 0.5).}
 
 \item{x.center}{Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).}
 
 \item{x.scale}{Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).}
 
-\item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).}
+\item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, near zero variance
+variables will be removed (default: TRUE).}
 
-\item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).}
+\item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, zero variance variables will
+be removed (default: TRUE).}
 
-\item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).}
+\item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero
+variance filtering (default: NULL).}
 
-\item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).}
+\item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant
+variables/components in final cox model will be removed until all variables are significant by
+forward selection (default: FALSE).}
 
-\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
+\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the
+threshold (default: 0.05).}
 
-\item{MIN_EPV}{Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).}
+\item{MIN_EPV}{Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final
+cox model. Used to restrict the number of variables/components can be computed in final cox models.
+If the minimum is not meet, the model cannot be computed (default: 5).}
 
 \item{returnData}{Logical. Return original and normalized X and Y matrices (default: TRUE).}
 
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
 \value{
-Instance of class "Coxmos" and model "sPLS-DRCOX". The class contains the following elements:
+Instance of class "Coxmos" and model "sPLS-DRCOX". The class contains the following
+elements:
 \code{X}: List of normalized X data information.
 \itemize{
 \item \code{(data)}: normalized X matrix
@@ -122,19 +135,34 @@ Instance of class "Coxmos" and model "sPLS-DRCOX". The class contains the follow
 \code{time}: time consumed for running the cox analysis.
 }
 \description{
-This function performs a sparse partial least squares deviance residual Cox (sPLS-DRCOX) (based on plsRcox R package).
-The function returns a Coxmos model with the attribute model as "sPLS-DRCOX".
+This function performs a sparse partial least squares deviance residual Cox (sPLS-DRCOX)
+(based on plsRcox R package). The function returns a Coxmos model with the attribute model as
+"sPLS-DRCOX".
 }
 \details{
-The \code{sPLS-DRCOX} function implements the sparse partial least squares deviance residual Cox (sPLS-DRCOX) model, a specialized approach tailored for survival analysis. This method integrates the strengths of the sparse partial least squares (sPLS) technique with the Cox proportional hazards model, leveraging deviance residuals as a bridge.
+The \code{sPLS-DRCOX} function implements the sparse partial least squares deviance residual Cox
+(sPLS-DRCOX) model, a specialized approach tailored for survival analysis. This method integrates
+the strengths of the sparse partial least squares (sPLS) technique with the Cox proportional hazards
+model, leveraging deviance residuals as a bridge.
 
-The function's core lies in its ability to handle high-dimensional data, often encountered in genomics or other omics studies. By incorporating the \code{eta} parameter, which governs the sparsity level, the function offers a fine-grained control over variable selection. This ensures that only the most informative predictors contribute to the model, enhancing interpretability and reducing overfitting.
+The function's core lies in its ability to handle high-dimensional data, often encountered in
+genomics or other omics studies. By incorporating the \code{eta} parameter, which governs the sparsity
+level, the function offers a fine-grained control over variable selection. This ensures that only
+the most informative predictors contribute to the model, enhancing interpretability and reducing
+overfitting.
 
-Data preprocessing is seamlessly integrated, with options to center and scale the predictors, and to remove variables exhibiting near-zero or zero variance. The function also provides a mechanism to retain specific variables, regardless of their variance, ensuring that domain-specific knowledge can be incorporated.
+Data preprocessing is seamlessly integrated, with options to center and scale the predictors, and
+to remove variables exhibiting near-zero or zero variance. The function also provides a mechanism
+to retain specific variables, regardless of their variance, ensuring that domain-specific knowledge
+can be incorporated.
 
-The output is comprehensive, detailing both the sPLS and Cox model components. It provides insights into the selected variables, their contributions across latent components, and the overall fit of the survival model. This rich output aids in understanding the underlying relationships between predictors and survival outcomes.
+The output is comprehensive, detailing both the sPLS and Cox model components. It provides insights
+into the selected variables, their contributions across latent components, and the overall fit of
+the survival model. This rich output aids in understanding the underlying relationships between
+predictors and survival outcomes.
 
-The \code{sPLS-DRCOX} function is grounded in established methodologies and is a valuable tool for researchers aiming to unravel complex survival associations in high-dimensional datasets.
+The \code{sPLS-DRCOX} function is grounded in established methodologies and is a valuable tool for
+researchers aiming to unravel complex survival associations in high-dimensional datasets.
 }
 \examples{
 \dontrun{

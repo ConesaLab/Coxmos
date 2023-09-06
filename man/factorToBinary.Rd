@@ -7,17 +7,35 @@
 factorToBinary(X, all = T, sep = "_")
 }
 \arguments{
-\item{X}{Numeric matrix or data.frame. Only qualitative variables (factor class) will be transformed into binary variables.}
+\item{X}{Numeric matrix or data.frame. Only qualitative variables (factor class) will be
+transformed into binary variables.}
 
-\item{all}{Logical. If all = TRUE, as many variables as levels will be returned in the new matrix. Otherwise, k-1 variables will be used where the first level will be use as "default" state (default: TRUE).}
+\item{all}{Logical. If all = TRUE, as many variables as levels will be returned in the new matrix.
+Otherwise, k-1 variables will be used where the first level will be use as "default" state
+(default: TRUE).}
 
-\item{sep}{Character. Character symbol to generate new colnames. Ex. If variable name is "sex" and sep = "_". Dummy variables will be "sex_male" and "sex_female".}
+\item{sep}{Character. Character symbol to generate new colnames. Ex. If variable name is "sex" and
+sep = "_". Dummy variables will be "sex_male" and "sex_female".}
 }
 \description{
-Transforms factor variables within a matrix or data frame into binary dummy variables, facilitating numerical representation for subsequent statistical analyses. The function provides an option to generate either k or k-1 dummy variables for each factor, contingent on its levels.
+Transforms factor variables within a matrix or data frame into binary dummy variables,
+facilitating numerical representation for subsequent statistical analyses. The function provides
+an option to generate either k or k-1 dummy variables for each factor, contingent on its levels.
 }
 \details{
-The \code{factorToBinary} function addresses a recurrent challenge in data preprocessing: the conversion of factor variables into a numerical format suitable for a plethora of statistical and machine learning algorithms. Factors, inherently categorical in nature, often necessitate transformation into a binary format, commonly referred to as dummy or one-hot encoding. This function adeptly performs this transformation, iterating over each column of the provided matrix or data frame. When encountering factor variables, it employs the \code{model.matrix} function to generate the requisite dummy variables. The user's discretion is paramount in determining the number of dummy variables: either k, equivalent to the number of levels for the factor, or k-1, where the omitted level serves as a reference or "default" state. This choice is particularly salient in regression contexts to circumvent multicollinearity issues. The naming convention for the resultant dummy variables amalgamates the original factor's name with its respective level, separated by a user-defined character, ensuring clarity and interpretability. Non-factor variables remain unaltered, preserving the integrity of the original data structure.
+The \code{factorToBinary} function addresses a recurrent challenge in data preprocessing: the
+conversion of factor variables into a numerical format suitable for a plethora of statistical and
+machine learning algorithms. Factors, inherently categorical in nature, often necessitate
+transformation into a binary format, commonly referred to as dummy or one-hot encoding. This
+function adeptly performs this transformation, iterating over each column of the provided matrix
+or data frame. When encountering factor variables, it employs the \code{model.matrix} function to
+generate the requisite dummy variables. The user's discretion is paramount in determining the
+number of dummy variables: either k, equivalent to the number of levels for the factor, or k-1,
+where the omitted level serves as a reference or "default" state. This choice is particularly
+salient in regression contexts to circumvent multicollinearity issues. The naming convention for
+the resultant dummy variables amalgamates the original factor's name with its respective level,
+separated by a user-defined character, ensuring clarity and interpretability. Non-factor variables
+remain unaltered, preserving the integrity of the original data structure.
 }
 \examples{
 \dontrun{

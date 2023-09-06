@@ -22,7 +22,8 @@
 #' save_ggplot(plot, folder)
 #' }
 
-save_ggplot <- function(plot, folder = NULL, name = "plot", wide = T, quality = "4K", dpi = 80, custom = NULL){
+save_ggplot <- function(plot, folder = NULL, name = "plot", wide = T, quality = "4K", dpi = 80,
+                        custom = NULL){
   width=NULL
   height=NULL
 
@@ -122,7 +123,8 @@ save_ggplot <- function(plot, folder = NULL, name = "plot", wide = T, quality = 
 #' save_ggplot.svg(plot, folder)
 #' }
 
-save_ggplot.svg <- function(plot, folder = NULL, name = "plot", wide = T, quality = "4K", dpi = 80, custom = NULL){
+save_ggplot.svg <- function(plot, folder = NULL, name = "plot", wide = T, quality = "4K", dpi = 80,
+                            custom = NULL){
   width=NULL
   height=NULL
 
@@ -224,7 +226,8 @@ save_ggplot.svg <- function(plot, folder = NULL, name = "plot", wide = T, qualit
 #' save_ggplot_lst(plot_lst, folder)
 #' }
 
-save_ggplot_lst <- function(lst_plots, folder = NULL, prefix = NULL, suffix = NULL, wide = T, quality = "4K", dpi = 80, custom = NULL, object_name = NULL){
+save_ggplot_lst <- function(lst_plots, folder = NULL, prefix = NULL, suffix = NULL, wide = T,
+                            quality = "4K", dpi = 80, custom = NULL, object_name = NULL){
   width=NULL
   height=NULL
 
@@ -364,7 +367,8 @@ save_ggplot_lst <- function(lst_plots, folder = NULL, prefix = NULL, suffix = NU
 #' save_ggplot_lst.svg(plot_lst, folder)
 #' }
 
-save_ggplot_lst.svg <- function(lst_plots, folder = NULL, prefix = NULL, suffix = NULL, wide = T, quality = "4K", dpi = 80, custom = NULL, object_name = NULL){
+save_ggplot_lst.svg <- function(lst_plots, folder = NULL, prefix = NULL, suffix = NULL, wide = T,
+                                quality = "4K", dpi = 80, custom = NULL, object_name = NULL){
   width=NULL
   height=NULL
 
@@ -489,15 +493,27 @@ save_ggplot_lst.svg <- function(lst_plots, folder = NULL, prefix = NULL, suffix 
 #### ### ### ### #
 
 #' Time consuming plot.
-#' @description Produces a visual representation, using ggplot2, of the computational time consumed by each model encapsulated within the provided list of Coxmos models. This visualization aids in the comparative assessment of computational efficiency across different models.
+#' @description Produces a visual representation, using ggplot2, of the computational time consumed
+#' by each model encapsulated within the provided list of Coxmos models. This visualization aids in
+#' the comparative assessment of computational efficiency across different models.
 #'
-#' @details The `plot_time.list` function objective is to offer a clear and concise visual representation of the computational time expended by each model during its execution.
+#' @details The `plot_time.list` function objective is to offer a clear and concise visual
+#' representation of the computational time expended by each model during its execution.
 #'
-#' The function expects a list of Coxmos models, each of which should inherently possess a time attribute indicating the computational time it consumed. This time attribute is then extracted, aggregated, and visualized in a bar plot format. The function is versatile enough to handle both individual models and cross-validation models, summing up the computational times in the latter case to provide an aggregate view.
+#' The function expects a list of Coxmos models, each of which should inherently possess a time
+#' attribute indicating the computational time it consumed. This time attribute is then extracted,
+#' aggregated, and visualized in a bar plot format. The function is versatile enough to handle both
+#' individual models and cross-validation models, summing up the computational times in the latter
+#' case to provide an aggregate view.
 #'
-#' The resultant plot is generated using the ggplot2 package, ensuring a high-quality and interpretable visualization. The Y-axis of the plot represents the computational time, typically in minutes, while the X-axis enumerates the different models. The function also offers customization options for axis labels, ensuring that the resultant plot aligns with the user's preferences and the intended audience's expectations.
+#' The resultant plot is generated using the ggplot2 package, ensuring a high-quality and interpretable
+#' visualization. The Y-axis of the plot represents the computational time, typically in minutes, while
+#' the X-axis enumerates the different models. The function also offers customization options for axis
+#' labels, ensuring that the resultant plot aligns with the user's preferences and the intended audience's
+#' expectations.
 #'
-#' @param lst_models List of Coxmos models. Each HDCox object has the attribute time measured in minutes (cross-validation models could be also added to this function).
+#' @param lst_models List of Coxmos models. Each HDCox object has the attribute time measured in
+#' minutes (cross-validation models could be also added to this function).
 #' @param x.text Character. X axis title.
 #' @param y.text Character. Y axis title. If y.text = NULL, then y.text = "Time (mins)" (default: NULL).
 #'
@@ -633,15 +649,20 @@ plot_time.list <- function(lst_models, x.text = "Method", y.text = NULL){
 #### ### ### ### ###
 
 #' plot_evaluation.list
-#' @description Run the function "plot_evaluation" for a list of results. More information in "?plot_evaluation".
+#' @description Run the function "plot_evaluation" for a list of results. More information in
+#' "?plot_evaluation".
 #'
 #' @param lst_eval_results List (named) of Coxmos evaluation results.
 #' @param evaluation Character. Perform the evaluation using the "AUC" or "Brier" metric (default: "AUC").
-#' @param pred.attr Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").
-#' @param y.min Numeric. Minimum Y value for establish the Y axis value. If y.min = NULL, automatic detection is performed (default: NULL).
-#' @param type Character. Plot type. Must be one of the following: "both", "line" or "mean". In other case, "both" will be selected (default: "both").
+#' @param pred.attr Character. Way to evaluate the metric selected. Must be one of the following:
+#' "mean" or "median" (default: "mean").
+#' @param y.min Numeric. Minimum Y value for establish the Y axis value. If y.min = NULL, automatic
+#' detection is performed (default: NULL).
+#' @param type Character. Plot type. Must be one of the following: "both", "line" or "mean". In other
+#' case, "both" will be selected (default: "both").
 #' @param round_times Logical. Whether times x value should be rounded (default: FALSE).
-#' @param decimals Numeric. Number of decimals to use in round times. Must be a value greater or equal zero (default = 2).
+#' @param decimals Numeric. Number of decimals to use in round times. Must be a value greater or
+#' equal zero (default = 2).
 #' @param title Character. Plot title (default: NULL).
 #' @param legend_title Character. Legend title (default: "Method").
 #' @param title_size_text Numeric. Text size for legend title (default: 15).
@@ -661,9 +682,12 @@ plot_time.list <- function(lst_models, x.text = "Method", y.text = NULL){
 #' plot_evaluation.list(lst_eval_results)
 #' }
 
-plot_evaluation.list <- function(lst_eval_results, evaluation = "AUC", pred.attr = "mean", y.min = NULL, type = "both", round_times = FALSE, decimals = 2,
-                                 title = NULL, title_size_text = 15, legend_title = "Method", legend_size_text = 12,
-                                 x_axis_size_text = 10, y_axis_size_text = 10, label_x_axis_size = 10, label_y_axis_size = 10){
+plot_evaluation.list <- function(lst_eval_results, evaluation = "AUC", pred.attr = "mean", y.min = NULL,
+                                 type = "both", round_times = FALSE, decimals = 2,
+                                 title = NULL, title_size_text = 15, legend_title = "Method",
+                                 legend_size_text = 12,
+                                 x_axis_size_text = 10, y_axis_size_text = 10, label_x_axis_size = 10,
+                                 label_y_axis_size = 10){
 
   lst_res <- purrr::map(lst_eval_results, ~plot_evaluation(eval_results = .,
                                                            evaluation = evaluation,
@@ -680,22 +704,40 @@ plot_evaluation.list <- function(lst_eval_results, evaluation = "AUC", pred.attr
 }
 
 #' plot_evaluation
-#' @description Generates a comprehensive evaluation of the performance of a given Coxmos evaluation object, offering both statistical tests and visual plots for assessment.
+#' @description Generates a comprehensive evaluation of the performance of a given Coxmos evaluation
+#' object, offering both statistical tests and visual plots for assessment.
 #'
-#' @details The `plot_evaluation` function is designed to facilitate a rigorous evaluation of the performance of models, specifically in the context of survival analysis. This function is tailored to work with a Coxmos evaluation object, which encapsulates the results of survival models. The primary objective is to provide both statistical and visual insights into the model's performance.
+#' @details The `plot_evaluation` function is designed to facilitate a rigorous evaluation of the
+#' performance of models, specifically in the context of survival analysis. This function is tailored
+#' to work with a Coxmos evaluation object, which encapsulates the results of survival models. The
+#' primary objective is to provide both statistical and visual insights into the model's performance.
 #'
-#' The function offers flexibility in the evaluation metric, allowing users to choose between the Area Under the Curve (AUC) and the Brier score. The chosen metric is then evaluated based on either its mean or median value, as specified by the "pred.attr" parameter. The resulting plots can be tailored to display continuous performance over time or aggregated mean performance, based on the "type" parameter.
+#' The function offers flexibility in the evaluation metric, allowing users to choose between the
+#' Area Under the Curve (AUC) and the Brier score. The chosen metric is then evaluated based on either
+#' its mean or median value, as specified by the "pred.attr" parameter. The resulting plots can be
+#' tailored to display continuous performance over time or aggregated mean performance, based on the
+#' "type" parameter.
 #'
-#' A salient feature of this function is its ability to conduct statistical tests to compare the performance across different methods. Supported tests include the t-test, ANOVA, Wilcoxon rank-sum test, and Kruskal-Wallis test. These tests provide a quantitative measure of the differences in performance, aiding in the objective assessment of the models.
+#' A salient feature of this function is its ability to conduct statistical tests to compare the
+#' performance across different methods. Supported tests include the t-test, ANOVA, Wilcoxon rank-sum
+#' test, and Kruskal-Wallis test. These tests provide a quantitative measure of the differences in
+#' performance, aiding in the objective assessment of the models.
 #'
-#' The visual outputs are generated using the ggplot2 package, ensuring high-quality and interpretable plots. The function also offers extensive customization options for the plots, including axis labels, title, and text sizes, ensuring that the outputs align with the user's preferences and the intended audience's expectations.
+#' The visual outputs are generated using the ggplot2 package, ensuring high-quality and interpretable
+#' plots. The function also offers extensive customization options for the plots, including axis
+#' labels, title, and text sizes, ensuring that the outputs align with the user's preferences and the
+#' intended audience's expectations.
 #' @param eval_results Coxmos evaluation object.
 #' @param evaluation Character. Perform the evaluation using the "AUC" or "Brier" metric (default: "AUC").
-#' @param pred.attr Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").
-#' @param y.min Numeric. Minimum Y value for establish the Y axis value. If y.min = NULL, automatic detection is performed (default: NULL).
-#' @param type Character. Plot type. Must be one of the following: "both", "line" or "mean". In other case, "both" will be selected (default: "both").
+#' @param pred.attr Character. Way to evaluate the metric selected. Must be one of the following:
+#' "mean" or "median" (default: "mean").
+#' @param y.min Numeric. Minimum Y value for establish the Y axis value. If y.min = NULL, automatic
+#' detection is performed (default: NULL).
+#' @param type Character. Plot type. Must be one of the following: "both", "line" or "mean". In other
+#' case, "both" will be selected (default: "both").
 #' @param round_times Logical. Whether times x value should be rounded (default: FALSE).
-#' @param decimals Numeric. Number of decimals to use in round times. Must be a value greater or equal zero (default = 2).
+#' @param decimals Numeric. Number of decimals to use in round times. Must be a value greater or equal
+#' zero (default = 2).
 #' @param title Character. Plot title (default: NULL).
 #' @param legend_title Character. Legend title (default: "Method").
 #' @param title_size_text Numeric. Text size for legend title (default: 15).
@@ -715,9 +757,12 @@ plot_evaluation.list <- function(lst_eval_results, evaluation = "AUC", pred.attr
 #' plot_evaluation(eval_results)
 #' }
 
-plot_evaluation <- function(eval_results, evaluation = "AUC", pred.attr = "mean", y.min = NULL, type = "both", round_times = FALSE, decimals = 2,
-                            title = NULL, title_size_text = 15, legend_title = "Method", legend_size_text = 12,
-                            x_axis_size_text = 10, y_axis_size_text = 10, label_x_axis_size = 10, label_y_axis_size = 10){
+plot_evaluation <- function(eval_results, evaluation = "AUC", pred.attr = "mean", y.min = NULL,
+                            type = "both", round_times = FALSE, decimals = 2,
+                            title = NULL, title_size_text = 15, legend_title = "Method",
+                            legend_size_text = 12,
+                            x_axis_size_text = 10, y_axis_size_text = 10, label_x_axis_size = 10,
+                            label_y_axis_size = 10){
 
   if(!evaluation %in% c("AUC", "Brier")){
     message("Evaluation parameter is not 'AUC' or 'Brier'. Changed to 'AUC'.")
@@ -840,8 +885,10 @@ plot_evaluation <- function(eval_results, evaluation = "AUC", pred.attr = "mean"
   return(list("lst_plots" = lst_ggp, "lst_plot_comparisons" = lst_plot_comparisons, df = table))
 }
 
-coxweightplot.fromVector.Coxmos <- function(model, vector, sd.min = NULL, sd.max = NULL, zero.rm = F, top = NULL, auto.limits = T,
-                                           block = NULL, show_percentage = T, size_percentage = 3){
+coxweightplot.fromVector.Coxmos <- function(model, vector, sd.min = NULL, sd.max = NULL, zero.rm = F,
+                                            top = NULL, auto.limits = T,
+                                            block = NULL, show_percentage = T,
+                                            size_percentage = 3){
 
   if(!isa(model,pkg.env$model_class)){
     message("Model must be an object of class Coxmos.")
@@ -1038,7 +1085,8 @@ coxweightplot.fromVector.Coxmos <- function(model, vector, sd.min = NULL, sd.max
 
 
 
-evalplot_errorbar <- function(df, x.var, y.var, y.var.sd, x.color = NULL, best_component = NULL, best_eta = NULL, x.text = "Component"){
+evalplot_errorbar <- function(df, x.var, y.var, y.var.sd, x.color = NULL, best_component = NULL,
+                              best_eta = NULL, x.text = "Component"){
 
   line_size = 1.25
   dot_size = 2.5
@@ -1115,9 +1163,12 @@ evalplot_errorbar <- function(df, x.var, y.var, y.var.sd, x.color = NULL, best_c
   return(ggp)
 }
 
-lineplot.performace2.0 <- function(df, x.var = "time", y.var = "AUC", x.color = "method", x.lab = NULL, y.lab = NULL, y.limit = NULL, point = T,
-                                   mean = F, legend_rm = T, round_times = F, decimals = 0, legend_title = "Method", legend_size_text = 12,
-                                   x_axis_size_text = 10, y_axis_size_text = 10, label_x_axis_size = 10, label_y_axis_size = 10){
+lineplot.performace2.0 <- function(df, x.var = "time", y.var = "AUC", x.color = "method",
+                                   x.lab = NULL, y.lab = NULL, y.limit = NULL, point = T,
+                                   mean = F, legend_rm = T, round_times = F, decimals = 0,
+                                   legend_title = "Method", legend_size_text = 12,
+                                   x_axis_size_text = 10, y_axis_size_text = 10,
+                                   label_x_axis_size = 10, label_y_axis_size = 10){
 
   MAX_X_ELEMENTS = 20
 
@@ -1223,9 +1274,12 @@ lineplot.performace2.0 <- function(df, x.var = "time", y.var = "AUC", x.color = 
   return(ggp)
 }
 
-barplot.mean_performace2.0 <- function(df, x.var = "method", y.var="AUC", x.color = "method", x.lab = NULL, y.lab = NULL, y.limit = NULL,
-                                       hide_labels = T, legend_rm = NULL, legend_title = "Method", legend_size_text = 12,
-                                       x_axis_size_text = 10, y_axis_size_text = 10, label_x_axis_size = 10, label_y_axis_size = 10){
+barplot.mean_performace2.0 <- function(df, x.var = "method", y.var="AUC", x.color = "method",
+                                       x.lab = NULL, y.lab = NULL, y.limit = NULL,
+                                       hide_labels = T, legend_rm = NULL, legend_title = "Method",
+                                       legend_size_text = 12,
+                                       x_axis_size_text = 10, y_axis_size_text = 10,
+                                       label_x_axis_size = 10, label_y_axis_size = 10){
 
   #DFCALLS
   MAX_X_ELEMENTS = 20
@@ -1284,9 +1338,12 @@ barplot.mean_performace2.0 <- function(df, x.var = "method", y.var="AUC", x.colo
   return(ggp)
 }
 
-point.sd.mean_performace2.0 <- function(df, x.var = "method", y.var = "AUC", x.color = "method", x.lab = NULL, y.lab = NULL, y.limit = NULL,
-                                        pred.attr = "mean", hide_labels = T, legend_rm = NULL, legend_title = "Method", legend_size_text = 12,
-                                        x_axis_size_text = 10, y_axis_size_text = 10, label_x_axis_size = 10, label_y_axis_size = 10){
+point.sd.mean_performace2.0 <- function(df, x.var = "method", y.var = "AUC", x.color = "method",
+                                        x.lab = NULL, y.lab = NULL, y.limit = NULL,
+                                        pred.attr = "mean", hide_labels = T, legend_rm = NULL,
+                                        legend_title = "Method", legend_size_text = 12,
+                                        x_axis_size_text = 10, y_axis_size_text = 10,
+                                        label_x_axis_size = 10, label_y_axis_size = 10){
 
   #DFCALLS
   MAX_X_ELEMENTS = 20
@@ -1381,8 +1438,10 @@ point.sd.mean_performace2.0 <- function(df, x.var = "method", y.var = "AUC", x.c
 comboplot.performance2.0 <- function(df, x.var = "time", y.var = "AUC", x.color = "method",
                                      x.lab = NULL, y.lab = NULL, y.limit = NULL, pred.attr = "mean",
                                      point = T, mean = F, hide_labels = T,
-                                     title = NULL, legend_title = "Method", round_times = FALSE, decimals = 2,
-                                     title_size_text = 15, legend_size_text = 12, x_axis_size_text = 10, y_axis_size_text = 10,
+                                     title = NULL, legend_title = "Method", round_times = FALSE,
+                                     decimals = 2,
+                                     title_size_text = 15, legend_size_text = 12,
+                                     x_axis_size_text = 10, y_axis_size_text = 10,
                                      label_x_axis_size = 10, label_y_axis_size = 10){
 
   a <- lineplot.performace2.0(df = df, x.var = x.var, y.var = y.var, x.color = x.color, x.lab = x.lab, y.lab = y.lab, y.limit = y.limit, point = point,
@@ -1450,16 +1509,32 @@ plot_VAR_eval <- function(lst_BV, EVAL_METHOD = "AUC", dot_size = 3){
 
 #' plot_events
 #'
-#' @description Generates a bar plot visualizing the distribution of events over time, categorizing observations as either censored or non-censored.
+#' @description Generates a bar plot visualizing the distribution of events over time, categorizing
+#' observations as either censored or non-censored.
 #'
-#' @details The `plot_events` function is meticulously crafted to provide a visualization of event occurrences over a specified time frame. The primary objective of this function is to elucidate the distribution of events, distinguishing between censored and non-censored observations. The input response matrix, "Y", is expected to encompass two pivotal columns: "time" and "event". The "time" column delineates the temporal occurrence of each observation, while the "event" column demarcates whether an observation is censored or an event, with accepted binary representations being 0/1 or FALSE/TRUE.
+#' @details The `plot_events` function is meticulously crafted to provide a visualization of event
+#' occurrences over a specified time frame. The primary objective of this function is to elucidate
+#' the distribution of events, distinguishing between censored and non-censored observations. The
+#' input response matrix, "Y", is expected to encompass two pivotal columns: "time" and "event".
+#' The "time" column delineates the temporal occurrence of each observation, while the "event"
+#' column demarcates whether an observation is censored or an event, with accepted binary
+#' representations being 0/1 or FALSE/TRUE.
 #'
-#' The function employs a systematic approach to categorize the time variable into distinct intervals or "breaks". The number of these intervals is determined by the "max.breaks" parameter, and their size is influenced by the "roundTo" parameter. Each interval represents a range of time values, and the resulting plot showcases the number of censored and non-censored observations within each interval. The bars in the plot are color-coded based on the event type, offering a clear visual distinction between the two categories.
+#' The function employs a systematic approach to categorize the time variable into distinct intervals
+#' or "breaks". The number of these intervals is determined by the "max.breaks" parameter, and their
+#' size is influenced by the "roundTo" parameter. Each interval represents a range of time values,
+#' and the resulting plot showcases the number of censored and non-censored observations within each
+#' interval. The bars in the plot are color-coded based on the event type, offering a clear visual
+#' distinction between the two categories.
 #'
-#' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
+#' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as
+#' "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and
+#' event observations.
 #' @param max.breaks Numeric. Maximum number of breaks in X axis (default: 20).
-#' @param roundTo Numeric. Value to round time. If roundTo = 0.1, the results will be rounded to the tenths (default: 0.1).
-#' @param categories Character vector. Vector of length two to name both categories for censored and non-censored observations (default: c("Censored","Death")).
+#' @param roundTo Numeric. Value to round time. If roundTo = 0.1, the results will be rounded to the
+#' tenths (default: 0.1).
+#' @param categories Character vector. Vector of length two to name both categories for censored and
+#' non-censored observations (default: c("Censored","Death")).
 #' @param y.text Character. Y axis title (default: "Number of observations").
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #'
@@ -1472,7 +1547,8 @@ plot_VAR_eval <- function(lst_BV, EVAL_METHOD = "AUC", dot_size = 3){
 #' plot_events(Y, categories = c("Censored","Death"))
 #' }
 
-plot_events <- function(Y, max.breaks = 20, roundTo = 0.1, categories = c("Censored","Death"), y.text = "Number of observations", verbose = F){
+plot_events <- function(Y, max.breaks = 20, roundTo = 0.1, categories = c("Censored","Death"),
+                        y.text = "Number of observations", verbose = F){
 
   #REQUIREMENTS
   if(length(categories)>2 | length(categories)<2 | !is.character(categories)){
@@ -1557,19 +1633,37 @@ plot_events <- function(Y, max.breaks = 20, roundTo = 0.1, categories = c("Censo
 }
 
 #' plot_divergent.biplot
-#' @description Generates a divergent biplot visualizing the distribution of a qualitative variable against a quantitative variable, further categorized by an event matrix.
+#' @description Generates a divergent biplot visualizing the distribution of a qualitative variable
+#' against a quantitative variable, further categorized by an event matrix.
 #'
-#' @details The function `plot_divergent.biplot` is designed to offer a comprehensive visualization of the relationship between a qualitative and a quantitative variable, while also taking into account an associated event matrix. The qualitative variable, denoted by "NAMEVAR1", is expected to be a factor with two levels, and the quantitative variable, "NAMEVAR2", is numerically represented. The event matrix, "Y", consists of two columns: "time" and "event". The "event" column indicates whether an observation is censored or an event, represented by binary values (0/1 or FALSE/TRUE).
+#' @details The function `plot_divergent.biplot` is designed to offer a comprehensive visualization
+#' of the relationship between a qualitative and a quantitative variable, while also taking into
+#' account an associated event matrix. The qualitative variable, denoted by "NAMEVAR1", is expected
+#' to be a factor with two levels, and the quantitative variable, "NAMEVAR2", is numerically
+#' represented. The event matrix, "Y", consists of two columns: "time" and "event". The "event"
+#' column indicates whether an observation is censored or an event, represented by binary values
+#' (0/1 or FALSE/TRUE).
 #'
-#' The function processes the input data to categorize the quantitative variable into groups based on the specified "BREAKTIME" parameter. Each group represents a range of values for the quantitative variable. The resulting plot displays the number of samples for each level of the qualitative variable on the X-axis, while the Y-axis represents the categorized groups of the quantitative variable. The bars in the plot are further colored based on the event type, providing a clear distinction between censored and event observations.
-#' @param X Numeric matrix or data.frame. Explanatory variables with "NAMEVAR1" and "NAMEVAR2" variables. "NAMEVAR1" must be a factor variable.
-#' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
-#' @param NAMEVAR1 Character. Factor variable name (must be located in colnames(X) and have to have two levels).
+#' The function processes the input data to categorize the quantitative variable into groups based
+#' on the specified "BREAKTIME" parameter. Each group represents a range of values for the quantitative
+#' variable. The resulting plot displays the number of samples for each level of the qualitative
+#' variable on the X-axis, while the Y-axis represents the categorized groups of the quantitative
+#' variable. The bars in the plot are further colored based on the event type, providing a clear
+#' distinction between censored and event observations.
+#' @param X Numeric matrix or data.frame. Explanatory variables with "NAMEVAR1" and "NAMEVAR2"
+#' variables. "NAMEVAR1" must be a factor variable.
+#' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as
+#' "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and
+#' event observations.
+#' @param NAMEVAR1 Character. Factor variable name (must be located in colnames(X) and have to have
+#' two levels).
 #' @param NAMEVAR2 Character. Numerical variable name (must be located in colnames(X)).
-#' @param BREAKTIME Numeric. Size of time to split the data into "total_time / BREAKTIME + 1" points. If BREAKTIME = NULL, "n.breaks" is used (default: NULL).
+#' @param BREAKTIME Numeric. Size of time to split the data into "total_time / BREAKTIME + 1" points.
+#' If BREAKTIME = NULL, "n.breaks" is used (default: NULL).
 #' @param x.text Character. Title for X axis.
 #'
-#' @return A ggplot2 two side bar plot. X axis represent the number of samples per each NAMEVAR1 factor levels and Y axis, the X NAMEVAR2 numerical variables categorize in groups of breaks.
+#' @return A ggplot2 two side bar plot. X axis represent the number of samples per each NAMEVAR1
+#' factor levels and Y axis, the X NAMEVAR2 numerical variables categorize in groups of breaks.
 #'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
@@ -1682,30 +1776,48 @@ plot_divergent.biplot <- function(X, Y, NAMEVAR1, NAMEVAR2, BREAKTIME, x.text = 
 #' plot_PLS_Coxmos
 #'
 #' @description
-#' Visualizes the Coxmos models based on partial least squares (PLS) or Multi-block PLS approaches. This function offers various plotting modes, including scores, loadings, and biplot visualizations, to provide insights into the model's structure and relationships.
+#' Visualizes the Coxmos models based on partial least squares (PLS) or Multi-block PLS approaches.
+#' This function offers various plotting modes, including scores, loadings, and biplot visualizations,
+#' to provide insights into the model's structure and relationships.
 #'
 #' @details
-#' The plot_Coxmos.PLS.model function is designed to generate comprehensive visualizations of the Coxmos models. It leverages the inherent structure of the model to produce plots that can aid in the interpretation of the model's components and their relationships.
+#' The plot_Coxmos.PLS.model function is designed to generate comprehensive visualizations of the
+#' Coxmos models. It leverages the inherent structure of the model to produce plots that can aid in
+#' the interpretation of the model's components and their relationships.
 #'
 #' Depending on the chosen mode, the function can display:
-#' - Scores: This mode visualizes the scores of the model, which represent the projections of the original data onto the PLS components. The scores can be colored by a factor variable, and ellipses can be added to represent the distribution of the scores.
-#' - Loadings: This mode displays the loadings of the model, which indicate the contribution of each variable to the PLS components. The loadings can be filtered by a specified threshold (top or radius), and arrows can be added to represent the direction and magnitude of the loadings.
-#' - Biplot: A biplot combines both scores and loadings in a single plot, providing a comprehensive view of the relationships between the observations and variables in the model.
+#' - Scores: This mode visualizes the scores of the model, which represent the projections of the
+#' original data onto the PLS components. The scores can be colored by a factor variable, and
+#' ellipses can be added to represent the distribution of the scores.
+#' - Loadings: This mode displays the loadings of the model, which indicate the contribution of each
+#' variable to the PLS components. The loadings can be filtered by a specified threshold
+#' (top or radius), and arrows can be added to represent the direction and magnitude of the loadings.
+#' - Biplot: A biplot combines both scores and loadings in a single plot, providing a comprehensive
+#' view of the relationships between the observations and variables in the model.
 #'
-#' The function also offers various customization options, such as adjusting the text size, reversing the color palette, and specifying the number of overlaps for loading names. It ensures that the visualizations are informative and tailored to the user's preferences and the specific characteristics of the data.
+#' The function also offers various customization options, such as adjusting the text size, reversing
+#' the color palette, and specifying the number of overlaps for loading names. It ensures that the
+#' visualizations are informative and tailored to the user's preferences and the specific
+#' characteristics of the data.
 #'
-#' It's important to note that the function performs checks to ensure the input model is of the correct class and provides informative messages for any inconsistencies detected.
+#' It's important to note that the function performs checks to ensure the input model is of the
+#' correct class and provides informative messages for any inconsistencies detected.
 #'
 #'
 #' @param model Coxmos model.
 #' @param comp Numeric vector. Vector of length two. Select which components to plot (default: c(1,2)).
-#' @param mode Character. Choose one of the following plots: "scores", "loadings" o "biplot" (default: "scores").
-#' @param factor Factor. Factor variable to color the observations. If factor = NULL, event will be used (default: NULL).
+#' @param mode Character. Choose one of the following plots: "scores", "loadings" o "biplot"
+#' (default: "scores").
+#' @param factor Factor. Factor variable to color the observations. If factor = NULL, event will be
+#' used (default: NULL).
 #' @param legend_title Character. Legend title (default: NULL).
 #' @param top Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: NULL).
-#' @param only_top Logical. If "only_top" = TRUE, then only top/radius loading variables will be shown in loading or biplot graph (default: FALSE).
-#' @param radius Numeric. Radius size (loading/scale value) to plot variable names that are greater than the radius value (default: NULL).
-#' @param names Logical. Show loading names for top variables or for those that are outside the radius size (default: TRUE).
+#' @param only_top Logical. If "only_top" = TRUE, then only top/radius loading variables will be
+#' shown in loading or biplot graph (default: FALSE).
+#' @param radius Numeric. Radius size (loading/scale value) to plot variable names that are greater
+#' than the radius value (default: NULL).
+#' @param names Logical. Show loading names for top variables or for those that are outside the radius
+#' size (default: TRUE).
 #' @param colorReverse Logical. Reverse palette colors (default: FALSE).
 #' @param text.size Numeric. Text size (default: 2).
 #' @param overlaps Numeric. Number of overlaps to show when plotting loading names (default: 10).
@@ -1719,7 +1831,9 @@ plot_divergent.biplot <- function(X, Y, NAMEVAR1, NAMEVAR2, BREAKTIME, x.text = 
 #' plot_PLS_Coxmos(model, comp = c(1,2), mode = "scores")
 #' }
 
-plot_PLS_Coxmos <- function(model, comp = c(1,2), mode = "scores", factor = NULL, legend_title = NULL, top = NULL, only_top = F, radius = NULL, names = T, colorReverse = F, text.size = 2, overlaps = 10){
+plot_PLS_Coxmos <- function(model, comp = c(1,2), mode = "scores", factor = NULL, legend_title = NULL,
+                            top = NULL, only_top = F, radius = NULL, names = T, colorReverse = F,
+                            text.size = 2, overlaps = 10){
 
   if(!isa(model,pkg.env$model_class)){
     message("Model must be an object of class Coxmos.")
@@ -1757,34 +1871,54 @@ plot_PLS_Coxmos <- function(model, comp = c(1,2), mode = "scores", factor = NULL
 #' plot_Coxmos.PLS.model
 #'
 #' @description
-#' Visualizes the Coxmos model using partial least squares (PLS) approach. This function offers various plotting modes, including scores, loadings, and biplot visualizations, to provide insights into the model's structure and relationships.
+#' Visualizes the Coxmos model using partial least squares (PLS) approach. This function offers
+#' various plotting modes, including scores, loadings, and biplot visualizations, to provide insights
+#' into the model's structure and relationships.
 #'
 #' @details
-#' The plot_Coxmos.PLS.model function is designed to generate comprehensive visualizations of the Coxmos model, specifically tailored for PLS. It leverages the inherent structure of the model to produce plots that can aid in the interpretation of the model's components and their relationships.
+#' The plot_Coxmos.PLS.model function is designed to generate comprehensive visualizations of the
+#' Coxmos model, specifically tailored for PLS. It leverages the inherent structure of the model to
+#' produce plots that can aid in the interpretation of the model's components and their relationships.
 #'
 #' Depending on the chosen mode, the function can display:
-#' - Scores: This mode visualizes the scores of the model, which represent the projections of the original data onto the PLS components. The scores can be colored by a factor variable, and ellipses can be added to represent the distribution of the scores.
-#' - Loadings: This mode displays the loadings of the model, which indicate the contribution of each variable to the PLS components. The loadings can be filtered by a specified threshold (top or radius), and arrows can be added to represent the direction and magnitude of the loadings.
-#' - Biplot: A biplot combines both scores and loadings in a single plot, providing a comprehensive view of the relationships between the observations and variables in the model.
+#' - Scores: This mode visualizes the scores of the model, which represent the projections of the
+#' original data onto the PLS components. The scores can be colored by a factor variable, and ellipses
+#' can be added to represent the distribution of the scores.
+#' - Loadings: This mode displays the loadings of the model, which indicate the contribution of each
+#' variable to the PLS components. The loadings can be filtered by a specified threshold (top or radius),
+#' and arrows can be added to represent the direction and magnitude of the loadings.
+#' - Biplot: A biplot combines both scores and loadings in a single plot, providing a comprehensive
+#' view of the relationships between the observations and variables in the model.
 #'
-#' The function also offers various customization options, such as adjusting the text size, reversing the color palette, and specifying the number of overlaps for loading names. It ensures that the visualizations are informative and tailored to the user's preferences and the specific characteristics of the data.
+#' The function also offers various customization options, such as adjusting the text size, reversing
+#' the color palette, and specifying the number of overlaps for loading names. It ensures that the
+#' visualizations are informative and tailored to the user's preferences and the specific characteristics
+#' of the data.
 #'
-#' It's important to note that the function performs checks to ensure the input model is of the correct class and provides informative messages for any inconsistencies detected.
+#' It's important to note that the function performs checks to ensure the input model is of the correct
+#' class and provides informative messages for any inconsistencies detected.
 #'
 #' @param model Coxmos model.
 #' @param comp Numeric vector. Vector of length two. Select which components to plot (default: c(1,2)).
-#' @param mode Character. Choose one of the following plots: "scores", "loadings" o "biplot" (default: "scores").
-#' @param factor Factor. Factor variable to color the observations. If factor = NULL, event will be used (default: NULL).
+#' @param mode Character. Choose one of the following plots: "scores", "loadings" o "biplot"
+#' (default: "scores").
+#' @param factor Factor. Factor variable to color the observations. If factor = NULL, event will be
+#' used (default: NULL).
 #' @param legend_title Character. Legend title (default: NULL).
 #' @param top Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: NULL).
-#' @param only_top Logical. If "only_top" = TRUE, then only top/radius loading variables will be shown in loading or biplot graph (default: FALSE).
-#' @param radius Numeric. Radius size (loading/scale value) to plot variable names that are greater than the radius value (default: NULL).
-#' @param names Logical. Show loading names for top variables or for those that are outside the radius size (default: TRUE).
+#' @param only_top Logical. If "only_top" = TRUE, then only top/radius loading variables will be shown
+#' in loading or biplot graph (default: FALSE).
+#' @param radius Numeric. Radius size (loading/scale value) to plot variable names that are greater
+#' than the radius value (default: NULL).
+#' @param names Logical. Show loading names for top variables or for those that are outside the
+#' radius size (default: TRUE).
 #' @param colorReverse Logical. Reverse palette colors (default: FALSE).
 #' @param text.size Numeric. Text size (default: 2).
 #' @param overlaps Numeric. Number of overlaps to show when plotting loading names (default: 10).
 
-plot_Coxmos.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor = NULL, legend_title = NULL, top = NULL, only_top = F, radius = NULL, names = T, colorReverse = F, text.size = 2, overlaps = 10){
+plot_Coxmos.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor = NULL,
+                                  legend_title = NULL, top = NULL, only_top = F, radius = NULL,
+                                  names = T, colorReverse = F, text.size = 2, overlaps = 10){
 
   MAX_POINTS = 1000
   MAX_LOADINGS = 15
@@ -2083,34 +2217,54 @@ plot_Coxmos.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor 
 #' plot_Coxmos.MB.PLS.model
 #'
 #' @description
-#' Visualizes the Coxmos model using multiblock partial least squares (MB-PLS) approach. This function offers various plotting modes, including scores, loadings, and biplot visualizations, to provide insights into the model's structure and relationships.
+#' Visualizes the Coxmos model using multiblock partial least squares (MB-PLS) approach. This
+#' function offers various plotting modes, including scores, loadings, and biplot visualizations, to
+#' provide insights into the model's structure and relationships.
 #'
 #' @details
-#' The plot_Coxmos.MB.PLS.model function is designed to generate comprehensive visualizations of the Coxmos model, specifically tailored for multiblock PLS. It leverages the inherent structure of the model to produce plots that can aid in the interpretation of the model's components and their relationships.
+#' The plot_Coxmos.MB.PLS.model function is designed to generate comprehensive visualizations of the
+#' Coxmos model, specifically tailored for multiblock PLS. It leverages the inherent structure of the
+#' model to produce plots that can aid in the interpretation of the model's components and their relationships.
 #'
 #' Depending on the chosen mode, the function can display:
-#' - Scores: This mode visualizes the scores of the model, which represent the projections of the original data onto the PLS components. The scores can be colored by a factor variable, and ellipses can be added to represent the distribution of the scores.
-#' - Loadings: This mode displays the loadings of the model, which indicate the contribution of each variable to the PLS components. The loadings can be filtered by a specified threshold (top or radius), and arrows can be added to represent the direction and magnitude of the loadings.
-#' - Biplot: A biplot combines both scores and loadings in a single plot, providing a comprehensive view of the relationships between the observations and variables in the model.
+#' - Scores: This mode visualizes the scores of the model, which represent the projections of the
+#' original data onto the PLS components. The scores can be colored by a factor variable, and ellipses
+#' can be added to represent the distribution of the scores.
+#' - Loadings: This mode displays the loadings of the model, which indicate the contribution of each
+#' variable to the PLS components. The loadings can be filtered by a specified threshold (top or radius),
+#' and arrows can be added to represent the direction and magnitude of the loadings.
+#' - Biplot: A biplot combines both scores and loadings in a single plot, providing a comprehensive view
+#' of the relationships between the observations and variables in the model.
 #'
-#' The function also offers various customization options, such as adjusting the text size, reversing the color palette, and specifying the number of overlaps for loading names. It ensures that the visualizations are informative and tailored to the user's preferences and the specific characteristics of the data.
+#' The function also offers various customization options, such as adjusting the text size, reversing
+#' the color palette, and specifying the number of overlaps for loading names. It ensures that the
+#' visualizations are informative and tailored to the user's preferences and the specific characteristics
+#' of the data.
 #'
-#' It's important to note that the function performs checks to ensure the input model is of the correct class and provides informative messages for any inconsistencies detected.
+#' It's important to note that the function performs checks to ensure the input model is of the correct
+#' class and provides informative messages for any inconsistencies detected.
 #'
 #' @param model Coxmos model.
 #' @param comp Numeric vector. Vector of length two. Select which components to plot (default: c(1,2)).
-#' @param mode Character. Choose one of the following plots: "scores", "loadings" o "biplot" (default: "scores").
-#' @param factor Factor. Factor variable to color the observations. If factor = NULL, event will be used (default: NULL).
+#' @param mode Character. Choose one of the following plots: "scores", "loadings" o "biplot"
+#' (default: "scores").
+#' @param factor Factor. Factor variable to color the observations. If factor = NULL, event will be
+#' used (default: NULL).
 #' @param legend_title Character. Legend title (default: NULL).
 #' @param top Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: NULL).
-#' @param only_top Logical. If "only_top" = TRUE, then only top/radius loading variables will be shown in loading or biplot graph (default: FALSE).
-#' @param radius Numeric. Radius size (loading/scale value) to plot variable names that are greater than the radius value (default: NULL).
-#' @param names Logical. Show loading names for top variables or for those that are outside the radius size (default: TRUE).
+#' @param only_top Logical. If "only_top" = TRUE, then only top/radius loading variables will be shown
+#' in loading or biplot graph (default: FALSE).
+#' @param radius Numeric. Radius size (loading/scale value) to plot variable names that are greater
+#' than the radius value (default: NULL).
+#' @param names Logical. Show loading names for top variables or for those that are outside the radius
+#' size (default: TRUE).
 #' @param colorReverse Logical. Reverse palette colors (default: FALSE).
 #' @param text.size Numeric. Text size (default: 2).
 #' @param overlaps Numeric. Number of overlaps to show when plotting loading names (default: 10).
 
-plot_Coxmos.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor = NULL, legend_title = NULL, top = NULL, only_top = F, radius = NULL, names = T, colorReverse = F, text.size = 2, overlaps = 10){
+plot_Coxmos.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor = NULL,
+                                     legend_title = NULL, top = NULL, only_top = F, radius = NULL,
+                                     names = T, colorReverse = F, text.size = 2, overlaps = 10){
 
   MAX_POINTS = 1000
   MAX_LOADINGS = 15
@@ -2485,7 +2639,8 @@ plot_Coxmos.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", fact
 #### ### ### ### ### ##
 
 #' plot_proportionalHazard.list
-#' @description Run the function "plot_proportionalHazard" for a list of models. More information in "?plot_proportionalHazard".
+#' @description Run the function "plot_proportionalHazard" for a list of models. More information in
+#' "?plot_proportionalHazard".
 #'
 #' @param lst_models List of Coxmos models.
 #'
@@ -2510,16 +2665,30 @@ plot_proportionalHazard.list <- function(lst_models){
 
 #' plot_proportionalHazard
 #' @description
-#' Generates a visual assessment of the proportional hazards assumption for a given Coxmos model. The function integrates the capabilities of the `survival::cox.zph` and `survminer::ggcoxzph` functions to produce a `ggplot2` graph that visualizes the validity of the proportional hazards assumption.
+#' Generates a visual assessment of the proportional hazards assumption for a given Coxmos model.
+#' The function integrates the capabilities of the `survival::cox.zph` and `survminer::ggcoxzph`
+#' functions to produce a `ggplot2` graph that visualizes the validity of the proportional hazards
+#' assumption.
 #'
 #' @details
-#' The proportional hazards assumption is a fundamental tenet of the Cox proportional hazards regression model. It posits that the hazard ratios between groups remain constant over time. Violations of this assumption can lead to biased or misleading results. Thus, assessing the validity of this assumption is crucial in survival analysis.
+#' The proportional hazards assumption is a fundamental tenet of the Cox proportional hazards
+#' regression model. It posits that the hazard ratios between groups remain constant over time.
+#' Violations of this assumption can lead to biased or misleading results. Thus, assessing the validity
+#' of this assumption is crucial in survival analysis.
 #'
-#' The function begins by validating the provided model to ensure it belongs to the Coxmos class. If the model is valid, the function then evaluates the proportional hazards assumption using the `survival::cox.zph` function. The results of this evaluation are then visualized using the `survminer::ggcoxzph` function, producing a `ggplot2` graph.
+#' The function begins by validating the provided model to ensure it belongs to the Coxmos class. If
+#' the model is valid, the function then evaluates the proportional hazards assumption using the
+#' `survival::cox.zph` function. The results of this evaluation are then visualized using the
+#' `survminer::ggcoxzph` function, producing a `ggplot2` graph.
 #'
-#' The resulting plot provides a visual representation of the Schoenfeld residuals against time, allowing for an intuitive assessment of the proportional hazards assumption. Each variable or factor level from the model is represented in the plot, and the global test for the proportional hazards assumption is also provided.
+#' The resulting plot provides a visual representation of the Schoenfeld residuals against time,
+#' allowing for an intuitive assessment of the proportional hazards assumption. Each variable or
+#' factor level from the model is represented in the plot, and the global test for the proportional
+#' hazards assumption is also provided.
 #'
-#' This function is instrumental in ensuring the robustness and validity of survival analysis results, offering a comprehensive visualization that aids in the interpretation and validation of the Coxmos model's assumptions.
+#' This function is instrumental in ensuring the robustness and validity of survival analysis results,
+#' offering a comprehensive visualization that aids in the interpretation and validation of the Coxmos
+#' model's assumptions.
 #'
 #' @param model Coxmos model.
 #' @return A ggplot2 plot.
@@ -2618,7 +2787,8 @@ my_primeFactors <- function(num) {
 #'
 #' @param lst_models List of Coxmos models.
 #' @param title Character. Forest plot title (default: "Hazard Ratio").
-#' @param cpositions Numeric vector. Relative positions of first three columns in the OX scale (default: c(0.02, 0.22, 0.4)).
+#' @param cpositions Numeric vector. Relative positions of first three columns in the OX scale
+#' (default: c(0.02, 0.22, 0.4)).
 #' @param fontsize Numeric. Elative size of annotations in the plot (default: 0.7).
 #' @param refLabel Character. Label for reference levels of factor variables (default: "reference").
 #' @param noDigits Numeric. Number of digits for estimates and p-values in the plot (default: 2).
@@ -2652,18 +2822,30 @@ plot_forest.list <- function(lst_models,
 
 #' plot_forest
 #' @description
-#' Generates a forest plot for Coxmos models, visualizing the hazard ratios and their confidence intervals. The function leverages the capabilities of the `survminer::ggforest` function to produce a comprehensive representation of the model's coefficients.
+#' Generates a forest plot for Coxmos models, visualizing the hazard ratios and their confidence
+#' intervals. The function leverages the capabilities of the `survminer::ggforest` function to
+#' produce a comprehensive representation of the model's coefficients.
 #'
 #' @details
-#' The forest plot is a graphical representation of the point estimates and confidence intervals of the hazard ratios derived from a Coxmos model. Each row in the plot corresponds to a variable or component from the model, with a point representing the hazard ratio and horizontal lines indicating the confidence intervals. The plot provides a visual assessment of the significance and magnitude of each variable's effect on the outcome.
+#' The forest plot is a graphical representation of the point estimates and confidence intervals of
+#' the hazard ratios derived from a Coxmos model. Each row in the plot corresponds to a variable or
+#' component from the model, with a point representing the hazard ratio and horizontal lines
+#' indicating the confidence intervals. The plot provides a visual assessment of the significance and
+#' magnitude of each variable's effect on the outcome.
 #'
-#' The function starts by validating the provided model to ensure it belongs to the Coxmos class and is among the recognized Coxmos models. If the model is valid, the function then proceeds to generate the forest plot using the `survminer::ggforest` function. Several customization options are available, including adjusting the title, column positions, font size, reference label, and the number of digits displayed for estimates and p-values.
+#' The function starts by validating the provided model to ensure it belongs to the Coxmos class and
+#' is among the recognized Coxmos models. If the model is valid, the function then proceeds to
+#' generate the forest plot using the `survminer::ggforest` function. Several customization options
+#' are available, including adjusting the title, column positions, font size, reference label, and
+#' the number of digits displayed for estimates and p-values.
 #'
-#' Forest plots are instrumental in the field of survival analysis, offering a concise visualization of the model's results, making them easier to interpret and communicate.
+#' Forest plots are instrumental in the field of survival analysis, offering a concise visualization
+#' of the model's results, making them easier to interpret and communicate.
 #'
 #' @param model Coxmos model.
 #' @param title Character. Forest plot title (default: "Hazard Ratio").
-#' @param cpositions Numeric vector. Relative positions of first three columns in the OX scale (default: c(0.02, 0.22, 0.4)).
+#' @param cpositions Numeric vector. Relative positions of first three columns in the OX scale
+#' (default: c(0.02, 0.22, 0.4)).
 #' @param fontsize Numeric. Elative size of annotations in the plot (default: 0.7).
 #' @param refLabel Character. Label for reference levels of factor variables (default: "reference").
 #' @param noDigits Numeric. Number of digits for estimates and p-values in the plot (default: 2).
@@ -2710,7 +2892,8 @@ plot_forest <- function(model,
 #### ### ### ### ### ### ### #
 
 #' plot_cox.event.list
-#' @description Run the function "plot_cox.event" for a list of models. More information in "?plot_cox.event".
+#' @description Run the function "plot_cox.event" for a list of models. More information in
+#' "?plot_cox.event".
 #'
 #' @param lst_models List of Coxmos models.
 #' @param type Character. Prediction type: "lp", "risk", "expected" or "survival" (default: "lp").
@@ -2738,21 +2921,33 @@ plot_cox.event.list <- function(lst_models, type = "lp", n.breaks = 20){
 #' plot_cox.event
 #'
 #' @description
-#' Visualizes the distribution of events based on a Coxmos model's predictions. The function provides both density and histogram plots to elucidate the event distribution, which can be instrumental in understanding the model's behavior across different prediction types.
+#' Visualizes the distribution of events based on a Coxmos model's predictions. The function provides
+#' both density and histogram plots to elucidate the event distribution, which can be instrumental in
+#' understanding the model's behavior across different prediction types.
 #'
 #' @details
-#' The function takes in a Coxmos model and, based on the specified prediction type (`lp`, `risk`, `expected`, or `survival`), computes the respective predictions. The `lp` (linear predictor) is the default prediction type. The density and histogram plots are then generated to represent the distribution of events (censored or occurred) concerning these predictions.
+#' The function takes in a Coxmos model and, based on the specified prediction type (`lp`, `risk`,
+#' `expected`, or `survival`), computes the respective predictions. The `lp` (linear predictor) is the
+#' default prediction type. The density and histogram plots are then generated to represent the
+#' distribution of events (censored or occurred) concerning these predictions.
 #'
-#' The density plot provides a smoothed representation of the event distribution, with separate curves for censored and occurred events. This visualization can be particularly useful to discern the overall distribution and overlap between the two event types.
+#' The density plot provides a smoothed representation of the event distribution, with separate curves
+#' for censored and occurred events. This visualization can be particularly useful to discern the
+#' overall distribution and overlap between the two event types.
 #'
-#' The histogram, on the other hand, offers a binned representation of the event distribution. Each bin's height represents the count of observations falling within that prediction range, stacked by event type. This visualization provides a more granular view of the event distribution across different prediction values.
+#' The histogram, on the other hand, offers a binned representation of the event distribution. Each
+#' bin's height represents the count of observations falling within that prediction range, stacked by
+#' event type. This visualization provides a more granular view of the event distribution across
+#' different prediction values.
 #'
-#' It's imperative to note that the models should be run with the `returnData = TRUE` option to ensure the necessary data is available for plotting.
+#' It's imperative to note that the models should be run with the `returnData = TRUE` option to ensure
+#' the necessary data is available for plotting.
 #'
 #'
 #' @param model Coxmos model.
 #' @param type Character. Prediction type: "lp", "risk", "expected" or "survival" (default: "lp").
-#' @param n.breaks Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to compute (default: 20).
+#' @param n.breaks Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to
+#' compute (default: 20).
 #'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
@@ -2838,9 +3033,17 @@ prop.between2values <- function(df, min, max){
 #'
 #' @description Visualizes the event density for a given patient's data using the Coxmos model.
 #'
-#' @details The `plot_patient.eventDensity` function provides a graphical representation of the event density for a specific patient's data, based on the Coxmos model. The function computes the density of events and non-events and plots them, highlighting the predicted value for the given patient's data. The density is determined using density estimation, and the predicted value is obtained from the Coxmos model. The function allows customization of the plot aesthetics, such as point size and color. The resulting plot provides a visual comparison of the patient's predicted event density against the overall event density distribution, aiding in the interpretation of the patient's risk profile.
+#' @details The `plot_patient.eventDensity` function provides a graphical representation of the event
+#' density for a specific patient's data, based on the Coxmos model. The function computes the density
+#' of events and non-events and plots them, highlighting the predicted value for the given patient's
+#' data. The density is determined using density estimation, and the predicted value is obtained from
+#' the Coxmos model. The function allows customization of the plot aesthetics, such as point size and
+#' color. The resulting plot provides a visual comparison of the patient's predicted event density
+#' against the overall event density distribution, aiding in the interpretation of the patient's risk
+#' profile.
 #'
-#' @param patient Numeric matrix or data.frame. New explanatory variables (raw data) for one observation. Qualitative variables must be transform into binary variables.
+#' @param patient Numeric matrix or data.frame. New explanatory variables (raw data) for one observation.
+#' Qualitative variables must be transform into binary variables.
 #' @param time Numeric. Time point where the AUC will be evaluated (default: NULL).
 #' @param model Coxmos model.
 #' @param type Character. Prediction type: "lp", "risk", "expected" or "survival" (default: "lp").
@@ -2856,7 +3059,8 @@ prop.between2values <- function(df, min, max){
 #' plot_patient.eventDensity(patient, time = NULL, model)
 #' }
 
-plot_patient.eventDensity <- function(patient, time = NULL, model, type = "lp", size = 3, color = "red"){
+plot_patient.eventDensity <- function(patient, time = NULL, model, type = "lp", size = 3,
+                                      color = "red"){
 
   #DFCALLS
   x <- y <- event <- NULL
@@ -2898,11 +3102,23 @@ plot_patient.eventDensity <- function(patient, time = NULL, model, type = "lp", 
 
 #' patient.eventHistogram
 #'
-#' @description Generates a histogram plot for patient event data based on a given Coxmos model. The function visualizes the distribution of predicted values and highlights the prediction for a specific patient.
+#' @description Generates a histogram plot for patient event data based on a given Coxmos model. The
+#' function visualizes the distribution of predicted values and highlights the prediction for a
+#' specific patient.
 #'
-#' @details The `plot_patient.eventHistogram` function is designed to provide a visual representation of the distribution of predicted event values based on a Coxmos model. The function takes in patient data, a specified time point, and a Coxmos model to compute the prediction. The resulting histogram plot displays the distribution of these predictions, with a specific emphasis on the prediction for the provided patient data. The prediction is represented as a point on the histogram, allowing for easy comparison between the specific patient's prediction and the overall distribution of predictions. The type of prediction ("lp", "risk", "expected", or "survival") can be specified, offering flexibility in the kind of insights one wishes to derive from the visualization. The appearance of the point representing the patient's prediction can be customized using the `size` and `color` parameters.
+#' @details The `plot_patient.eventHistogram` function is designed to provide a visual representation
+#' of the distribution of predicted event values based on a Coxmos model. The function takes in patient
+#' data, a specified time point, and a Coxmos model to compute the prediction. The resulting histogram
+#' plot displays the distribution of these predictions, with a specific emphasis on the prediction
+#' for the provided patient data. The prediction is represented as a point on the histogram, allowing
+#' for easy comparison between the specific patient's prediction and the overall distribution of
+#' predictions. The type of prediction ("lp", "risk", "expected", or "survival") can be specified,
+#' offering flexibility in the kind of insights one wishes to derive from the visualization. The
+#' appearance of the point representing the patient's prediction can be customized using the `size`
+#' and `color` parameters.
 #'
-#' @param patient Numeric matrix or data.frame. New explanatory variables (raw data) for one observation. Qualitative variables must be transform into binary variables.
+#' @param patient Numeric matrix or data.frame. New explanatory variables (raw data) for one
+#' observation. Qualitative variables must be transform into binary variables.
 #' @param time Numeric. Time point where the AUC will be evaluated (default: NULL).
 #' @param model Coxmos model.
 #' @param type Character. Prediction type: "lp", "risk", "expected" or "survival" (default: "lp").
@@ -2918,7 +3134,8 @@ plot_patient.eventDensity <- function(patient, time = NULL, model, type = "lp", 
 #' plot_patient.eventHistogram(patient, time = NULL, model)
 #' }
 
-plot_patient.eventHistogram <- function(patient, time = NULL, model, type = "lp", size = 3, color = "red"){
+plot_patient.eventHistogram <- function(patient, time = NULL, model, type = "lp", size = 3,
+                                        color = "red"){
 
   #DFCALLS
   x <- y <- NULL
@@ -2958,16 +3175,21 @@ plot_patient.eventHistogram <- function(patient, time = NULL, model, type = "lp"
 #### ### ### ### ### ### ### ### ###
 
 #' plot_pseudobeta.list
-#' @description Run the function "plot_pseudobeta" for a list of models. More information in "?plot_pseudobeta".
+#' @description Run the function "plot_pseudobeta" for a list of models. More information in
+#' "?plot_pseudobeta".
 #'
 #' @param lst_models List of Coxmos models.
 #' @param error.bar Logical. Show error bar (default: TRUE).
 #' @param onlySig Logical. Compute pseudobetas using only significant components (default: FALSE).
-#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
+#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the
+#' threshold (default: 0.05).
 #' @param zero.rm Logical. Remove variables with a pseudobeta equal to 0 (default: TRUE).
-#' @param top Numeric. Show "top" first variables with the higher pseudobetas in absolute value. If top = NULL, all variables are shown (default: NULL).
-#' @param auto.limits Logical. If "auto.limits" = TRUE, limits are detected automatically (default: TRUE).
-#' @param show_percentage Logical. If show_percentage = TRUE, it shows the contribution percentage for each variable to the full model (default: TRUE).
+#' @param top Numeric. Show "top" first variables with the higher pseudobetas in absolute value.
+#' If top = NULL, all variables are shown (default: NULL).
+#' @param auto.limits Logical. If "auto.limits" = TRUE, limits are detected automatically
+#' (default: TRUE).
+#' @param show_percentage Logical. If show_percentage = TRUE, it shows the contribution percentage
+#' for each variable to the full model (default: TRUE).
 #' @param size_percentage Numeric. Size of percentage text (default: 3).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #'
@@ -2980,7 +3202,9 @@ plot_patient.eventHistogram <- function(patient, time = NULL, model, type = "lp"
 #' plot_pseudobeta.list(lst_models)
 #' }
 
-plot_pseudobeta.list <- function(lst_models, error.bar = T, onlySig = F, alpha = 0.05, zero.rm = T, top = NULL, auto.limits = T, show_percentage = T, size_percentage = 3, verbose = F){
+plot_pseudobeta.list <- function(lst_models, error.bar = T, onlySig = F, alpha = 0.05, zero.rm = T,
+                                 top = NULL, auto.limits = T, show_percentage = T,
+                                 size_percentage = 3, verbose = F){
 
   #check names in lst_models
   lst_models <- checkModelNames(lst_models)
@@ -3004,22 +3228,40 @@ plot_pseudobeta.list <- function(lst_models, error.bar = T, onlySig = F, alpha =
 }
 
 #' plot_pseudobeta
-#' @description This function decomposes a PLS-Cox model, translating it into a pseudo-beta interpretation with respect to the original variables. The decomposition is based on the relationship between the Cox coefficients associated with each component and the weights corresponding to the original variables. The final Cox formula is thus expressed in terms of these original variables.
+#' @description This function decomposes a PLS-Cox model, translating it into a pseudo-beta
+#' interpretation with respect to the original variables. The decomposition is based on the
+#' relationship between the Cox coefficients associated with each component and the weights
+#' corresponding to the original variables. The final Cox formula is thus expressed in terms of
+#' these original variables.
 #'
-#' @details The `plot_pseudobeta` function offers a comprehensive visualization and interpretation of a PLS-Cox model in terms of the original variables. The function begins by validating the model's class and type. For single block models, the function computes the pseudo-betas by multiplying the loading weights (`W.star`) with the Cox coefficients. For multiblock models, this computation is performed for each block separately.
+#' @details The `plot_pseudobeta` function offers a comprehensive visualization and interpretation
+#' of a PLS-Cox model in terms of the original variables. The function begins by validating the model's
+#' class and type. For single block models, the function computes the pseudo-betas by multiplying
+#' the loading weights (`W.star`) with the Cox coefficients. For multiblock models, this computation
+#' is performed for each block separately.
 #'
-#' The function provides flexibility in terms of visualization. Users can opt to display error bars, filter out non-significant components based on a significance threshold (`alpha`), and remove variables with a pseudo-beta of zero. Additionally, the function allows for automatic limit detection for the plot and displays the contribution percentage of each variable to the full model. The resulting plot can be customized further with various text size parameters for different plot elements.
+#' The function provides flexibility in terms of visualization. Users can opt to display error bars,
+#' filter out non-significant components based on a significance threshold (`alpha`), and remove
+#' variables with a pseudo-beta of zero. Additionally, the function allows for automatic limit
+#' detection for the plot and displays the contribution percentage of each variable to the full model.
+#' The resulting plot can be customized further with various text size parameters for different plot
+#' elements.
 #'
-#' It's worth noting that the function supports both single block and multiblock PLS-Cox models. For multiblock models, the function returns a list of plots, one for each block, whereas for single block models, a single plot is returned.
+#' It's worth noting that the function supports both single block and multiblock PLS-Cox models. For
+#' multiblock models, the function returns a list of plots, one for each block, whereas for single
+#' block models, a single plot is returned.
 #'
 #' @param model Coxmos model.
 #' @param error.bar Logical. Show error bar (default: TRUE).
 #' @param onlySig Logical. Compute pseudobetas using only significant components (default: FALSE).
-#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
+#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold
+#' (default: 0.05).
 #' @param zero.rm Logical. Remove variables with a pseudobeta equal to 0 (default: TRUE).
-#' @param top Numeric. Show "top" first variables with the higher pseudobetas in absolute value. If top = NULL, all variables are shown (default: NULL).
+#' @param top Numeric. Show "top" first variables with the higher pseudobetas in absolute value. If
+#' top = NULL, all variables are shown (default: NULL).
 #' @param auto.limits Logical. If "auto.limits" = TRUE, limits are detected automatically (default: TRUE).
-#' @param show_percentage Logical. If show_percentage = TRUE, it shows the contribution percentage for each variable to the full model (default: TRUE).
+#' @param show_percentage Logical. If show_percentage = TRUE, it shows the contribution percentage
+#' for each variable to the full model (default: TRUE).
 #' @param size_percentage Numeric. Size of percentage text (default: 3).
 #' @param title_size_text Numeric. Text size for legend title (default: 15).
 #' @param legend_size_text Numeric. Text size for legend title (default: 12).
@@ -3037,7 +3279,8 @@ plot_pseudobeta.list <- function(lst_models, error.bar = T, onlySig = F, alpha =
 #' plot_pseudobeta(model)
 #' }
 
-plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zero.rm = T, top = NULL, auto.limits = T,
+plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zero.rm = T, top = NULL,
+                            auto.limits = T,
                             show_percentage = T, size_percentage = 3,
                             title_size_text = 15, legend_size_text  = 12,
                             x_axis_size_text  = 10, y_axis_size_text = 10,
@@ -3221,15 +3464,19 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
 #### ### ### ### ### ### ### ###
 
 #' plot_pseudobeta_newPatient.list
-#' @description Run the function "plot_pseudobeta_newPatient" for a list of models. More information in "?plot_pseudobeta_newPatient".
+#' @description Run the function "plot_pseudobeta_newPatient" for a list of models. More information
+#' in "?plot_pseudobeta_newPatient".
 #'
 #' @param lst_models List of Coxmos models.
-#' @param new_observation Numeric matrix or data.frame. New explanatory variables (raw data) for one observation. Qualitative variables must be transform into binary variables.
+#' @param new_observation Numeric matrix or data.frame. New explanatory variables (raw data) for one
+#' observation. Qualitative variables must be transform into binary variables.
 #' @param error.bar Logical. Show error bar (default: TRUE).
 #' @param onlySig Logical. Compute pseudobetas using only significant components (default: TRUE).
-#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
+#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the
+#' threshold (default: 0.05).
 #' @param zero.rm Logical. Remove variables with a pseudobeta equal to 0 (default: TRUE).
-#' @param top Numeric. Show "top" first variables with the higher pseudobetas in absolute value. If top = NULL, all variables are shown (default: NULL).
+#' @param top Numeric. Show "top" first variables with the higher pseudobetas in absolute value. If
+#' top = NULL, all variables are shown (default: NULL).
 #' @param auto.limits Logical. If "auto.limits" = TRUE, limits are detected automatically (default: TRUE).
 #' @param show.betas Logical. Show original betas (default: FALSE).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
@@ -3243,8 +3490,10 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
 #' plot_pseudobeta_newPatient.list(lst_models, new_observation)
 #' }
 
-plot_pseudobeta_newPatient.list <- function(lst_models, new_observation, error.bar = T, onlySig = T, alpha = 0.05, zero.rm = T,
-                                            top = NULL, auto.limits = T, show.betas = F, verbose = F){
+plot_pseudobeta_newPatient.list <- function(lst_models, new_observation, error.bar = T, onlySig = T,
+                                            alpha = 0.05, zero.rm = T,
+                                            top = NULL, auto.limits = T, show.betas = F,
+                                            verbose = F){
 
   #check names in lst_models
   lst_models <- checkModelNames(lst_models)
@@ -3271,24 +3520,39 @@ plot_pseudobeta_newPatient.list <- function(lst_models, new_observation, error.b
 
 #' plot_pseudobeta.newPatient
 #' @description
-#' Generates a visual representation comparing the pseudobeta values derived from the Coxmos model with the values of a new observation. This function provides insights into how the new observation aligns with the established model, offering a graphical comparison of the pseudobeta directions.
+#' Generates a visual representation comparing the pseudobeta values derived from the Coxmos model
+#' with the values of a new observation. This function provides insights into how the new observation
+#' aligns with the established model, offering a graphical comparison of the pseudobeta directions.
 #'
 #' @details
-#' The function `plot_pseudobeta.newPatient` is designed to visually compare the pseudobeta values from the Coxmos model with those of a new observation. The generated plot is based on the ggplot2 framework and offers a comprehensive view of the relationship between the model's pseudobeta values and the new observation's values.
+#' The function `plot_pseudobeta.newPatient` is designed to visually compare the pseudobeta values
+#' from the Coxmos model with those of a new observation. The generated plot is based on the ggplot2
+#' framework and offers a comprehensive view of the relationship between the model's pseudobeta values
+#' and the new observation's values.
 #'
-#' The function first checks the validity of the provided model and ensures that it belongs to the appropriate class. Depending on the type of the model (either PLS or MB Coxmos methods).
+#' The function first checks the validity of the provided model and ensures that it belongs to the
+#' appropriate class. Depending on the type of the model (either PLS or MB Coxmos methods).
 #'
-#' For the actual plotting, the function computes the linear predictor values for the new observation and juxtaposes them with the pseudobeta values from the model. If the `show.betas` parameter is set to TRUE, the original beta values are also displayed on the plot. Error bars can be included to represent the variability in the pseudobeta values, providing a more comprehensive view of the data's distribution.
+#' For the actual plotting, the function computes the linear predictor values for the new observation
+#' and juxtaposes them with the pseudobeta values from the model. If the `show.betas` parameter is
+#' set to TRUE, the original beta values are also displayed on the plot. Error bars can be included
+#' to represent the variability in the pseudobeta values, providing a more comprehensive view of the
+#' data's distribution.
 #'
-#' The resulting plot serves as a valuable tool for researchers and statisticians to visually assess the alignment of a new observation with an established Coxmos model, facilitating better interpretation and understanding of the data in the context of the model.
+#' The resulting plot serves as a valuable tool for researchers and statisticians to visually assess
+#' the alignment of a new observation with an established Coxmos model, facilitating better
+#' interpretation and understanding of the data in the context of the model.
 #'
 #' @param model Coxmos model.
-#' @param new_observation Numeric matrix or data.frame. New explanatory variables (raw data) for one observation. Qualitative variables must be transform into binary variables.
+#' @param new_observation Numeric matrix or data.frame. New explanatory variables (raw data) for one
+#' observation. Qualitative variables must be transform into binary variables.
 #' @param error.bar Logical. Show error bar (default: TRUE).
 #' @param onlySig Logical. Compute pseudobetas using only significant components (default: TRUE).
-#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
+#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the
+#' threshold (default: 0.05).
 #' @param zero.rm Logical. Remove variables with a pseudobeta equal to 0 (default: TRUE).
-#' @param top Numeric. Show "top" first variables with the higher pseudobetas in absolute value. If top = NULL, all variables are shown (default: NULL).
+#' @param top Numeric. Show "top" first variables with the higher pseudobetas in absolute value. If
+#' top = NULL, all variables are shown (default: NULL).
 #' @param auto.limits Logical. If "auto.limits" = TRUE, limits are detected automatically (default: TRUE).
 #' @param show.betas Logical. Show original betas (default: FALSE).
 #'
@@ -3301,7 +3565,8 @@ plot_pseudobeta_newPatient.list <- function(lst_models, new_observation, error.b
 #' plot_pseudobeta_newPatient(model, new_observation)
 #' }
 
-plot_pseudobeta_newPatient <- function(model, new_observation, error.bar = T, onlySig = T, alpha = 0.05, zero.rm = T,
+plot_pseudobeta_newPatient <- function(model, new_observation, error.bar = T, onlySig = T,
+                                       alpha = 0.05, zero.rm = T,
                                        top = NULL, auto.limits = T, show.betas = F){
 
   if(!isa(model,pkg.env$model_class)){
@@ -3329,7 +3594,8 @@ plot_pseudobeta_newPatient <- function(model, new_observation, error.bar = T, on
   }
 }
 
-plot_pseudobeta.newPatient <- function(model, new_observation, error.bar = T, onlySig = T, alpha = 0.05, zero.rm = T,
+plot_pseudobeta.newPatient <- function(model, new_observation, error.bar = T, onlySig = T,
+                                       alpha = 0.05, zero.rm = T,
                                        top = NULL, auto.limits = T, show.betas = F){
 
   if(!isa(model,pkg.env$model_class)){
@@ -3517,7 +3783,8 @@ plot_pseudobeta.newPatient <- function(model, new_observation, error.bar = T, on
 
 }
 
-plot_MB.pseudobeta.newPatient <- function(model, new_observation, error.bar = T, onlySig = T, alpha = 0.05, zero.rm = T,
+plot_MB.pseudobeta.newPatient <- function(model, new_observation, error.bar = T, onlySig = T,
+                                          alpha = 0.05, zero.rm = T,
                                           top = NULL, auto.limits = T, show.betas = F){
 
   if(!isa(model,pkg.env$model_class)){
@@ -3718,15 +3985,22 @@ plot_MB.pseudobeta.newPatient <- function(model, new_observation, error.bar = T,
 #' getAutoKM.list
 #' @description Run the function "getAutoKM" for a list of models. More information in "?getAutoKM".
 #'
-#' @param type Character. Kaplan Meier for complete model linear predictor ("LP"), for PLS components ("COMP") or for original variables ("VAR") (default: LP).
+#' @param type Character. Kaplan Meier for complete model linear predictor ("LP"), for PLS
+#' components ("COMP") or for original variables ("VAR") (default: LP).
 #' @param lst_models List of Coxmos models.
 #' @param comp Numeric vector. Vector of length two. Select which components to plot (default: c(1,2)).
 #' @param top Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: 10).
-#' @param ori_data Logical. Compute the Kaplan-Meier plot with the raw-data or the normalize-data to compute the best cut-point for splitting the data into two groups. Only used when type = "VAR" (default: TRUE).
-#' @param BREAKTIME Numeric. Size of time to split the data into "total_time / BREAKTIME + 1" points. If BREAKTIME = NULL, "n.breaks" is used (default: NULL).
-#' @param n.breaks Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to compute (default: 20).
-#' @param only_sig Logical. If "only_sig" = TRUE, then only significant log-rank test variables are returned (default: FALSE).
-#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
+#' @param ori_data Logical. Compute the Kaplan-Meier plot with the raw-data or the normalize-data to
+#' compute the best cut-point for splitting the data into two groups. Only used when type = "VAR"
+#' (default: TRUE).
+#' @param BREAKTIME Numeric. Size of time to split the data into "total_time / BREAKTIME + 1" points.
+#' If BREAKTIME = NULL, "n.breaks" is used (default: NULL).
+#' @param n.breaks Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to
+#' compute (default: 20).
+#' @param only_sig Logical. If "only_sig" = TRUE, then only significant log-rank test variables are
+#' returned (default: FALSE).
+#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the
+#' threshold (default: 0.05).
 #' @param title Character. Kaplan-Meier plot title (default: NULL).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #'
@@ -3742,7 +4016,9 @@ plot_MB.pseudobeta.newPatient <- function(model, new_observation, error.bar = T,
 #' getAutoKM.list(type = "LP", lst_models)
 #' }
 
-getAutoKM.list <- function(type = "LP", lst_models, comp = 1:2, top = NULL, ori_data = T, BREAKTIME = NULL, n.breaks = 20, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
+getAutoKM.list <- function(type = "LP", lst_models, comp = 1:2, top = NULL, ori_data = T,
+                           BREAKTIME = NULL, n.breaks = 20, only_sig = F, alpha = 0.05, title = NULL,
+                           verbose = FALSE){
 
   #check names in lst_models
   lst_models <- checkModelNames(lst_models)
@@ -3774,27 +4050,43 @@ getAutoKM.list <- function(type = "LP", lst_models, comp = 1:2, top = NULL, ori_
 }
 
 #' getAutoKM
-#' @description Generates a Kaplan-Meier plot for the specified Coxmos model. The plot can be constructed based on the model's Linear Predictor value, the PLS-COX component, or the original variable level.
+#' @description Generates a Kaplan-Meier plot for the specified Coxmos model. The plot can be
+#' constructed based on the model's Linear Predictor value, the PLS-COX component, or the original
+#' variable level.
 #'
-#' @details The `getAutoKM` function offers a flexible approach to visualize survival analysis results using the Kaplan-Meier method. Depending on the `type` parameter, the function can generate plots based on different aspects of the Coxmos model:
+#' @details The `getAutoKM` function offers a flexible approach to visualize survival analysis
+#' results using the Kaplan-Meier method. Depending on the `type` parameter, the function can
+#' generate plots based on different aspects of the Coxmos model:
 #'
 #' - "LP": Uses the Linear Predictor value of the model.
 #' - "COMP": Utilizes the PLS-COX component.
 #' - "VAR": Operates at the original variable level.
 #'
-#' The function provides options to customize the number of components (`comp`), the number of top variables (`top`), and whether to use raw or normalized data (`ori_data`). Additionally, users can specify the time intervals (`BREAKTIME` and `n.breaks`) for the Kaplan-Meier plot. If significance testing is desired, the function can filter out non-significant variables based on the log-rank test (`only_sig` and `alpha` parameters).
+#' The function provides options to customize the number of components (`comp`), the number of top
+#' variables (`top`), and whether to use raw or normalized data (`ori_data`). Additionally, users can
+#' specify the time intervals (`BREAKTIME` and `n.breaks`) for the Kaplan-Meier plot. If significance
+#' testing is desired, the function can filter out non-significant variables based on the log-rank
+#' test (`only_sig` and `alpha` parameters).
 #'
-#' It's essential to ensure that the provided `model` is of the correct class (`Coxmos`). The function will return an error message if an incompatible model is supplied.
+#' It's essential to ensure that the provided `model` is of the correct class (`Coxmos`). The function
+#' will return an error message if an incompatible model is supplied.
 #'
-#' @param type Character. Kaplan Meier for complete model linear predictor ("LP"), for PLS components ("COMP") or for original variables ("VAR") (default: LP).
+#' @param type Character. Kaplan Meier for complete model linear predictor ("LP"), for PLS components
+#' ("COMP") or for original variables ("VAR") (default: LP).
 #' @param model Coxmos model.
 #' @param comp Numeric vector. Vector of length two. Select which components to plot (default: c(1,2)).
 #' @param top Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: 10).
-#' @param ori_data Logical. Compute the Kaplan-Meier plot with the raw-data or the normalize-data to compute the best cut-point for splitting the data into two groups. Only used when type = "VAR" (default: TRUE).
-#' @param BREAKTIME Numeric. Size of time to split the data into "total_time / BREAKTIME + 1" points. If BREAKTIME = NULL, "n.breaks" is used (default: NULL).
-#' @param n.breaks Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to compute (default: 20).
-#' @param only_sig Logical. If "only_sig" = TRUE, then only significant log-rank test variables are returned (default: FALSE).
-#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
+#' @param ori_data Logical. Compute the Kaplan-Meier plot with the raw-data or the normalize-data to
+#' compute the best cut-point for splitting the data into two groups. Only used when type = "VAR"
+#' (default: TRUE).
+#' @param BREAKTIME Numeric. Size of time to split the data into "total_time / BREAKTIME + 1" points.
+#' If BREAKTIME = NULL, "n.breaks" is used (default: NULL).
+#' @param n.breaks Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to
+#' compute (default: 20).
+#' @param only_sig Logical. If "only_sig" = TRUE, then only significant log-rank test variables are
+#' returned (default: FALSE).
+#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the
+#' threshold (default: 0.05).
 #' @param title Character. Kaplan-Meier plot title (default: NULL).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #'
@@ -3810,7 +4102,8 @@ getAutoKM.list <- function(type = "LP", lst_models, comp = 1:2, top = NULL, ori_
 #' getAutoKM(type = "LP", model)
 #' }
 
-getAutoKM <- function(type = "LP", model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, n.breaks = 20, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
+getAutoKM <- function(type = "LP", model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL,
+                      n.breaks = 20, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
   if(!type %in% c("LP", "COMP", "VAR")){
     stop("Type parameters must be one of the following: LP, COMP or VAR")
   }
@@ -3836,7 +4129,8 @@ getAutoKM <- function(type = "LP", model, comp = 1:2, top = 10, ori_data = T, BR
   }
 }
 
-getLPKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, n.breaks = 20, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
+getLPKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, n.breaks = 20,
+                    only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
 
   if(length(comp)==1){
     comp <- 1:comp
@@ -3892,7 +4186,8 @@ getLPKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL,
 
 }
 
-getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, n.breaks = 20, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
+getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, n.breaks = 20,
+                      only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
 
   if(length(comp)==1){
     comp <- 1:comp
@@ -4098,7 +4393,8 @@ getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NUL
 
 }
 
-getLPVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, n.breaks = 20, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
+getLPVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, n.breaks = 20,
+                       only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
 
   if(length(comp)==1){
     comp <- 1:comp
@@ -4341,7 +4637,8 @@ getLPVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NU
 
 }
 
-getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, n.breaks = 20, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
+getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, n.breaks = 20,
+                     only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
 
   if(length(comp)==1){
     comp <- 1:comp
@@ -4648,7 +4945,8 @@ getLogRank_QualVariables <- function(data, sdata, VAR_EVENT, name_data = NULL){
   return(LST_QVAR_SIG)
 }
 
-getLogRank_NumVariables <- function(data, sdata, VAR_EVENT, name_data = NULL, minProp = 0.1, ROUND_CP = 4){
+getLogRank_NumVariables <- function(data, sdata, VAR_EVENT, name_data = NULL, minProp = 0.1,
+                                    ROUND_CP = 4){
 
   if(is.null(name_data)){
     data <- data
@@ -4761,7 +5059,8 @@ getLogRank_NumVariables <- function(data, sdata, VAR_EVENT, name_data = NULL, mi
 
 }
 
-plot_survivalplot.qual <- function(data, sdata, cn_variables, name_data = NULL, BREAKTIME = 5, title = NULL){
+plot_survivalplot.qual <- function(data, sdata, cn_variables, name_data = NULL, BREAKTIME = 5,
+                                   title = NULL){
 
   lst_splots <- list()
 
@@ -4937,7 +5236,8 @@ plot_survivalplot.qual <- function(data, sdata, cn_variables, name_data = NULL, 
 #### ### ### ### ### ##
 
 #' getCutoffAutoKM.list
-#' @description Run the function "getCutoffAutoKM" for a list of models. More information in "?getCutoffAutoKM".
+#' @description Run the function "getCutoffAutoKM" for a list of models. More information in
+#' "?getCutoffAutoKM".
 #'
 #' @param lst_results List of lists. Result of getAutoKM.list() function.
 #'
@@ -5013,13 +5313,22 @@ getCutoffAutoKM <- function(result){
 #' @description Run the function "getTestKM" for a list of models. More information in "?getTestKM".
 #'
 #' @param lst_models List of Coxmos model
-#' @param X_test Numeric matrix or data.frame. Explanatory variables for test data (raw format). Qualitative variables must be transform into binary variables.
-#' @param Y_test Numeric matrix or data.frame. Response variables for test data. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
-#' @param lst_cutoff Numeric vector. Cutoff vector to split the observations into two groups for each model. Recommended to compute optimal cutoff value with getAutoKM() or getAutoKM.list() functions.
-#' @param type Character. Kaplan Meier for complete model linear predictor ("LP"), for PLS components ("COMP") or for original variables ("VAR") (default: LP).
-#' @param ori_data Logical. Compute the Kaplan-Meier plot with the raw-data or the normalize-data to compute the best cut-point for splitting the data into two groups. Only used when type = "VAR" (default: TRUE).
-#' @param BREAKTIME Numeric. Size of time to split the data into "total_time / BREAKTIME + 1" points. If BREAKTIME = NULL, "n.breaks" is used (default: NULL).
-#' @param n.breaks Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to compute (default: 20).
+#' @param X_test Numeric matrix or data.frame. Explanatory variables for test data (raw format).
+#' Qualitative variables must be transform into binary variables.
+#' @param Y_test Numeric matrix or data.frame. Response variables for test data. Object must have
+#' two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE
+#' for censored and event observations.
+#' @param lst_cutoff Numeric vector. Cutoff vector to split the observations into two groups for each
+#' model. Recommended to compute optimal cutoff value with getAutoKM() or getAutoKM.list() functions.
+#' @param type Character. Kaplan Meier for complete model linear predictor ("LP"), for PLS components
+#' ("COMP") or for original variables ("VAR") (default: LP).
+#' @param ori_data Logical. Compute the Kaplan-Meier plot with the raw-data or the normalize-data to
+#' compute the best cut-point for splitting the data into two groups. Only used when type = "VAR"
+#' (default: TRUE).
+#' @param BREAKTIME Numeric. Size of time to split the data into "total_time / BREAKTIME + 1" points.
+#' If BREAKTIME = NULL, "n.breaks" is used (default: NULL).
+#' @param n.breaks Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to
+#' compute (default: 20).
 #' @param title Character. Kaplan-Meier plot title (default: NULL).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #'
@@ -5036,7 +5345,8 @@ getCutoffAutoKM <- function(result){
 #' getTestKM.list(lst_models, X_test, Y_test, lst_cutoff)
 #' }
 
-getTestKM.list <- function(lst_models, X_test, Y_test, lst_cutoff, type = "LP", ori_data = T, BREAKTIME = NULL, n.breaks = 20, title = NULL, verbose = F){
+getTestKM.list <- function(lst_models, X_test, Y_test, lst_cutoff, type = "LP", ori_data = T,
+                           BREAKTIME = NULL, n.breaks = 20, title = NULL, verbose = F){
 
   #check names in lst_models
   lst_models <- checkModelNames(lst_models)
@@ -5080,28 +5390,51 @@ getTestKM.list <- function(lst_models, X_test, Y_test, lst_cutoff, type = "LP", 
 }
 
 #' getTestKM
-#' @description This function computes and visualizes the Kaplan-Meier survival curve for a given test dataset, utilizing the cutoff derived from the original model. The function offers flexibility in terms of the type of Kaplan-Meier estimation, whether it's based on the linear predictor, PLS components, or original variables.
+#' @description This function computes and visualizes the Kaplan-Meier survival curve for a given
+#' test dataset, utilizing the cutoff derived from the original model. The function offers
+#' flexibility in terms of the type of Kaplan-Meier estimation, whether it's based on the linear
+#' predictor, PLS components, or original variables.
 #'
 #' @details
-#' The `getTestKM` function is designed to evaluate the survival probabilities of a test dataset based on a pre-trained Coxmos model. The function ensures that the test times are consistent with the training times. Depending on the specified `type`, the function can compute the Kaplan-Meier curve using:
+#' The `getTestKM` function is designed to evaluate the survival probabilities of a test dataset
+#' based on a pre-trained Coxmos model. The function ensures that the test times are consistent with
+#' the training times. Depending on the specified `type`, the function can compute the Kaplan-Meier
+#' curve using:
 #' - The complete model's linear predictor (`LP`).
 #' - The PLS components (`COMP`).
 #' - The original variables (`VAR`).
 #'
-#' For the `LP` type, the function predicts scores for the `X_test` and subsequently predicts the linear predictor using these scores. For the `COMP` type, the function predicts scores for each component in the model and computes the Kaplan-Meier curve for each. For the `VAR` type, the function computes the Kaplan-Meier curve for each variable in the test dataset.
+#' For the `LP` type, the function predicts scores for the `X_test` and subsequently predicts the
+#' linear predictor using these scores. For the `COMP` type, the function predicts scores for each
+#' component in the model and computes the Kaplan-Meier curve for each. For the `VAR` type, the
+#' function computes the Kaplan-Meier curve for each variable in the test dataset.
 #'
-#' The function also provides the flexibility to compute the Kaplan-Meier plot using raw data or normalized data, which can be useful for determining the optimal cut-point for data segmentation. The time intervals for the Kaplan-Meier estimation can be defined using either the `BREAKTIME` or `n.breaks` parameters.
+#' The function also provides the flexibility to compute the Kaplan-Meier plot using raw data or
+#' normalized data, which can be useful for determining the optimal cut-point for data segmentation.
+#' The time intervals for the Kaplan-Meier estimation can be defined using either the `BREAKTIME` or
+#' `n.breaks` parameters.
 #'
-#' The resulting Kaplan-Meier plot provides a visual representation of the survival probabilities over time, segmented based on the specified cutoff. This allows for a comprehensive evaluation of the test dataset's survival characteristics in the context of the original model.
+#' The resulting Kaplan-Meier plot provides a visual representation of the survival probabilities
+#' over time, segmented based on the specified cutoff. This allows for a comprehensive evaluation of
+#' the test dataset's survival characteristics in the context of the original model.
 #'
 #' @param model Coxmos model.
-#' @param X_test Numeric matrix or data.frame. Explanatory variables for test data (raw format). Qualitative variables must be transform into binary variables.
-#' @param Y_test Numeric matrix or data.frame. Response variables for test data. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
-#' @param cutoff Numeric. Cutoff value to split the observations into two groups. Recommended to compute optimal cutoff value with getAutoKM() function.
-#' @param type Character. Kaplan Meier for complete model linear predictor ("LP"), for PLS components ("COMP") or for original variables ("VAR") (default: LP).
-#' @param ori_data Logical. Compute the Kaplan-Meier plot with the raw-data or the normalize-data to compute the best cut-point for splitting the data into two groups. Only used when type = "VAR" (default: TRUE).
-#' @param BREAKTIME Numeric. Size of time to split the data into "total_time / BREAKTIME + 1" points. If BREAKTIME = NULL, "n.breaks" is used (default: NULL).
-#' @param n.breaks Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to compute (default: 20).
+#' @param X_test Numeric matrix or data.frame. Explanatory variables for test data (raw format).
+#' Qualitative variables must be transform into binary variables.
+#' @param Y_test Numeric matrix or data.frame. Response variables for test data. Object must have two
+#' columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for
+#' censored and event observations.
+#' @param cutoff Numeric. Cutoff value to split the observations into two groups. Recommended to
+#' compute optimal cutoff value with getAutoKM() function.
+#' @param type Character. Kaplan Meier for complete model linear predictor ("LP"), for PLS components
+#' ("COMP") or for original variables ("VAR") (default: LP).
+#' @param ori_data Logical. Compute the Kaplan-Meier plot with the raw-data or the normalize-data to
+#' compute the best cut-point for splitting the data into two groups. Only used when type = "VAR"
+#' (default: TRUE).
+#' @param BREAKTIME Numeric. Size of time to split the data into "total_time / BREAKTIME + 1" points.
+#' If BREAKTIME = NULL, "n.breaks" is used (default: NULL).
+#' @param n.breaks Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to
+#' compute (default: 20).
 #' @param title Character. Kaplan-Meier plot title (default: NULL).
 #'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
@@ -5117,7 +5450,8 @@ getTestKM.list <- function(lst_models, X_test, Y_test, lst_cutoff, type = "LP", 
 #' getTestKM(model, X_test, Y_test, cutoff)
 #' }
 
-getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, BREAKTIME = NULL, n.breaks = 20, title = NULL){
+getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, BREAKTIME = NULL,
+                      n.breaks = 20, title = NULL){
 
   #### Check test times are less or equal than max train time:
   checkTestTimesVSTrainTimes(model, Y_test)
@@ -5311,13 +5645,16 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
 
 #' plot_LP.multiplePatients.list
 #'
-#' @description Run the function "plot_LP.multiplePatients" for a list of models. More information in "?plot_LP.multiplePatients".
+#' @description Run the function "plot_LP.multiplePatients" for a list of models. More information
+#' in "?plot_LP.multiplePatients".
 #'
 #' @param lst_models List of Coxmos models.
-#' @param new_data Numeric matrix or data.frame. New explanatory variables (raw data). Qualitative variables must be transform into binary variables.
+#' @param new_data Numeric matrix or data.frame. New explanatory variables (raw data). Qualitative
+#' variables must be transform into binary variables.
 #' @param error.bar Logical. Show error bar (default: FALSE).
 #' @param onlySig Logical. Compute plot using only significant components (default: TRUE).
-#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
+#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the
+#' threshold (default: 0.05).
 #' @param zero.rm Logical. Remove variables equal to 0 (default: TRUE).
 #' @param auto.limits Logical. If "auto.limits" = TRUE, limits are detected automatically (default: TRUE).
 #' @param top Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: NULL).
@@ -5331,7 +5668,8 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
 #' plot_LP.multiplePatients.list(lst_models, new_data)
 #' }
 
-plot_LP.multiplePatients.list <- function(lst_models, new_data, error.bar = F, onlySig = T, alpha = 0.05, zero.rm = T,
+plot_LP.multiplePatients.list <- function(lst_models, new_data, error.bar = F, onlySig = T,
+                                          alpha = 0.05, zero.rm = T,
                                           auto.limits = T, top = NULL){
 
   #check names in lst_models
@@ -5349,15 +5687,23 @@ plot_LP.multiplePatients.list <- function(lst_models, new_data, error.bar = F, o
 #' @description Visualizes the linear predictors for multiple patients based on a given Coxmos model.
 #'
 #' @details
-#' The function `plot_LP.multiplePatients` is designed to visualize the linear predictors for multiple patients based on the provided Coxmos model. The function takes into account various parameters to customize the visualization, such as the significance level, error bars, and the number of top variables to display.
+#' The function `plot_LP.multiplePatients` is designed to visualize the linear predictors for multiple
+#' patients based on the provided Coxmos model. The function takes into account various parameters to
+#' customize the visualization, such as the significance level, error bars, and the number of top
+#' variables to display.
 #'
-#' The function works by first checking the class of the provided model. Depending on the model type, it delegates the plotting task to one of the three methods: classical models, PLS models, or multi-block PLS models. Each of these methods is tailored to handle specific model types and produce the desired plots.
+#' The function works by first checking the class of the provided model. Depending on the model type,
+#' it delegates the plotting task to one of the three methods: classical models, PLS models, or
+#' multi-block PLS models. Each of these methods is tailored to handle specific model types and
+#' produce the desired plots.
 #'
 #' @param model Coxmos model.
-#' @param new_data Numeric matrix or data.frame. New explanatory variables (raw data). Qualitative variables must be transform into binary variables.
+#' @param new_data Numeric matrix or data.frame. New explanatory variables (raw data). Qualitative
+#' variables must be transform into binary variables.
 #' @param error.bar Logical. Show error bar (default: FALSE).
 #' @param onlySig Logical. Compute plot using only significant components (default: TRUE).
-#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
+#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the
+#' threshold (default: 0.05).
 #' @param zero.rm Logical. Remove variables equal to 0 (default: TRUE).
 #' @param auto.limits Logical. If "auto.limits" = TRUE, limits are detected automatically (default: TRUE).
 #' @param top Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: NULL).
@@ -5371,7 +5717,8 @@ plot_LP.multiplePatients.list <- function(lst_models, new_data, error.bar = F, o
 #' plot_LP.multiplePatients(model, new_data)
 #' }
 
-plot_LP.multiplePatients <- function(model, new_data, error.bar = F, onlySig = T, alpha = 0.05, zero.rm = T,
+plot_LP.multiplePatients <- function(model, new_data, error.bar = F, onlySig = T, alpha = 0.05,
+                                     zero.rm = T,
                                      auto.limits = T, top = NULL){
 
   if(!isa(model,pkg.env$model_class)){
@@ -5404,7 +5751,8 @@ plot_LP.multiplePatients <- function(model, new_data, error.bar = F, onlySig = T
   }
 }
 
-plot_classicalcox.comparePatients <- function(model, new_data, error.bar = F, onlySig = T, alpha = 0.05, zero.rm = T,
+plot_classicalcox.comparePatients <- function(model, new_data, error.bar = F, onlySig = T,
+                                              alpha = 0.05, zero.rm = T,
                                               auto.limits = T, top = NULL){
 
   #DFCALLS
@@ -5520,7 +5868,8 @@ plot_classicalcox.comparePatients <- function(model, new_data, error.bar = F, on
   return(list(plot = pp, var.plot = res_all.plot, lp.plot = res_lp.plot, lp = lp.pats, lp.var = lp.new_pat_variable, norm_patients = norm_patient, patients = new_data))
 }
 
-plot_cox.comparePatients <- function(model, new_data, error.bar = F, onlySig = T, alpha = 0.05, zero.rm = T,
+plot_cox.comparePatients <- function(model, new_data, error.bar = F, onlySig = T, alpha = 0.05,
+                                     zero.rm = T,
                                      auto.limits = T, top = NULL){
 
   #DFCALLS
@@ -5641,7 +5990,8 @@ plot_cox.comparePatients <- function(model, new_data, error.bar = F, onlySig = T
   return(list(plot = pp, var.plot = res_all.plot, lp.plot = res_lp.plot, lp = lp.pats, lp.var = lp.new_pat_variable, norm_patients = norm_patient, patients = new_data))
 }
 
-plot_MB.cox.comparePatients <- function(model, new_data, error.bar = F, onlySig = T, alpha = 0.05, zero.rm = T,
+plot_MB.cox.comparePatients <- function(model, new_data, error.bar = F, onlySig = T, alpha = 0.05,
+                                        zero.rm = T,
                                         auto.limits = T, top = NULL){
 
   #DFCALLS

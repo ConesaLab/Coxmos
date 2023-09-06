@@ -22,29 +22,43 @@ coxEN(
 )
 }
 \arguments{
-\item{X}{Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.}
+\item{X}{Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be
+transform into binary variables.}
 
-\item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.}
+\item{Y}{Numeric matrix or data.frame. Response variables. Object must have two columns named as
+"time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and
+event observations.}
 
-\item{EN.alpha}{Numeric. Elastic net mixing parameter. If EN.alpha = 1 is the lasso penalty, and EN.alpha = 0 the ridge penalty (default: 0.5). NOTE: When ridge penalty is used, EVP and max.variables will not be used.}
+\item{EN.alpha}{Numeric. Elastic net mixing parameter. If EN.alpha = 1 is the lasso penalty, and
+EN.alpha = 0 the ridge penalty (default: 0.5). NOTE: When ridge penalty is used, EVP and
+max.variables will not be used.}
 
-\item{max.variables}{Numeric. Maximum number of variables you want to keep in the cox model. If MIN_EPV is not meet, the value will be change automatically (default: 20).}
+\item{max.variables}{Numeric. Maximum number of variables you want to keep in the cox model. If
+MIN_EPV is not meet, the value will be change automatically (default: 20).}
 
 \item{x.center}{Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).}
 
 \item{x.scale}{Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).}
 
-\item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).}
+\item{remove_near_zero_variance}{Logical. If remove_near_zero_variance = TRUE, near zero variance
+variables will be removed (default: TRUE).}
 
-\item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).}
+\item{remove_zero_variance}{Logical. If remove_zero_variance = TRUE, zero variance variables will
+be removed (default: TRUE).}
 
-\item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).}
+\item{toKeep.zv}{Character vector. Name of variables in X to not be deleted by (near) zero variance
+filtering (default: NULL).}
 
-\item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).}
+\item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant
+variables/components in final cox model will be removed until all variables are significant by
+forward selection (default: FALSE).}
 
-\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
+\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the
+threshold (default: 0.05).}
 
-\item{MIN_EPV}{Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).}
+\item{MIN_EPV}{Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final
+cox model. Used to restrict the number of variables/components can be computed in final cox models.
+If the minimum is not meet, the model cannot be computed (default: 5).}
 
 \item{returnData}{Logical. Return original and normalized X and Y matrices (default: TRUE).}
 
@@ -95,7 +109,8 @@ Instance of class "Coxmos" and model "coxEN". The class contains the following e
 
 \code{nsv}: Variables removed by cox alpha cutoff.
 
-\code{removed_variables_correlation}: Variables removed by being high correlated with other variables.
+\code{removed_variables_correlation}: Variables removed by being high correlated with other
+variables.
 
 \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
 
@@ -110,9 +125,13 @@ This function performs a cox elastic net model (based on glmnet R package).
 The function returns a Coxmos model with the attribute model as "coxEN".
 }
 \details{
-The coxEN function is designed to handle survival data using the elastic net regularization. The function is particularly useful when dealing with high-dimensional datasets where the number of predictors exceeds the number of observations.
-The elastic net regularization combines the strengths of both lasso and ridge regression. The \code{EN.alpha} parameter controls the balance between lasso and ridge penalties.
-It's important to note that when using the ridge penalty (\code{EN.alpha = 0}), the EVP and \code{max.variables} parameters will not be considered.
+The coxEN function is designed to handle survival data using the elastic net regularization. The
+function is particularly useful when dealing with high-dimensional datasets where the number of
+predictors exceeds the number of observations.
+The elastic net regularization combines the strengths of both lasso and ridge regression. The
+\code{EN.alpha} parameter controls the balance between lasso and ridge penalties.
+It's important to note that when using the ridge penalty (\code{EN.alpha = 0}), the EVP and
+\code{max.variables} parameters will not be considered.
 }
 \examples{
 \dontrun{

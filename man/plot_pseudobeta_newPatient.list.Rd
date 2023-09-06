@@ -20,17 +20,20 @@ plot_pseudobeta_newPatient.list(
 \arguments{
 \item{lst_models}{List of Coxmos models.}
 
-\item{new_observation}{Numeric matrix or data.frame. New explanatory variables (raw data) for one observation. Qualitative variables must be transform into binary variables.}
+\item{new_observation}{Numeric matrix or data.frame. New explanatory variables (raw data) for one
+observation. Qualitative variables must be transform into binary variables.}
 
 \item{error.bar}{Logical. Show error bar (default: TRUE).}
 
 \item{onlySig}{Logical. Compute pseudobetas using only significant components (default: TRUE).}
 
-\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
+\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the
+threshold (default: 0.05).}
 
 \item{zero.rm}{Logical. Remove variables with a pseudobeta equal to 0 (default: TRUE).}
 
-\item{top}{Numeric. Show "top" first variables with the higher pseudobetas in absolute value. If top = NULL, all variables are shown (default: NULL).}
+\item{top}{Numeric. Show "top" first variables with the higher pseudobetas in absolute value. If
+top = NULL, all variables are shown (default: NULL).}
 
 \item{auto.limits}{Logical. If "auto.limits" = TRUE, limits are detected automatically (default: TRUE).}
 
@@ -39,7 +42,8 @@ plot_pseudobeta_newPatient.list(
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
 \description{
-Run the function "plot_pseudobeta_newPatient" for a list of models. More information in "?plot_pseudobeta_newPatient".
+Run the function "plot_pseudobeta_newPatient" for a list of models. More information
+in "?plot_pseudobeta_newPatient".
 }
 \examples{
 \dontrun{

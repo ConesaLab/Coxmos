@@ -19,38 +19,61 @@ getTestKM(
 \arguments{
 \item{model}{Coxmos model.}
 
-\item{X_test}{Numeric matrix or data.frame. Explanatory variables for test data (raw format). Qualitative variables must be transform into binary variables.}
+\item{X_test}{Numeric matrix or data.frame. Explanatory variables for test data (raw format).
+Qualitative variables must be transform into binary variables.}
 
-\item{Y_test}{Numeric matrix or data.frame. Response variables for test data. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.}
+\item{Y_test}{Numeric matrix or data.frame. Response variables for test data. Object must have two
+columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for
+censored and event observations.}
 
-\item{cutoff}{Numeric. Cutoff value to split the observations into two groups. Recommended to compute optimal cutoff value with getAutoKM() function.}
+\item{cutoff}{Numeric. Cutoff value to split the observations into two groups. Recommended to
+compute optimal cutoff value with getAutoKM() function.}
 
-\item{type}{Character. Kaplan Meier for complete model linear predictor ("LP"), for PLS components ("COMP") or for original variables ("VAR") (default: LP).}
+\item{type}{Character. Kaplan Meier for complete model linear predictor ("LP"), for PLS components
+("COMP") or for original variables ("VAR") (default: LP).}
 
-\item{ori_data}{Logical. Compute the Kaplan-Meier plot with the raw-data or the normalize-data to compute the best cut-point for splitting the data into two groups. Only used when type = "VAR" (default: TRUE).}
+\item{ori_data}{Logical. Compute the Kaplan-Meier plot with the raw-data or the normalize-data to
+compute the best cut-point for splitting the data into two groups. Only used when type = "VAR"
+(default: TRUE).}
 
-\item{BREAKTIME}{Numeric. Size of time to split the data into "total_time / BREAKTIME + 1" points. If BREAKTIME = NULL, "n.breaks" is used (default: NULL).}
+\item{BREAKTIME}{Numeric. Size of time to split the data into "total_time / BREAKTIME + 1" points.
+If BREAKTIME = NULL, "n.breaks" is used (default: NULL).}
 
-\item{n.breaks}{Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to compute (default: 20).}
+\item{n.breaks}{Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to
+compute (default: 20).}
 
 \item{title}{Character. Kaplan-Meier plot title (default: NULL).}
 }
 \description{
-This function computes and visualizes the Kaplan-Meier survival curve for a given test dataset, utilizing the cutoff derived from the original model. The function offers flexibility in terms of the type of Kaplan-Meier estimation, whether it's based on the linear predictor, PLS components, or original variables.
+This function computes and visualizes the Kaplan-Meier survival curve for a given
+test dataset, utilizing the cutoff derived from the original model. The function offers
+flexibility in terms of the type of Kaplan-Meier estimation, whether it's based on the linear
+predictor, PLS components, or original variables.
 }
 \details{
-The \code{getTestKM} function is designed to evaluate the survival probabilities of a test dataset based on a pre-trained Coxmos model. The function ensures that the test times are consistent with the training times. Depending on the specified \code{type}, the function can compute the Kaplan-Meier curve using:
+The \code{getTestKM} function is designed to evaluate the survival probabilities of a test dataset
+based on a pre-trained Coxmos model. The function ensures that the test times are consistent with
+the training times. Depending on the specified \code{type}, the function can compute the Kaplan-Meier
+curve using:
 \itemize{
 \item The complete model's linear predictor (\code{LP}).
 \item The PLS components (\code{COMP}).
 \item The original variables (\code{VAR}).
 }
 
-For the \code{LP} type, the function predicts scores for the \code{X_test} and subsequently predicts the linear predictor using these scores. For the \code{COMP} type, the function predicts scores for each component in the model and computes the Kaplan-Meier curve for each. For the \code{VAR} type, the function computes the Kaplan-Meier curve for each variable in the test dataset.
+For the \code{LP} type, the function predicts scores for the \code{X_test} and subsequently predicts the
+linear predictor using these scores. For the \code{COMP} type, the function predicts scores for each
+component in the model and computes the Kaplan-Meier curve for each. For the \code{VAR} type, the
+function computes the Kaplan-Meier curve for each variable in the test dataset.
 
-The function also provides the flexibility to compute the Kaplan-Meier plot using raw data or normalized data, which can be useful for determining the optimal cut-point for data segmentation. The time intervals for the Kaplan-Meier estimation can be defined using either the \code{BREAKTIME} or \code{n.breaks} parameters.
+The function also provides the flexibility to compute the Kaplan-Meier plot using raw data or
+normalized data, which can be useful for determining the optimal cut-point for data segmentation.
+The time intervals for the Kaplan-Meier estimation can be defined using either the \code{BREAKTIME} or
+\code{n.breaks} parameters.
 
-The resulting Kaplan-Meier plot provides a visual representation of the survival probabilities over time, segmented based on the specified cutoff. This allows for a comprehensive evaluation of the test dataset's survival characteristics in the context of the original model.
+The resulting Kaplan-Meier plot provides a visual representation of the survival probabilities
+over time, segmented based on the specified cutoff. This allows for a comprehensive evaluation of
+the test dataset's survival characteristics in the context of the original model.
 }
 \examples{
 \dontrun{

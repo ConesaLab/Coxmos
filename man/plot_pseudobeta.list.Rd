@@ -24,22 +24,27 @@ plot_pseudobeta.list(
 
 \item{onlySig}{Logical. Compute pseudobetas using only significant components (default: FALSE).}
 
-\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).}
+\item{alpha}{Numeric. Numerical values are regarded as significant if they fall below the
+threshold (default: 0.05).}
 
 \item{zero.rm}{Logical. Remove variables with a pseudobeta equal to 0 (default: TRUE).}
 
-\item{top}{Numeric. Show "top" first variables with the higher pseudobetas in absolute value. If top = NULL, all variables are shown (default: NULL).}
+\item{top}{Numeric. Show "top" first variables with the higher pseudobetas in absolute value.
+If top = NULL, all variables are shown (default: NULL).}
 
-\item{auto.limits}{Logical. If "auto.limits" = TRUE, limits are detected automatically (default: TRUE).}
+\item{auto.limits}{Logical. If "auto.limits" = TRUE, limits are detected automatically
+(default: TRUE).}
 
-\item{show_percentage}{Logical. If show_percentage = TRUE, it shows the contribution percentage for each variable to the full model (default: TRUE).}
+\item{show_percentage}{Logical. If show_percentage = TRUE, it shows the contribution percentage
+for each variable to the full model (default: TRUE).}
 
 \item{size_percentage}{Numeric. Size of percentage text (default: 3).}
 
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
 \description{
-Run the function "plot_pseudobeta" for a list of models. More information in "?plot_pseudobeta".
+Run the function "plot_pseudobeta" for a list of models. More information in
+"?plot_pseudobeta".
 }
 \examples{
 \dontrun{

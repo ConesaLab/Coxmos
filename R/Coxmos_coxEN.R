@@ -6,25 +6,43 @@
 #' @description This function performs a cox elastic net model (based on glmnet R package).
 #' The function returns a Coxmos model with the attribute model as "coxEN".
 #'
-#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
-#' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
-#' @param EN.alpha Numeric. Elastic net mixing parameter. If EN.alpha = 1 is the lasso penalty, and EN.alpha = 0 the ridge penalty (default: 0.5). NOTE: When ridge penalty is used, EVP and max.variables will not be used.
-#' @param max.variables Numeric. Maximum number of variables you want to keep in the cox model. If MIN_EPV is not meet, the value will be change automatically (default: 20).
+#' @details
+#' The coxEN function is designed to handle survival data using the elastic net regularization. The
+#' function is particularly useful when dealing with high-dimensional datasets where the number of
+#' predictors exceeds the number of observations.
+#' The elastic net regularization combines the strengths of both lasso and ridge regression. The
+#' `EN.alpha` parameter controls the balance between lasso and ridge penalties.
+#' It's important to note that when using the ridge penalty (`EN.alpha = 0`), the EVP and
+#' `max.variables` parameters will not be considered.
+#'
+#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be
+#' transform into binary variables.
+#' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as
+#' "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and
+#' event observations.
+#' @param EN.alpha Numeric. Elastic net mixing parameter. If EN.alpha = 1 is the lasso penalty, and
+#' EN.alpha = 0 the ridge penalty (default: 0.5). NOTE: When ridge penalty is used, EVP and
+#' max.variables will not be used.
+#' @param max.variables Numeric. Maximum number of variables you want to keep in the cox model. If
+#' MIN_EPV is not meet, the value will be change automatically (default: 20).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
-#' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
-#' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
-#' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
-#' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).
-#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
-#' @param MIN_EPV Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).
+#' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance
+#' variables will be removed (default: TRUE).
+#' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will
+#' be removed (default: TRUE).
+#' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance
+#' filtering (default: NULL).
+#' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant
+#' variables/components in final cox model will be removed until all variables are significant by
+#' forward selection (default: FALSE).
+#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the
+#' threshold (default: 0.05).
+#' @param MIN_EPV Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final
+#' cox model. Used to restrict the number of variables/components can be computed in final cox models.
+#' If the minimum is not meet, the model cannot be computed (default: 5).
 #' @param returnData Logical. Return original and normalized X and Y matrices (default: TRUE).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
-#'
-#' @details
-#' The coxEN function is designed to handle survival data using the elastic net regularization. The function is particularly useful when dealing with high-dimensional datasets where the number of predictors exceeds the number of observations.
-#' The elastic net regularization combines the strengths of both lasso and ridge regression. The `EN.alpha` parameter controls the balance between lasso and ridge penalties.
-#' It's important to note that when using the ridge penalty (`EN.alpha = 0`), the EVP and `max.variables` parameters will not be considered.
 #'
 #' @return Instance of class "Coxmos" and model "coxEN". The class contains the following elements:
 #' \code{X}: List of normalized X data information.
@@ -70,7 +88,8 @@
 #'
 #' \code{nsv}: Variables removed by cox alpha cutoff.
 #'
-#' \code{removed_variables_correlation}: Variables removed by being high correlated with other variables.
+#' \code{removed_variables_correlation}: Variables removed by being high correlated with other
+#' variables.
 #'
 #' \code{nzv}: Variables removed by remove_near_zero_variance or remove_zero_variance.
 #'
@@ -450,56 +469,107 @@ coxEN <- function(X, Y,
 #### ### ### ### ###
 
 #' coxEN Cross-Validation
+#' @description This function performs cross-validated CoxEN (coxEN).
+#' The function returns the optimal number of EN penalty value based on cross-validation.
+#' The performance could be based on multiple metrics as Area Under the Curve (AUC), Brier Score or
+#' C-Index. Furthermore, the user could establish more than one metric simultaneously.
 #'
-#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be transform into binary variables.
-#' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event observations.
-#' @param EN.alpha.list Numeric vector. Elastic net mixing parameter values to test in cross validation. EN.alpha = 1 is the lasso penalty, and EN.alpha = 0 the ridge penalty (default: seq(0,1,0.1)).
-#' @param max.variables Numeric. Maximum number of variables you want to keep in the cox model. If MIN_EPV is not meet, the value will be change automatically (default: 20).
+#' @details
+#' The `coxEN Cross-Validation` function provides a robust mechanism to optimize the hyperparameters
+#' of the cox elastic net model through cross-validation. By systematically evaluating a range of
+#' elastic net mixing parameters (`EN.alpha.list`), this function identifies the optimal balance
+#' between lasso and ridge penalties for survival analysis.
+#'
+#' The cross-validation process is structured across multiple runs (`n_run`) and folds (`k_folds`),
+#' ensuring a comprehensive assessment of model performance. Users can prioritize specific evaluation
+#' metrics, such as AUC, Brier Score, or C-Index, by assigning weights (`w_AIC`, `w_c.index`, `w_AUC`,
+#' `w_BRIER`). The function also offers flexibility in the AUC evaluation method (`pred.method`) and
+#' the attribute for metric evaluation (`pred.attr`).
+#'
+#' One of the distinguishing features of this function is its adaptive evaluation process. The
+#' function can terminate the cross-validation early if the improvement in AUC does not exceed the
+#' `MIN_AUC_INCREASE` threshold or if a predefined AUC (`MIN_AUC`) is achieved. This adaptive approach
+#' ensures computational efficiency without compromising the quality of the results.
+#'
+#' Data preprocessing options are integrated into the function, emphasizing the significance of data
+#' quality. Options to remove near-zero and zero variance variables, either globally or at the fold
+#' level, are available. The function also supports multicore processing (`PARALLEL` option) to
+#' expedite the cross-validation process.
+#'
+#' Upon execution, the function returns a detailed output, encompassing information about the best
+#' model, performance metrics at various granularities (fold, run, component), and if desired, all
+#' cross-validated models.
+#'
+#' @param X Numeric matrix or data.frame. Explanatory variables. Qualitative variables must be
+#' transform into binary variables.
+#' @param Y Numeric matrix or data.frame. Response variables. Object must have two columns named as
+#' "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and
+#' event observations.
+#' @param EN.alpha.list Numeric vector. Elastic net mixing parameter values to test in cross
+#' validation. EN.alpha = 1 is the lasso penalty, and EN.alpha = 0 the ridge penalty
+#' (default: seq(0,1,0.1)).
+#' @param max.variables Numeric. Maximum number of variables you want to keep in the cox model. If
+#' MIN_EPV is not meet, the value will be change automatically (default: 20).
 #' @param n_run Numeric. Number of runs for cross validation (default: 3).
 #' @param k_folds Numeric. Number of folds for cross validation (default: 10).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
-#' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance variables will be removed (default: TRUE).
-#' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will be removed (default: TRUE).
-#' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance filtering (default: NULL).
-#' @param remove_variance_at_fold_level Logical. If remove_variance_at_fold_level = TRUE, (near) zero variance will be removed at fold level (default: FALSE).
-#' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant variables/components in final cox model will be removed until all variables are significant by forward selection (default: FALSE).
-#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold (default: 0.05).
+#' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance
+#' variables will be removed (default: TRUE).
+#' @param remove_zero_variance Logical. If remove_zero_variance = TRUE, zero variance variables will
+#' be removed (default: TRUE).
+#' @param toKeep.zv Character vector. Name of variables in X to not be deleted by (near) zero variance
+#' filtering (default: NULL).
+#' @param remove_variance_at_fold_level Logical. If remove_variance_at_fold_level = TRUE, (near) zero
+#' variance will be removed at fold level (default: FALSE).
+#' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant
+#' variables/components in final cox model will be removed until all variables are significant by
+#' forward selection (default: FALSE).
+#' @param alpha Numeric. Numerical values are regarded as significant if they fall below the threshold
+#' (default: 0.05).
 #' @param w_AIC Numeric. Weight for AIC evaluator. All weights must sum 1 (default: 0).
 #' @param w_c.index Numeric. Weight for C-Index evaluator. All weights must sum 1 (default: 0).
 #' @param w_AUC Numeric. Weight for AUC evaluator. All weights must sum 1 (default: 1).
 #' @param w_BRIER Numeric. Weight for BRIER SCORE evaluator. All weights must sum 1 (default: 0).
-#' @param times Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of 'max_time_points' points will be selected equally distributed (default: NULL).
-#' @param max_time_points Numeric. Maximum number of time points to use for evaluating the model (default: 15).
-#' @param MIN_AUC_INCREASE Numeric. Minimum improvement between different cross validation models to continue evaluating higher values in the multiple tested parameters. If it is not reached for next 'MIN_COMP_TO_CHECK' models and the minimum 'MIN_AUC' value is reached, the evaluation stops (default: 0.01).
-#' @param MIN_AUC Numeric. Minimum AUC desire to reach cross-validation models. If the minimum is reached, the evaluation could stop if the improvement does not reach an AUC higher than adding the 'MIN_AUC_INCREASE' value (default: 0.8).
-#' @param MIN_COMP_TO_CHECK Numeric. Number of penalties/components to evaluate to check if the AUC improves. If for the next 'MIN_COMP_TO_CHECK' the AUC is not better and the 'MIN_AUC' is meet, the evaluation could stop (default: 3).
-#' @param pred.attr Character. Way to evaluate the metric selected. Must be one of the following: "mean" or "median" (default: "mean").
-#' @param pred.method Character. AUC evaluation algorithm method for evaluate the model performance. Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C", "smoothROCtime_I" (default: "cenROC").
-#' @param fast_mode Logical. If fast_mode = TRUE, for each run, only one fold is evaluated simultaneously. If fast_mode = FALSE, for each run, all linear predictors are computed for test observations. Once all have their linear predictors, the evaluation is perform across all the observations together (default: FALSE).
-#' @param MIN_EPV Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final cox model. Used to restrict the number of variables/components can be computed in final cox models. If the minimum is not meet, the model cannot be computed (default: 5).
+#' @param times Numeric vector. Time points where the AUC will be evaluated. If NULL, a maximum of
+#' 'max_time_points' points will be selected equally distributed (default: NULL).
+#' @param max_time_points Numeric. Maximum number of time points to use for evaluating the model
+#' (default: 15).
+#' @param MIN_AUC_INCREASE Numeric. Minimum improvement between different cross validation models to
+#' continue evaluating higher values in the multiple tested parameters. If it is not reached for next
+#' 'MIN_COMP_TO_CHECK' models and the minimum 'MIN_AUC' value is reached, the evaluation stops
+#' (default: 0.01).
+#' @param MIN_AUC Numeric. Minimum AUC desire to reach cross-validation models. If the minimum is
+#' reached, the evaluation could stop if the improvement does not reach an AUC higher than adding the
+#' 'MIN_AUC_INCREASE' value (default: 0.8).
+#' @param MIN_COMP_TO_CHECK Numeric. Number of penalties/components to evaluate to check if the AUC
+#' improves. If for the next 'MIN_COMP_TO_CHECK' the AUC is not better and the 'MIN_AUC' is meet, the
+#' evaluation could stop (default: 3).
+#' @param pred.attr Character. Way to evaluate the metric selected. Must be one of the following:
+#' "mean" or "median" (default: "mean").
+#' @param pred.method Character. AUC evaluation algorithm method for evaluate the model performance.
+#' Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C",
+#' "smoothROCtime_I" (default: "cenROC").
+#' @param fast_mode Logical. If fast_mode = TRUE, for each run, only one fold is evaluated
+#' simultaneously. If fast_mode = FALSE, for each run, all linear predictors are computed for test
+#' observations. Once all have their linear predictors, the evaluation is perform across all the
+#' observations together (default: FALSE).
+#' @param MIN_EPV Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final
+#' cox model. Used to restrict the number of variables/components can be computed in final cox models.
+#' If the minimum is not meet, the model cannot be computed (default: 5).
 #' @param return_models Logical. Return all models computed in cross validation (default: FALSE).
 #' @param returnData Logical. Return original and normalized X and Y matrices (default: TRUE).
-#' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).
+#' @param PARALLEL Logical. Run the cross validation with multicore option. As many cores as your
+#' total cores - 1 will be used. It could lead to higher RAM consumption (default: FALSE).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #' @param seed Number. Seed value for performing runs/folds divisions (default: 123).
-#'
-#' @details
-#' The `coxEN Cross-Validation` function provides a robust mechanism to optimize the hyperparameters of the cox elastic net model through cross-validation. By systematically evaluating a range of elastic net mixing parameters (`EN.alpha.list`), this function identifies the optimal balance between lasso and ridge penalties for survival analysis.
-#'
-#' The cross-validation process is structured across multiple runs (`n_run`) and folds (`k_folds`), ensuring a comprehensive assessment of model performance. Users can prioritize specific evaluation metrics, such as AUC, Brier Score, or C-Index, by assigning weights (`w_AIC`, `w_c.index`, `w_AUC`, `w_BRIER`). The function also offers flexibility in the AUC evaluation method (`pred.method`) and the attribute for metric evaluation (`pred.attr`).
-#'
-#' One of the distinguishing features of this function is its adaptive evaluation process. The function can terminate the cross-validation early if the improvement in AUC does not exceed the `MIN_AUC_INCREASE` threshold or if a predefined AUC (`MIN_AUC`) is achieved. This adaptive approach ensures computational efficiency without compromising the quality of the results.
-#'
-#' Data preprocessing options are integrated into the function, emphasizing the significance of data quality. Options to remove near-zero and zero variance variables, either globally or at the fold level, are available. The function also supports multicore processing (`PARALLEL` option) to expedite the cross-validation process.
-#'
-#' Upon execution, the function returns a detailed output, encompassing information about the best model, performance metrics at various granularities (fold, run, component), and if desired, all cross-validated models.
 #'
 #' @return Instance of class "Coxmos" and model "cv.coxEN". The class contains the following elements:
 #' \code{best_model_info}: A data.frame with the information for the best model.
 #' \code{df_results_folds}: A data.frame with fold-level information.
 #' \code{df_results_runs}: A data.frame with run-level information.
-#' \code{df_results_comps}: A data.frame with component-level information (for cv.coxEN, EN.alpha information).
+#' \code{df_results_comps}: A data.frame with component-level information (for cv.coxEN, EN.alpha
+#' information).
 #'
 #' \code{lst_models}: If return_models = TRUE, return a the list of all cross-validated models.
 #' \code{pred.method}: AUC evaluation algorithm method for evaluate the model performance.
@@ -514,8 +584,10 @@ coxEN <- function(X, Y,
 #'
 #' \code{class}: Cross-Validated model class.
 #'
-#' \code{lst_train_indexes}: List (of lists) of indexes for the observations used in each run/fold for train the models.
-#' \code{lst_test_indexes}: List (of lists) of indexes for the observations used in each run/fold for test the models.
+#' \code{lst_train_indexes}: List (of lists) of indexes for the observations used in each run/fold
+#' for train the models.
+#' \code{lst_test_indexes}: List (of lists) of indexes for the observations used in each run/fold
+#' for test the models.
 #'
 #' \code{time}: time consumed for running the cross-validated function.
 #'
@@ -534,9 +606,11 @@ cv.coxEN <- function(X, Y,
                      max.variables = 15,
                      n_run = 3, k_folds = 10,
                      x.center = TRUE, x.scale = FALSE,
-                     remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL, remove_variance_at_fold_level = F,
+                     remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
+                     remove_variance_at_fold_level = F,
                      remove_non_significant = F, alpha = 0.05,
-                     w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL, max_time_points = 15,
+                     w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL,
+                     max_time_points = 15,
                      MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                      pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
                      MIN_EPV = 5, return_models = F, returnData = F,
