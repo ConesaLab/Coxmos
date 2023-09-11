@@ -7,11 +7,11 @@
 plot_LP.multiplePatients.list(
   lst_models,
   new_data,
-  error.bar = F,
-  onlySig = T,
+  error.bar = FALSE,
+  onlySig = TRUE,
   alpha = 0.05,
-  zero.rm = T,
-  auto.limits = T,
+  zero.rm = TRUE,
+  auto.limits = TRUE,
   top = NULL
 )
 }

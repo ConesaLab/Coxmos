@@ -115,9 +115,9 @@
 coxEN <- function(X, Y,
                   EN.alpha = 0.5, max.variables = 15,
                   x.center = TRUE, x.scale = FALSE,
-                  remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
-                  remove_non_significant = F, alpha = 0.05,
-                  MIN_EPV = 5, returnData = T, verbose = F){
+                  remove_near_zero_variance = TRUE, remove_zero_variance = FALSE, toKeep.zv = NULL,
+                  remove_non_significant = FALSE, alpha = 0.05,
+                  MIN_EPV = 5, returnData = TRUE, verbose = FALSE){
 
   t1 <- Sys.time()
   y.center = y.scale = FALSE
@@ -217,7 +217,7 @@ coxEN <- function(X, Y,
   #just before the death times in computing the Breslow approximation; if users prefer the usual convention of after,
   #they can add a small number to all censoring times to achieve this effect.
   for(t in unique(Yh[,"time"])){
-    set_pat <- Yh[Yh[,"time"]==t,,drop=F]
+    set_pat <- Yh[Yh[,"time"]==t,,drop = FALSE]
     if(nrow(set_pat)>1 & length(unique(set_pat[,"event"]))>1){
       names_censored <- names(which(set_pat[,"event"]==0))
       Yh[names_censored,"time"] <- Yh[names_censored,"time"] + 0.0001
@@ -229,7 +229,7 @@ coxEN <- function(X, Y,
   # cvfit <- cv.glmnet(x = Xh, y = survival::Surv(time = Yh[,"time"], event = Yh[,"event"]),
   #                    family = "cox", type.measure = "C",
   #                    alpha = EN.alpha, dfmax = max.variables,
-  #                    standardize = F, nlambda=200)
+  #                    standardize = FALSE, nlambda=200)
 
   #I cannot add the limit for maximum number of variables bc it fails
   #pmax = max.variables
@@ -239,7 +239,7 @@ coxEN <- function(X, Y,
     # pmax - coefficients to be non-zero
     expr = {
       glmnet::glmnet(x = Xh, y = survival::Surv(time = Yh[,"time"], event = Yh[,"event"]),
-                     family = "cox", alpha = EN.alpha, standardize = F, nlambda = 300, pmax = max.variables)
+                     family = "cox", alpha = EN.alpha, standardize = FALSE, nlambda = 300, pmax = max.variables)
     },
     # warning = function(e){
     #   if(verbose){
@@ -249,16 +249,16 @@ coxEN <- function(X, Y,
     #   suppressWarnings(
     #     # dfmax - variables in the model
     #     res <- glmnet::glmnet(x = Xh, y = survival::Surv(time = Yh[,"time"], event = Yh[,"event"]),
-    #                           family = "cox", alpha = EN.alpha, standardize = F, nlambda = 300, dfmax = max.variables-1)
+    #                           family = "cox", alpha = EN.alpha, standardize = FALSE, nlambda = 300, dfmax = max.variables-1)
     #   )
-    #   list(res = res, problem = T)
+    #   list(res = res, problem = TRUE)
     # },
     error = function(e){
       if(verbose){
         message("Model probably has a convergence issue...\n")
         message(paste0("\nglmnet error: ", e))
       }
-      list(res = NA, problem = T)
+      list(res = NA, problem = TRUE)
     }
   )
 
@@ -275,7 +275,7 @@ coxEN <- function(X, Y,
       coef.matrix <- as.matrix(coef(EN_cox, s = best_lambda))
       selected_variables <- rownames(coef.matrix)[which(coef.matrix != 0)]
 
-      d <- as.data.frame(cbind(Xh[,selected_variables,drop=F], Yh)) #data
+      d <- as.data.frame(cbind(Xh[,selected_variables,drop = FALSE], Yh)) #data
 
       best_cox <- tryCatch(
         # Specifying expression
@@ -283,10 +283,10 @@ coxEN <- function(X, Y,
           survival::coxph(formula = survival::Surv(time,event) ~ .,
                           data = d,
                           ties = "efron",
-                          singular.ok = T,
-                          robust = T,
+                          singular.ok = TRUE,
+                          robust = TRUE,
                           nocenter = rep(1, ncol(Xh)),
-                          model=T, x = T)
+                          model = TRUE, x = TRUE)
         },
         # Specifying error message
         error = function(e){
@@ -606,15 +606,15 @@ cv.coxEN <- function(X, Y,
                      max.variables = 15,
                      n_run = 3, k_folds = 10,
                      x.center = TRUE, x.scale = FALSE,
-                     remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
-                     remove_variance_at_fold_level = F,
-                     remove_non_significant = F, alpha = 0.05,
+                     remove_near_zero_variance = TRUE, remove_zero_variance = TRUE, toKeep.zv = NULL,
+                     remove_variance_at_fold_level = FALSE,
+                     remove_non_significant = FALSE, alpha = 0.05,
                      w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL,
                      max_time_points = 15,
                      MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
-                     pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
-                     MIN_EPV = 5, return_models = F, returnData = F,
-                     PARALLEL = F, verbose = F, seed = 123){
+                     pred.attr = "mean", pred.method = "cenROC", fast_mode = FALSE,
+                     MIN_EPV = 5, return_models = FALSE, returnData = FALSE,
+                     PARALLEL = FALSE, verbose = FALSE, seed = 123){
 
   t1 <- Sys.time()
   FREQ_CUT <- 95/5
@@ -735,7 +735,7 @@ cv.coxEN <- function(X, Y,
                                         n.cut_points = NULL,
                                         x.center = x.center, x.scale = x.scale,
                                         y.center = y.center, y.scale = y.scale,
-                                        remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
+                                        remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = FALSE, toKeep.zv = NULL,
                                         alpha = alpha, MIN_EPV = MIN_EPV,
                                         remove_non_significant = remove_non_significant, tol = NULL, max.iter = NULL,
                                         returnData = returnData, total_models = total_models,
@@ -767,7 +767,7 @@ cv.coxEN <- function(X, Y,
   #### ### ### ### ### ### #
   df_results_evals <- get_COX_evaluation_AIC_CINDEX(comp_model_lst = comp_model_lst, alpha = alpha,
                                                     max.ncomp = EN.alpha.list, eta.list = NULL, n_run = n_run, k_folds = k_folds,
-                                                    total_models = total_models, remove_non_significant_models = F, verbose = verbose) #deletion at variable level for EN
+                                                    total_models = total_models, remove_non_significant_models = FALSE, verbose = verbose) #deletion at variable level for EN
 
   if(all(is.null(df_results_evals))){
     message(paste0("Best model could NOT be obtained. All models computed present problems."))
@@ -788,7 +788,7 @@ cv.coxEN <- function(X, Y,
   df_results_evals_run <- NULL
   df_results_evals_fold <- NULL
   optimal_comp_index <- NULL
-  optimal_comp_flag <- F
+  optimal_comp_flag <- FALSE
 
   if(TRUE){ #compute always BRIER SCORE
     #calculate time vector if still NULL
@@ -796,7 +796,7 @@ cv.coxEN <- function(X, Y,
       times <- getTimesVector(Y, max_time_points = max_time_points)
     }
 
-    #As we are measuring just one evaluator and one method - PARALLEL=F
+    #As we are measuring just one evaluator and one method - PARALLEL = FALSE
     lst_df <- get_COX_evaluation_BRIER(comp_model_lst = comp_model_lst,
                                        fast_mode = fast_mode,
                                        X_test = X, Y_test = Y,
@@ -805,7 +805,7 @@ cv.coxEN <- function(X, Y,
                                        pred.method = pred.method, pred.attr = pred.attr,
                                        max.ncomp = EN.alpha.list, n_run = n_run, k_folds = k_folds,
                                        MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                       w_BRIER = w_BRIER, method.train = pkg.env$coxEN, PARALLEL = F, verbose = verbose)
+                                       w_BRIER = w_BRIER, method.train = pkg.env$coxEN, PARALLEL = FALSE, verbose = verbose)
 
     df_results_evals_comp <- lst_df$df_results_evals_comp
     df_results_evals_run <- lst_df$df_results_evals_run
@@ -825,7 +825,7 @@ cv.coxEN <- function(X, Y,
       times <- getTimesVector(Y, max_time_points = max_time_points)
     }
 
-    #As we are measuring just one evaluator and one method - PARALLEL=F
+    #As we are measuring just one evaluator and one method - PARALLEL = FALSE
     lst_df <- get_COX_evaluation_AUC(comp_model_lst = comp_model_lst,
                                      X_test = X, Y_test = Y,
                                      lst_X_test = lst_test_indexes, lst_Y_test = lst_test_indexes,
@@ -833,7 +833,7 @@ cv.coxEN <- function(X, Y,
                                      fast_mode = fast_mode, pred.method = pred.method, pred.attr = pred.attr,
                                      max.ncomp = EN.alpha.list, n_run = n_run, k_folds = k_folds,
                                      MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                     w_AUC = w_AUC, method.train = pkg.env$coxEN, PARALLEL = F, verbose = verbose)
+                                     w_AUC = w_AUC, method.train = pkg.env$coxEN, PARALLEL = FALSE, verbose = verbose)
 
     if(is.null(df_results_evals_comp)){
       df_results_evals_comp <- lst_df$df_results_evals_comp
@@ -864,17 +864,17 @@ cv.coxEN <- function(X, Y,
   df_results_evals_comp <- cv.getScoreFromWeight(lst_cox_mean = df_results_evals_comp, w_AIC, w_c.index, w_BRIER, w_AUC,
                                                  colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC", colname_BRIER = "BRIER")
 
-  flag_no_models = F
+  flag_no_models = FALSE
   if(optimal_comp_flag){
-    best_model_info <- df_results_evals_comp[df_results_evals_comp[,"n.comps"]==EN.alpha.list[[optimal_comp_index]],, drop=F][1,]
+    best_model_info <- df_results_evals_comp[df_results_evals_comp[,"n.comps"]==EN.alpha.list[[optimal_comp_index]],, drop = FALSE][1,]
     best_model_info <- as.data.frame(best_model_info)
   }else{
     if(all(is.nan(df_results_evals_comp[,"score"]))){
       #message("No models computed. All of them have problems in convergency. Probably due to a high number of variables.")
-      best_model_info <- df_results_evals_comp[1,,drop=F]
-      flag_no_models = T
+      best_model_info <- df_results_evals_comp[1,,drop = FALSE]
+      flag_no_models = TRUE
     }else{
-      best_model_info <- df_results_evals_comp[which(df_results_evals_comp[,"score"] == max(df_results_evals_comp[,"score"], na.rm = T)),, drop=F][1,]
+      best_model_info <- df_results_evals_comp[which(df_results_evals_comp[,"score"] == max(df_results_evals_comp[,"score"], na.rm = TRUE)),, drop = FALSE][1,]
       best_model_info <- as.data.frame(best_model_info)
     }
   }

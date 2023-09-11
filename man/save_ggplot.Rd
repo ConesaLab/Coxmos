@@ -8,7 +8,7 @@ save_ggplot(
   plot,
   folder = NULL,
   name = "plot",
-  wide = T,
+  wide = TRUE,
   quality = "4K",
   dpi = 80,
   custom = NULL

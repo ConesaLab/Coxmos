@@ -11,8 +11,8 @@ super.evalAllModels(
   pred.attr = "mean",
   times = NULL,
   max_time_points = 15,
-  PARALLEL = F,
-  progress_bar = F
+  PARALLEL = FALSE,
+  progress_bar = FALSE
 )
 }
 \arguments{

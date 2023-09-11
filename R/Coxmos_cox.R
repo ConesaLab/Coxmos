@@ -116,9 +116,9 @@
 
 cox <- function (X, Y,
                  x.center = TRUE, x.scale = FALSE,
-                 remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
-                 remove_non_significant = F, alpha = 0.05,
-                 MIN_EPV = 5, FORCE = F, returnData = T, verbose = F){
+                 remove_near_zero_variance = TRUE, remove_zero_variance = FALSE, toKeep.zv = NULL,
+                 remove_non_significant = FALSE, alpha = 0.05,
+                 MIN_EPV = 5, FORCE = FALSE, returnData = TRUE, verbose = FALSE){
 
   t1 <- Sys.time()
   FREQ_CUT <- 95/5
@@ -147,9 +147,9 @@ cox <- function (X, Y,
   colnames(X) <- transformIllegalChars(old_colnames)
   if(all(old_colnames %in% colnames(X))){
     #colnames changed
-    FLAG_COLNAMES = T
+    FLAG_COLNAMES = TRUE
   }else{
-    FLAG_COLNAMES = F
+    FLAG_COLNAMES = FALSE
   }
 
   #### REQUIREMENTS
@@ -207,10 +207,10 @@ cox <- function (X, Y,
       survival::coxph(formula = survival::Surv(time,event) ~ .,
                       data = d,
                       ties = "efron",
-                      singular.ok = T,
-                      robust = T,
+                      singular.ok = TRUE,
+                      robust = TRUE,
                       nocenter = rep(1, ncol(Xh)),
-                      model=T, x = T)
+                      model = TRUE, x = TRUE)
     },
     # Specifying error message
     error = function(e){
@@ -227,10 +227,10 @@ cox <- function (X, Y,
         survival::coxph(formula = survival::Surv(time,event) ~ .,
                         data = X,
                         ties = "efron",
-                        singular.ok = T,
-                        robust = T,
+                        singular.ok = TRUE,
+                        robust = TRUE,
                         nocenter = rep(1, ncol(X)-2),
-                        model=T, x = T)
+                        model = TRUE, x = TRUE)
       },
       # Specifying error message
       error = function(e){

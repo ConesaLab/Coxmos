@@ -6,8 +6,8 @@
 \usage{
 deleteZeroOrNearZeroVariance(
   X,
-  remove_near_zero_variance = F,
-  remove_zero_variance = T,
+  remove_near_zero_variance = FALSE,
+  remove_zero_variance = TRUE,
   toKeep.zv = NULL,
   freqCut = 95/5
 )
@@ -50,9 +50,9 @@ specify a list of such variables.
 \examples{
 \dontrun{
 # zero-variance variables
-deleteZeroOrNearZeroVariance(X, remove_near_zero_variance = F, remove_zero_variance = T)
+deleteZeroOrNearZeroVariance(X, remove_near_zero_variance = FALSE, remove_zero_variance = TRUE)
 # near-zero-variance variables
-deleteZeroOrNearZeroVariance(X, remove_near_zero_variance = T, remove_zero_variance = T)
+deleteZeroOrNearZeroVariance(X, remove_near_zero_variance = TRUE, remove_zero_variance = TRUE)
 }
 }
 \author{

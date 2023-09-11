@@ -22,7 +22,7 @@
 #' save_ggplot(plot, folder)
 #' }
 
-save_ggplot <- function(plot, folder = NULL, name = "plot", wide = T, quality = "4K", dpi = 80,
+save_ggplot <- function(plot, folder = NULL, name = "plot", wide = TRUE, quality = "4K", dpi = 80,
                         custom = NULL){
   width=NULL
   height=NULL
@@ -123,7 +123,7 @@ save_ggplot <- function(plot, folder = NULL, name = "plot", wide = T, quality = 
 #' save_ggplot.svg(plot, folder)
 #' }
 
-save_ggplot.svg <- function(plot, folder = NULL, name = "plot", wide = T, quality = "4K", dpi = 80,
+save_ggplot.svg <- function(plot, folder = NULL, name = "plot", wide = TRUE, quality = "4K", dpi = 80,
                             custom = NULL){
   width=NULL
   height=NULL
@@ -226,7 +226,7 @@ save_ggplot.svg <- function(plot, folder = NULL, name = "plot", wide = T, qualit
 #' save_ggplot_lst(plot_lst, folder)
 #' }
 
-save_ggplot_lst <- function(lst_plots, folder = NULL, prefix = NULL, suffix = NULL, wide = T,
+save_ggplot_lst <- function(lst_plots, folder = NULL, prefix = NULL, suffix = NULL, wide = TRUE,
                             quality = "4K", dpi = 80, custom = NULL, object_name = NULL){
   width=NULL
   height=NULL
@@ -367,7 +367,7 @@ save_ggplot_lst <- function(lst_plots, folder = NULL, prefix = NULL, suffix = NU
 #' save_ggplot_lst.svg(plot_lst, folder)
 #' }
 
-save_ggplot_lst.svg <- function(lst_plots, folder = NULL, prefix = NULL, suffix = NULL, wide = T,
+save_ggplot_lst.svg <- function(lst_plots, folder = NULL, prefix = NULL, suffix = NULL, wide = TRUE,
                                 quality = "4K", dpi = 80, custom = NULL, object_name = NULL){
   width=NULL
   height=NULL
@@ -571,7 +571,7 @@ plot_time.list <- function(lst_models, x.text = "Method", y.text = NULL){
   if(roundTo == 0){
     #select the decimals of Y
     if(length(grep("\\.", df.times$times))>0){
-      ch <- gsub("\\.", "", as.character(format(min(df.times$times)/max.breaks, scientific = F, trim = T)))
+      ch <- gsub("\\.", "", as.character(format(min(df.times$times)/max.breaks, scientific = FALSE, trim = TRUE)))
       cont = 0
       for(c in 1:nchar(ch)){
         if(substr(ch,c,c) == "0"){
@@ -593,7 +593,7 @@ plot_time.list <- function(lst_models, x.text = "Method", y.text = NULL){
   if(roundTo == 0){
     #select the decimals of Y
     if(length(grep("\\.", df.times$times))>0){
-      ch <- gsub("\\.", "", as.character(format(max(df.times$times)/max.breaks, scientific = F, trim = T)))
+      ch <- gsub("\\.", "", as.character(format(max(df.times$times)/max.breaks, scientific = FALSE, trim = TRUE)))
       cont = 1
       for(c in 1:nchar(ch)){
         if(substr(ch,c,c) == "0"){
@@ -780,9 +780,9 @@ plot_evaluation <- function(eval_results, evaluation = "AUC", pred.attr = "mean"
   #select minimum for all evals
   if(is.null(y.min)){
     if(evaluation=="AUC"){
-      y.min <- floor(min(eval_results$df$AUC, na.rm = T)*10)/10
+      y.min <- floor(min(eval_results$df$AUC, na.rm = TRUE)*10)/10
     }else{
-      y.min <- floor(min(eval_results$df$Brier, na.rm = T)*10)/10
+      y.min <- floor(min(eval_results$df$Brier, na.rm = TRUE)*10)/10
     }
 
   }
@@ -840,9 +840,9 @@ plot_evaluation <- function(eval_results, evaluation = "AUC", pred.attr = "mean"
                                 title = paste0("Method Performance"),
                                 y.limit = NULL,
                                 y.limit.exception = NULL,
-                                jitter = F,
+                                jitter = FALSE,
                                 test = test_comparations,
-                                show.median = T,
+                                show.median = TRUE,
                                 round.median = 3,
                                 legend_title = legend_title,
                                 legend_size_text = legend_size_text,
@@ -864,9 +864,9 @@ plot_evaluation <- function(eval_results, evaluation = "AUC", pred.attr = "mean"
         next
       }else{
         vector <- c(m, c,
-                    mean(eval_results$df[eval_results$df$method==m,c,drop=T]),
-                    median(eval_results$df[eval_results$df$method==m,c,drop=T]),
-                    sd(eval_results$df[eval_results$df$method==m,c,drop=T]))
+                    mean(eval_results$df[eval_results$df$method==m,c,drop = TRUE]),
+                    median(eval_results$df[eval_results$df$method==m,c,drop = TRUE]),
+                    sd(eval_results$df[eval_results$df$method==m,c,drop = TRUE]))
         table <- rbind(table, vector)
       }
     }
@@ -885,9 +885,9 @@ plot_evaluation <- function(eval_results, evaluation = "AUC", pred.attr = "mean"
   return(list("lst_plots" = lst_ggp, "lst_plot_comparisons" = lst_plot_comparisons, df = table))
 }
 
-coxweightplot.fromVector.Coxmos <- function(model, vector, sd.min = NULL, sd.max = NULL, zero.rm = F,
-                                            top = NULL, auto.limits = T,
-                                            block = NULL, show_percentage = T,
+coxweightplot.fromVector.Coxmos <- function(model, vector, sd.min = NULL, sd.max = NULL, zero.rm = FALSE,
+                                            top = NULL, auto.limits = TRUE,
+                                            block = NULL, show_percentage = TRUE,
                                             size_percentage = 3){
 
   if(!isa(model,pkg.env$model_class)){
@@ -936,13 +936,13 @@ coxweightplot.fromVector.Coxmos <- function(model, vector, sd.min = NULL, sd.max
       if(top < nrow(df)){
         aux_df <- df
         aux_df$pp <- abs(aux_df$pp)
-        aux_df <- aux_df[order(aux_df$pp, decreasing = T),]
+        aux_df <- aux_df[order(aux_df$pp, decreasing = TRUE),]
         aux_df <- aux_df[1:top,]
         df <- df[df$variables %in% aux_df$variables,]
       }
     }
 
-    df <- df[order(df$pp, decreasing = T),]
+    df <- df[order(df$pp, decreasing = TRUE),]
 
     ggp <- NULL
     if(nrow(df)>limit_color){
@@ -1064,8 +1064,8 @@ coxweightplot.fromVector.Coxmos <- function(model, vector, sd.min = NULL, sd.max
     }
 
     if(!is.null(sd.min) & !is.null(sd.max)){
-      sd.min <- sd.min[rownames(df),,drop=F]
-      sd.max <- sd.max[rownames(df),,drop=F]
+      sd.min <- sd.min[rownames(df),,drop = FALSE]
+      sd.max <- sd.max[rownames(df),,drop = FALSE]
       ggp <- ggp + geom_errorbar(aes(ymin=sd.min, ymax=sd.max), width=.35, position=position_dodge(.2))
     }
 
@@ -1093,7 +1093,7 @@ evalplot_errorbar <- function(df, x.var, y.var, y.var.sd, x.color = NULL, best_c
   error_width = 0.5
   error_pos = 0.15 #0.3
   error_size = 0.75
-  best_flag = F
+  best_flag = FALSE
 
   if(requireNamespace("RColorConesa", quietly = TRUE)){
     color_conesa <- RColorConesa::colorConesa(1)
@@ -1103,13 +1103,13 @@ evalplot_errorbar <- function(df, x.var, y.var, y.var.sd, x.color = NULL, best_c
 
 
   if(!is.null(x.color) & !is.null(best_component) & !is.null(best_eta)){
-    best_flag = T
-    best_df <- df[df[,x.var] == best_component,,drop=F]
+    best_flag = TRUE
+    best_df <- df[df[,x.var] == best_component,,drop = FALSE]
     best_df[!best_df[,x.color] == as.character(best_eta),c(y.var, y.var.sd)] <- NA #I need NA because is moved (position_dodge)
     #best_df <- best_df[best_df[,x.color] == as.character(best_eta),]
   }else if(!is.null(best_component)){
-    best_flag = T
-    best_df <- df[df[,x.var] == best_component,,drop=F]
+    best_flag = TRUE
+    best_df <- df[df[,x.var] == best_component,,drop = FALSE]
   }
 
   #ROUND AUC VALUES - 3 decimal digits
@@ -1152,11 +1152,11 @@ evalplot_errorbar <- function(df, x.var, y.var, y.var.sd, x.color = NULL, best_c
     if(!is.null(x.color)){
       ggp <- ggp + geom_point(data = best_df, aes_string(x = x.var, y = y.var, color = x.color, group = x.color),
                               position=position_dodge(error_pos), size = dot_size, shape = 23, fill = "white",
-                              stroke = 2, show.legend = F)
+                              stroke = 2, show.legend = FALSE)
     }else{
       ggp <- ggp + geom_point(data = best_df, aes_string(x = x.var, y = y.var), position=position_dodge(error_pos),
                               size = dot_size, shape = 23, fill = "white", color = color_conesa,
-                              stroke = 2, show.legend = F)
+                              stroke = 2, show.legend = FALSE)
     }
   }
 
@@ -1164,8 +1164,8 @@ evalplot_errorbar <- function(df, x.var, y.var, y.var.sd, x.color = NULL, best_c
 }
 
 lineplot.performace2.0 <- function(df, x.var = "time", y.var = "AUC", x.color = "method",
-                                   x.lab = NULL, y.lab = NULL, y.limit = NULL, point = T,
-                                   mean = F, legend_rm = T, round_times = F, decimals = 0,
+                                   x.lab = NULL, y.lab = NULL, y.limit = NULL, point = TRUE,
+                                   mean = FALSE, legend_rm = TRUE, round_times = FALSE, decimals = 0,
                                    legend_title = "Method", legend_size_text = 12,
                                    x_axis_size_text = 10, y_axis_size_text = 10,
                                    label_x_axis_size = 10, label_y_axis_size = 10){
@@ -1202,7 +1202,7 @@ lineplot.performace2.0 <- function(df, x.var = "time", y.var = "AUC", x.color = 
   if(mean){
     mean_vector = NULL
     for(m in unique(df$method)){
-      mean_vector <- c(mean_vector, colMeans(df[df$method==m,y.var,drop=F], na.rm = T))
+      mean_vector <- c(mean_vector, colMeans(df[df$method==m,y.var,drop = FALSE], na.rm = TRUE))
     }
     names(mean_vector) <- unique(df$method)
     mean_vector <- data.frame(mean_vector)
@@ -1234,7 +1234,7 @@ lineplot.performace2.0 <- function(df, x.var = "time", y.var = "AUC", x.color = 
 
   }
 
-  if(length(unique(df[,x.var,drop=T]))>MAX_X_ELEMENTS){
+  if(length(unique(df[,x.var,drop = TRUE]))>MAX_X_ELEMENTS){
     ggp <- ggp + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = x_axis_size_text))
   }else{
     ggp <- ggp + theme(axis.text.x = element_text(vjust = 0.5, size = x_axis_size_text))
@@ -1276,7 +1276,7 @@ lineplot.performace2.0 <- function(df, x.var = "time", y.var = "AUC", x.color = 
 
 barplot.mean_performace2.0 <- function(df, x.var = "method", y.var="AUC", x.color = "method",
                                        x.lab = NULL, y.lab = NULL, y.limit = NULL,
-                                       hide_labels = T, legend_rm = NULL, legend_title = "Method",
+                                       hide_labels = TRUE, legend_rm = NULL, legend_title = "Method",
                                        legend_size_text = 12,
                                        x_axis_size_text = 10, y_axis_size_text = 10,
                                        label_x_axis_size = 10, label_y_axis_size = 10){
@@ -1287,7 +1287,7 @@ barplot.mean_performace2.0 <- function(df, x.var = "method", y.var="AUC", x.colo
 
   mean_vector = NULL
   for(m in unique(df$method)){
-    mean_vector <- c(mean_vector, colMeans(df[df$method==m,y.var,drop=F], na.rm = T))
+    mean_vector <- c(mean_vector, colMeans(df[df$method==m,y.var,drop = FALSE], na.rm = TRUE))
   }
   names(mean_vector) <- unique(df$method)
   mean_vector <- data.frame(mean_vector)
@@ -1295,7 +1295,7 @@ barplot.mean_performace2.0 <- function(df, x.var = "method", y.var="AUC", x.colo
   mean_vector <- mean_vector[,c(2,1)]
   rownames(mean_vector) <- NULL
 
-  mean_vector <- mean_vector[order(mean_vector$mean_vector, decreasing = T),]
+  mean_vector <- mean_vector[order(mean_vector$mean_vector, decreasing = TRUE),]
   #mean_vector$method <- factor(mean_vector$method, levels = mean_vector$method)
 
   ggp <- ggplot2::ggplot(mean_vector, aes(x = reorder(method, -mean_vector), y = mean_vector, fill = method, color = method)) +
@@ -1315,7 +1315,7 @@ barplot.mean_performace2.0 <- function(df, x.var = "method", y.var="AUC", x.colo
     ggp <- ggp + guides(color=guide_legend(title=legend_title))
   }
 
-  if(length(unique(df[,x.var,drop=T]))>MAX_X_ELEMENTS){
+  if(length(unique(df[,x.var,drop = TRUE]))>MAX_X_ELEMENTS){
     ggp <- ggp + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = x_axis_size_text))
   }else{
     ggp <- ggp + theme(axis.text.x = element_text(vjust = 0.5, size = x_axis_size_text))
@@ -1340,7 +1340,7 @@ barplot.mean_performace2.0 <- function(df, x.var = "method", y.var="AUC", x.colo
 
 point.sd.mean_performace2.0 <- function(df, x.var = "method", y.var = "AUC", x.color = "method",
                                         x.lab = NULL, y.lab = NULL, y.limit = NULL,
-                                        pred.attr = "mean", hide_labels = T, legend_rm = NULL,
+                                        pred.attr = "mean", hide_labels = TRUE, legend_rm = NULL,
                                         legend_title = "Method", legend_size_text = 12,
                                         x_axis_size_text = 10, y_axis_size_text = 10,
                                         label_x_axis_size = 10, label_y_axis_size = 10){
@@ -1353,11 +1353,11 @@ point.sd.mean_performace2.0 <- function(df, x.var = "method", y.var = "AUC", x.c
   sd_vector = NULL
   for(m in unique(df$method)){
     if(pred.attr %in% "mean"){
-      mean_vector <- c(mean_vector, colMeans(df[df$method==m,y.var,drop=F], na.rm = T))
+      mean_vector <- c(mean_vector, colMeans(df[df$method==m,y.var,drop = FALSE], na.rm = TRUE))
     }else if(pred.attr %in% "median"){
-      mean_vector <- c(mean_vector, apply(df[df$method==m,y.var,drop=F], 2, function(x){median(x, na.rm = T)}))
+      mean_vector <- c(mean_vector, apply(df[df$method==m,y.var,drop = FALSE], 2, function(x){median(x, na.rm = TRUE)}))
     }
-    sd_vector <- c(sd_vector, sd(df[df$method==m,y.var,drop=F][[y.var]], na.rm = T))
+    sd_vector <- c(sd_vector, sd(df[df$method==m,y.var,drop = FALSE][[y.var]], na.rm = TRUE))
   }
   sd_vector[is.na(sd_vector)] <- 0 #if NA is because we do not have sd for that vector of AUC
   names(mean_vector) <- unique(df$method)
@@ -1372,7 +1372,7 @@ point.sd.mean_performace2.0 <- function(df, x.var = "method", y.var = "AUC", x.c
 
   mean_vector$method <- factor(x = mean_vector$method, levels = levels(df$method))
 
-  #mean_vector <- mean_vector[order(mean_vector$mean_vector, decreasing = T),]
+  #mean_vector <- mean_vector[order(mean_vector$mean_vector, decreasing = TRUE),]
   #mean_vector$method <- factor(mean_vector$method, levels = mean_vector$method)
 
   ggp <- ggplot2::ggplot(mean_vector, aes(x = reorder(method, -mean_vector), y = mean_vector, fill = method, color = method)) +
@@ -1394,7 +1394,7 @@ point.sd.mean_performace2.0 <- function(df, x.var = "method", y.var = "AUC", x.c
     ggp <- ggp + guides(color=guide_legend(title=legend_title), fill="none")
   }
 
-  if(length(unique(df[,x.var,drop=T]))>MAX_X_ELEMENTS){
+  if(length(unique(df[,x.var,drop = TRUE]))>MAX_X_ELEMENTS){
     ggp <- ggp + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = x_axis_size_text))
   }else{
     ggp <- ggp + theme(axis.text.x = element_text(vjust = 0.5, size = x_axis_size_text))
@@ -1437,7 +1437,7 @@ point.sd.mean_performace2.0 <- function(df, x.var = "method", y.var = "AUC", x.c
 
 comboplot.performance2.0 <- function(df, x.var = "time", y.var = "AUC", x.color = "method",
                                      x.lab = NULL, y.lab = NULL, y.limit = NULL, pred.attr = "mean",
-                                     point = T, mean = F, hide_labels = T,
+                                     point = TRUE, mean = FALSE, hide_labels = TRUE,
                                      title = NULL, legend_title = "Method", round_times = FALSE,
                                      decimals = 2,
                                      title_size_text = 15, legend_size_text = 12,
@@ -1445,12 +1445,12 @@ comboplot.performance2.0 <- function(df, x.var = "time", y.var = "AUC", x.color 
                                      label_x_axis_size = 10, label_y_axis_size = 10){
 
   a <- lineplot.performace2.0(df = df, x.var = x.var, y.var = y.var, x.color = x.color, x.lab = x.lab, y.lab = y.lab, y.limit = y.limit, point = point,
-                              mean = F, legend_rm = T, round_times = round_times, decimals = decimals,
+                              mean = FALSE, legend_rm = TRUE, round_times = round_times, decimals = decimals,
                               legend_title = legend_title, legend_size_text = legend_size_text,
                               x_axis_size_text = x_axis_size_text, y_axis_size_text = y_axis_size_text, label_x_axis_size = label_x_axis_size, label_y_axis_size = label_y_axis_size)
 
   b <- point.sd.mean_performace2.0(df = df, x.var = x.var, y.var = y.var, x.color = x.color, x.lab = NULL, y.lab = NULL, y.limit = y.limit,
-                                   pred.attr = pred.attr, hide_labels = T, legend_rm = F,
+                                   pred.attr = pred.attr, hide_labels = TRUE, legend_rm = FALSE,
                                    legend_title = legend_title, legend_size_text = legend_size_text,
                                    x_axis_size_text = x_axis_size_text, y_axis_size_text = y_axis_size_text, label_x_axis_size = label_x_axis_size, label_y_axis_size = label_y_axis_size)
 
@@ -1464,7 +1464,7 @@ comboplot.performance2.0 <- function(df, x.var = "time", y.var = "AUC", x.color 
   pp <- pp + theme(plot.margin = margin(10, 20, 10, 10, "pt"))
 
   a <- lineplot.performace2.0(df = df, x.var = x.var, y.var = y.var, x.color = x.color, x.lab = x.lab, y.lab = y.lab, y.limit = y.limit, point = point,
-                              mean = F, legend_rm = F, round_times = round_times, decimals = decimals,
+                              mean = FALSE, legend_rm = FALSE, round_times = round_times, decimals = decimals,
                               legend_title = legend_title, legend_size_text = legend_size_text,
                               x_axis_size_text = x_axis_size_text, y_axis_size_text = y_axis_size_text, label_x_axis_size = label_x_axis_size, label_y_axis_size = label_y_axis_size)
 
@@ -1495,10 +1495,10 @@ plot_VAR_eval <- function(lst_BV, EVAL_METHOD = "AUC", dot_size = 3){
 
   ggp <- ggplot(df.pval, aes(x = names, y = values)) +
     geom_line(group = 1, color = color_conesa, linewidth = 1.5) + ylab("Pred. Value") + xlab("Number of variables")
-  ggp <- ggp + geom_point(data = df.pval[df.pval$names==best_keepX,,drop=F],
+  ggp <- ggp + geom_point(data = df.pval[df.pval$names==best_keepX,,drop = FALSE],
                           aes(x = names, y = values), color = color_conesa,
                           size = dot_size, shape = 23, fill = "white",
-                          stroke = 2, show.legend = F)
+                          stroke = 2, show.legend = FALSE)
 
   return(ggp)
 }
@@ -1548,7 +1548,7 @@ plot_VAR_eval <- function(lst_BV, EVAL_METHOD = "AUC", dot_size = 3){
 #' }
 
 plot_events <- function(Y, max.breaks = 20, roundTo = 0.1, categories = c("Censored","Death"),
-                        y.text = "Number of observations", verbose = F){
+                        y.text = "Number of observations", verbose = FALSE){
 
   #REQUIREMENTS
   if(length(categories)>2 | length(categories)<2 | !is.character(categories)){
@@ -1592,7 +1592,7 @@ plot_events <- function(Y, max.breaks = 20, roundTo = 0.1, categories = c("Censo
   breaks = seq(min(Y[,"time"]), max(Y[,"time"])+breaks_size, by=breaks_size)
   breaks = round2any(breaks, roundTo, f = floor)
   if(max(breaks)<max(Y[,"time"])){breaks=c(breaks, max(breaks)+breaks_size)}
-  x.names <- cut(x = Y[,"time"], breaks = breaks, include.lowest = T)
+  x.names <- cut(x = Y[,"time"], breaks = breaks, include.lowest = TRUE)
 
   Y <- cbind(Y, "time_g" = x.names)
 
@@ -1602,7 +1602,7 @@ plot_events <- function(Y, max.breaks = 20, roundTo = 0.1, categories = c("Censo
   for(t in levels(x.names)){
     vt <- c(vt, t, t)
     vcategory <- c(vcategory, categories)
-    vvalues<- c(vvalues, sum(Y[Y[,"time_g"]==t, "event"]==F), sum(Y[Y[,"time_g"]==t, "event"]==T))
+    vvalues<- c(vvalues, sum(Y[Y[,"time_g"]==t, "event"]==FALSE), sum(Y[Y[,"time_g"]==t, "event"]==TRUE))
   }
 
   dd <- data.frame(Time=vt, Category=vcategory, Values=vvalues)
@@ -1832,7 +1832,7 @@ plot_divergent.biplot <- function(X, Y, NAMEVAR1, NAMEVAR2, BREAKTIME, x.text = 
 #' }
 
 plot_PLS_Coxmos <- function(model, comp = c(1,2), mode = "scores", factor = NULL, legend_title = NULL,
-                            top = NULL, only_top = F, radius = NULL, names = T, colorReverse = F,
+                            top = NULL, only_top = FALSE, radius = NULL, names = TRUE, colorReverse = FALSE,
                             text.size = 2, overlaps = 10){
 
   if(!isa(model,pkg.env$model_class)){
@@ -1917,8 +1917,8 @@ plot_PLS_Coxmos <- function(model, comp = c(1,2), mode = "scores", factor = NULL
 #' @param overlaps Numeric. Number of overlaps to show when plotting loading names (default: 10).
 
 plot_Coxmos.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor = NULL,
-                                  legend_title = NULL, top = NULL, only_top = F, radius = NULL,
-                                  names = T, colorReverse = F, text.size = 2, overlaps = 10){
+                                  legend_title = NULL, top = NULL, only_top = FALSE, radius = NULL,
+                                  names = TRUE, colorReverse = FALSE, text.size = 2, overlaps = 10){
 
   MAX_POINTS = 1000
   MAX_LOADINGS = 15
@@ -1979,7 +1979,7 @@ plot_Coxmos.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor 
     }
 
     ggp <- ggp + labs(color = legend_title) + theme(legend.position="bottom") + coord_fixed(ratio=1)
-    ggp <- ggp + stat_ellipse(aes(x = df[,comp[1]], y = df[,comp[2]], fill = factor), geom = "polygon", alpha = 0.1, show.legend=F)
+    ggp <- ggp + stat_ellipse(aes(x = df[,comp[1]], y = df[,comp[2]], fill = factor), geom = "polygon", alpha = 0.1, show.legend = FALSE)
 
     if("R2" %in% names(model)){
       txt.expression <- paste0("Scores (",attr(aux.model, "model"),") - ")
@@ -2032,7 +2032,7 @@ plot_Coxmos.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor 
       subdata_loading <- df
     }else if(!is.null(top)){
       aux_loadings <- apply(df,1,function(x){sqrt(crossprod(as.numeric(x[comp])))})
-      aux_loadings <- aux_loadings[order(aux_loadings, decreasing = T)]
+      aux_loadings <- aux_loadings[order(aux_loadings, decreasing = TRUE)]
       subdata_loading <- df[names(aux_loadings)[1:top],]
     }else if(!is.null(radius)){
       subdata_loading <- df_loading[apply(df_loading,1,function(x){sqrt(crossprod(as.numeric(x[comp])))>radius}),]
@@ -2121,7 +2121,7 @@ plot_Coxmos.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor 
     }
 
     ggp <- ggp + labs(color = legend_title) + theme(legend.position="bottom") + coord_fixed(ratio=1)
-    ggp <- ggp + stat_ellipse(aes(x = df[,comp[1]], y = df[,comp[2]], fill = factor), geom = "polygon", alpha = 0.1, show.legend=F)
+    ggp <- ggp + stat_ellipse(aes(x = df[,comp[1]], y = df[,comp[2]], fill = factor), geom = "polygon", alpha = 0.1, show.legend = FALSE)
 
     if("R2" %in% names(model)){
       txt.expression <- paste0("Biplot (",attr(aux.model, "model"),") - ")
@@ -2160,7 +2160,7 @@ plot_Coxmos.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor 
       subdata_loading <- df_loading
     }else if(!is.null(top)){
       aux_loadings <- apply(df_loading,1,function(x){sqrt(crossprod(as.numeric(x[comp])))})
-      aux_loadings <- aux_loadings[order(aux_loadings, decreasing = T)]
+      aux_loadings <- aux_loadings[order(aux_loadings, decreasing = TRUE)]
       subdata_loading <- df_loading[names(aux_loadings)[1:top],]
     }else if(!is.null(radius)){
       subdata_loading <- df_loading[apply(df_loading,1,function(x){sqrt(crossprod(as.numeric(x[comp])))>radius}),]
@@ -2208,7 +2208,7 @@ plot_Coxmos.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor 
 
   #reorder legend
   if(!is.null(factor) & length(levels(factor))>3){
-    ggp <- ggp + guides(color=guide_legend(nrow = ceiling(length(levels(factor))/3), byrow = T))
+    ggp <- ggp + guides(color=guide_legend(nrow = ceiling(length(levels(factor))/3), byrow = TRUE))
   }
 
   return(list(plot = ggp, outliers = rownames(subdata_loading)))
@@ -2263,8 +2263,8 @@ plot_Coxmos.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor 
 #' @param overlaps Numeric. Number of overlaps to show when plotting loading names (default: 10).
 
 plot_Coxmos.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", factor = NULL,
-                                     legend_title = NULL, top = NULL, only_top = F, radius = NULL,
-                                     names = T, colorReverse = F, text.size = 2, overlaps = 10){
+                                     legend_title = NULL, top = NULL, only_top = FALSE, radius = NULL,
+                                     names = TRUE, colorReverse = FALSE, text.size = 2, overlaps = 10){
 
   MAX_POINTS = 1000
   MAX_LOADINGS = 15
@@ -2350,7 +2350,7 @@ plot_Coxmos.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", fact
         }
 
         ggp <- ggp + labs(color = legend_title) + theme(legend.position="bottom") + coord_fixed(ratio=1)
-        ggp <- ggp + stat_ellipse(aes(x = df[,comp[1]], y = df[,comp[2]], fill = factor), geom = "polygon", alpha = 0.1, show.legend=F)
+        ggp <- ggp + stat_ellipse(aes(x = df[,comp[1]], y = df[,comp[2]], fill = factor), geom = "polygon", alpha = 0.1, show.legend = FALSE)
 
         if("R2" %in% names(model)){
           txt.expression <- paste0("Scores (",attr(aux.model, "model"),") - ", block, " - ")
@@ -2423,7 +2423,7 @@ plot_Coxmos.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", fact
           subdata_loading <- df
         }else if(!is.null(top)){
           aux_loadings <- apply(df,1,function(x){sqrt(crossprod(as.numeric(x[comp])))})
-          aux_loadings <- aux_loadings[order(aux_loadings, decreasing = T)]
+          aux_loadings <- aux_loadings[order(aux_loadings, decreasing = TRUE)]
           subdata_loading <- df[names(aux_loadings)[1:top],]
         }else if(!is.null(radius)){
           subdata_loading <- df_loading[apply(df_loading,1,function(x){sqrt(crossprod(as.numeric(x[comp])))>radius}),]
@@ -2535,7 +2535,7 @@ plot_Coxmos.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", fact
         }
 
         ggp <- ggp + labs(color = legend_title) + theme(legend.position="bottom") + coord_fixed(ratio=1)
-        ggp <- ggp + stat_ellipse(aes(x = df[,comp[1]], y = df[,comp[2]], fill = factor), geom = "polygon", alpha = 0.1, show.legend=F)
+        ggp <- ggp + stat_ellipse(aes(x = df[,comp[1]], y = df[,comp[2]], fill = factor), geom = "polygon", alpha = 0.1, show.legend = FALSE)
 
         if("R2" %in% names(model)){
           txt.expression <- paste0("Biplot (",attr(aux.model, "model"),") - ", block, " - ")
@@ -2575,7 +2575,7 @@ plot_Coxmos.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", fact
           subdata_loading <- df_loading
         }else if(!is.null(top)){
           aux_loadings <- apply(df_loading,1,function(x){sqrt(crossprod(as.numeric(x[comp])))})
-          aux_loadings <- aux_loadings[order(aux_loadings, decreasing = T)]
+          aux_loadings <- aux_loadings[order(aux_loadings, decreasing = TRUE)]
           subdata_loading <- df_loading[names(aux_loadings)[1:top],]
         }else if(!is.null(radius)){
           subdata_loading <- df_loading[apply(df_loading,1,function(x){sqrt(crossprod(as.numeric(x[comp])))>radius}),]
@@ -2623,7 +2623,7 @@ plot_Coxmos.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", fact
 
       #reorder legend
       if(!is.null(factor) & length(levels(factor))>3){
-        ggp <- ggp + guides(color=guide_legend(nrow = ceiling(length(levels(factor))/3), byrow = T))
+        ggp <- ggp + guides(color=guide_legend(nrow = ceiling(length(levels(factor))/3), byrow = TRUE))
       }
 
 
@@ -3094,8 +3094,8 @@ plot_patient.eventDensity <- function(patient, time = NULL, model, type = "lp", 
   df <- data.frame(x = pred.value, y = y.value + max)
 
   plot.new <- plot +
-    geom_point(data = df, aes(x = x, y = y), inherit.aes = F, color = color, size = size) +
-    geom_segment(data = df, aes(x = x, y = 0, xend = x, yend = y), inherit.aes = F, color = color, size = 0.8)
+    geom_point(data = df, aes(x = x, y = y), inherit.aes = FALSE, color = color, size = size) +
+    geom_segment(data = df, aes(x = x, y = 0, xend = x, yend = y), inherit.aes = FALSE, color = color, size = 0.8)
 
   return(plot.new)
 }
@@ -3164,8 +3164,8 @@ plot_patient.eventHistogram <- function(patient, time = NULL, model, type = "lp"
   df <- data.frame(x = (intervals[index[1]] + intervals[index[2]]) / 2, y = y.value)
 
   plot.new <- plot +
-    geom_point(data = df, aes(x = x, y = y), inherit.aes = F, color = color, size = size) +
-    geom_segment(data = df, aes(x = x, y = 0, xend = x, yend = y), inherit.aes = F, color = color, size = 0.8)
+    geom_point(data = df, aes(x = x, y = y), inherit.aes = FALSE, color = color, size = size) +
+    geom_segment(data = df, aes(x = x, y = 0, xend = x, yend = y), inherit.aes = FALSE, color = color, size = 0.8)
 
   return(plot.new)
 }
@@ -3202,9 +3202,9 @@ plot_patient.eventHistogram <- function(patient, time = NULL, model, type = "lp"
 #' plot_pseudobeta.list(lst_models)
 #' }
 
-plot_pseudobeta.list <- function(lst_models, error.bar = T, onlySig = F, alpha = 0.05, zero.rm = T,
-                                 top = NULL, auto.limits = T, show_percentage = T,
-                                 size_percentage = 3, verbose = F){
+plot_pseudobeta.list <- function(lst_models, error.bar = TRUE, onlySig = FALSE, alpha = 0.05, zero.rm = TRUE,
+                                 top = NULL, auto.limits = TRUE, show_percentage = TRUE,
+                                 size_percentage = 3, verbose = FALSE){
 
   #check names in lst_models
   lst_models <- checkModelNames(lst_models)
@@ -3279,9 +3279,9 @@ plot_pseudobeta.list <- function(lst_models, error.bar = T, onlySig = F, alpha =
 #' plot_pseudobeta(model)
 #' }
 
-plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zero.rm = T, top = NULL,
-                            auto.limits = T,
-                            show_percentage = T, size_percentage = 3,
+plot_pseudobeta <- function(model, error.bar = TRUE, onlySig = FALSE, alpha = 0.05, zero.rm = TRUE, top = NULL,
+                            auto.limits = TRUE,
+                            show_percentage = TRUE, size_percentage = 3,
                             title_size_text = 15, legend_size_text  = 12,
                             x_axis_size_text  = 10, y_axis_size_text = 10,
                             label_x_axis_size  = 10, label_y_axis_size  = 10){
@@ -3306,12 +3306,12 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
 
     if(onlySig){
       rn <- rownames(df.aux)[df.aux$`Pr(>|z|)` <= alpha]
-      coefficients <- as.matrix(model$survival_model$fit$coefficients)[rn,,drop=F]
-      sd <- df.aux[rn,"se(coef)",drop=F]
-      W.star <- model$X$W.star[,rn,drop=F]
+      coefficients <- as.matrix(model$survival_model$fit$coefficients)[rn,,drop = FALSE]
+      sd <- df.aux[rn,"se(coef)",drop = FALSE]
+      W.star <- model$X$W.star[,rn,drop = FALSE]
     }else{
       coefficients <- as.matrix(model$survival_model$fit$coefficients)
-      sd <- df.aux[,"se(coef)",drop=F]
+      sd <- df.aux[,"se(coef)",drop = FALSE]
       W.star <- model$X$W.star
     }
 
@@ -3326,11 +3326,11 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
     }
 
     #sort
-    vector <- vector[order(vector[,1], decreasing = T),,drop=F]
+    vector <- vector[order(vector[,1], decreasing = TRUE),,drop = FALSE]
 
     if(error.bar){
-      sd.min <- sd.min[rownames(vector),,drop=F]
-      sd.max <- sd.max[rownames(vector),,drop=F]
+      sd.min <- sd.min[rownames(vector),,drop = FALSE]
+      sd.max <- sd.max[rownames(vector),,drop = FALSE]
     }
 
     if(all(vector[,1]==0)){
@@ -3350,8 +3350,8 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
 
     if(onlySig){
       rn <- rownames(df.aux)[df.aux$`Pr(>|z|)` <= alpha]
-      coefficients <- as.matrix(model$survival_model$fit$coefficients)[rn,,drop=F]
-      sd <- df.aux[rn,"se(coef)",drop=F]
+      coefficients <- as.matrix(model$survival_model$fit$coefficients)[rn,,drop = FALSE]
+      sd <- df.aux[rn,"se(coef)",drop = FALSE]
       W.star <- list()
       if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$isb.splsicox, pkg.env$sb.splsdrcox, pkg.env$isb.splsdrcox)){
         for(b in names(model$list_spls_models)){
@@ -3363,7 +3363,7 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
 
     }else{
       coefficients <- as.matrix(model$survival_model$fit$coefficients)
-      sd <- df.aux[,"se(coef)",drop=F]
+      sd <- df.aux[,"se(coef)",drop = FALSE]
       W.star <- list()
       if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$isb.splsicox, pkg.env$sb.splsdrcox, pkg.env$isb.splsdrcox)){
         for(b in names(model$list_spls_models)){
@@ -3381,28 +3381,28 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
     plot <- list()
 
     for(b in names(model$X$data)){
-      coeff <- coefficients[grep(b,rownames(coefficients)),,drop=F]
+      coeff <- coefficients[grep(b,rownames(coefficients)),,drop = FALSE]
       if(length(coeff)==0){
         next
       }
 
       components <- unlist(lapply(rownames(coeff), function(x){paste0(strsplit(x, "_")[[1]][1:2], collapse = "_")}))
-      vector[[b]] <- W.star[[b]][,components,drop=F] %*% coeff
+      vector[[b]] <- W.star[[b]][,components,drop = FALSE] %*% coeff
 
       if(error.bar){
-        sd.min[[b]] <- W.star[[b]][,components,drop=F] %*% data.matrix(coeff-sd[rownames(coeff),,drop=F])
-        sd.max[[b]] <- W.star[[b]][,components,drop=F] %*% data.matrix(coeff+sd[rownames(coeff),,drop=F])
+        sd.min[[b]] <- W.star[[b]][,components,drop = FALSE] %*% data.matrix(coeff-sd[rownames(coeff),,drop = FALSE])
+        sd.max[[b]] <- W.star[[b]][,components,drop = FALSE] %*% data.matrix(coeff+sd[rownames(coeff),,drop = FALSE])
       }else{
         sd.min[[b]] <- NULL
         sd.max[[b]] <- NULL
       }
 
       #sort
-      vector[[b]] <- vector[[b]][order(vector[[b]][,1], decreasing = T),,drop=F]
+      vector[[b]] <- vector[[b]][order(vector[[b]][,1], decreasing = TRUE),,drop = FALSE]
 
       if(error.bar){
-        sd.min[[b]] <- sd.min[[b]][rownames(vector[[b]]),,drop=F]
-        sd.max[[b]] <- sd.max[[b]][rownames(vector[[b]]),,drop=F]
+        sd.min[[b]] <- sd.min[[b]][rownames(vector[[b]]),,drop = FALSE]
+        sd.max[[b]] <- sd.max[[b]][rownames(vector[[b]]),,drop = FALSE]
       }
 
       if(all(vector[[b]][,1]==0)){
@@ -3490,10 +3490,10 @@ plot_pseudobeta <- function(model, error.bar = T, onlySig = F, alpha = 0.05, zer
 #' plot_pseudobeta_newPatient.list(lst_models, new_observation)
 #' }
 
-plot_pseudobeta_newPatient.list <- function(lst_models, new_observation, error.bar = T, onlySig = T,
-                                            alpha = 0.05, zero.rm = T,
-                                            top = NULL, auto.limits = T, show.betas = F,
-                                            verbose = F){
+plot_pseudobeta_newPatient.list <- function(lst_models, new_observation, error.bar = TRUE, onlySig = TRUE,
+                                            alpha = 0.05, zero.rm = TRUE,
+                                            top = NULL, auto.limits = TRUE, show.betas = FALSE,
+                                            verbose = FALSE){
 
   #check names in lst_models
   lst_models <- checkModelNames(lst_models)
@@ -3565,9 +3565,9 @@ plot_pseudobeta_newPatient.list <- function(lst_models, new_observation, error.b
 #' plot_pseudobeta_newPatient(model, new_observation)
 #' }
 
-plot_pseudobeta_newPatient <- function(model, new_observation, error.bar = T, onlySig = T,
-                                       alpha = 0.05, zero.rm = T,
-                                       top = NULL, auto.limits = T, show.betas = F){
+plot_pseudobeta_newPatient <- function(model, new_observation, error.bar = TRUE, onlySig = TRUE,
+                                       alpha = 0.05, zero.rm = TRUE,
+                                       top = NULL, auto.limits = TRUE, show.betas = FALSE){
 
   if(!isa(model,pkg.env$model_class)){
     message("Model must be an object of class Coxmos.")
@@ -3594,9 +3594,9 @@ plot_pseudobeta_newPatient <- function(model, new_observation, error.bar = T, on
   }
 }
 
-plot_pseudobeta.newPatient <- function(model, new_observation, error.bar = T, onlySig = T,
-                                       alpha = 0.05, zero.rm = T,
-                                       top = NULL, auto.limits = T, show.betas = F){
+plot_pseudobeta.newPatient <- function(model, new_observation, error.bar = TRUE, onlySig = TRUE,
+                                       alpha = 0.05, zero.rm = TRUE,
+                                       top = NULL, auto.limits = TRUE, show.betas = FALSE){
 
   if(!isa(model,pkg.env$model_class)){
     message("Model must be an object of class Coxmos.")
@@ -3625,14 +3625,14 @@ plot_pseudobeta.newPatient <- function(model, new_observation, error.bar = T, on
   }
 
   #norm patient
-  new_observation <- new_observation[,rownames(model$X$W.star),drop=F]
+  new_observation <- new_observation[,rownames(model$X$W.star),drop = FALSE]
 
   if(!is.null(model$X$x.mean) & !is.null(model$X$x.sd)){
     norm_patient <- scale(new_observation, center = model$X$x.mean, scale = model$X$x.sd)
   }else if(!is.null(model$X$x.mean)){
-    norm_patient <- scale(new_observation, center = model$X$x.mean, scale = F)
+    norm_patient <- scale(new_observation, center = model$X$x.mean, scale = FALSE)
   }else if(!is.null(model$X$x.sd)){
-    norm_patient <- scale(new_observation, center = F, scale = model$X$x.sd)
+    norm_patient <- scale(new_observation, center = FALSE, scale = model$X$x.sd)
   }else{
     norm_patient <- new_observation
   }
@@ -3649,11 +3649,11 @@ plot_pseudobeta.newPatient <- function(model, new_observation, error.bar = T, on
   }
 
   #filter pat_variables using psudobeta plot (top could be applied)
-  lp.new_observation_variable <- lp.new_observation_variable[rownames(ggp.simulated_beta$plot$data),,drop=F]
-  lp.new_observation_variable.min <- lp.new_observation_variable.min[rownames(ggp.simulated_beta$plot$data),,drop=F]
-  lp.new_observation_variable.max <- lp.new_observation_variable.max[rownames(ggp.simulated_beta$plot$data),,drop=F]
+  lp.new_observation_variable <- lp.new_observation_variable[rownames(ggp.simulated_beta$plot$data),,drop = FALSE]
+  lp.new_observation_variable.min <- lp.new_observation_variable.min[rownames(ggp.simulated_beta$plot$data),,drop = FALSE]
+  lp.new_observation_variable.max <- lp.new_observation_variable.max[rownames(ggp.simulated_beta$plot$data),,drop = FALSE]
 
-  coefficients <- coefficients[rownames(lp.new_observation_variable),,drop=F]
+  coefficients <- coefficients[rownames(lp.new_observation_variable),,drop = FALSE]
 
   #terms
   # df <- as.data.frame(cbind(cbind(ggp.simulated_beta$beta,
@@ -3662,7 +3662,7 @@ plot_pseudobeta.newPatient <- function(model, new_observation, error.bar = T, on
   # colnames(df) <- c("beta", "type", "var")
   #
   # df$beta <- as.numeric(df$beta)
-  # df <- df[order(df$beta, decreasing = T),]
+  # df <- df[order(df$beta, decreasing = TRUE),]
   #
   # df.pat <- cbind(cbind(lp.new_observation_variable,  rep("Patient Linear Predictor", nrow(lp.new_observation_variable))), rownames(lp.new_observation_variable))
   # colnames(df.pat) <- c("beta", "type", "var")
@@ -3735,7 +3735,7 @@ plot_pseudobeta.newPatient <- function(model, new_observation, error.bar = T, on
   }
 
   if(requireNamespace("RColorConesa", quietly = TRUE)){
-    ggp <- ggp + RColorConesa::scale_fill_conesa(palette = "warm", continuous = T)
+    ggp <- ggp + RColorConesa::scale_fill_conesa(palette = "warm", continuous = TRUE)
   }
 
   ggp <- ggp + guides(color= "none")
@@ -3770,7 +3770,7 @@ plot_pseudobeta.newPatient <- function(model, new_observation, error.bar = T, on
     #overwriting fill generates a message
     suppressMessages({
       if(requireNamespace("RColorConesa", quietly = TRUE)){
-        ggp.aux <- ggp.aux + RColorConesa::scale_fill_conesa(reverse = T)
+        ggp.aux <- ggp.aux + RColorConesa::scale_fill_conesa(reverse = TRUE)
       }else{
         ggp.aux <- ggp.aux + scale_fill_discrete()
       }
@@ -3783,9 +3783,9 @@ plot_pseudobeta.newPatient <- function(model, new_observation, error.bar = T, on
 
 }
 
-plot_MB.pseudobeta.newPatient <- function(model, new_observation, error.bar = T, onlySig = T,
-                                          alpha = 0.05, zero.rm = T,
-                                          top = NULL, auto.limits = T, show.betas = F){
+plot_MB.pseudobeta.newPatient <- function(model, new_observation, error.bar = TRUE, onlySig = TRUE,
+                                          alpha = 0.05, zero.rm = TRUE,
+                                          top = NULL, auto.limits = TRUE, show.betas = FALSE){
 
   if(!isa(model,pkg.env$model_class)){
     message("Model must be an object of class Coxmos.")
@@ -3825,14 +3825,14 @@ plot_MB.pseudobeta.newPatient <- function(model, new_observation, error.bar = T,
   #for each block... that is returned in gg.suimulated_beta...
   for(b in names(model$X$data)[names(model$X$data) %in% names(ggp.simulated_beta$plot)]){
 
-    new_observation[[b]] <- new_observation[[b]][,names(model$X$x.mean[[b]]),drop=F]
+    new_observation[[b]] <- new_observation[[b]][,names(model$X$x.mean[[b]]),drop = FALSE]
 
     if(!is.null(model$X$x.mean[[b]]) & !is.null(model$X$x.sd[[b]])){
       norm_patient[[b]] <- scale(new_observation[[b]], center = model$X$x.mean[[b]], scale = model$X$x.sd[[b]])
     }else if(!is.null(model$X$x.mean[[b]])){
-      norm_patient[[b]] <- scale(new_observation[[b]], center = model$X$x.mean[[b]], scale = F)
+      norm_patient[[b]] <- scale(new_observation[[b]], center = model$X$x.mean[[b]], scale = FALSE)
     }else if(!is.null(model$X$x.sd[[b]])){
-      norm_patient[[b]] <- scale(new_observation[[b]], center = F, scale = model$X$x.sd[[b]])
+      norm_patient[[b]] <- scale(new_observation[[b]], center = FALSE, scale = model$X$x.sd[[b]])
     }else{
       norm_patient <- new_observation
     }
@@ -3851,11 +3851,11 @@ plot_MB.pseudobeta.newPatient <- function(model, new_observation, error.bar = T,
     }
 
     #filter pat_variables using psudobeta plot (top could be applied)
-    lp.new_observation_variable[[b]] <- lp.new_observation_variable[[b]][rownames(ggp.simulated_beta$plot[[b]]$data),,drop=F]
-    lp.new_observation_variable.min <- lp.new_observation_variable.min[rownames(ggp.simulated_beta$plot[[b]]$data),,drop=F]
-    lp.new_observation_variable.max <- lp.new_observation_variable.max[rownames(ggp.simulated_beta$plot[[b]]$data),,drop=F]
+    lp.new_observation_variable[[b]] <- lp.new_observation_variable[[b]][rownames(ggp.simulated_beta$plot[[b]]$data),,drop = FALSE]
+    lp.new_observation_variable.min <- lp.new_observation_variable.min[rownames(ggp.simulated_beta$plot[[b]]$data),,drop = FALSE]
+    lp.new_observation_variable.max <- lp.new_observation_variable.max[rownames(ggp.simulated_beta$plot[[b]]$data),,drop = FALSE]
 
-    coefficients[[b]] <- coefficients[[b]][rownames(lp.new_observation_variable[[b]]),,drop=F]
+    coefficients[[b]] <- coefficients[[b]][rownames(lp.new_observation_variable[[b]]),,drop = FALSE]
 
     if(all(coefficients[[b]]==0)){
       message("No significant variables selected.")
@@ -3924,7 +3924,7 @@ plot_MB.pseudobeta.newPatient <- function(model, new_observation, error.bar = T,
     }
 
     if(requireNamespace("RColorConesa", quietly = TRUE)){
-      ggp <- ggp + RColorConesa::scale_fill_conesa(palette = "warm", continuous = T)
+      ggp <- ggp + RColorConesa::scale_fill_conesa(palette = "warm", continuous = TRUE)
     }
 
     ggp <- ggp + guides(color= "none")
@@ -3959,7 +3959,7 @@ plot_MB.pseudobeta.newPatient <- function(model, new_observation, error.bar = T,
       #overwriting fill generates a message
       suppressMessages({
         if(requireNamespace("RColorConesa", quietly = TRUE)){
-          ggp.aux <- ggp.aux + RColorConesa::scale_fill_conesa(reverse = T)
+          ggp.aux <- ggp.aux + RColorConesa::scale_fill_conesa(reverse = TRUE)
         }else{
           ggp.aux <- ggp.aux + scale_fill_discrete()
         }
@@ -4016,8 +4016,8 @@ plot_MB.pseudobeta.newPatient <- function(model, new_observation, error.bar = T,
 #' getAutoKM.list(type = "LP", lst_models)
 #' }
 
-getAutoKM.list <- function(type = "LP", lst_models, comp = 1:2, top = NULL, ori_data = T,
-                           BREAKTIME = NULL, n.breaks = 20, only_sig = F, alpha = 0.05, title = NULL,
+getAutoKM.list <- function(type = "LP", lst_models, comp = 1:2, top = NULL, ori_data = TRUE,
+                           BREAKTIME = NULL, n.breaks = 20, only_sig = FALSE, alpha = 0.05, title = NULL,
                            verbose = FALSE){
 
   #check names in lst_models
@@ -4102,8 +4102,8 @@ getAutoKM.list <- function(type = "LP", lst_models, comp = 1:2, top = NULL, ori_
 #' getAutoKM(type = "LP", model)
 #' }
 
-getAutoKM <- function(type = "LP", model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL,
-                      n.breaks = 20, only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
+getAutoKM <- function(type = "LP", model, comp = 1:2, top = 10, ori_data = TRUE, BREAKTIME = NULL,
+                      n.breaks = 20, only_sig = FALSE, alpha = 0.05, title = NULL, verbose = FALSE){
   if(!type %in% c("LP", "COMP", "VAR")){
     stop("Type parameters must be one of the following: LP, COMP or VAR")
   }
@@ -4129,8 +4129,8 @@ getAutoKM <- function(type = "LP", model, comp = 1:2, top = 10, ori_data = T, BR
   }
 }
 
-getLPKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, n.breaks = 20,
-                    only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
+getLPKM <- function(model, comp = 1:2, top = 10, ori_data = TRUE, BREAKTIME = NULL, n.breaks = 20,
+                    only_sig = FALSE, alpha = 0.05, title = NULL, verbose = FALSE){
 
   if(length(comp)==1){
     comp <- 1:comp
@@ -4186,8 +4186,8 @@ getLPKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL,
 
 }
 
-getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, n.breaks = 20,
-                      only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
+getCompKM <- function(model, comp = 1:2, top = 10, ori_data = TRUE, BREAKTIME = NULL, n.breaks = 20,
+                      only_sig = FALSE, alpha = 0.05, title = NULL, verbose = FALSE){
 
   if(length(comp)==1){
     comp <- 1:comp
@@ -4240,13 +4240,13 @@ getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NUL
   if(!attr(model, "model") %in% pkg.env$multiblock_methods){
     unique_vars <- deleteIllegalChars(unique(unlist(vars)))
     # vars %*% coeff to get component LP
-    cn_aux <- colnames(as.data.frame(model$X$scores[rownames(model$X$scores),unique_vars,drop=F]))
-    sc_aux <- as.data.frame(model$X$scores[rownames(model$X$scores),unique_vars,drop=F])
+    cn_aux <- colnames(as.data.frame(model$X$scores[rownames(model$X$scores),unique_vars,drop = FALSE]))
+    sc_aux <- as.data.frame(model$X$scores[rownames(model$X$scores),unique_vars,drop = FALSE])
     coeff_aux <- model$survival_model$fit$coefficients[cn_aux]
     if(length(names(coeff_aux))>1){
       vars_data <- NULL
       for(cn in colnames(sc_aux)){
-        vars_data <- cbind(vars_data, as.matrix(sc_aux[,cn,drop=F]) %*% coeff_aux[cn])
+        vars_data <- cbind(vars_data, as.matrix(sc_aux[,cn,drop = FALSE]) %*% coeff_aux[cn])
       }
       colnames(vars_data) <- names(unique_vars)
     }else{
@@ -4260,8 +4260,8 @@ getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NUL
       unique_vars <- deleteIllegalChars(unique(unlist(lst_vars[[b]])))
       if(length(unique_vars)==0){next}#no components selected
       if(attr(model, "model") %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox, pkg.env$isb.splsicox, pkg.env$isb.splsdrcox)){
-        cn_aux <- colnames(as.data.frame(model[[4]][[b]]$X$scores[rownames(model[[4]][[b]]$X$scores),unique_vars,drop=F]))
-        sc_aux <- as.data.frame(model[[4]][[b]]$X$scores[rownames(model[[4]][[b]]$X$scores),unique_vars,drop=F])
+        cn_aux <- colnames(as.data.frame(model[[4]][[b]]$X$scores[rownames(model[[4]][[b]]$X$scores),unique_vars,drop = FALSE]))
+        sc_aux <- as.data.frame(model[[4]][[b]]$X$scores[rownames(model[[4]][[b]]$X$scores),unique_vars,drop = FALSE])
         coeff_aux <- model$survival_model$fit$coefficients[paste0(cn_aux, "_", b)]
         if(length(names(coeff_aux))>1){
           vars_data[[b]] <- NULL
@@ -4271,7 +4271,7 @@ getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NUL
           new_coeff_names <- unlist(lapply(new_coeff_names, function(x){paste0(strsplit(x, "_")[[1]][1], "_", strsplit(x, "_")[[1]][2])}))
           for(cn in colnames(sc_aux)){
             idx <- which(new_coeff_names %in% cn)
-            vars_data[[b]] <- cbind(vars_data[[b]], as.matrix(sc_aux[,cn,drop=F]) %*% coeff_aux[idx])
+            vars_data[[b]] <- cbind(vars_data[[b]], as.matrix(sc_aux[,cn,drop = FALSE]) %*% coeff_aux[idx])
           }
           colnames(vars_data[[b]]) <- names(unique_vars)
         }else{
@@ -4279,8 +4279,8 @@ getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NUL
           colnames(vars_data[[b]]) <- names(unique_vars)
         }
       }else{
-        cn_aux <- colnames(as.data.frame(model$X$scores[[b]][rownames(model$X$scores[[b]]),unique_vars,drop=F]))
-        sc_aux <- as.data.frame(model$X$scores[[b]][rownames(model$X$scores[[b]]),unique_vars,drop=F])
+        cn_aux <- colnames(as.data.frame(model$X$scores[[b]][rownames(model$X$scores[[b]]),unique_vars,drop = FALSE]))
+        sc_aux <- as.data.frame(model$X$scores[[b]][rownames(model$X$scores[[b]]),unique_vars,drop = FALSE])
         coeff_aux <- model$survival_model$fit$coefficients[paste0(cn_aux, "_", b)]
         if(length(names(coeff_aux))>1){
           vars_data[[b]] <- NULL
@@ -4290,7 +4290,7 @@ getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NUL
           new_coeff_names <- unlist(lapply(new_coeff_names, function(x){paste0(strsplit(x, "_")[[1]][1], "_", strsplit(x, "_")[[1]][2])}))
           for(cn in colnames(sc_aux)){
             idx <- which(new_coeff_names %in% cn)
-            vars_data[[b]] <- cbind(vars_data[[b]], as.matrix(sc_aux[,cn,drop=F]) %*% coeff_aux[idx])
+            vars_data[[b]] <- cbind(vars_data[[b]], as.matrix(sc_aux[,cn,drop = FALSE]) %*% coeff_aux[idx])
           }
           colnames(vars_data[[b]]) <- names(unique_vars)
         }else{
@@ -4393,8 +4393,8 @@ getCompKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NUL
 
 }
 
-getLPVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, n.breaks = 20,
-                       only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
+getLPVarKM <- function(model, comp = 1:2, top = 10, ori_data = TRUE, BREAKTIME = NULL, n.breaks = 20,
+                       only_sig = FALSE, alpha = 0.05, title = NULL, verbose = FALSE){
 
   if(length(comp)==1){
     comp <- 1:comp
@@ -4413,9 +4413,9 @@ getLPVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NU
 
     #selecting pseudo betas
     pseudo_betas <- plot_pseudobeta(model = model,
-                                    error.bar = T, onlySig = only_sig, alpha = alpha,
-                                    zero.rm = F, auto.limits = F, top = top,
-                                    show_percentage = F, size_percentage = 3)
+                                    error.bar = TRUE, onlySig = only_sig, alpha = alpha,
+                                    zero.rm = FALSE, auto.limits = FALSE, top = top,
+                                    show_percentage = FALSE, size_percentage = 3)
     names_top <- pseudo_betas$plot$data$variables
     pseudo_betas$beta <- pseudo_betas$beta[names_top,]
 
@@ -4433,7 +4433,7 @@ getLPVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NU
 
     #in classical methods, select selected variables
     df <- as.data.frame(summary(model$survival_model$fit)[7]$coefficients)
-    vars <- rownames(df[order(df$`Pr(>|z|)`, decreasing = F),])[1:min(top, nrow(df))]
+    vars <- rownames(df[order(df$`Pr(>|z|)`, decreasing = FALSE),])[1:min(top, nrow(df))]
 
   }else if(attr(model, "model") %in% pkg.env$multiblock_methods){
 
@@ -4466,9 +4466,9 @@ getLPVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NU
   if(!attr(model, "model") %in% pkg.env$multiblock_methods){
     unique_vars <- deleteIllegalChars(unique(unlist(vars)))
     if(ori_data){
-      vars_data <- as.data.frame(model$X_input[rownames(model$X$data),unique_vars,drop=F])
+      vars_data <- as.data.frame(model$X_input[rownames(model$X$data),unique_vars,drop = FALSE])
     }else{
-      vars_data <- as.data.frame(model$X$data[,unique_vars,drop=F])
+      vars_data <- as.data.frame(model$X$data[,unique_vars,drop = FALSE])
     }
 
     vars_data <- as.data.frame(scale(vars_data, center = model$X$x.mean[unique_vars], scale = model$X$x.sd[unique_vars]))
@@ -4481,7 +4481,7 @@ getLPVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NU
 
       aux <- NULL
       for(cn in rownames(pseudo_betas$beta)){
-        aux <- cbind(aux, vars_data[,cn,drop=T] * pseudo_betas$beta[cn,]$value)
+        aux <- cbind(aux, vars_data[,cn,drop = TRUE] * pseudo_betas$beta[cn,]$value)
       }
       aux <- as.data.frame(aux)
       colnames(aux) <- rownames(pseudo_betas$beta)
@@ -4493,9 +4493,9 @@ getLPVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NU
     for(b in names(model$X$data)){
       unique_vars <- deleteIllegalChars(unique(unlist(lst_vars[[b]])))
       if(ori_data){
-        vars_data[[b]] <- as.data.frame(model$X_input[[b]][rownames(model$X$data[[b]]),unique_vars,drop=F])
+        vars_data[[b]] <- as.data.frame(model$X_input[[b]][rownames(model$X$data[[b]]),unique_vars,drop = FALSE])
       }else{
-        vars_data[[b]] <- as.data.frame(model$X$data[[b]][,unique_vars,drop=F])
+        vars_data[[b]] <- as.data.frame(model$X$data[[b]][,unique_vars,drop = FALSE])
       }
     }
   }
@@ -4506,8 +4506,8 @@ getLPVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NU
     }
 
     names_qual <- apply(vars_data, 2, function(x){all(x %in% c(0,1))})
-    vars_qual <- vars_data[,names_qual,drop=F]
-    vars_num <- vars_data[,!names_qual,drop=F]
+    vars_qual <- vars_data[,names_qual,drop = FALSE]
+    vars_num <- vars_data[,!names_qual,drop = FALSE]
 
     if(all(dim(vars_qual)>0)){
       for(cn in colnames(vars_qual)){vars_qual[,cn] <- factor(vars_qual[,cn], levels = c(0, 1))}
@@ -4528,8 +4528,8 @@ getLPVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NU
     vars_num <- list()
     for(b in names(model$X$data)){
       names_qual <- apply(vars_data[[b]], 2, function(x){all(x %in% c(0,1))})
-      vars_qual[[b]] <- vars_data[[b]][,names_qual,drop=F]
-      vars_num[[b]] <- vars_data[[b]][,!names_qual,drop=F]
+      vars_qual[[b]] <- vars_data[[b]][,names_qual,drop = FALSE]
+      vars_num[[b]] <- vars_data[[b]][,!names_qual,drop = FALSE]
 
       if(all(dim(vars_qual[[b]]))>0){
         for(cn in colnames(vars_qual[[b]])){vars_qual[[b]][,cn] <- factor(vars_qual[[b]][,cn], levels = c(0, 1))}
@@ -4637,8 +4637,8 @@ getLPVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NU
 
 }
 
-getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL, n.breaks = 20,
-                     only_sig = F, alpha = 0.05, title = NULL, verbose = FALSE){
+getVarKM <- function(model, comp = 1:2, top = 10, ori_data = TRUE, BREAKTIME = NULL, n.breaks = 20,
+                     only_sig = FALSE, alpha = 0.05, title = NULL, verbose = FALSE){
 
   if(length(comp)==1){
     comp <- 1:comp
@@ -4658,8 +4658,8 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
     vars <- list()
     for(c in comp){
       if(ncol(model$X$W.star)>=c){
-        rn <- rownames(model$X$W.star[model$X$W.star[,c]!=0,c,drop=F])
-        vars[[c]] <- rownames(model$X$W.star[rn,c,drop=F])[order(abs(model$X$W.star[rn,c]), decreasing = T)][1:min(top, length(rn))]
+        rn <- rownames(model$X$W.star[model$X$W.star[,c]!=0,c,drop = FALSE])
+        vars[[c]] <- rownames(model$X$W.star[rn,c,drop = FALSE])[order(abs(model$X$W.star[rn,c]), decreasing = TRUE)][1:min(top, length(rn))]
       }else{
         break
       }
@@ -4676,7 +4676,7 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
 
     #in classical methods, select selected variables
     df <- as.data.frame(summary(model$survival_model$fit)[7]$coefficients)
-    vars <- rownames(df[order(df$`Pr(>|z|)`, decreasing = F),])[1:min(top, nrow(df))]
+    vars <- rownames(df[order(df$`Pr(>|z|)`, decreasing = FALSE),])[1:min(top, nrow(df))]
 
   }else if(attr(model, "model") %in% pkg.env$multiblock_methods){
 
@@ -4698,8 +4698,8 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
         if(!is.null(aux$survival_model)){
           for(c in comp){
             if(ncol(aux$X$W.star)>=c){
-              rn <- rownames(aux$X$W.star[aux$X$W.star[,c]!=0,c,drop=F])
-              vars[[c]] <- rownames(aux$X$W.star[rn,,drop=F])[order(abs(aux$X$W.star[rn,c]), decreasing = T)][1:min(top, length(rn))]
+              rn <- rownames(aux$X$W.star[aux$X$W.star[,c]!=0,c,drop = FALSE])
+              vars[[c]] <- rownames(aux$X$W.star[rn,,drop = FALSE])[order(abs(aux$X$W.star[rn,c]), decreasing = TRUE)][1:min(top, length(rn))]
             }else{
               break
             }
@@ -4712,8 +4712,8 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
 
         for(c in comp){
           if(ncol(model$X$W.star[[b]])>=c){
-            rn <- rownames(model$X$W.star[[b]][model$X$W.star[[b]][,c]!=0,c,drop=F])
-            vars[[c]] <- rownames(model$X$W.star[[b]][rn,,drop=F])[order(abs(model$X$W.star[[b]][rn,c]), decreasing = T)][1:min(top, length(rn))]
+            rn <- rownames(model$X$W.star[[b]][model$X$W.star[[b]][,c]!=0,c,drop = FALSE])
+            vars[[c]] <- rownames(model$X$W.star[[b]][rn,,drop = FALSE])[order(abs(model$X$W.star[[b]][rn,c]), decreasing = TRUE)][1:min(top, length(rn))]
           }else{
             break
           }
@@ -4731,26 +4731,26 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
   if(!attr(model, "model") %in% pkg.env$multiblock_methods){
     unique_vars <- deleteIllegalChars(unique(unlist(vars)))
     if(ori_data){
-      vars_data <- as.data.frame(model$X_input[rownames(model$X$data),unique_vars,drop=F])
+      vars_data <- as.data.frame(model$X_input[rownames(model$X$data),unique_vars,drop = FALSE])
     }else{
-      vars_data <- as.data.frame(model$X$data[,unique_vars,drop=F])
+      vars_data <- as.data.frame(model$X$data[,unique_vars,drop = FALSE])
     }
   }else{
     vars_data <- list()
     for(b in names(model$X$data)){
       unique_vars <- deleteIllegalChars(unique(unlist(lst_vars[[b]])))
       if(ori_data){
-        vars_data[[b]] <- as.data.frame(model$X_input[[b]][rownames(model$X$data[[b]]),unique_vars,drop=F])
+        vars_data[[b]] <- as.data.frame(model$X_input[[b]][rownames(model$X$data[[b]]),unique_vars,drop = FALSE])
       }else{
-        vars_data[[b]] <- as.data.frame(model$X$data[[b]][,unique_vars,drop=F])
+        vars_data[[b]] <- as.data.frame(model$X$data[[b]][,unique_vars,drop = FALSE])
       }
     }
   }
 
   if(!attr(model, "model") %in% pkg.env$multiblock_methods){
     names_qual <- apply(vars_data, 2, function(x){all(x %in% c(0,1))})
-    vars_qual <- vars_data[,names_qual,drop=F]
-    vars_num <- vars_data[,!names_qual,drop=F]
+    vars_qual <- vars_data[,names_qual,drop = FALSE]
+    vars_num <- vars_data[,!names_qual,drop = FALSE]
 
     if(all(dim(vars_qual)>0)){
       for(cn in colnames(vars_qual)){vars_qual[,cn] <- factor(vars_qual[,cn], levels = c(0, 1))}
@@ -4772,8 +4772,8 @@ getVarKM <- function(model, comp = 1:2, top = 10, ori_data = T, BREAKTIME = NULL
     vars_num <- list()
     for(b in names(model$X$data)){
       names_qual <- apply(vars_data[[b]], 2, function(x){all(x %in% c(0,1))})
-      vars_qual[[b]] <- vars_data[[b]][,names_qual,drop=F]
-      vars_num[[b]] <- vars_data[[b]][,!names_qual,drop=F]
+      vars_qual[[b]] <- vars_data[[b]][,names_qual,drop = FALSE]
+      vars_num[[b]] <- vars_data[[b]][,!names_qual,drop = FALSE]
 
       if(all(dim(vars_qual[[b]]))>0){
         for(cn in colnames(vars_qual[[b]])){vars_qual[[b]][,cn] <- factor(vars_qual[[b]][,cn], levels = c(0, 1))}
@@ -4957,7 +4957,7 @@ getLogRank_NumVariables <- function(data, sdata, VAR_EVENT, name_data = NULL, mi
   LST_NVAR_SIG = NULL
   df_qualnumvars = NULL
   for(cn in colnames(data)){
-    variable <- data[,cn,drop=T]
+    variable <- data[,cn,drop = TRUE]
 
     auxData <- cbind(sdata, variable)
 
@@ -5134,7 +5134,7 @@ plot_survivalplot.qual <- function(data, sdata, cn_variables, name_data = NULL, 
                                       conf.int.style = "ribbon",
                                       conf.int.alpha = 0.25,
                                       xlim = c(0, round2any(max(aux$time), 5, ceiling)),
-                                      pval = T,
+                                      pval = TRUE,
                                       surv.median.line = "hv", # Add medians survival
                                       risk.table = TRUE,
                                       legend.title = cn_ori,
@@ -5167,7 +5167,7 @@ plot_survivalplot.qual <- function(data, sdata, cn_variables, name_data = NULL, 
                                     conf.int.style = "ribbon",
                                     conf.int.alpha = 0.25,
                                     xlim = c(0, round2any(max(sdata$time), 5, ceiling)),
-                                    pval = T,
+                                    pval = TRUE,
                                     surv.median.line = "hv", # Add medians survival
                                     risk.table = TRUE,
                                     title = "Survival Function",
@@ -5188,7 +5188,7 @@ plot_survivalplot.qual <- function(data, sdata, cn_variables, name_data = NULL, 
                                     conf.int.style = "ribbon",
                                     conf.int.alpha = 0.25,
                                     xlim = c(0, round2any(max(sdata$time), 5, ceiling)),
-                                    pval = T,
+                                    pval = TRUE,
                                     surv.median.line = "hv", # Add medians survival
                                     risk.table = TRUE,
                                     title = "Hazard Curve",
@@ -5209,7 +5209,7 @@ plot_survivalplot.qual <- function(data, sdata, cn_variables, name_data = NULL, 
                                     conf.int.style = "ribbon",
                                     conf.int.alpha = 0.25,
                                     xlim = c(0, round2any(max(sdata$time), 5, ceiling)),
-                                    pval = T,
+                                    pval = TRUE,
                                     surv.median.line = "hv", # Add medians survival
                                     risk.table = TRUE,
                                     xlab = "Time (Days)",
@@ -5345,8 +5345,8 @@ getCutoffAutoKM <- function(result){
 #' getTestKM.list(lst_models, X_test, Y_test, lst_cutoff)
 #' }
 
-getTestKM.list <- function(lst_models, X_test, Y_test, lst_cutoff, type = "LP", ori_data = T,
-                           BREAKTIME = NULL, n.breaks = 20, title = NULL, verbose = F){
+getTestKM.list <- function(lst_models, X_test, Y_test, lst_cutoff, type = "LP", ori_data = TRUE,
+                           BREAKTIME = NULL, n.breaks = 20, title = NULL, verbose = FALSE){
 
   #check names in lst_models
   lst_models <- checkModelNames(lst_models)
@@ -5450,7 +5450,7 @@ getTestKM.list <- function(lst_models, X_test, Y_test, lst_cutoff, type = "LP", 
 #' getTestKM(model, X_test, Y_test, cutoff)
 #' }
 
-getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, BREAKTIME = NULL,
+getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = TRUE, BREAKTIME = NULL,
                       n.breaks = 20, title = NULL){
 
   #### Check test times are less or equal than max train time:
@@ -5516,7 +5516,7 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
 
     #predict scores X_test
     test_score <- predict.Coxmos(model, newdata = X_test)
-    test_score <- test_score[,names(model$survival_model$fit$coefficients),drop=F]
+    test_score <- test_score[,names(model$survival_model$fit$coefficients),drop = FALSE]
     for(cn in names(model$survival_model$fit$coefficients)){
       # check only coef in final model
       if(!cn %in% names(model$survival_model$fit$coefficients)){
@@ -5524,7 +5524,7 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
       }
 
       #get LP for individual components
-      lst_test_lp[[cn]] <- test_score[,cn,drop=F] %*% model$survival_model$fit$coefficients[cn]
+      lst_test_lp[[cn]] <- test_score[,cn,drop = FALSE] %*% model$survival_model$fit$coefficients[cn]
       colnames(lst_test_lp[[cn]]) <- cn
 
       if(!cn %in% names(cutoff) || is.na(cutoff[[cn]])){
@@ -5593,16 +5593,16 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
       return(lst_ggp)
     }
 
-    X_test <- X_test[,names(cutoff),drop=F]
+    X_test <- X_test[,names(cutoff),drop = FALSE]
     lst_ggp <- NULL
 
     if(!ori_data){
       ori_names <- colnames(X_test)
-      c <- F
+      c <- FALSE
       if(!all(is.null(model$X$x.mean))){
         c <- model$X$x.mean[ori_names]
       }
-      s <- F
+      s <- FALSE
       if(!all(is.null(model$X$x.sd))){
         s <- model$X$x.sd[ori_names]
       }
@@ -5668,9 +5668,9 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = T, 
 #' plot_LP.multiplePatients.list(lst_models, new_data)
 #' }
 
-plot_LP.multiplePatients.list <- function(lst_models, new_data, error.bar = F, onlySig = T,
-                                          alpha = 0.05, zero.rm = T,
-                                          auto.limits = T, top = NULL){
+plot_LP.multiplePatients.list <- function(lst_models, new_data, error.bar = FALSE, onlySig = TRUE,
+                                          alpha = 0.05, zero.rm = TRUE,
+                                          auto.limits = TRUE, top = NULL){
 
   #check names in lst_models
   lst_models <- checkModelNames(lst_models)
@@ -5717,9 +5717,9 @@ plot_LP.multiplePatients.list <- function(lst_models, new_data, error.bar = F, o
 #' plot_LP.multiplePatients(model, new_data)
 #' }
 
-plot_LP.multiplePatients <- function(model, new_data, error.bar = F, onlySig = T, alpha = 0.05,
-                                     zero.rm = T,
-                                     auto.limits = T, top = NULL){
+plot_LP.multiplePatients <- function(model, new_data, error.bar = FALSE, onlySig = TRUE, alpha = 0.05,
+                                     zero.rm = TRUE,
+                                     auto.limits = TRUE, top = NULL){
 
   if(!isa(model,pkg.env$model_class)){
     message("Model must be an object of class Coxmos.")
@@ -5751,9 +5751,9 @@ plot_LP.multiplePatients <- function(model, new_data, error.bar = F, onlySig = T
   }
 }
 
-plot_classicalcox.comparePatients <- function(model, new_data, error.bar = F, onlySig = T,
-                                              alpha = 0.05, zero.rm = T,
-                                              auto.limits = T, top = NULL){
+plot_classicalcox.comparePatients <- function(model, new_data, error.bar = FALSE, onlySig = TRUE,
+                                              alpha = 0.05, zero.rm = TRUE,
+                                              auto.limits = TRUE, top = NULL){
 
   #DFCALLS
   value <- patients <- NULL
@@ -5761,15 +5761,15 @@ plot_classicalcox.comparePatients <- function(model, new_data, error.bar = F, on
   coefficients <- model$survival_model$fit$coefficients
   coefficients <- as.data.frame(coefficients)
   colnames(coefficients) <- "value"
-  coefficients <- coefficients[order(coefficients$value, decreasing = T),,drop=F]
+  coefficients <- coefficients[order(coefficients$value, decreasing = TRUE),,drop = FALSE]
 
   if(!is.null(top)){
     if(top < nrow(coefficients)){
       aux_df <- coefficients
-      aux_df[,"value"] <- abs(aux_df[,"value",drop=F])
-      aux_df <- aux_df[order(aux_df[,"value",drop=T], decreasing = T),,drop=F]
-      aux_df <- aux_df[1:top,,drop=F]
-      coefficients <- coefficients[rownames(coefficients) %in% rownames(aux_df),,drop=F]
+      aux_df[,"value"] <- abs(aux_df[,"value",drop = FALSE])
+      aux_df <- aux_df[order(aux_df[,"value",drop = TRUE], decreasing = TRUE),,drop = FALSE]
+      aux_df <- aux_df[1:top,,drop = FALSE]
+      coefficients <- coefficients[rownames(coefficients) %in% rownames(aux_df),,drop = FALSE]
     }
   }
 
@@ -5777,15 +5777,15 @@ plot_classicalcox.comparePatients <- function(model, new_data, error.bar = F, on
   if(!is.null(model$X$x.mean) & !is.null(model$X$x.sd)){
     norm_patient <- scale(new_data, center = model$X$x.mean, scale = model$X$x.sd)
   }else if(!is.null(model$X$x.mean)){
-    norm_patient <- scale(new_data, center = model$X$x.mean, scale = F)
+    norm_patient <- scale(new_data, center = model$X$x.mean, scale = FALSE)
   }else if(!is.null(model$X$x.sd)){
-    norm_patient <- scale(new_data, center = F, scale = model$X$x.sd)
+    norm_patient <- scale(new_data, center = FALSE, scale = model$X$x.sd)
   }else{
     norm_patient <- new_data
   }
 
   #lp.new_pat_manual <- norm_patient[,rownames(coefficients)] %*% coefficients #predict lp
-  lp.new_pat_variable <- apply(norm_patient[,deleteIllegalChars(rownames(coefficients)),drop=F], 1, function(x){
+  lp.new_pat_variable <- apply(norm_patient[,deleteIllegalChars(rownames(coefficients)),drop = FALSE], 1, function(x){
     x * coefficients$value #predict terms
   })
 
@@ -5806,13 +5806,13 @@ plot_classicalcox.comparePatients <- function(model, new_data, error.bar = F, on
 
   lp.new_pat_variable$var <- factor(lp.new_pat_variable$var, levels = unique(lp.new_pat_variable$var))
 
-  lp.new_pat_variable$lp.flag <- ifelse(lp.new_pat_variable$var == "linear predictor", T, F)
+  lp.new_pat_variable$lp.flag <- ifelse(lp.new_pat_variable$var == "linear predictor", TRUE, FALSE)
   lp.new_pat_variable$lp.flag <- factor(lp.new_pat_variable$lp.flag)
 
   lp.new_pat_variable$patients <- factor(lp.new_pat_variable$patients, levels = rownames(new_data))
 
   accuracy <- 0.1
-  auto.limits.flag = T
+  auto.limits.flag = TRUE
 
   df_cox_sd <- summary(model$survival_model$fit)[[7]][,"se(coef)"]
 
@@ -5821,8 +5821,8 @@ plot_classicalcox.comparePatients <- function(model, new_data, error.bar = F, on
   auto.limits <- NULL
   if(auto.limits.flag){
     if(!is.null(sd.min) & !is.null(sd.max)){
-      auto.limits_min <- round2any(x = max(c(abs(coefficients$value-sd.min$value),abs(lp.new_pat_variable[lp.new_pat_variable$lp.flag==T,]$value))), accuracy = accuracy, f = ceiling)
-      auto.limits_max <- round2any(x = max(c(abs(coefficients$value+sd.max$value),abs(lp.new_pat_variable[lp.new_pat_variable$lp.flag==T,]$value))), accuracy = accuracy, f = ceiling)
+      auto.limits_min <- round2any(x = max(c(abs(coefficients$value-sd.min$value),abs(lp.new_pat_variable[lp.new_pat_variable$lp.flag==TRUE,]$value))), accuracy = accuracy, f = ceiling)
+      auto.limits_max <- round2any(x = max(c(abs(coefficients$value+sd.max$value),abs(lp.new_pat_variable[lp.new_pat_variable$lp.flag==TRUE,]$value))), accuracy = accuracy, f = ceiling)
       auto.limits <- max(auto.limits_min, auto.limits_max)
     }else{
       auto.limits <- round2any(max(abs(lp.new_pat_variable$value)), accuracy = accuracy, f = ceiling)
@@ -5831,15 +5831,15 @@ plot_classicalcox.comparePatients <- function(model, new_data, error.bar = F, on
     auto.limits <- round2any(max(c(abs(sd.max), abs(sd.min), abs(lp.new_pat_variable$value))), accuracy = accuracy, f = ceiling)
   }
 
-  ggp <- ggplot(lp.new_pat_variable[lp.new_pat_variable$lp.flag==F,], aes(x = var, y = value, fill = patients)) +
+  ggp <- ggplot(lp.new_pat_variable[lp.new_pat_variable$lp.flag==FALSE,], aes(x = var, y = value, fill = patients)) +
     geom_bar(stat = "identity", position = "dodge") + xlab(label = "Variables")
-  ggp2 <- ggplot(lp.new_pat_variable[lp.new_pat_variable$lp.flag==T,], aes(x = var, y = value, fill = patients)) +
+  ggp2 <- ggplot(lp.new_pat_variable[lp.new_pat_variable$lp.flag==TRUE,], aes(x = var, y = value, fill = patients)) +
     geom_bar(stat = "identity", position = "dodge")
   #guides(color = "none")
 
   if(requireNamespace("RColorConesa", quietly = TRUE)){
-    ggp <- ggp + RColorConesa::scale_fill_conesa(palette = "complete", continuous = F)
-    ggp2 <- ggp2 + RColorConesa::scale_fill_conesa(palette = "complete", continuous = F)
+    ggp <- ggp + RColorConesa::scale_fill_conesa(palette = "complete", continuous = FALSE)
+    ggp2 <- ggp2 + RColorConesa::scale_fill_conesa(palette = "complete", continuous = FALSE)
   }
 
   if(!auto.limits.flag){
@@ -5868,9 +5868,9 @@ plot_classicalcox.comparePatients <- function(model, new_data, error.bar = F, on
   return(list(plot = pp, var.plot = res_all.plot, lp.plot = res_lp.plot, lp = lp.pats, lp.var = lp.new_pat_variable, norm_patients = norm_patient, patients = new_data))
 }
 
-plot_cox.comparePatients <- function(model, new_data, error.bar = F, onlySig = T, alpha = 0.05,
-                                     zero.rm = T,
-                                     auto.limits = T, top = NULL){
+plot_cox.comparePatients <- function(model, new_data, error.bar = FALSE, onlySig = TRUE, alpha = 0.05,
+                                     zero.rm = TRUE,
+                                     auto.limits = TRUE, top = NULL){
 
   #DFCALLS
   value <- patients <- NULL
@@ -5886,15 +5886,15 @@ plot_cox.comparePatients <- function(model, new_data, error.bar = F, onlySig = T
     return(NULL)
   }
 
-  coefficients <- coefficients[order(coefficients$value, decreasing = T),,drop=F]
+  coefficients <- coefficients[order(coefficients$value, decreasing = TRUE),,drop = FALSE]
 
   if(!is.null(top)){
     if(top < nrow(coefficients)){
       aux_df <- coefficients
-      aux_df[,"value"] <- abs(aux_df[,"value",drop=F])
-      aux_df <- aux_df[order(aux_df[,"value",drop=T], decreasing = T),,drop=F]
-      aux_df <- aux_df[1:top,,drop=F]
-      coefficients <- coefficients[rownames(coefficients) %in% rownames(aux_df),,drop=F]
+      aux_df[,"value"] <- abs(aux_df[,"value",drop = FALSE])
+      aux_df <- aux_df[order(aux_df[,"value",drop = TRUE], decreasing = TRUE),,drop = FALSE]
+      aux_df <- aux_df[1:top,,drop = FALSE]
+      coefficients <- coefficients[rownames(coefficients) %in% rownames(aux_df),,drop = FALSE]
     }
   }
 
@@ -5902,15 +5902,15 @@ plot_cox.comparePatients <- function(model, new_data, error.bar = F, onlySig = T
   if(!is.null(model$X$x.mean) & !is.null(model$X$x.sd)){
     norm_patient <- scale(new_data, center = model$X$x.mean, scale = model$X$x.sd)
   }else if(!is.null(model$X$x.mean)){
-    norm_patient <- scale(new_data, center = model$X$x.mean, scale = F)
+    norm_patient <- scale(new_data, center = model$X$x.mean, scale = FALSE)
   }else if(!is.null(model$X$x.sd)){
-    norm_patient <- scale(new_data, center = F, scale = model$X$x.sd)
+    norm_patient <- scale(new_data, center = FALSE, scale = model$X$x.sd)
   }else{
     norm_patient <- new_data
   }
 
   #lp.new_pat_manual <- norm_patient[,rownames(coefficients)] %*% coefficients #predict lp
-  lp.new_pat_variable <- apply(norm_patient[,deleteIllegalChars(rownames(coefficients)),drop=F], 1, function(x){
+  lp.new_pat_variable <- apply(norm_patient[,deleteIllegalChars(rownames(coefficients)),drop = FALSE], 1, function(x){
     x * coefficients$value #predict terms
   })
 
@@ -5931,20 +5931,20 @@ plot_cox.comparePatients <- function(model, new_data, error.bar = F, onlySig = T
 
   lp.new_pat_variable$var <- factor(lp.new_pat_variable$var, levels = unique(lp.new_pat_variable$var))
 
-  lp.new_pat_variable$lp.flag <- ifelse(lp.new_pat_variable$var == "linear predictor", T, F)
+  lp.new_pat_variable$lp.flag <- ifelse(lp.new_pat_variable$var == "linear predictor", TRUE, FALSE)
   lp.new_pat_variable$lp.flag <- factor(lp.new_pat_variable$lp.flag)
 
   lp.new_pat_variable$patients <- factor(lp.new_pat_variable$patients, levels = rownames(new_data))
 
   accuracy <- 0.1
-  auto.limits.flag = T
+  auto.limits.flag = TRUE
   sd.min <- ggp.simulated_beta$sd.min[rownames(coefficients),]
   sd.max <- ggp.simulated_beta$sd.max[rownames(coefficients),]
   auto.limits <- NULL
   if(auto.limits.flag){
     if(!is.null(sd.min) & !is.null(sd.max)){
-      auto.limits_min <- round2any(x = max(c(abs(coefficients$value-sd.min),abs(lp.new_pat_variable[lp.new_pat_variable$lp.flag==T,]$value))), accuracy = accuracy, f = ceiling)
-      auto.limits_max <- round2any(x = max(c(abs(coefficients$value+sd.max),abs(lp.new_pat_variable[lp.new_pat_variable$lp.flag==T,]$value))), accuracy = accuracy, f = ceiling)
+      auto.limits_min <- round2any(x = max(c(abs(coefficients$value-sd.min),abs(lp.new_pat_variable[lp.new_pat_variable$lp.flag==TRUE,]$value))), accuracy = accuracy, f = ceiling)
+      auto.limits_max <- round2any(x = max(c(abs(coefficients$value+sd.max),abs(lp.new_pat_variable[lp.new_pat_variable$lp.flag==TRUE,]$value))), accuracy = accuracy, f = ceiling)
       auto.limits <- max(auto.limits_min, auto.limits_max)
     }else{
       auto.limits <- round2any(max(abs(lp.new_pat_variable$value)), accuracy = accuracy, f = ceiling)
@@ -5953,15 +5953,15 @@ plot_cox.comparePatients <- function(model, new_data, error.bar = F, onlySig = T
     auto.limits <- round2any(max(c(abs(sd.max), abs(sd.min), abs(lp.new_pat_variable$value))), accuracy = accuracy, f = ceiling)
   }
 
-  ggp <- ggplot(lp.new_pat_variable[lp.new_pat_variable$lp.flag==F,], aes(x = var, y = value, fill = patients)) +
+  ggp <- ggplot(lp.new_pat_variable[lp.new_pat_variable$lp.flag==FALSE,], aes(x = var, y = value, fill = patients)) +
     geom_bar(stat = "identity", position = "dodge") + xlab(label = "Variables")
-  ggp2 <- ggplot(lp.new_pat_variable[lp.new_pat_variable$lp.flag==T,], aes(x = var, y = value, fill = patients)) +
+  ggp2 <- ggplot(lp.new_pat_variable[lp.new_pat_variable$lp.flag==TRUE,], aes(x = var, y = value, fill = patients)) +
     geom_bar(stat = "identity", position = "dodge")
   #guides(color = "none")
 
   if(requireNamespace("RColorConesa", quietly = TRUE)){
-    ggp <- ggp + RColorConesa::scale_fill_conesa(palette = "complete", continuous = F)
-    ggp2 <- ggp2 + RColorConesa::scale_fill_conesa(palette = "complete", continuous = F)
+    ggp <- ggp + RColorConesa::scale_fill_conesa(palette = "complete", continuous = FALSE)
+    ggp2 <- ggp2 + RColorConesa::scale_fill_conesa(palette = "complete", continuous = FALSE)
   }
 
   if(!auto.limits.flag){
@@ -5990,9 +5990,9 @@ plot_cox.comparePatients <- function(model, new_data, error.bar = F, onlySig = T
   return(list(plot = pp, var.plot = res_all.plot, lp.plot = res_lp.plot, lp = lp.pats, lp.var = lp.new_pat_variable, norm_patients = norm_patient, patients = new_data))
 }
 
-plot_MB.cox.comparePatients <- function(model, new_data, error.bar = F, onlySig = T, alpha = 0.05,
-                                        zero.rm = T,
-                                        auto.limits = T, top = NULL){
+plot_MB.cox.comparePatients <- function(model, new_data, error.bar = FALSE, onlySig = TRUE, alpha = 0.05,
+                                        zero.rm = TRUE,
+                                        auto.limits = TRUE, top = NULL){
 
   #DFCALLS
   value <- patients <- NULL
@@ -6012,7 +6012,7 @@ plot_MB.cox.comparePatients <- function(model, new_data, error.bar = F, onlySig 
 
   # blocks in ggp.simulated_beta$plot
   for(b in names(model$X$data)[names(model$X$data) %in% names(ggp.simulated_beta$plot)]){
-    coefficients <- lst_coefficients[[b]][order(lst_coefficients[[b]]$value, decreasing = T),,drop=F]
+    coefficients <- lst_coefficients[[b]][order(lst_coefficients[[b]]$value, decreasing = TRUE),,drop = FALSE]
 
     if(all(coefficients==0)){
       message("No significant variables selected.")
@@ -6022,10 +6022,10 @@ plot_MB.cox.comparePatients <- function(model, new_data, error.bar = F, onlySig 
     if(!is.null(top)){
       if(top < nrow(coefficients)){
         aux_df <- coefficients
-        aux_df[,"value"] <- abs(aux_df[,"value",drop=F])
-        aux_df <- aux_df[order(aux_df[,"value",drop=T], decreasing = T),,drop=F]
-        aux_df <- aux_df[1:top,,drop=F]
-        coefficients <- coefficients[rownames(coefficients) %in% rownames(aux_df),,drop=F]
+        aux_df[,"value"] <- abs(aux_df[,"value",drop = FALSE])
+        aux_df <- aux_df[order(aux_df[,"value",drop = TRUE], decreasing = TRUE),,drop = FALSE]
+        aux_df <- aux_df[1:top,,drop = FALSE]
+        coefficients <- coefficients[rownames(coefficients) %in% rownames(aux_df),,drop = FALSE]
       }
     }
 
@@ -6033,15 +6033,15 @@ plot_MB.cox.comparePatients <- function(model, new_data, error.bar = F, onlySig 
     if(!is.null(model$X$x.mean[[b]]) & !is.null(model$X$x.sd[[b]])){
       norm_patient <- scale(new_data[[b]][,names(model$X$x.mean[[b]])], center = model$X$x.mean[[b]], scale = model$X$x.sd[[b]])
     }else if(!is.null(model$X$x.mean[[b]])){
-      norm_patient <- scale(new_data[[b]][,names(model$X$x.mean[[b]])], center = model$X$x.mean[[b]], scale = F)
+      norm_patient <- scale(new_data[[b]][,names(model$X$x.mean[[b]])], center = model$X$x.mean[[b]], scale = FALSE)
     }else if(!is.null(model$X$x.sd[[b]])){
-      norm_patient <- scale(new_data[[b]][,names(model$X$x.sd[[b]])], center = F, scale = model$X$x.sd[[b]])
+      norm_patient <- scale(new_data[[b]][,names(model$X$x.sd[[b]])], center = FALSE, scale = model$X$x.sd[[b]])
     }else{
       norm_patient <- new_data[[b]]
     }
 
     #lp.new_pat_manual <- norm_patient[,rownames(coefficients)] %*% coefficients #predict lp
-    lp.new_pat_variable <- apply(norm_patient[,deleteIllegalChars(rownames(coefficients)),drop=F], 1, function(x){
+    lp.new_pat_variable <- apply(norm_patient[,deleteIllegalChars(rownames(coefficients)),drop = FALSE], 1, function(x){
       x * coefficients$value #predict terms
     })
 
@@ -6062,20 +6062,20 @@ plot_MB.cox.comparePatients <- function(model, new_data, error.bar = F, onlySig 
 
     lp.new_pat_variable$var <- factor(lp.new_pat_variable$var, levels = unique(lp.new_pat_variable$var))
 
-    lp.new_pat_variable$lp.flag <- ifelse(lp.new_pat_variable$var == "linear predictor", T, F)
+    lp.new_pat_variable$lp.flag <- ifelse(lp.new_pat_variable$var == "linear predictor", TRUE, FALSE)
     lp.new_pat_variable$lp.flag <- factor(lp.new_pat_variable$lp.flag)
 
     lp.new_pat_variable$patients <- factor(lp.new_pat_variable$patients, levels = rownames(new_data[[b]]))
 
     accuracy <- 0.1
-    auto.limits.flag = T
+    auto.limits.flag = TRUE
     sd.min <- ggp.simulated_beta$sd.min[[b]][rownames(coefficients),]
     sd.max <- ggp.simulated_beta$sd.max[[b]][rownames(coefficients),]
     auto.limits <- NULL
     if(auto.limits.flag){
       if(!is.null(sd.min) & !is.null(sd.max)){
-        auto.limits_min <- round2any(x = max(c(abs(coefficients$value-sd.min),abs(lp.new_pat_variable[lp.new_pat_variable$lp.flag==T,]$value))), accuracy = accuracy, f = ceiling)
-        auto.limits_max <- round2any(x = max(c(abs(coefficients$value+sd.max),abs(lp.new_pat_variable[lp.new_pat_variable$lp.flag==T,]$value))), accuracy = accuracy, f = ceiling)
+        auto.limits_min <- round2any(x = max(c(abs(coefficients$value-sd.min),abs(lp.new_pat_variable[lp.new_pat_variable$lp.flag==TRUE,]$value))), accuracy = accuracy, f = ceiling)
+        auto.limits_max <- round2any(x = max(c(abs(coefficients$value+sd.max),abs(lp.new_pat_variable[lp.new_pat_variable$lp.flag==TRUE,]$value))), accuracy = accuracy, f = ceiling)
         auto.limits <- max(auto.limits_min, auto.limits_max)
       }else{
         auto.limits <- round2any(max(abs(lp.new_pat_variable$value)), accuracy = accuracy, f = ceiling)
@@ -6084,15 +6084,15 @@ plot_MB.cox.comparePatients <- function(model, new_data, error.bar = F, onlySig 
       auto.limits <- round2any(max(c(abs(sd.max), abs(sd.min), abs(lp.new_pat_variable$value))), accuracy = accuracy, f = ceiling)
     }
 
-    ggp <- ggplot(lp.new_pat_variable[lp.new_pat_variable$lp.flag==F,], aes(x = var, y = value, fill = patients)) +
+    ggp <- ggplot(lp.new_pat_variable[lp.new_pat_variable$lp.flag==FALSE,], aes(x = var, y = value, fill = patients)) +
       geom_bar(stat = "identity", position = "dodge") + xlab(label = "Variables")
-    ggp2 <- ggplot(lp.new_pat_variable[lp.new_pat_variable$lp.flag==T,], aes(x = var, y = value, fill = patients)) +
+    ggp2 <- ggplot(lp.new_pat_variable[lp.new_pat_variable$lp.flag==TRUE,], aes(x = var, y = value, fill = patients)) +
       geom_bar(stat = "identity", position = "dodge")
     #guides(color = "none")
 
     if(requireNamespace("RColorConesa", quietly = TRUE)){
-      ggp <- ggp + RColorConesa::scale_fill_conesa(palette = "complete", continuous = F)
-      ggp2 <- ggp2 + RColorConesa::scale_fill_conesa(palette = "complete", continuous = F)
+      ggp <- ggp + RColorConesa::scale_fill_conesa(palette = "complete", continuous = FALSE)
+      ggp2 <- ggp2 + RColorConesa::scale_fill_conesa(palette = "complete", continuous = FALSE)
     }
 
     if(!auto.limits.flag){

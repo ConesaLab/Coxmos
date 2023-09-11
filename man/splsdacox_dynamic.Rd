@@ -15,10 +15,10 @@ splsdacox_dynamic(
   MIN_AUC_INCREASE = 0.01,
   x.center = TRUE,
   x.scale = FALSE,
-  remove_near_zero_variance = T,
-  remove_zero_variance = T,
+  remove_near_zero_variance = TRUE,
+  remove_zero_variance = TRUE,
   toKeep.zv = NULL,
-  remove_non_significant = F,
+  remove_non_significant = FALSE,
   alpha = 0.05,
   EVAL_METHOD = "AUC",
   pred.method = "cenROC",
@@ -26,8 +26,8 @@ splsdacox_dynamic(
   times = NULL,
   max_time_points = 15,
   MIN_EPV = 5,
-  returnData = T,
-  verbose = F
+  returnData = TRUE,
+  verbose = FALSE
 )
 }
 \arguments{

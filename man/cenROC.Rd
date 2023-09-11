@@ -5,7 +5,7 @@
 \title{Estimation of the time-dependent ROC curve for right censored survival data}
 \usage{
 cenROC(Y, M, censor, t, U = NULL, h = NULL, bw = "NR", method = "tra",
-    ktype = "normal", ktype1 = "normal", B = 0, alpha = 0.05, plot = F)
+    ktype = "normal", ktype1 = "normal", B = 0, alpha = 0.05, plot = FALSE)
 }
 \arguments{
 \item{Y}{The numeric vector of event-times or observed times.}

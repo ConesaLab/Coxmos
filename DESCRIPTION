@@ -4,8 +4,11 @@ Version: 0.4.0
 Authors@R: 
     person("Pedro", "Salguero Garcia", , "pedrosalguerog@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-1879-3374"))
-Maintainer: Pedro Salguero <pedrosalguerog@gmail.com>
-Description: Cox analysis for high dimensional and multiblock data. Coxmos proportionate a serie of classical COX, (s)PLS-COX and MB.(s)PLS-COX functions to manage and work with high dimensional data sets. Furthermore, cross validation, plots, and extra functions for the understanding of the results are provided.
+Maintainer: Pedro Salguero Garcia <pedrosalguerog@gmail.com>
+Description: This tool enables Cox survival analysis on high-dimensional and multiblock data. It 
+             offers functions for classical COX analysis (Cox, Stepwise and Elastic-Net), (s)PLS-COX, and 
+             MB.(s)PLS-COX. The software assists in managing high-dimensional datasets, provides cross-validation, 
+             generates plots, and delivers additional tools for result interpretation.
 URL: https://github.com/ConesaLab/Coxmos
 BugReports: https://github.com/ConesaLab/Coxmos/issues
 License: CC BY 4.0
@@ -33,7 +36,6 @@ Imports:
     survminer,
     tidyr,
     utils
-Remotes:
 Suggests:
     nsROC,
     smoothROCtime,
@@ -43,7 +45,6 @@ Suggests:
     knitr, 
     RColorConesa,
     rmarkdown
-Enhances:
 Depends: 
     R (>= 4.1.0),
     mixOmics (>= 6.18.1)

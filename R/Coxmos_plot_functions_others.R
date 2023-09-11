@@ -7,7 +7,7 @@
 #'
 #' @export
 
-loadingplot.Coxmos <- function(model, zero.rm = T, top = NULL, auto.limits = T){
+loadingplot.Coxmos <- function(model, zero.rm = TRUE, top = NULL, auto.limits = TRUE){
 
   if(!isa(model,pkg.env$model_class)){
     message("Model must be an object of class Coxmos.")
@@ -44,13 +44,13 @@ loadingplot.Coxmos <- function(model, zero.rm = T, top = NULL, auto.limits = T){
       if(top < nrow(df)){
         aux_df <- df
         aux_df$pp <- abs(aux_df$pp)
-        aux_df <- aux_df[order(aux_df$pp, decreasing = T),]
+        aux_df <- aux_df[order(aux_df$pp, decreasing = TRUE),]
         aux_df <- aux_df[1:top,]
         df <- df[df$variables %in% aux_df$variables,]
       }
     }
 
-    df <- df[order(df$pp, decreasing = T),]
+    df <- df[order(df$pp, decreasing = TRUE),]
 
     ggp <- NULL
     if(nrow(df)>limit_color){
@@ -116,7 +116,7 @@ loadingplot.Coxmos <- function(model, zero.rm = T, top = NULL, auto.limits = T){
 #'
 #' @export
 
-loadingplot.fromVector.Coxmos <- function(model, vector, zero.rm = F, top = NULL, auto.limits = T){
+loadingplot.fromVector.Coxmos <- function(model, vector, zero.rm = FALSE, top = NULL, auto.limits = TRUE){
 
   if(!isa(model,pkg.env$model_class)){
     message("Model must be an object of class Coxmos.")
@@ -153,13 +153,13 @@ loadingplot.fromVector.Coxmos <- function(model, vector, zero.rm = F, top = NULL
       if(top < nrow(df)){
         aux_df <- df
         aux_df$pp <- abs(aux_df$pp)
-        aux_df <- aux_df[order(aux_df$pp, decreasing = T),]
+        aux_df <- aux_df[order(aux_df$pp, decreasing = TRUE),]
         aux_df <- aux_df[1:top,]
         df <- df[df$variables %in% aux_df$variables,]
       }
     }
 
-    df <- df[order(df$pp, decreasing = T),]
+    df <- df[order(df$pp, decreasing = TRUE),]
 
     ggp <- NULL
     if(nrow(df)>limit_color){
@@ -223,7 +223,7 @@ loadingplot.fromVector.Coxmos <- function(model, vector, zero.rm = F, top = NULL
 #'
 #' @export
 
-w.starplot.Coxmos <- function(model, zero.rm = F, top = NULL, auto.limits = T){
+w.starplot.Coxmos <- function(model, zero.rm = FALSE, top = NULL, auto.limits = TRUE){
 
   if(!isa(model,pkg.env$model_class)){
     message("Model must be an object of class Coxmos.")
@@ -260,13 +260,13 @@ w.starplot.Coxmos <- function(model, zero.rm = F, top = NULL, auto.limits = T){
       if(top < nrow(df)){
         aux_df <- df
         aux_df$pp <- abs(aux_df$pp)
-        aux_df <- aux_df[order(aux_df$pp, decreasing = T),]
+        aux_df <- aux_df[order(aux_df$pp, decreasing = TRUE),]
         aux_df <- aux_df[1:top,]
         df <- df[df$variables %in% aux_df$variables,]
       }
     }
 
-    df <- df[order(df$pp, decreasing = T),]
+    df <- df[order(df$pp, decreasing = TRUE),]
 
     ggp <- NULL
     if(nrow(df)>limit_color){

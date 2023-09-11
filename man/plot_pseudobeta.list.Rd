@@ -6,15 +6,15 @@
 \usage{
 plot_pseudobeta.list(
   lst_models,
-  error.bar = T,
-  onlySig = F,
+  error.bar = TRUE,
+  onlySig = FALSE,
   alpha = 0.05,
-  zero.rm = T,
+  zero.rm = TRUE,
   top = NULL,
-  auto.limits = T,
-  show_percentage = T,
+  auto.limits = TRUE,
+  show_percentage = TRUE,
   size_percentage = 3,
-  verbose = F
+  verbose = FALSE
 )
 }
 \arguments{

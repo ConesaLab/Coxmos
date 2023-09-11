@@ -12,8 +12,8 @@ eval_Coxmos_model_per_variable(
   pred.attr = "mean",
   times = NULL,
   max_time_points = 15,
-  PARALLEL = F,
-  verbose = F
+  PARALLEL = FALSE,
+  verbose = FALSE
 )
 }
 \arguments{

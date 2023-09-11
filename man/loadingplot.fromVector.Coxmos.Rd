@@ -7,9 +7,9 @@
 loadingplot.fromVector.Coxmos(
   model,
   vector,
-  zero.rm = F,
+  zero.rm = FALSE,
   top = NULL,
-  auto.limits = T
+  auto.limits = TRUE
 )
 }
 \arguments{

@@ -10,7 +10,7 @@ getTestKM(
   Y_test,
   cutoff,
   type = "LP",
-  ori_data = T,
+  ori_data = TRUE,
   BREAKTIME = NULL,
   n.breaks = 20,
   title = NULL

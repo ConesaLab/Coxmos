@@ -4,7 +4,7 @@
 #'  The ROC curves can be either empirical (non-smoothed) or smoothed with/wtihout boundary correction. It also calculates the time-dependent area under the ROC curve (AUC).
 #'  Edited by Pedro Salguero to remove the PLOT argument.
 #' @usage cenROC(Y, M, censor, t, U = NULL, h = NULL, bw = "NR", method = "tra",
-#'     ktype = "normal", ktype1 = "normal", B = 0, alpha = 0.05, plot = F)
+#'     ktype = "normal", ktype1 = "normal", B = 0, alpha = 0.05, plot = FALSE)
 #' @param Y The numeric vector of event-times or observed times.
 #' @param M The numeric vector of marker values for which the time-dependent ROC curves is computed.
 #' @param censor The censoring indicator, \code{1} if event, \code{0} otherwise.
@@ -40,7 +40,7 @@
 #' @references Beyene, K. M. and El Ghouch A. (2020). Smoothed time-dependent ROC curves for right-censored survival data. \emph{submitted}.
 #' @references Sheather, S. J. and Jones, M. C. (1991). A Reliable data-based bandwidth selection method for kernel density estimation. \emph{Journal of the Royal Statistical Society}. Series B (Methodological) 53(3): 683–690.
 
-cenROC <- function(Y, M, censor, t, U = NULL, h = NULL, bw = "NR",  method = "tra", ktype = "normal", ktype1 = "normal", B = 0, alpha = 0.05, plot = F)
+cenROC <- function(Y, M, censor, t, U = NULL, h = NULL, bw = "NR",  method = "tra", ktype = "normal", ktype1 = "normal", B = 0, alpha = 0.05, plot = FALSE)
 {
   if (is.null(U)) {U <- seq(0, 1, length.out = 151)}
   if (!is.vector(Y, mode = "numeric") |
@@ -60,7 +60,7 @@ cenROC <- function(Y, M, censor, t, U = NULL, h = NULL, bw = "NR",  method = "tr
     aucb <- NULL
     rocb <- matrix(NA, nrow = length(U), ncol = B)
     for (i in 1:B){
-      bootsample <- sample(1:nrow(data), nrow(data), replace=TRUE)
+      bootsample <- sample(1:nrow(data), nrow(data), replace = TRUE)
       dat <- data[bootsample, ]
       Dt <- Csurv(Y = dat$Y, M = dat$M, censor = dat$cen, t = t, h = h, kernel = ktype1)$positive
       estim <- RocFun(U = U, D = Dt, M = dat$M, method = method, bw = bw, ktype = ktype)

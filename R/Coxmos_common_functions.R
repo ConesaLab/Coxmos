@@ -118,10 +118,10 @@ assign(x = 'IllegalChars', value = c("`"), pkg.env)
 #'
 #' @examples
 #' \dontrun{
-#' X.dummy <- factorToBinary(X, all = F, sep = "_")
-#' X.pls <- factorToBinary(X, all = T, sep = "_")
+#' X.dummy <- factorToBinary(X, all = FALSE, sep = "_")
+#' X.pls <- factorToBinary(X, all = TRUE, sep = "_")
 #' }
-factorToBinary <- function(X, all = T, sep = "_"){
+factorToBinary <- function(X, all = TRUE, sep = "_"){
 
   if(nrow(X)==0 | is.null(X)){
     return(X)
@@ -130,16 +130,16 @@ factorToBinary <- function(X, all = T, sep = "_"){
   binaryMatrix <- NULL
   options(na.action='na.pass')
   for(cn in colnames(X)){
-    variable <- X[, cn, drop=F]
+    variable <- X[, cn, drop = FALSE]
     colnames(variable) <- cn
     if(isa(variable[,cn], "factor")){
       if(all){
         form <- as.formula(paste0("~ ", cn, " + 0"))
-        binaryVariable <- model.matrix(form, data=variable)[,1:length(levels(variable[,1])), drop=F]
+        binaryVariable <- model.matrix(form, data=variable)[,1:length(levels(variable[,1])), drop = FALSE]
         colnames(binaryVariable) <- paste0(cn, sep, gsub(" ", "", levels(variable[,1])))
       }else{
         form <- as.formula(paste0("~ ", cn))
-        binaryVariable <- model.matrix(form, data=variable)[,2:length(levels(variable[,1])), drop=F]
+        binaryVariable <- model.matrix(form, data=variable)[,2:length(levels(variable[,1])), drop = FALSE]
         colnames(binaryVariable) <- paste0(cn, sep, gsub(" ", "", levels(variable[,1])[2:length(levels(variable[,1]))]))
       }
       if(is.null(binaryMatrix)){
@@ -257,18 +257,18 @@ print.Coxmos <- function(x, ...){
         if(c=="method"){
           next
         }else if(c=="time"){
-          time_vector <- levels(x$df[x$df$method==m,c,drop=T])
+          time_vector <- levels(x$df[x$df$method==m,c,drop = TRUE])
           time_vector <- unlist(lapply(time_vector, function(x){gsub("time_", "", x)[[1]]}))
           cat(paste0("\t",c,": ", paste0(time_vector, collapse = ", "), "\n"))
         }else if(c=="brier_time"){
-          time_vector <- levels(x$df[x$df$method==m,c,drop=T])
+          time_vector <- levels(x$df[x$df$method==m,c,drop = TRUE])
           time_vector <- unlist(lapply(time_vector, function(x){gsub("brier_time_", "", x)[[1]]}))
           cat(paste0("\t",c,": ", paste0(time_vector, collapse = ", "), "\n"))
         }else if(c=="Brier"){ #use integrative brier
           ave <- x$lst_BRIER[[m]]$ierror
           cat(paste0("\t","I.Brier",": ", round(ave, 5), "\n"))
         }else{
-          ave <- mean(x$df[x$df$method==m,c,drop=T], na.rm = T)
+          ave <- mean(x$df[x$df$method==m,c,drop = TRUE], na.rm = TRUE)
           cat(paste0("\t",c,": ", round(ave, 5), "\n"))
         }
 
@@ -354,32 +354,32 @@ getEPV <- function(X,Y){
 #' @examples
 #' \dontrun{
 #' # zero-variance variables
-#' deleteZeroOrNearZeroVariance(X, remove_near_zero_variance = F, remove_zero_variance = T)
+#' deleteZeroOrNearZeroVariance(X, remove_near_zero_variance = FALSE, remove_zero_variance = TRUE)
 #' # near-zero-variance variables
-#' deleteZeroOrNearZeroVariance(X, remove_near_zero_variance = T, remove_zero_variance = T)
+#' deleteZeroOrNearZeroVariance(X, remove_near_zero_variance = TRUE, remove_zero_variance = TRUE)
 #' }
 
-deleteZeroOrNearZeroVariance <- function(X, remove_near_zero_variance = F, remove_zero_variance = T,
+deleteZeroOrNearZeroVariance <- function(X, remove_near_zero_variance = FALSE, remove_zero_variance = TRUE,
                                          toKeep.zv = NULL, freqCut = 95/5){
 
   auxX <- X
 
   variablesDeleted <- NULL
 
-  lst.zv <- deleteZeroVarianceVariables(data = auxX, info = T, mustKeep = toKeep.zv,
-                                        onlyZero = ifelse(!remove_near_zero_variance & remove_zero_variance, T, F), freqCut = freqCut)
+  lst.zv <- deleteZeroVarianceVariables(data = auxX, info = TRUE, mustKeep = toKeep.zv,
+                                        onlyZero = ifelse(!remove_near_zero_variance & remove_zero_variance, TRUE, FALSE), freqCut = freqCut)
 
   variablesDeleted <- lst.zv$variablesDeleted[,1]
   if(!is.null(variablesDeleted)){
-    auxX <- auxX[,!colnames(auxX) %in% variablesDeleted,drop=F]
+    auxX <- auxX[,!colnames(auxX) %in% variablesDeleted,drop = FALSE]
   }
 
   return(list(X = auxX, variablesDeleted = variablesDeleted))
 
 }
 
-deleteZeroVarianceVariables <- function(data, mustKeep = NULL, names = NULL, info=T, freqCut = 95/5,
-                                        onlyZero = F){
+deleteZeroVarianceVariables <- function(data, mustKeep = NULL, names = NULL, info = TRUE, freqCut = 95/5,
+                                        onlyZero = FALSE){
 
   if(!is.null(names)){
     df <- data[[names]]
@@ -388,12 +388,12 @@ deleteZeroVarianceVariables <- function(data, mustKeep = NULL, names = NULL, inf
   }
 
   #Zero Var
-  nZ <- caret::nearZeroVar(x = df[,!colnames(df) %in% c("time", "event", "status")], saveMetrics = T, freqCut = freqCut) #to check if we have to do some changes in the data
+  nZ <- caret::nearZeroVar(x = df[,!colnames(df) %in% c("time", "event", "status")], saveMetrics = TRUE, freqCut = freqCut) #to check if we have to do some changes in the data
 
   if(onlyZero){
-    td <- rownames(nZ[nZ$zeroVar==T,])
+    td <- rownames(nZ[nZ$zeroVar==TRUE,])
   }else{
-    td <- rownames(nZ[nZ$nzv==T,])
+    td <- rownames(nZ[nZ$nzv==TRUE,])
   }
 
   #Do not delete
@@ -401,7 +401,7 @@ deleteZeroVarianceVariables <- function(data, mustKeep = NULL, names = NULL, inf
     td <- td[-which(td %in% mustKeep)]
   }
 
-  df <- df[,!colnames(df) %in% td, drop=F]
+  df <- df[,!colnames(df) %in% td, drop = FALSE]
 
   #df deleted
   df_cn_deleted <- NULL
@@ -492,9 +492,9 @@ getIndividualCox <- function(data, time_var = "time", event_var = "event", score
         if(is.null(score_data)){
           fit <- tryCatch(expr = {survival::coxph(survival::Surv(time = time,
                                                 event = event,
-                                                type = "right") ~ aux_data[,x_col,drop=T],
+                                                type = "right") ~ aux_data[,x_col,drop = TRUE],
                                  control = control,
-                                 singular.ok = T)},
+                                 singular.ok = TRUE)},
                           error = function(e){
                             if(verbose){
                             message(paste0("invidual_cox survival::coxph: ", e, " for variable: ", x_col))
@@ -504,9 +504,9 @@ getIndividualCox <- function(data, time_var = "time", event_var = "event", score
         }else{
           fit <- tryCatch(expr = {survival::coxph(survival::Surv(time = time,
                                                 event = event,
-                                                type = "right") ~ cbind(aux_data[,x_col,drop=T], score_data),
+                                                type = "right") ~ cbind(aux_data[,x_col,drop = TRUE], score_data),
                                  control = control,
-                                 singular.ok = T)},
+                                 singular.ok = TRUE)},
                           error = function(e){
                             if(verbose){
                               message(paste0("invidual_cox survival::coxph: ", e, " for variable: ", x_col))
@@ -549,7 +549,7 @@ getIndividualCox <- function(data, time_var = "time", event_var = "event", score
   }
 
   wh <- as.data.frame(wh)
-  wh <- wh[order(wh$p.val, decreasing = F),]
+  wh <- wh[order(wh$p.val, decreasing = FALSE),]
   return(wh)
 }
 
@@ -604,10 +604,10 @@ removeNAorINFcoxmodel <- function(model, data, time.value = NULL, event.value = 
         survival::coxph(formula = f,
                         data = data,
                         ties = "efron",
-                        singular.ok = T,
-                        robust = F,
+                        singular.ok = TRUE,
+                        robust = FALSE,
                         nocenter = rep(1, ncol(data)-2),
-                        model=T, x = T)
+                        model = TRUE, x = TRUE)
       },
       # Specifying error message
       error = function(e){
@@ -674,7 +674,7 @@ removeInfoSurvivalModel <- function(survival_model){
 deleteIllegalChars <- function(chr.vector){
   # v <- chr.vector
   # for(i in pkg.env$IllegalChars){
-  #   v <- unlist(sapply(v, function(x, i){gsub(i, "", x, fixed = T)}, i = i))
+  #   v <- unlist(sapply(v, function(x, i){gsub(i, "", x, fixed = TRUE)}, i = i))
   # }
   # return(v)
 
@@ -688,7 +688,7 @@ deleteIllegalChars <- function(chr.vector){
 }
 
 #only for FORMULAS
-transformIllegalChars <- function(cn, except = NULL, recover = F){
+transformIllegalChars <- function(cn, except = NULL, recover = FALSE){
   illegal_chars <- c(","," ", "-", "+", "*", ">", "<", ">=", "<=", "^", "/", "\\", ":", "|", "?")
   replacement <- c(".comma.",".space.", ".minus.", ".plus.", ".star.", ".over.", ".under.", ".over_equal.", ".under_equal.", ".power.", ".divided.", ".backslash.", ".twocolons.", ".verticalLine.", ".questionmark.")
 
@@ -736,7 +736,7 @@ stop_quietly <- function(s = NULL) {
   stop()
 }
 
-checkXY.rownames <- function(X, Y, verbose = F){
+checkXY.rownames <- function(X, Y, verbose = FALSE){
   if(!nrow(X)==nrow(Y)){
     stop("X and Y have different number of observations.")
   }
@@ -755,7 +755,7 @@ checkXY.rownames <- function(X, Y, verbose = F){
   return(list(X = X, Y = Y))
 }
 
-checkXY.class <- function(X, Y, verbose = F){
+checkXY.class <- function(X, Y, verbose = FALSE){
 
   rnX <- rownames(X)
   rnY <- rownames(Y)
@@ -804,7 +804,7 @@ checkFoldRuns <- function(Y, n_run, k_folds, fast_mode){
     }
     if(fast_mode){
       message("As you select 'leave one out' cross-validation. The 'fast_mode' is set to False.")
-      fast_mode = F #if loo, WE CANNOT USE FAST_MODE
+      fast_mode = FALSE #if loo, WE CANNOT USE FAST_MODE
     }
   }
   return(list("n_run" = n_run, "fast_mode" = fast_mode))
@@ -853,7 +853,7 @@ check_class <- function(lst, class = "numeric"){
 
   check_numeric <- unlist(lapply(lst, isa, class))
   if(!all(check_numeric)){
-    index <- which(check_numeric!=T)
+    index <- which(check_numeric!=TRUE)
     stop(paste0("Variables: ", paste0(names(check_numeric[index]), collapse = ", "), " are not ",class,". Class ", class(lst[[names(check_numeric[index])]]), " found."))
   }
 }
@@ -877,7 +877,7 @@ XY.scale <- function(X, Y, x.center, x.scale, y.center, y.scale){
   }
   # Centering and/or scaling
   if(y.center | y.scale){
-    Yh_time <- scale(Y[,"time", drop=F], center = y.center, scale = y.scale)
+    Yh_time <- scale(Y[,"time", drop = FALSE], center = y.center, scale = y.scale)
     Yh <- Y
     Yh[,"time"] <- Yh_time
   }else{
@@ -894,7 +894,7 @@ check.cv.weights <- function(vector){
   }
 }
 
-check.ncomp <- function(X, max.ncomp, verbose = F){
+check.ncomp <- function(X, max.ncomp, verbose = FALSE){
 
   if(length(max.ncomp)>1){
     stop("max.ncomp must be a number, not a vector")
@@ -913,7 +913,7 @@ check.ncomp <- function(X, max.ncomp, verbose = F){
   return(max.ncomp)
 }
 
-check.maxPredictors <- function(X, Y, MIN_EPV = 5, max.variables, verbose = F){
+check.maxPredictors <- function(X, Y, MIN_EPV = 5, max.variables, verbose = FALSE){
   max_n_predictors <- getMaxNPredictors(n.var = ncol(X), Y, MIN_EPV)
   max.variables.new <- max.variables
 
@@ -937,7 +937,7 @@ check.maxPredictors.cox <- function(X, Y, MIN_EPV = 5, FORCE){
   if(max_n_predictors==0){
     msg <- paste0("Less than ", MIN_EPV, " events per variable. Stop program.")
     message(msg)
-    return(F)
+    return(FALSE)
   }
 
   if(ncol(X) > max_n_predictors){
@@ -945,11 +945,11 @@ check.maxPredictors.cox <- function(X, Y, MIN_EPV = 5, FORCE){
       EPV <- getEPV(X, Y)
       msg <- paste0("The minimum EPV is not met by the ratio of Y events and the number of variables used in the final model. The X matrix should have a maximum of ", max_n_predictors, " variables, or the MIN_EPV parameter should be lowered to ", round(EPV, 4),".")
       message(msg)
-      return(F)
+      return(FALSE)
     }
-    return(T)
+    return(TRUE)
   }
-  return(T)
+  return(TRUE)
 }
 
 #### ## ### ## ### ##
@@ -1073,7 +1073,7 @@ removeNonSignificativeCox <- function(cox, alpha, cox_input, time.value = NULL, 
 
     to_remove <- names(which.max(p_val))
     to_remove <- deleteIllegalChars(to_remove)
-    d <- d[,!colnames(d) %in% c(to_remove),drop=F]
+    d <- d[,!colnames(d) %in% c(to_remove),drop = FALSE]
     d <- as.data.frame(d)
     cox <- tryCatch(
       # Specifying expression
@@ -1081,10 +1081,10 @@ removeNonSignificativeCox <- function(cox, alpha, cox_input, time.value = NULL, 
         survival::coxph(formula = survival::Surv(time,event) ~ .,
                         data = d,
                         ties = "efron",
-                        singular.ok = T,
-                        robust = T,
+                        singular.ok = TRUE,
+                        robust = TRUE,
                         nocenter = rep(1, ncol(d)-2), #2 == ncol(Yh)
-                        model=T, x = T)
+                        model = TRUE, x = TRUE)
       },
       # Specifying error message
       error = function(e){
@@ -1112,7 +1112,7 @@ removeNonSignificativeCox <- function(cox, alpha, cox_input, time.value = NULL, 
 
 getFAST_LP_AUC <- function(fast_mode, comp_index, eta_index = NULL, run, fold, X_test, Y_test,
                            lst_X_test, lst_Y_test, comp_model_lst, times = NULL, lst_linear.predictors,
-                           df_results_evals_AUC, pred.method, pred.attr, PARALLEL = F, verbose = F){
+                           df_results_evals_AUC, pred.method, pred.attr, PARALLEL = FALSE, verbose = FALSE){
   lst_linear.predictors <- NULL
   Y_test_full <- NULL
   lst_resCOMPLETE_LP <- getCOMPLETE_LP(comp_index = comp_index, eta_index = eta_index, run = run, fold = fold,
@@ -1232,7 +1232,7 @@ getCOMPLETE_BRIER <- function(comp_index, eta_index = NULL, run, fold, X_test, Y
     # but integrated error changes significantly
     # sometimes generate ibrier greater than 1!!!
 
-    #brier <- survAUC_BRIER(model, X_test, Y_test, times = brier_survcomp$times, raw_test = T)
+    #brier <- survAUC_BRIER(model, X_test, Y_test, times = brier_survcomp$times, raw_test = TRUE)
 
     ### ##
     # survcomp::sbrier.score2proba
@@ -1295,7 +1295,7 @@ getTimesVector <- function(Y, max_time_points = 15, ACCURACY = 0.001){
 }
 
 getCOMPLETE_LP_AUC <- function(Y_test_full, lst_linear.predictors, df_results_evals_AUC, times = NULL,
-                               pred.method, pred.attr, PARALLEL = F, max_time_points = 15, verbose = F){
+                               pred.method, pred.attr, PARALLEL = FALSE, max_time_points = 15, verbose = FALSE){
   #times
 
   ACCURACY <- 0.001 #!!! think to a best mode to select the best accuracy for each possible time
@@ -1415,7 +1415,7 @@ predict.Coxmos <- function(object, ..., newdata = NULL){
               }
             }
 
-            X_test[[b]] <- scale(newdata[[b]][,names(model$X$x.mean[[b]]),drop=F], center = center_value, scale = scale_value)
+            X_test[[b]] <- scale(newdata[[b]][,names(model$X$x.mean[[b]]),drop = FALSE], center = center_value, scale = scale_value)
           }
         }
       }else{
@@ -1433,7 +1433,7 @@ predict.Coxmos <- function(object, ..., newdata = NULL){
       #cn.merge <- c(cn.merge, paste0(colnames(model$list_spls_models[[b]]$X$W.star)[1:model$list_spls_models[[b]]$n.comp], "_", b))
     }
 
-    #colnames(predicted_scores) <- apply(expand.grid(colnames(model$list_spls_models[[1]]$X$W.star[,,drop=F]), names(model$list_spls_models)), 1, paste, collapse="_")
+    #colnames(predicted_scores) <- apply(expand.grid(colnames(model$list_spls_models[[1]]$X$W.star[,,drop = FALSE]), names(model$list_spls_models)), 1, paste, collapse="_")
     colnames(predicted_scores) <- cn.merge
 
     rn <- NULL
@@ -1495,7 +1495,7 @@ predict.Coxmos <- function(object, ..., newdata = NULL){
               }
             }
 
-            X_test[[b]] <- scale(newdata[[b]][,names(model$X$x.mean[[b]]),drop=F], center = center_value, scale = scale_value)
+            X_test[[b]] <- scale(newdata[[b]][,names(model$X$x.mean[[b]]),drop = FALSE], center = center_value, scale = scale_value)
           }
         }
       }else{
@@ -1517,7 +1517,7 @@ predict.Coxmos <- function(object, ..., newdata = NULL){
       }
     }
 
-    #colnames(predicted_scores) <- apply(expand.grid(colnames(model$list_spls_models[[1]]$X$W.star[,,drop=F]), names(model$list_spls_models)), 1, paste, collapse="_")
+    #colnames(predicted_scores) <- apply(expand.grid(colnames(model$list_spls_models[[1]]$X$W.star[,,drop = FALSE]), names(model$list_spls_models)), 1, paste, collapse="_")
     colnames(predicted_scores) <- cn.merge
 
     rn <- NULL
@@ -1585,7 +1585,7 @@ predict.Coxmos <- function(object, ..., newdata = NULL){
               }
             }
 
-            X_test[[b]] <- scale(newdata[[b]][,names(model$X$x.mean[[b]]),drop=F], center = center_value, scale = scale_value)
+            X_test[[b]] <- scale(newdata[[b]][,names(model$X$x.mean[[b]]),drop = FALSE], center = center_value, scale = scale_value)
           }
         }
       }else{
@@ -1600,7 +1600,7 @@ predict.Coxmos <- function(object, ..., newdata = NULL){
         }else{
           scale_value = x.sd
         }
-        X_test <- scale(newdata[,names(model$X$x.mean),drop=F], center = center_value, scale = scale_value)
+        X_test <- scale(newdata[,names(model$X$x.mean),drop = FALSE], center = center_value, scale = scale_value)
       }
     }else{
       if(attr(model, "model") %in% c(pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
@@ -1617,7 +1617,7 @@ predict.Coxmos <- function(object, ..., newdata = NULL){
 
   ### PLS METHODS
   if(attr(model, "model") %in% c(pkg.env$splsicox, pkg.env$splsdrcox, pkg.env$splsdrcox_dynamic, pkg.env$splsdacox_dynamic)){
-    X_test <- X_test[,rownames(model$X$W.star),drop=F] #splsdacox_dynamic can filter nzv, reason that different variables for W.star
+    X_test <- X_test[,rownames(model$X$W.star),drop = FALSE] #splsdacox_dynamic can filter nzv, reason that different variables for W.star
   }
 
   ### CLASSICAL METHODS
@@ -1629,7 +1629,7 @@ predict.Coxmos <- function(object, ..., newdata = NULL){
       stop("Not all coefficients are present in X matrix.")
     }
 
-    return(X_test[,coeff,drop=F]) #just return newdata scaled
+    return(X_test[,coeff,drop = FALSE]) #just return newdata scaled
   }
 
   ### MB METHODS
@@ -1649,7 +1649,7 @@ predict.Coxmos <- function(object, ..., newdata = NULL){
           stop("Not all coefficients are present in X matrix.")
         }
 
-        X_test[[b]] = X_test[[b]][,lst_coeff[[b]],drop=F]
+        X_test[[b]] = X_test[[b]][,lst_coeff[[b]],drop = FALSE]
       }
     }
   }
@@ -1673,7 +1673,7 @@ predict.Coxmos <- function(object, ..., newdata = NULL){
       if(b %in% names(X_test)){
 
         #Now, W.star has 0 for those variables have not be selected in each component
-        #lst_predicted_scores[[b]] <- X_test[[b]] %*% model$X$W.star[[b]][lst_coeff[[b]],,drop=F]
+        #lst_predicted_scores[[b]] <- X_test[[b]] %*% model$X$W.star[[b]][lst_coeff[[b]],,drop = FALSE]
         lst_predicted_scores[[b]] <- X_test[[b]] %*% model$X$W.star[[b]]
 
         #NORMALIZATION HAS TO BE PERFORM FOR MIXOMICS ALGORITHMS
@@ -1712,14 +1712,14 @@ check_AUC_improvement_spls1 <- function(fast_mode, pred.attr, df_results_evals_A
     ini <- ((eta_index-1)*n_run*k_folds+1)+((comp_index-1)*length(eta.list)*n_run*k_folds)
     end <- ((eta_index)*n_run*k_folds)+((comp_index-1)*length(eta.list)*n_run*k_folds)
     comp_AUC <- ifelse(pred.attr=="mean",
-                       mean(df_results_evals_AUC[ini:end], na.rm = T),
-                       median(df_results_evals_AUC[ini:end], na.rm = T))
+                       mean(df_results_evals_AUC[ini:end], na.rm = TRUE),
+                       median(df_results_evals_AUC[ini:end], na.rm = TRUE))
   }else{
     ini <- ((eta_index-1)*n_run+1)+((comp_index-1)*length(eta.list)*n_run)
     end <- ((eta_index)*n_run)+((comp_index-1)*length(eta.list)*n_run)
     comp_AUC <- ifelse(pred.attr=="mean",
-                       mean(df_results_evals_AUC[ini:end], na.rm = T),
-                       median(df_results_evals_AUC[ini:end], na.rm = T))
+                       mean(df_results_evals_AUC[ini:end], na.rm = TRUE),
+                       median(df_results_evals_AUC[ini:end], na.rm = TRUE))
   }
 
   ind <- as.character(eta.list[eta_index])
@@ -1783,14 +1783,14 @@ check_AUC_improvement <- function(fast_mode, pred.attr, df_results_evals_AUC, co
     ini <- (comp_index-1)*n_run*k_folds+1
     end <- comp_index*n_run*k_folds
     comp_AUC <- ifelse(pred.attr=="mean",
-                       mean(df_results_evals_AUC[ini:end], na.rm = T),
-                       median(df_results_evals_AUC[ini:end], na.rm = T))
+                       mean(df_results_evals_AUC[ini:end], na.rm = TRUE),
+                       median(df_results_evals_AUC[ini:end], na.rm = TRUE))
   }else{
     ini <- (comp_index-1)*n_run+1
     end <- comp_index*n_run
     comp_AUC <- ifelse(pred.attr=="mean",
-                       mean(df_results_evals_AUC[ini:end], na.rm = T),
-                       median(df_results_evals_AUC[ini:end], na.rm = T))
+                       mean(df_results_evals_AUC[ini:end], na.rm = TRUE),
+                       median(df_results_evals_AUC[ini:end], na.rm = TRUE))
   }
 
   lst_comp_AUC <- c(lst_comp_AUC, comp_AUC)
@@ -1831,7 +1831,7 @@ getAUC_RUN_AND_COMP <- function(mode = "AUC", fast_mode, max.ncomp, n_run,
                                 df_results_evals_comp, method.train = "other"){
 
   if(is.null(optimal_comp_flag)){
-    optimal_comp_flag <- F
+    optimal_comp_flag <- FALSE
   }
 
   if(is.null(optimal_comp_index)){
@@ -1867,7 +1867,7 @@ getAUC_RUN_AND_COMP <- function(mode = "AUC", fast_mode, max.ncomp, n_run,
         # DYNAMIC METHODS #
         ### ### ### ### ###
         if(method.train %in% c(pkg.env$splsdrcox_dynamic, pkg.env$splsdacox_dynamic, pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
-          eval_aux.r <- apply(aux.run[,!colnames(aux.run) %in% "n.var"], 2, function(x){mean(x, na.rm = T)})
+          eval_aux.r <- apply(aux.run[,!colnames(aux.run) %in% "n.var"], 2, function(x){mean(x, na.rm = TRUE)})
           eval_aux.r <- as.data.frame(t(eval_aux.r))
 
           eval_aux.nvar.r <- aux.run[,colnames(aux.run) %in% c("n.var")]
@@ -1884,7 +1884,7 @@ getAUC_RUN_AND_COMP <- function(mode = "AUC", fast_mode, max.ncomp, n_run,
             best_n_var = NULL
             best_n_var_c_index = 0
             for(lv in levels(sub_aux$n.var)){
-              aux_c <- mean(sub_aux[sub_aux$n.var==lv,]$c_index, rm.na=T)
+              aux_c <- mean(sub_aux[sub_aux$n.var==lv,]$c_index, rm.na = TRUE)
               if(aux_c > best_n_var_c_index){
                 best_n_var_c_index = aux_c
                 best_n_var = lv
@@ -1902,7 +1902,7 @@ getAUC_RUN_AND_COMP <- function(mode = "AUC", fast_mode, max.ncomp, n_run,
           }
           eval_aux.r <- eval_aux.r[,c(1,2,5,3,4)]
         }else{
-          eval_aux.r <- apply(aux.run, 2, function(x){mean(x, na.rm = T)})
+          eval_aux.r <- apply(aux.run, 2, function(x){mean(x, na.rm = TRUE)})
         }
 
         if(optimal_comp_flag & l.index > (optimal_comp_index+MIN_COMP_TO_CHECK)){
@@ -1942,7 +1942,7 @@ getAUC_RUN_AND_COMP <- function(mode = "AUC", fast_mode, max.ncomp, n_run,
       aux.l <- df_results_evals[which(df_results_evals$n.comps==l),!colnames(df_results_evals) %in% c("fold", "runs")]
 
       if(method.train %in% c(pkg.env$splsdrcox_dynamic, pkg.env$splsdacox_dynamic, pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
-        eval_aux <- apply(aux.l[,!colnames(aux.l) %in% "n.var"], 2, function(x){mean(x, na.rm = T)})
+        eval_aux <- apply(aux.l[,!colnames(aux.l) %in% "n.var"], 2, function(x){mean(x, na.rm = TRUE)})
         eval_aux <- as.data.frame(t(eval_aux))
         eval_aux.nvar <- aux.l[,colnames(aux.l) %in% c("n.var")]
         max_val <- max(table(eval_aux.nvar))
@@ -1957,7 +1957,7 @@ getAUC_RUN_AND_COMP <- function(mode = "AUC", fast_mode, max.ncomp, n_run,
           best_n_var = NULL
           best_n_var_c_index = 0
           for(lv in levels(sub_aux$n.var)){
-            aux_c <- mean(sub_aux[sub_aux$n.var==lv,]$c_index, rm.na=T)
+            aux_c <- mean(sub_aux[sub_aux$n.var==lv,]$c_index, rm.na = TRUE)
             if(aux_c > best_n_var_c_index){
               best_n_var_c_index = aux_c
               best_n_var = lv
@@ -1976,7 +1976,7 @@ getAUC_RUN_AND_COMP <- function(mode = "AUC", fast_mode, max.ncomp, n_run,
         }
         eval_aux <- eval_aux[,c(1,4,2,3)]
       }else{
-        eval_aux <- apply(aux.l, 2, function(x){mean(x, na.rm = T)})
+        eval_aux <- apply(aux.l, 2, function(x){mean(x, na.rm = TRUE)})
         m.freq_var <- as.numeric(names(table(aux.l$n.var)[table(aux.l$n.var) == max(table(aux.l$n.var))]))
         eval_aux[["n.var"]] <- min(m.freq_var) #in case of same quantity, get lower variables
       }
@@ -1991,11 +1991,11 @@ getAUC_RUN_AND_COMP <- function(mode = "AUC", fast_mode, max.ncomp, n_run,
           for(r in 1:n_run){
             AUC_v <- c(AUC_v, c(lst_AUC_component[[l.index]][[r]][[mode]])) #MEAN FOR ALL COMPONENTS
           }
-          AUC_mean <- mean(AUC_v, na.rm = T)
+          AUC_mean <- mean(AUC_v, na.rm = TRUE)
         }
         eval_aux[[mode]] <- AUC_mean
       }else if(mode=="BRIER"){
-        eval_aux[[mode]] <- mean(df_results_evals_run[df_results_evals_run[,"n.comps"] == l, "BRIER"], na.rm = T)
+        eval_aux[[mode]] <- mean(df_results_evals_run[df_results_evals_run[,"n.comps"] == l, "BRIER"], na.rm = TRUE)
       }
 
       df_results_evals_comp <- rbind(df_results_evals_comp, eval_aux)
@@ -2017,10 +2017,10 @@ getAUC_RUN_AND_COMP <- function(mode = "AUC", fast_mode, max.ncomp, n_run,
         eval_aux.r <- NULL
         for(r in unique(df_results_evals[df_results_evals$n.comps==l,]$runs)){
           aux.run <- df_results_evals[which(df_results_evals$n.comps==l & df_results_evals$runs==r),!colnames(df_results_evals) %in% c("fold")]
-          eval_aux.r <- apply(aux.run[,!colnames(aux.run) %in% "n.var"], 2, function(x){mean(x, na.rm = T)})
+          eval_aux.r <- apply(aux.run[,!colnames(aux.run) %in% "n.var"], 2, function(x){mean(x, na.rm = TRUE)})
 
           ## SELECT A SPECIFIC NUMBER OF VARIABLES (NOT MEAN)
-          eval_aux.nvar.r <- aux.run[,colnames(aux.run) %in% c("n.var"),drop=F]
+          eval_aux.nvar.r <- aux.run[,colnames(aux.run) %in% c("n.var"),drop = FALSE]
           max_val <- max(table(eval_aux.nvar.r))
           names_max <- names(table(eval_aux.nvar.r))[table(eval_aux.nvar.r)==max_val]
 
@@ -2035,7 +2035,7 @@ getAUC_RUN_AND_COMP <- function(mode = "AUC", fast_mode, max.ncomp, n_run,
             # best_n_var_c_index = 0 #c-index is higher better
             best_n_var_c_index = 1
             for(lv in levels(sub_aux$n.var)){
-              aux_c <- mean(sub_aux[sub_aux$n.var==lv,]$BRIER, rm.na=T)
+              aux_c <- mean(sub_aux[sub_aux$n.var==lv,]$BRIER, rm.na = TRUE)
               # if(aux_c > best_n_var_c_index){ #c-index is higher better
               if(aux_c < best_n_var_c_index){
                 best_n_var_c_index = aux_c
@@ -2061,7 +2061,7 @@ getAUC_RUN_AND_COMP <- function(mode = "AUC", fast_mode, max.ncomp, n_run,
         eval_aux.r <- NULL
         for(r in unique(df_results_evals[df_results_evals$n.comps==l,]$runs)){
           aux.run <- df_results_evals[which(df_results_evals$n.comps==l & df_results_evals$runs==r),!colnames(df_results_evals) %in% c("fold")]
-          eval_aux.r <- apply(aux.run, 2, function(x){mean(x, na.rm = T)})
+          eval_aux.r <- apply(aux.run, 2, function(x){mean(x, na.rm = TRUE)})
           df_results_evals_run <- rbind(df_results_evals_run, eval_aux.r)
         }
       }
@@ -2073,9 +2073,9 @@ getAUC_RUN_AND_COMP <- function(mode = "AUC", fast_mode, max.ncomp, n_run,
       # DYNAMIC METHODS #
       ### ### ### ### ###
       if(method.train %in% c(pkg.env$splsdrcox_dynamic, pkg.env$splsdacox_dynamic, pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
-        eval_aux <- apply(aux.l[,!colnames(aux.l) %in% "n.var"], 2, function(x){mean(x, na.rm = T)})
+        eval_aux <- apply(aux.l[,!colnames(aux.l) %in% "n.var"], 2, function(x){mean(x, na.rm = TRUE)})
         ## SELECT A SPECIFIC NUMBER OF VARIABLES (NOT MEAN)
-        eval_aux.nvar <- aux.l[,colnames(aux.l) %in% c("n.var"),drop=F]
+        eval_aux.nvar <- aux.l[,colnames(aux.l) %in% c("n.var"),drop = FALSE]
         max_val <- max(table(eval_aux.nvar))
         names_max <- names(table(eval_aux.nvar))[table(eval_aux.nvar)==max_val]
 
@@ -2090,7 +2090,7 @@ getAUC_RUN_AND_COMP <- function(mode = "AUC", fast_mode, max.ncomp, n_run,
           # best_n_var_c_index = 0
           best_n_var_c_index = 1
           for(lv in levels(sub_aux$n.var)){
-            aux_c <- mean(sub_aux[sub_aux$n.var==lv,]$BRIER, rm.na=T)
+            aux_c <- mean(sub_aux[sub_aux$n.var==lv,]$BRIER, rm.na = TRUE)
             # if(aux_c > best_n_var_c_index){
             if(aux_c < best_n_var_c_index){
               best_n_var_c_index = aux_c
@@ -2114,7 +2114,7 @@ getAUC_RUN_AND_COMP <- function(mode = "AUC", fast_mode, max.ncomp, n_run,
       ### ### ### ### #
       }else{
         aux.l <- df_results_evals[which(df_results_evals$n.comps==l),!colnames(df_results_evals) %in% c("fold", "runs")]
-        eval_aux <- apply(aux.l, 2, function(x){mean(x, na.rm = T)})
+        eval_aux <- apply(aux.l, 2, function(x){mean(x, na.rm = TRUE)})
       }
 
       # show NA values for components where AUC has not been computed
@@ -2125,7 +2125,7 @@ getAUC_RUN_AND_COMP <- function(mode = "AUC", fast_mode, max.ncomp, n_run,
         }else{
           AUC_v <- NULL
           auc_per_run <- df_results_evals_run[which(df_results_evals_run[,"n.comps"] == l),][,mode]
-          AUC_mean <- mean(auc_per_run, na.rm = T)
+          AUC_mean <- mean(auc_per_run, na.rm = TRUE)
         }
         eval_aux[[mode]] <- AUC_mean
       }
@@ -2175,7 +2175,7 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
                                      df_results_evals_comp, method.train){
 
   if(is.null(optimal_comp_flag)){
-    optimal_comp_flag <- F
+    optimal_comp_flag <- FALSE
   }
 
   if(is.null(optimal_comp_index)){
@@ -2213,7 +2213,7 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
           }
 
           if(method.train %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox, pkg.env$isb.splsicox, pkg.env$isb.splsdrcox)){
-            eval_aux.r <- apply(aux.run[,!colnames(aux.run) %in% c("n.var")], 2, function(x){mean(x, na.rm = T)})
+            eval_aux.r <- apply(aux.run[,!colnames(aux.run) %in% c("n.var")], 2, function(x){mean(x, na.rm = TRUE)})
             eval_aux.r <- as.data.frame(t(eval_aux.r))
 
             eval_aux.nvar.r <- aux.run[,colnames(aux.run) %in% c("n.var")]
@@ -2230,7 +2230,7 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
               best_n_var = NULL
               best_n_var_c_index = 0
               for(lv in levels(sub_aux$n.var)){
-                aux_c <- mean(sub_aux[sub_aux$n.var==lv,]$c_index, rm.na=T)
+                aux_c <- mean(sub_aux[sub_aux$n.var==lv,]$c_index, rm.na = TRUE)
                 if(aux_c > best_n_var_c_index){
                   best_n_var_c_index = aux_c
                   best_n_var = lv
@@ -2244,7 +2244,7 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
             eval_aux.r$n.var <- eval_aux.nvar.r
             eval_aux.r <- eval_aux.r[,c(1,2,3,6,4,5)]
           }else{
-            eval_aux.r <- apply(aux.run, 2, function(x){mean(x, na.rm = T)})
+            eval_aux.r <- apply(aux.run, 2, function(x){mean(x, na.rm = TRUE)})
           }
 
           if(optimal_comp_flag & l > (optimal_comp_index+MIN_COMP_TO_CHECK)){
@@ -2277,7 +2277,7 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
         aux.run <- df_results_evals[which(df_results_evals$n.comps==l & df_results_evals$eta==e),!colnames(df_results_evals) %in% c("fold", "runs")]
 
         if(method.train %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox, pkg.env$isb.splsicox, pkg.env$isb.splsdrcox)){
-          eval_aux.r <- apply(aux.run[,!colnames(aux.run) %in% c("n.var")], 2, function(x){mean(x, na.rm = T)})
+          eval_aux.r <- apply(aux.run[,!colnames(aux.run) %in% c("n.var")], 2, function(x){mean(x, na.rm = TRUE)})
           eval_aux.r <- as.data.frame(t(eval_aux.r))
 
           eval_aux.nvar.r <- aux.run[,colnames(aux.run) %in% c("n.var")]
@@ -2294,7 +2294,7 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
             best_n_var = NULL
             best_n_var_c_index = 0
             for(lv in levels(sub_aux$n.var)){
-              aux_c <- mean(sub_aux[sub_aux$n.var==lv,]$c_index, rm.na=T)
+              aux_c <- mean(sub_aux[sub_aux$n.var==lv,]$c_index, rm.na = TRUE)
               if(aux_c > best_n_var_c_index){
                 best_n_var_c_index = aux_c
                 best_n_var = lv
@@ -2308,7 +2308,7 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
           eval_aux.r$n.var <- eval_aux.nvar.r
           eval_aux.r <- eval_aux.r[,c(1,2,5,3,4)]
         }else{
-          eval_aux.r <- apply(aux.run, 2, function(x){mean(x, na.rm = T)})
+          eval_aux.r <- apply(aux.run, 2, function(x){mean(x, na.rm = TRUE)})
         }
 
         AUC_mean <- NULL
@@ -2332,7 +2332,7 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
               }
             }
           }
-          AUC_mean <- mean(AUC_v, na.rm = T)
+          AUC_mean <- mean(AUC_v, na.rm = TRUE)
         }
 
         eval_aux.r[[mode]] <- AUC_mean
@@ -2353,14 +2353,14 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
         if(method.train %in% c(pkg.env$splsicox, pkg.env$splsdrcox)){
           # EVAL PER COMPONENT
           aux <- df_results_evals[which(df_results_evals$n.comps==max.ncomp[[l]] & df_results_evals$eta==e),!colnames(df_results_evals) %in% c("fold", "runs")]
-          eval_aux <- apply(aux, 2, function(x){mean(x, na.rm = T)})
+          eval_aux <- apply(aux, 2, function(x){mean(x, na.rm = TRUE)})
           df_results_evals_comp <- rbind(df_results_evals_comp, eval_aux)
 
           # EVAL PER RUN
           eval_aux.r <- NULL
           for(r in unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$eta==e,]$runs)){
             aux.run <- df_results_evals[which(df_results_evals$n.comps==max.ncomp[[l]] & df_results_evals$eta==e & df_results_evals$runs==r),!colnames(df_results_evals) %in% c("fold")]
-            eval_aux.r <- apply(aux.run, 2, function(x){mean(x, na.rm = T)})
+            eval_aux.r <- apply(aux.run, 2, function(x){mean(x, na.rm = TRUE)})
             df_results_evals_run <- rbind(df_results_evals_run, eval_aux.r)
           }
         }else if(method.train %in% c(pkg.env$splsdrcox_dynamic, pkg.env$splsdacox_dynamic, pkg.env$sb.splsicox, pkg.env$isb.splsicox, pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
@@ -2520,7 +2520,7 @@ get_EVAL_PLOTS <- function(fast_mode, best_model_info, w_AUC, w_BRIER, max.ncomp
 get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = NULL,
                                           n_run, k_folds, total_models,
                                           remove_non_significant_models, alpha = 0.05,
-                                          verbose = F){
+                                          verbose = FALSE){
 
   if(length(max.ncomp)==1){
     max.ncomp <- 1:max.ncomp
@@ -2590,7 +2590,7 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
           df <- as.data.frame(summary(cox)[[7]])
 
           #delete models with non-significant components
-          if(remove_non_significant_models == T){
+          if(remove_non_significant_models == TRUE){
             if(any(df$`Pr(>|z|)`>alpha)){
               pb$tick()
               if(verbose){
@@ -2659,7 +2659,7 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
             df <- as.data.frame(summary(cox)[[7]])
 
             #delete models with non-significant components
-            if(remove_non_significant_models == T){
+            if(remove_non_significant_models == TRUE){
               if(any(df$`Pr(>|z|)`>alpha)){
                 pb$tick()
                 next
@@ -2709,7 +2709,7 @@ get_COX_evaluation_BRIER <- function(comp_model_lst,
                                      max.ncomp, n_run, k_folds,
                                      w_BRIER,
                                      MIN_AUC_INCREASE, MIN_AUC, MIN_COMP_TO_CHECK,
-                                     method.train, PARALLEL = F, verbose = F){
+                                     method.train, PARALLEL = FALSE, verbose = FALSE){
 
   if(length(max.ncomp)==1 & !method.train==pkg.env$coxEN){
     max.ncomp <- 1:max.ncomp
@@ -2817,7 +2817,7 @@ get_COX_evaluation_BRIER <- function(comp_model_lst,
           lst_train_LP <- c(lst_train_LP, lp_train)
 
           index_2_add <- which(!rownames(comp_model_lst[[l.index]][[r]][[f]]$Y$data) %in% rownames(lst_train_Y))
-          lst_train_Y <- rbind(lst_train_Y, comp_model_lst[[l.index]][[r]][[f]]$Y$data[index_2_add,,drop=F])
+          lst_train_Y <- rbind(lst_train_Y, comp_model_lst[[l.index]][[r]][[f]]$Y$data[index_2_add,,drop = FALSE])
 
           #classical/sPLS
           if(!isa(X_test, "list")){
@@ -2843,7 +2843,7 @@ get_COX_evaluation_BRIER <- function(comp_model_lst,
 
         mean_lp_train <- NULL
         for(i in unique(names(lst_test_LP))){
-          mean_lp_train <- c(mean_lp_train, mean(lst_train_LP[names(lst_train_LP) %in% i], na.rm = T))
+          mean_lp_train <- c(mean_lp_train, mean(lst_train_LP[names(lst_train_LP) %in% i], na.rm = TRUE))
         }
         names(mean_lp_train) <- unique(names(lst_test_LP))
         lst_train_Y <- lst_train_Y[names(mean_lp_train),]
@@ -2928,7 +2928,7 @@ get_COX_evaluation_BRIER_sPLS <- function(comp_model_lst,
                                           max.ncomp, eta.list, n_run, k_folds,
                                           w_BRIER,
                                           MIN_AUC_INCREASE, MIN_AUC, MIN_COMP_TO_CHECK, method.train,
-                                          PARALLEL = F, verbose = F){
+                                          PARALLEL = FALSE, verbose = FALSE){
 
   if(length(max.ncomp)==1 & !method.train==pkg.env$coxEN){
     max.ncomp <- 1:max.ncomp
@@ -3009,7 +3009,7 @@ get_COX_evaluation_BRIER_sPLS <- function(comp_model_lst,
         lst_BRIER_component_eta[[e]] <- lst_BRIER_component_run
 
         #CHECK AUC EVOLUTION PER COMPONENT
-        # lst_checkImprovement <- check_AUC_improvement(fast_mode = T, pred.attr = pred.attr, df_results_evals_AUC = df_results_evals_BRIER,
+        # lst_checkImprovement <- check_AUC_improvement(fast_mode = TRUE, pred.attr = pred.attr, df_results_evals_AUC = df_results_evals_BRIER,
         #                                               comp_index = l.index, n_run = n_run, k_folds = k_folds, lst_comp_AUC = lst_comp_BRIER,
         #                                               MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK, MIN_AUC = MIN_AUC, MIN_AUC_INCREASE = MIN_AUC_INCREASE, max.ncomp = max.ncomp, method.train = method.train)
         # optimal_comp_index <- lst_checkImprovement$optimal_comp_index
@@ -3070,7 +3070,7 @@ get_COX_evaluation_BRIER_sPLS <- function(comp_model_lst,
             lst_train_LP <- c(lst_train_LP, lp_train)
 
             index_2_add <- which(!rownames(comp_model_lst[[l.index]][[e]][[r]][[f]]$Y$data) %in% rownames(lst_train_Y))
-            lst_train_Y <- rbind(lst_train_Y, comp_model_lst[[l.index]][[e]][[r]][[f]]$Y$data[index_2_add,,drop=F])
+            lst_train_Y <- rbind(lst_train_Y, comp_model_lst[[l.index]][[e]][[r]][[f]]$Y$data[index_2_add,,drop = FALSE])
 
             #classical/sPLS
             if(!isa(X_test, "list")){
@@ -3096,7 +3096,7 @@ get_COX_evaluation_BRIER_sPLS <- function(comp_model_lst,
 
           mean_lp_train <- NULL
           for(i in unique(names(lst_test_LP))){
-            mean_lp_train <- c(mean_lp_train, mean(lst_train_LP[names(lst_train_LP) %in% i], na.rm = T))
+            mean_lp_train <- c(mean_lp_train, mean(lst_train_LP[names(lst_train_LP) %in% i], na.rm = TRUE))
           }
           names(mean_lp_train) <- unique(names(lst_test_LP))
           lst_train_Y <- lst_train_Y[names(mean_lp_train),]
@@ -3193,7 +3193,7 @@ get_COX_evaluation_AUC <- function(comp_model_lst,
                                    max.ncomp, n_run, k_folds,
                                    w_AUC,
                                    MIN_AUC_INCREASE, MIN_AUC, MIN_COMP_TO_CHECK, method.train,
-                                   PARALLEL = F, verbose = F){
+                                   PARALLEL = FALSE, verbose = FALSE){
 
   if(length(max.ncomp)==1 & !method.train==pkg.env$coxEN){
     max.ncomp <- 1:max.ncomp
@@ -3249,7 +3249,7 @@ get_COX_evaluation_AUC <- function(comp_model_lst,
                                             lst_X_test = lst_X_test, lst_Y_test = lst_Y_test, times = times,
                                             comp_model_lst = comp_model_lst, lst_linear.predictors = lst_linear.predictors,
                                             df_results_evals_AUC = df_results_evals_AUC,
-                                            pred.method = pred.method, pred.attr = pred.attr, PARALLEL = F, verbose = verbose)
+                                            pred.method = pred.method, pred.attr = pred.attr, PARALLEL = FALSE, verbose = verbose)
 
           lst_AUC_values <- lst_FAST_LP_AUC$lst_AUC_values
           df_results_evals_AUC <- lst_FAST_LP_AUC$df_results_evals_AUC
@@ -3403,7 +3403,7 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
                                         max.ncomp, eta.list, n_run, k_folds,
                                         w_AUC,
                                         MIN_AUC_INCREASE, MIN_AUC, MIN_COMP_TO_CHECK, method.train,
-                                        PARALLEL = F, verbose = F){
+                                        PARALLEL = FALSE, verbose = FALSE){
   #### ### #
   ## NOTE ##
   #### ### #
@@ -3674,31 +3674,31 @@ getSubModel <- function(model, comp, remove_non_significant){
 
   #X
   if("loadings" %in% names(res$X) && !all(is.na(res$X$loadings))){
-    res$X$loadings <- res$X$loadings[,1:min(ncol(res$X$loadings),comp), drop=F]
+    res$X$loadings <- res$X$loadings[,1:min(ncol(res$X$loadings),comp), drop = FALSE]
   }
 
   if("weightings" %in% names(res$X) && !all(is.na(res$X$weightings))){
-    res$X$weightings <- res$X$weightings[,1:min(ncol(res$X$loadings),comp), drop=F]
+    res$X$weightings <- res$X$weightings[,1:min(ncol(res$X$loadings),comp), drop = FALSE]
   }
 
   if("weightings_norm" %in% names(res$X) && !all(is.na(res$X$weightings_norm))){
-    res$X$weightings_norm <- res$X$weightings_norm[,1:min(ncol(res$X$loadings),comp), drop=F]
+    res$X$weightings_norm <- res$X$weightings_norm[,1:min(ncol(res$X$loadings),comp), drop = FALSE]
   }
 
   if("W.star" %in% names(res$X) && !all(is.na(res$X$W.star))){
-    res$X$W.star <- res$X$W.star[,1:min(ncol(res$X$loadings),comp), drop=F]
+    res$X$W.star <- res$X$W.star[,1:min(ncol(res$X$loadings),comp), drop = FALSE]
   }
 
   if("scores" %in% names(res$X) && !all(is.na(res$X$scores))){
-    res$X$scores <- res$X$scores[,1:min(ncol(res$X$loadings),comp), drop=F]
+    res$X$scores <- res$X$scores[,1:min(ncol(res$X$loadings),comp), drop = FALSE]
   }
 
   if("E" %in% names(res$X) && !all(is.na(res$X$E))){
-    res$X$E <- res$X$E[1:min(ncol(res$X$loadings),comp), drop=F]
+    res$X$E <- res$X$E[1:min(ncol(res$X$loadings),comp), drop = FALSE]
   }
 
   if("var_by_component" %in% names(res) && !all(is.na(res$var_by_component))){
-    res$var_by_component <- res$var_by_component[1:min(ncol(res$X$loadings),comp), drop=F]
+    res$var_by_component <- res$var_by_component[1:min(ncol(res$X$loadings),comp), drop = FALSE]
   }
 
   res$n.comp <- comp
@@ -3706,9 +3706,9 @@ getSubModel <- function(model, comp, remove_non_significant){
   #survival_model
   if(!all(is.na(res$X$scores)) & !all(is.na(res$Y$data))){
     cox_model <- cox(X = res$X$scores, Y = res$Y$data,
-                     x.center = F, x.scale = F,
-                     #y.center = F, y.scale = F,
-                     remove_non_significant = remove_non_significant, FORCE = T)
+                     x.center = FALSE, x.scale = FALSE,
+                     #y.center = FALSE, y.scale = FALSE,
+                     remove_non_significant = remove_non_significant, FORCE = TRUE)
     survival_model <- cox_model$survival_model
     res$survival_model <- survival_model
   }
@@ -3743,26 +3743,26 @@ getSubModel.mb <- function(model, comp, remove_non_significant){
       }else{
 
         if(!all(is.na(res$list_spls_models[[b]]$X$loadings))){
-          res$list_spls_models[[b]]$X$loadings <- res$list_spls_models[[b]]$X$loadings[,1:min(ncol(res$list_spls_models[[b]]$X$loadings),comp), drop=F]
+          res$list_spls_models[[b]]$X$loadings <- res$list_spls_models[[b]]$X$loadings[,1:min(ncol(res$list_spls_models[[b]]$X$loadings),comp), drop = FALSE]
         }
 
         if(!all(is.na(res$list_spls_models[[b]]$X$weightings))){
-          res$list_spls_models[[b]]$X$weightings <- res$list_spls_models[[b]]$X$weightings[,1:min(ncol(res$list_spls_models[[b]]$X$weightings),comp), drop=F]
+          res$list_spls_models[[b]]$X$weightings <- res$list_spls_models[[b]]$X$weightings[,1:min(ncol(res$list_spls_models[[b]]$X$weightings),comp), drop = FALSE]
         }
 
         if(!all(is.na(res$list_spls_models[[b]]$X$W.star))){
-          res$list_spls_models[[b]]$X$W.star <- res$list_spls_models[[b]]$X$W.star[,1:min(ncol(res$list_spls_models[[b]]$X$W.star),comp),drop=F]
+          res$list_spls_models[[b]]$X$W.star <- res$list_spls_models[[b]]$X$W.star[,1:min(ncol(res$list_spls_models[[b]]$X$W.star),comp),drop = FALSE]
         }
 
         if(!all(is.na(res$list_spls_models[[b]]$X$scores))){
-          res$list_spls_models[[b]]$X$scores <- res$list_spls_models[[b]]$X$scores[,1:min(ncol(res$list_spls_models[[b]]$X$scores),comp), drop=F]
+          res$list_spls_models[[b]]$X$scores <- res$list_spls_models[[b]]$X$scores[,1:min(ncol(res$list_spls_models[[b]]$X$scores),comp), drop = FALSE]
         }
 
         res$list_spls_models[[b]]$var_by_component <- res$list_spls_models[[b]]$var_by_component[1:min(ncol(res$list_spls_models[[b]]$X$scores),comp)]
         res$list_spls_models[[b]]$n.comp <- comp
 
         #survival_model
-        data <- as.data.frame(cbind(data, res$list_spls_models[[b]]$X$scores[,,drop=F]))
+        data <- as.data.frame(cbind(data, res$list_spls_models[[b]]$X$scores[,,drop = FALSE]))
         col_names <- c(col_names, paste0(colnames(res$list_spls_models[[b]]$X$scores), "_", b))
       }
 
@@ -3772,9 +3772,9 @@ getSubModel.mb <- function(model, comp, remove_non_significant){
       colnames(data) <- col_names
       #survival_model
       cox_model <- cox(X = data, Y = res$Y$data,
-                       x.center = F, x.scale = F,
-                       #y.center = F, y.scale = F,
-                       remove_non_significant = remove_non_significant, FORCE = T)
+                       x.center = FALSE, x.scale = FALSE,
+                       #y.center = FALSE, y.scale = FALSE,
+                       remove_non_significant = remove_non_significant, FORCE = TRUE)
       survival_model <- cox_model$survival_model
 
       res$survival_model <- survival_model
@@ -3795,26 +3795,26 @@ getSubModel.mb <- function(model, comp, remove_non_significant){
       }else{
 
         if(!all(is.na(res$list_spls_models[[b]]$X$loadings))){
-          res$list_spls_models[[b]]$X$loadings <- res$list_spls_models[[b]]$X$loadings[,1:min(ncol(res$list_spls_models[[b]]$X$loadings),comp), drop=F]
+          res$list_spls_models[[b]]$X$loadings <- res$list_spls_models[[b]]$X$loadings[,1:min(ncol(res$list_spls_models[[b]]$X$loadings),comp), drop = FALSE]
         }
 
         if(!all(is.na(res$list_spls_models[[b]]$X$weightings))){
-          res$list_spls_models[[b]]$X$weightings <- res$list_spls_models[[b]]$X$weightings[,1:min(ncol(res$list_spls_models[[b]]$X$weightings),comp), drop=F]
+          res$list_spls_models[[b]]$X$weightings <- res$list_spls_models[[b]]$X$weightings[,1:min(ncol(res$list_spls_models[[b]]$X$weightings),comp), drop = FALSE]
         }
 
         if(!all(is.na(res$list_spls_models[[b]]$X$W.star))){
-          res$list_spls_models[[b]]$X$W.star <- res$list_spls_models[[b]]$X$W.star[,1:min(ncol(res$list_spls_models[[b]]$X$W.star),comp),drop=F]
+          res$list_spls_models[[b]]$X$W.star <- res$list_spls_models[[b]]$X$W.star[,1:min(ncol(res$list_spls_models[[b]]$X$W.star),comp),drop = FALSE]
         }
 
         if(!all(is.na(res$list_spls_models[[b]]$X$scores))){
-          res$list_spls_models[[b]]$X$scores <- res$list_spls_models[[b]]$X$scores[,1:min(ncol(res$list_spls_models[[b]]$X$scores),comp), drop=F]
+          res$list_spls_models[[b]]$X$scores <- res$list_spls_models[[b]]$X$scores[,1:min(ncol(res$list_spls_models[[b]]$X$scores),comp), drop = FALSE]
         }
 
         res$list_spls_models[[b]]$var_by_component <- res$list_spls_models[[b]]$var_by_component[1:min(ncol(res$list_spls_models[[b]]$X$scores),comp)]
         res$list_spls_models[[b]]$n.comp <- comp
 
         #survival_model
-        data <- as.data.frame(cbind(data, res$list_spls_models[[b]]$X$scores[,,drop=F]))
+        data <- as.data.frame(cbind(data, res$list_spls_models[[b]]$X$scores[,,drop = FALSE]))
         col_names <- c(col_names, paste0(colnames(res$list_spls_models[[b]]$X$scores), "_", b))
       }
     }
@@ -3823,9 +3823,9 @@ getSubModel.mb <- function(model, comp, remove_non_significant){
       colnames(data) <- col_names
       #survival_model
       cox_model <- cox(X = data, Y = res$Y$data,
-                       x.center = F, x.scale = F,
-                       #y.center = F, y.scale = F,
-                       remove_non_significant = remove_non_significant, FORCE = T)
+                       x.center = FALSE, x.scale = FALSE,
+                       #y.center = FALSE, y.scale = FALSE,
+                       remove_non_significant = remove_non_significant, FORCE = TRUE)
       survival_model <- cox_model$survival_model
 
       res$survival_model <- survival_model
@@ -3839,32 +3839,32 @@ getSubModel.mb <- function(model, comp, remove_non_significant){
     for(b in names(model$mb.model$X)){
 
       if(b %in% names(res$X$loadings) && !all(is.na(res$X$loadings[[b]]))){
-        res$X$loadings[[b]] <- res$X$loadings[[b]][,1:min(ncol(res$X$loadings[[b]]),comp), drop=F]
+        res$X$loadings[[b]] <- res$X$loadings[[b]][,1:min(ncol(res$X$loadings[[b]]),comp), drop = FALSE]
       }
       if(b %in% names(res$X$weightings) && !all(is.na(res$X$weightings[[b]]))){
-        res$X$weightings[[b]] <- res$X$weightings[[b]][,1:min(ncol(res$X$weightings[[b]]),comp), drop=F]
+        res$X$weightings[[b]] <- res$X$weightings[[b]][,1:min(ncol(res$X$weightings[[b]]),comp), drop = FALSE]
       }
       if(b %in% names(res$X$W.star) && !all(is.na(res$X$W.star[[b]]))){
-        res$X$W.star[[b]] <- res$X$W.star[[b]][,1:min(ncol(res$X$W.star[[b]]),comp),drop=F]
+        res$X$W.star[[b]] <- res$X$W.star[[b]][,1:min(ncol(res$X$W.star[[b]]),comp),drop = FALSE]
       }
       if(b %in% names(res$X$scores) && !all(is.na(res$X$scores[[b]]))){
-        res$X$scores[[b]] <- res$X$scores[[b]][,1:min(ncol(res$X$scores[[b]]),comp), drop=F]
+        res$X$scores[[b]] <- res$X$scores[[b]][,1:min(ncol(res$X$scores[[b]]),comp), drop = FALSE]
       }
 
     }
 
     #survival_model
-    data <- as.data.frame(res$X$scores[[1]][,,drop=F])
+    data <- as.data.frame(res$X$scores[[1]][,,drop = FALSE])
     for(b in names(res$X$scores)[2:length(res$X$scores)]){
-      data <- cbind(data, as.data.frame(res$X$scores[[b]][,,drop=F]))
+      data <- cbind(data, as.data.frame(res$X$scores[[b]][,,drop = FALSE]))
     }
 
     colnames(data) <- apply(expand.grid(colnames(res$X$scores[[1]]), names(res$X$scores)), 1, paste, collapse="_")
     #survival_model
     cox_model <- cox(X = data, Y = res$Y$data,
-                     x.center = F, x.scale = F,
-                     #y.center = F, y.scale = F,
-                     remove_non_significant = remove_non_significant, FORCE = T)
+                     x.center = FALSE, x.scale = FALSE,
+                     #y.center = FALSE, y.scale = FALSE,
+                     remove_non_significant = remove_non_significant, FORCE = TRUE)
 
     survival_model <- cox_model$survival_model
 
@@ -3888,12 +3888,12 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
                                 n.cut_points = 5, EVAL_METHOD = "AUC",
                                 x.center, x.scale,
                                 y.center, y.scale,
-                                remove_near_zero_variance = F, remove_zero_variance = F,
+                                remove_near_zero_variance = FALSE, remove_zero_variance = FALSE,
                                 toKeep.zv = NULL,
-                                remove_non_significant = F,
-                                alpha = 0.05, max.iter = 500, returnData = F,
-                                total_models, MIN_EPV = 0, tol = 1e-10, PARALLEL = F,
-                                verbose = F){
+                                remove_non_significant = FALSE,
+                                alpha = 0.05, max.iter = 500, returnData = FALSE,
+                                total_models, MIN_EPV = 0, tol = 1e-10, PARALLEL = FALSE,
+                                verbose = FALSE){
 
   comp_model_lst <- list()
   fold_list <- list()
@@ -4500,8 +4500,8 @@ getBetasFromCOXNET <- function(fit, bestFitModelIndex){
   return(betas)
 }
 
-getLinealPredictors <- function(cox, data, bestModel = NULL, lp_per_variable = F, center=T,
-                                scale=F){
+getLinealPredictors <- function(cox, data, bestModel = NULL, lp_per_variable = FALSE, center = TRUE,
+                                scale = FALSE){
 
   if(all(is.na(cox)) | all(is.null(cox))){
     return(rep(NA, nrow(data)))
@@ -4516,22 +4516,22 @@ getLinealPredictors <- function(cox, data, bestModel = NULL, lp_per_variable = F
   if(c=="coxph"){
     lst_cn <- attr(cox$terms, which = "term.labels")
     lst_cn <- unlist(lapply(lst_cn, function(x){gsub('`',"",x)})) #remove forbiddent characters {`}
-    d <- as.data.frame(data[,lst_cn,drop=F])
+    d <- as.data.frame(data[,lst_cn,drop = FALSE])
 
     lp <- predict(object = cox, newdata = d,
                   type="lp",
-                  se.fit=T, na.action=na.pass, reference=c("strata"))
+                  se.fit = TRUE, na.action=na.pass, reference=c("strata"))
 
     if(lp_per_variable){
       lst_lp <- list()
       lst_lp[["LP"]] <- lp$fit
       for(var in names(cox$coefficients)){
-        lst_lp[[var]] <- drop(as.matrix(d[,var,drop=F]) %*% cox$coefficients[var])
+        lst_lp[[var]] <- drop(as.matrix(d[,var,drop = FALSE]) %*% cox$coefficients[var])
       }
     }
 
     # lp <- tryCatch({ #si warning, stop
-    #   apply(data[,!colnames(data) %in% c("time","event","status"),drop=F], 1, function(x) sum(t((x-cox$means)*cox$coefficients))) #X*betas but they are centered
+    #   apply(data[,!colnames(data) %in% c("time","event","status"),drop = FALSE], 1, function(x) sum(t((x-cox$means)*cox$coefficients))) #X*betas but they are centered
     #
     #   #save the error
     #   warning=function(cond) {
@@ -4540,10 +4540,10 @@ getLinealPredictors <- function(cox, data, bestModel = NULL, lp_per_variable = F
     #   }
     # })
 
-    #lp <- apply(data[,!colnames(data) %in% c("time","event","status"),drop=F], 1, function(x) sum(t((x-cox$means)*cox$coefficients))) #X*betas but they are centered
+    #lp <- apply(data[,!colnames(data) %in% c("time","event","status"),drop = FALSE], 1, function(x) sum(t((x-cox$means)*cox$coefficients))) #X*betas but they are centered
   }else if(c=="coxnet"){
     betas <- getBetasFromCOXNET(cox, bestModel)
-    lp <- apply(data[,!colnames(data) %in% c("time","event","status"),drop=F], 1, function(x) sum(t(x*betas)))
+    lp <- apply(data[,!colnames(data) %in% c("time","event","status"),drop = FALSE], 1, function(x) sum(t(x*betas)))
   }
 
   if(!lp_per_variable){
@@ -4561,7 +4561,7 @@ getLinealPredictors <- function(cox, data, bestModel = NULL, lp_per_variable = F
 
 }
 
-getVectorCuts <- function(vector, cut_points, verbose = F){
+getVectorCuts <- function(vector, cut_points, verbose = FALSE){
 
   times = NULL
   if(length(vector)==1){
@@ -4591,7 +4591,7 @@ getVectorCuts <- function(vector, cut_points, verbose = F){
 
 }
 
-# getVectorOfTime <- function(Y, max_time_points = 15, verbose = F){
+# getVectorOfTime <- function(Y, max_time_points = 15, verbose = FALSE){
 #   times = NULL
 #   if(is.null(times)){
 #     #a maximum of max_time_points time points will be selected
@@ -4674,7 +4674,7 @@ checkAtLeastTwoEvents <- function(X_test, Y_test){
       stop("Rownames of X_test must be in Y_test")
     }
 
-    sub_Y <- Y_test[rn_X,,drop=F]
+    sub_Y <- Y_test[rn_X,,drop = FALSE]
 
     if(sum(sub_Y[,"event"])<2){
       stop("To evaluate a model, at least two events are mandatory in TEST data set.")
@@ -4688,7 +4688,7 @@ checkAtLeastTwoEvents <- function(X_test, Y_test){
         stop(paste0("Rownames of X_test and block ", block," must be in Y_test"))
       }
 
-      sub_Y <- Y_test[rn_X,,drop=F]
+      sub_Y <- Y_test[rn_X,,drop = FALSE]
 
       if(sum(sub_Y[,"event"])<2){
         stop("To evaluate a model, at least two events are mandatory in TEST data set.")
@@ -4802,8 +4802,8 @@ checkTestTimesVSTrainTimes <- function(lst_models, Y_test){
 
 ## Eval all models by the pred.methods the user defined
 eval_Coxmos_models <- function(lst_models, X_test, Y_test, pred.method, pred.attr = "mean",
-                               times = NULL, PARALLEL = F, max_time_points = 15, verbose = F,
-                               progress_bar = T){
+                               times = NULL, PARALLEL = FALSE, max_time_points = 15, verbose = FALSE,
+                               progress_bar = TRUE){
 
   #check names in lst_models
   lst_models <- checkModelNames(lst_models)
@@ -4857,7 +4857,7 @@ eval_Coxmos_models <- function(lst_models, X_test, Y_test, pred.method, pred.att
 
   #models not NAs
   names_lst_models <- unlist(lapply(lst_models, function(x){!all(is.na(x))}))
-  names_lst_models <- names(names_lst_models)[names_lst_models==T]
+  names_lst_models <- names(names_lst_models)[names_lst_models==TRUE]
 
   lst_models <- lst_models[names_lst_models]
 
@@ -4886,10 +4886,10 @@ eval_Coxmos_models <- function(lst_models, X_test, Y_test, pred.method, pred.att
       future::plan("multisession", workers = min(length(lst_models), n_cores))
     }
 
-    lst_eval <- furrr::future_map(lst_models, ~evaluation_list_Coxmos(model = ., X_test = X_test, Y_test = Y_test, pred.method = pred.method, pred.attr = pred.attr, times = times, PARALLEL = F, verbose = verbose, progress_bar = progress_bar))
+    lst_eval <- furrr::future_map(lst_models, ~evaluation_list_Coxmos(model = ., X_test = X_test, Y_test = Y_test, pred.method = pred.method, pred.attr = pred.attr, times = times, PARALLEL = FALSE, verbose = verbose, progress_bar = progress_bar))
     future::plan("sequential")
   }else{
-    lst_eval <- purrr::map(lst_models, ~evaluation_list_Coxmos(model = ., X_test = X_test, Y_test = Y_test, pred.method = pred.method, pred.attr = pred.attr, times = times, PARALLEL = F, verbose = verbose, progress_bar = progress_bar))
+    lst_eval <- purrr::map(lst_models, ~evaluation_list_Coxmos(model = ., X_test = X_test, Y_test = Y_test, pred.method = pred.method, pred.attr = pred.attr, times = times, PARALLEL = FALSE, verbose = verbose, progress_bar = progress_bar))
   }
 
   names(lst_eval) <- names(lst_models)
@@ -4923,7 +4923,7 @@ eval_Coxmos_models <- function(lst_models, X_test, Y_test, pred.method, pred.att
   }
   # }else if(ncol(df) != 1+length(final_times) & all(is.na(df[,2]))){
   #   df_na <- as.data.frame(matrix(data = NA, nrow = nrow(df), ncol = length(final_times)))
-  #   df <- cbind(df[,1,drop=F], df_na)
+  #   df <- cbind(df[,1,drop = FALSE], df_na)
   # }
 
   if(all(is.na(df[,2])) & ncol(df) < (5+length(final_times))){
@@ -4964,7 +4964,7 @@ eval_Coxmos_models <- function(lst_models, X_test, Y_test, pred.method, pred.att
 }
 
 evaluation_list_Coxmos <- function(model, X_test, Y_test, pred.method, pred.attr = "mean",
-                                   times = NULL, PARALLEL = F, verbose = F, progress_bar = F){
+                                   times = NULL, PARALLEL = FALSE, verbose = FALSE, progress_bar = FALSE){
 
   t3 <- Sys.time()
 
@@ -4990,9 +4990,9 @@ evaluation_list_Coxmos <- function(model, X_test, Y_test, pred.method, pred.attr
 
   #linear predictors
   if(isa(X_test, "list") & !attr(model, "model") %in% pkg.env$multiblock_methods){ #mix between multiblock and all PLS - Special case
-    which_block = purrr::map(names(X_test), ~length(grep(., m, fixed = F))>0)
+    which_block = purrr::map(names(X_test), ~length(grep(., m, fixed = FALSE))>0)
     names(which_block) <- names(X_test)
-    X_test_mod <- predict.Coxmos(object = model, newdata = X_test[[names(which_block)[which_block==T]]])
+    X_test_mod <- predict.Coxmos(object = model, newdata = X_test[[names(which_block)[which_block==TRUE]]])
   }else{
     X_test_mod <- predict.Coxmos(object = model, newdata = X_test) #all multiblock or all PLS - Ok
   }
@@ -5079,7 +5079,7 @@ eval_Coxmos_model_per_variable <- function(model,
                                           X_test, Y_test,
                                           pred.method = "cenROC", pred.attr = "mean",
                                           times = NULL, max_time_points = 15,
-                                          PARALLEL = F, verbose = F){
+                                          PARALLEL = FALSE, verbose = FALSE){
 
   #### Check test times are less or equal than max train time:
   checkTestTimesVSTrainTimes(model, Y_test)
@@ -5087,7 +5087,7 @@ eval_Coxmos_model_per_variable <- function(model,
   # BRIER not implemeted !!!
 
   scores_aux <- predict.Coxmos(object = model, newdata = X_test)
-  lp <- getLinealPredictors(cox = model$survival_model$fit, data = scores_aux, lp_per_variable = T)
+  lp <- getLinealPredictors(cox = model$survival_model$fit, data = scores_aux, lp_per_variable = TRUE)
 
   if(is.null(times)){
     times <- getTimesVector(Y_test, max_time_points)
@@ -5196,9 +5196,9 @@ cox.prediction <- function(model, new_data, time = NULL, type = "lp", method = "
     if(!is.null(model$X$x.mean) & !is.null(model$X$x.sd)){
       norm_patient <- scale(new_data, center = model$X$x.mean, scale = model$X$x.sd)
     }else if(!is.null(model$X$x.mean)){
-      norm_patient <- scale(new_data, center = model$X$x.mean, scale = F)
+      norm_patient <- scale(new_data, center = model$X$x.mean, scale = FALSE)
     }else if(!is.null(model$X$x.sd)){
-      norm_patient <- scale(new_data, center = F, scale = model$X$x.sd)
+      norm_patient <- scale(new_data, center = FALSE, scale = model$X$x.sd)
     }else{
       norm_patient <- new_data
     }
@@ -5213,8 +5213,8 @@ cox.prediction <- function(model, new_data, time = NULL, type = "lp", method = "
 
 getBestVector <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN_AUC_INCREASE,
                           MIN_NVAR = 10, MAX_NVAR = 10000, cut_points = 5, EVAL_METHOD = "AUC",
-                          EVAL_EVALUATOR = "cenROC", PARALLEL = F, mode = "spls", times = NULL,
-                          max_time_points = 15, verbose = F){
+                          EVAL_EVALUATOR = "cenROC", PARALLEL = FALSE, mode = "spls", times = NULL,
+                          max_time_points = 15, verbose = FALSE){
 
   if(!mode %in% c("spls", "splsda")){
     stop("Mode must be one of: 'spls' or 'splsda'")
@@ -5265,18 +5265,18 @@ getBestVector <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN
 
     t1 <- Sys.time()
     if(mode %in% "spls"){
-      lst_cox_value <- furrr::future_map(vector, ~getCIndex_AUC_CoxModel_spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter, times = times, max_time_points = max_time_points), .progress = F)
+      lst_cox_value <- furrr::future_map(vector, ~getCIndex_AUC_CoxModel_spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = FALSE, near.zero.var = FALSE, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter, times = times, max_time_points = max_time_points), .progress = FALSE)
     }else{
-      lst_cox_value <- furrr::future_map(vector, ~getCIndex_AUC_CoxModel_splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter, times = times, max_time_points = max_time_points), .progress = F)
+      lst_cox_value <- furrr::future_map(vector, ~getCIndex_AUC_CoxModel_splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = FALSE, near.zero.var = FALSE, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter, times = times, max_time_points = max_time_points), .progress = FALSE)
     }
     t2 <- Sys.time()
     future::plan("sequential")
   }else{
     t1 <- Sys.time()
     if(mode %in% "spls"){
-      lst_cox_value <- purrr::map(vector, ~getCIndex_AUC_CoxModel_spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter, times = times, max_time_points = max_time_points), .progress = F)
+      lst_cox_value <- purrr::map(vector, ~getCIndex_AUC_CoxModel_spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = FALSE, near.zero.var = FALSE, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter, times = times, max_time_points = max_time_points), .progress = FALSE)
     }else{
-      lst_cox_value <- purrr::map(vector, ~getCIndex_AUC_CoxModel_splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter, times = times, max_time_points = max_time_points), .progress = F)
+      lst_cox_value <- purrr::map(vector, ~getCIndex_AUC_CoxModel_splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = FALSE, near.zero.var = FALSE, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter, times = times, max_time_points = max_time_points), .progress = FALSE)
     }
     t2 <- Sys.time()
   }
@@ -5301,7 +5301,7 @@ getBestVector <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN
 
   #Select best vector
   keepX <- vector[[index]]
-  FLAG = T
+  FLAG = TRUE
   cont = 0
 
   best_c_index <- df_cox_value[index]
@@ -5395,18 +5395,18 @@ getBestVector <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN
 
       t1 <- Sys.time()
       if(mode %in% "spls"){
-        lst_cox_value <- furrr::future_map(vector_aux, ~getCIndex_AUC_CoxModel_spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter, times = times, max_time_points = max_time_points), .progress = F)
+        lst_cox_value <- furrr::future_map(vector_aux, ~getCIndex_AUC_CoxModel_spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = FALSE, near.zero.var = FALSE, max.iter = max.iter, times = times, max_time_points = max_time_points), .progress = FALSE)
       }else{
-        lst_cox_value <- furrr::future_map(vector_aux, ~getCIndex_AUC_CoxModel_splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter, times = times, max_time_points = max_time_points), .progress = F)
+        lst_cox_value <- furrr::future_map(vector_aux, ~getCIndex_AUC_CoxModel_splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = FALSE, near.zero.var = FALSE, max.iter = max.iter, times = times, max_time_points = max_time_points), .progress = FALSE)
       }
       t2 <- Sys.time()
       future::plan("sequential")
     }else{
       t1 <- Sys.time()
       if(mode %in% "spls"){
-        lst_cox_value <- purrr::map(vector_aux, ~getCIndex_AUC_CoxModel_spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter, times = times, max_time_points = max_time_points), .progress = F)
+        lst_cox_value <- purrr::map(vector_aux, ~getCIndex_AUC_CoxModel_spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = FALSE, near.zero.var = FALSE, max.iter = max.iter, times = times, max_time_points = max_time_points), .progress = FALSE)
       }else{
-        lst_cox_value <- purrr::map(vector_aux, ~getCIndex_AUC_CoxModel_splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter, times = times, max_time_points = max_time_points), .progress = F)
+        lst_cox_value <- purrr::map(vector_aux, ~getCIndex_AUC_CoxModel_splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = FALSE, near.zero.var = FALSE, max.iter = max.iter, times = times, max_time_points = max_time_points), .progress = FALSE)
       }
       t2 <- Sys.time()
     }
@@ -5434,7 +5434,7 @@ getBestVector <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN
     p_val[rownames(df_cox_value_aux)] <- df_cox_value_aux
 
     if(best_c_index >= best_c_index_aux | best_c_index_aux-best_c_index <= MIN_AUC_INCREASE){
-      FLAG = F
+      FLAG = FALSE
       if(verbose){
         message(paste0("End: \n"), paste0(paste0("Value ", names(best_keepX), ": ", unlist(purrr::map(best_keepX, ~unique(.)))), "\n"), paste0("Pred. Value: ", round(best_c_index, 4), "\n"))
       }
@@ -5451,9 +5451,9 @@ getBestVector <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN
   return(list(best.keepX = keepX, p_val = p_val))
 }
 
-getCIndex_AUC_CoxModel_spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keepX, scale = F,
-                                        near.zero.var = F, EVAL_EVALUATOR = "cenROC", max.iter = 200,
-                                        verbose = F, times = NULL, max_time_points = 15){
+getCIndex_AUC_CoxModel_spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keepX, scale = FALSE,
+                                        near.zero.var = FALSE, EVAL_EVALUATOR = "cenROC", max.iter = 200,
+                                        verbose = FALSE, times = NULL, max_time_points = 15){
 
   FLAG_ERROR = FALSE
   model <- tryCatch(
@@ -5470,13 +5470,13 @@ getCIndex_AUC_CoxModel_spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keepX, sca
   )
 
   if(FLAG_ERROR){
-    FLAG_ERROR = F
+    FLAG_ERROR = FALSE
     return(list("c_index" = NA, "AUC" = NA, "BRIER" = NA))
   }
 
   tt_mbsplsDR = model$variates
 
-  d <- as.data.frame(tt_mbsplsDR[[1]][,,drop=F]) #X
+  d <- as.data.frame(tt_mbsplsDR[[1]][,,drop = FALSE]) #X
 
   cox_model <- NULL
   cox_model$fit <- tryCatch(
@@ -5485,10 +5485,10 @@ getCIndex_AUC_CoxModel_spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keepX, sca
       survival::coxph(formula = survival::Surv(time,event) ~ .,
                       data = cbind(d, Yh),
                       ties = "efron",
-                      singular.ok = T,
-                      robust = T,
+                      singular.ok = TRUE,
+                      robust = TRUE,
                       nocenter = rep(1, ncol(d)),
-                      model=T, x = T)
+                      model = TRUE, x = TRUE)
     },
     # Specifying error message
     error = function(e){
@@ -5513,8 +5513,8 @@ getCIndex_AUC_CoxModel_spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keepX, sca
   return(list("c_index" = cox_model$fit$concordance["concordance"], "AUC" = lst_AUC_values$AUC, "BRIER" = lst_BRIER_values$ierror))
 }
 
-getCIndex_AUC_CoxModel_splsda <- function(Xh, Yh, n.comp, keepX, scale = F, near.zero.var = F,
-                                          EVAL_EVALUATOR = "cenROC", max.iter = 100, verbose = F,
+getCIndex_AUC_CoxModel_splsda <- function(Xh, Yh, n.comp, keepX, scale = FALSE, near.zero.var = FALSE,
+                                          EVAL_EVALUATOR = "cenROC", max.iter = 100, verbose = FALSE,
                                           times = NULL, max_time_points = 15){
 
   FLAG_ERROR = FALSE
@@ -5532,13 +5532,13 @@ getCIndex_AUC_CoxModel_splsda <- function(Xh, Yh, n.comp, keepX, scale = F, near
   )
 
   if(FLAG_ERROR){
-    FLAG_ERROR = F
+    FLAG_ERROR = FALSE
     return(list("c_index" = NA, "AUC" = NA, "BRIER" = NA))
   }
 
   tt_mbsplsDA = model$variates
 
-  d <- as.data.frame(tt_mbsplsDA[[1]][,,drop=F]) #X
+  d <- as.data.frame(tt_mbsplsDA[[1]][,,drop = FALSE]) #X
 
   cox_model <- NULL
   cox_model$fit <- tryCatch(
@@ -5547,10 +5547,10 @@ getCIndex_AUC_CoxModel_splsda <- function(Xh, Yh, n.comp, keepX, scale = F, near
       survival::coxph(formula = survival::Surv(time,event) ~ .,
                       data = cbind(d, Yh),
                       ties = "efron",
-                      singular.ok = T,
-                      robust = T,
+                      singular.ok = TRUE,
+                      robust = TRUE,
                       nocenter = rep(1, ncol(d)),
-                      model=T, x = T)
+                      model = TRUE, x = TRUE)
     },
     # Specifying error message
     error = function(e){

@@ -147,9 +147,9 @@
 splsdrcox <- function (X, Y,
                       n.comp = 4, eta = 0.5,
                       x.center = TRUE, x.scale = FALSE,
-                      remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
-                      remove_non_significant = F, alpha = 0.05,
-                      MIN_EPV = 5, returnData = T, verbose = F){
+                      remove_near_zero_variance = TRUE, remove_zero_variance = FALSE, toKeep.zv = NULL,
+                      remove_non_significant = FALSE, alpha = 0.05,
+                      MIN_EPV = 5, returnData = TRUE, verbose = FALSE){
   # tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
   tol = 1e-10
 
@@ -217,8 +217,8 @@ splsdrcox <- function (X, Y,
 
   X_norm <- Xh
 
-  XXNA <- is.na(Xh) #T is NA
-  YNA <- is.na(Y) #T is NA
+  XXNA <- is.na(Xh) #TRUE is NA
+  YNA <- is.na(Y) #TRUE is NA
 
   #### MAX PREDICTORS
   n.comp <- check.maxPredictors(X, Y, MIN_EPV, n.comp)
@@ -304,7 +304,7 @@ splsdrcox <- function (X, Y,
       Z_mod <- abs(Z_norm) - eta * max(abs(Z_norm)) #keep those variables greater than eta * max value
 
       if(sum(Z_mod >= 0)==1){ #only one variable does not allow to compute a PLS model (take the another one)
-        Z_mod_neg <- Z_mod[which(Z_mod < 0),,drop=F]
+        Z_mod_neg <- Z_mod[which(Z_mod < 0),,drop = FALSE]
         cn_extra <- rownames(Z_mod_neg)[which.max(Z_mod_neg)]
         Z_mod[cn_extra,] <- 0.01
       }
@@ -318,16 +318,16 @@ splsdrcox <- function (X, Y,
 
     #4.3 Get variables greater than 0 and variables already selected (beta !=0)
     if(h==1){
-      A <- rownames(ww[which(ww != 0),,drop=F])
+      A <- rownames(ww[which(ww != 0),,drop = FALSE])
     }else{
-      A <- unique(c(rownames(ww[which(ww != 0),,drop=F]), names(beta_matrix[,h-1])[which(beta_matrix[, h-1]!=0)]))
+      A <- unique(c(rownames(ww[which(ww != 0),,drop = FALSE]), names(beta_matrix[,h-1])[which(beta_matrix[, h-1]!=0)]))
     }
 
     Xa <- Xh[,A,drop = FALSE]
 
     #4.4 Run standard PLS with new components and the deviance residuals - Filter near zero variables
-    nZ <- caret::nearZeroVar(Xa, saveMetrics = T) #to check if we have to do some changes in the data
-    td <- rownames(nZ[nZ$nzv==T,])
+    nZ <- caret::nearZeroVar(Xa, saveMetrics = TRUE) #to check if we have to do some changes in the data
+    td <- rownames(nZ[nZ$nzv==TRUE,])
 
     #Do not delete
     # if(any(mustKeep %in% td)){
@@ -336,7 +336,7 @@ splsdrcox <- function (X, Y,
 
     lstDeleted <- td
     if(length(lstDeleted)>0 & ncol(Xa)>2){
-      Xa <- Xa[,!colnames(Xa) %in% lstDeleted, drop=F]
+      Xa <- Xa[,!colnames(Xa) %in% lstDeleted, drop = FALSE]
     }
     A_nzv <- colnames(Xa)
 
@@ -346,12 +346,12 @@ splsdrcox <- function (X, Y,
 
     #But always using the complete residuals
     # plsfit3 <- ropls::opls(x = Xa, y = DR_coxph_ori, predI = min(h, ncol(Xa)), scaleC = "none")
-    # plsfit2 <- mixOmics::pls(X = Xa, Y = DR_coxph_ori, ncomp = min(h, ncol(Xa)), scale = F)
+    # plsfit2 <- mixOmics::pls(X = Xa, Y = DR_coxph_ori, ncomp = min(h, ncol(Xa)), scale = FALSE)
     plsfit <- tryCatch(
       # Specifying expression
       expr = {
         pls2(X = Xa, Y = DR_coxph_ori, n.comp = min(h, ncol(Xa)),
-             x.center = F, x.scale = F, y.center = F, y.scale = F,
+             x.center = FALSE, x.scale = FALSE, y.center = FALSE, y.scale = FALSE,
              it = 100, tol.W.star = tol, verbose = verbose)
       },
       # Specifying error message
@@ -367,9 +367,9 @@ splsdrcox <- function (X, Y,
 
     #plsfit$X$weightings_norm;plsfit2$loadings$X;plsfit3@weightMN
 
-    XaNA <- is.na(Xa) #T is NA
+    XaNA <- is.na(Xa) #TRUE is NA
     Xa[XaNA] <- 0
-    predplsfit <- Xa[,rownames(plsfit$X$loadings),drop=F] %*% plsfit$B[,,drop=F]
+    predplsfit <- Xa[,rownames(plsfit$X$loadings),drop = FALSE] %*% plsfit$B[,,drop = FALSE]
     Xa[XaNA] <- NA
 
     #### ### ### ### ###
@@ -379,8 +379,8 @@ splsdrcox <- function (X, Y,
 
     beta_pls <- matrix(0, n_var, n_dr)
     rownames(beta_pls) <- colnames(Xh)
-    #beta_pls[A_nzv,] <- matrix(data = plsfit$B[,min(h, ncol(Xa)),drop=F], nrow = length(A_nzv), ncol = n_dr) #n.comp from new pls and not all
-    beta_pls[A_nzv,] <- matrix(data = plsfit$B[,,drop=F], nrow = length(A_nzv), ncol = n_dr) #n.comp from new pls and not all
+    #beta_pls[A_nzv,] <- matrix(data = plsfit$B[,min(h, ncol(Xa)),drop = FALSE], nrow = length(A_nzv), ncol = n_dr) #n.comp from new pls and not all
+    beta_pls[A_nzv,] <- matrix(data = plsfit$B[,,drop = FALSE], nrow = length(A_nzv), ncol = n_dr) #n.comp from new pls and not all
     beta_matrix <- cbind(beta_matrix, beta_pls) #res
 
     var_by_component[[h]] <- A
@@ -389,8 +389,8 @@ splsdrcox <- function (X, Y,
     #### ### ### ### ##
     # UPDATING VALUES #
     #### ### ### ### ##
-    #DR_coxph <- DR_coxph_ori - predplsfit[,min(h, ncol(Xa)),drop=F] #for manual prediction
-    DR_coxph <- DR_coxph_ori - predplsfit[,,drop=F] #for manual prediction
+    #DR_coxph <- DR_coxph_ori - predplsfit[,min(h, ncol(Xa)),drop = FALSE] #for manual prediction
+    DR_coxph <- DR_coxph_ori - predplsfit[,,drop = FALSE] #for manual prediction
 
     #R2 calculation
     #E[[h]] = DR_coxph_ori - predplsfit$predict[,,plsfit$n.comp] #same formula, but adding components
@@ -417,8 +417,8 @@ splsdrcox <- function (X, Y,
   #n.comp_used <- ncol(tt_splsDR) #can be lesser than expected because we have lesser variables to select because penalization
   n.comp_used <- ncol(last.pls$X$scores)
 
-  #d <- as.data.frame(last.pls$X$scores[,,drop=F])
-  d <- as.data.frame(last.pls$X$scores[,,drop=F])
+  #d <- as.data.frame(last.pls$X$scores[,,drop = FALSE])
+  d <- as.data.frame(last.pls$X$scores[,,drop = FALSE])
   rownames(d) <- rownames(X)
   colnames(d) <- paste0("comp_", 1:n.comp_used)
 
@@ -426,12 +426,12 @@ splsdrcox <- function (X, Y,
     # Specifying expression
     expr = {
       survival::coxph(formula = survival::Surv(time,event) ~ .,
-                      data = d[,1:n.comp_used,drop=F],
+                      data = d[,1:n.comp_used,drop = FALSE],
                       ties = "efron",
-                      singular.ok = T,
-                      robust = T,
-                      nocenter = rep(1, ncol(d[,1:n.comp_used,drop=F])),
-                      model=T, x = T)
+                      singular.ok = TRUE,
+                      robust = TRUE,
+                      nocenter = rep(1, ncol(d[,1:n.comp_used,drop = FALSE])),
+                      model = TRUE, x = TRUE)
     },
     # Specifying error message
     error = function(e){
@@ -450,12 +450,12 @@ splsdrcox <- function (X, Y,
       # Specifying expression
       expr = {
         survival::coxph(formula = survival::Surv(time,event) ~ .,
-                        data = d[,1:h,drop=F],
+                        data = d[,1:h,drop = FALSE],
                         ties = "efron",
-                        singular.ok = T,
-                        robust = T,
-                        nocenter = rep(1, ncol(d[,1:h,drop=F])),
-                        model=T, x = T)
+                        singular.ok = TRUE,
+                        robust = TRUE,
+                        nocenter = rep(1, ncol(d[,1:h,drop = FALSE])),
+                        model = TRUE, x = TRUE)
       },
       # Specifying error message
       error = function(e){
@@ -504,17 +504,17 @@ splsdrcox <- function (X, Y,
       message(paste0("Model cannot be computed for all components. Final model select ", h," components instead of ", n.comp,"."))
     }
     #update all values
-    last.pls$X$weightings <- last.pls$X$weightings[,1:h,drop=F]
-    last.pls$X$W.star = last.pls$X$W.star[,1:h,drop=F]
-    last.pls$X$loadings = last.pls$X$loadings[,1:h,drop=F]
-    last.pls$X$scores = last.pls$X$scores[,1:h,drop=F]
-    last.pls$Y$weightings = last.pls$Y$weightings[,1:h,drop=F]
-    last.pls$Y$loadings = last.pls$Y$loadings[,1:h,drop=F]
-    last.pls$Y$scores = last.pls$Y$scores[,1:h,drop=F]
-    last.pls$Y$ratio = last.pls$Y$ratio[,1:h,drop=F]
+    last.pls$X$weightings <- last.pls$X$weightings[,1:h,drop = FALSE]
+    last.pls$X$W.star = last.pls$X$W.star[,1:h,drop = FALSE]
+    last.pls$X$loadings = last.pls$X$loadings[,1:h,drop = FALSE]
+    last.pls$X$scores = last.pls$X$scores[,1:h,drop = FALSE]
+    last.pls$Y$weightings = last.pls$Y$weightings[,1:h,drop = FALSE]
+    last.pls$Y$loadings = last.pls$Y$loadings[,1:h,drop = FALSE]
+    last.pls$Y$scores = last.pls$Y$scores[,1:h,drop = FALSE]
+    last.pls$Y$ratio = last.pls$Y$ratio[,1:h,drop = FALSE]
     var_by_component_nzv = var_by_component_nzv[1:h] #variables selected for each component
     names(var_by_component_nzv) <- paste0("comp_", 1:h)
-    last.pls$B = last.pls$B[,,drop=F] #only final coefficients
+    last.pls$B = last.pls$B[,,drop = FALSE] #only final coefficients
 
     n.comp_used <- h
   }
@@ -527,17 +527,17 @@ splsdrcox <- function (X, Y,
     #update all values
     which_to_keep <- which(colnames(last.pls$X$weightings) %in% names(cox_model$fit$coefficients))
 
-    last.pls$X$weightings <- last.pls$X$weightings[,names(cox_model$fit$coefficients),drop=F]
-    last.pls$X$W.star = last.pls$X$W.star[,names(cox_model$fit$coefficients),drop=F]
-    last.pls$X$loadings = last.pls$X$loadings[,names(cox_model$fit$coefficients),drop=F]
-    last.pls$X$scores = last.pls$X$scores[,names(cox_model$fit$coefficients),drop=F]
-    last.pls$Y$weightings = last.pls$Y$weightings[,names(cox_model$fit$coefficients),drop=F]
-    last.pls$Y$loadings = last.pls$Y$loadings[,names(cox_model$fit$coefficients),drop=F]
-    last.pls$Y$scores = last.pls$Y$scores[,names(cox_model$fit$coefficients),drop=F]
-    last.pls$Y$ratio = last.pls$Y$ratio[,names(cox_model$fit$coefficients),drop=F]
+    last.pls$X$weightings <- last.pls$X$weightings[,names(cox_model$fit$coefficients),drop = FALSE]
+    last.pls$X$W.star = last.pls$X$W.star[,names(cox_model$fit$coefficients),drop = FALSE]
+    last.pls$X$loadings = last.pls$X$loadings[,names(cox_model$fit$coefficients),drop = FALSE]
+    last.pls$X$scores = last.pls$X$scores[,names(cox_model$fit$coefficients),drop = FALSE]
+    last.pls$Y$weightings = last.pls$Y$weightings[,names(cox_model$fit$coefficients),drop = FALSE]
+    last.pls$Y$loadings = last.pls$Y$loadings[,names(cox_model$fit$coefficients),drop = FALSE]
+    last.pls$Y$scores = last.pls$Y$scores[,names(cox_model$fit$coefficients),drop = FALSE]
+    last.pls$Y$ratio = last.pls$Y$ratio[,names(cox_model$fit$coefficients),drop = FALSE]
     var_by_component_nzv = var_by_component_nzv[which_to_keep] #variables selected for each component
     names(var_by_component_nzv) <- paste0("comp_", which_to_keep)
-    last.pls$B = last.pls$B[,,drop=F] #only final coefficients
+    last.pls$B = last.pls$B[,,drop = FALSE] #only final coefficients
 
     n.comp_used <- ncol(max(which_to_keep))
   }
@@ -741,15 +741,15 @@ cv.splsdrcox <- function (X, Y,
                          max.ncomp = 8, eta.list = seq(0.1,0.9,0.2),
                          n_run = 3, k_folds = 10,
                          x.center = TRUE, x.scale = FALSE,
-                         remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
-                         remove_variance_at_fold_level = F,
-                         remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,
+                         remove_near_zero_variance = TRUE, remove_zero_variance = TRUE, toKeep.zv = NULL,
+                         remove_variance_at_fold_level = FALSE,
+                         remove_non_significant_models = FALSE, remove_non_significant = FALSE, alpha = 0.05,
                          w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL,
                          max_time_points = 15,
                          MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
-                         pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
-                         MIN_EPV = 5, return_models = F, returnData = F,
-                         PARALLEL = F, verbose = F, seed = 123){
+                         pred.attr = "mean", pred.method = "cenROC", fast_mode = FALSE,
+                         MIN_EPV = 5, return_models = FALSE, returnData = FALSE,
+                         PARALLEL = FALSE, verbose = FALSE, seed = 123){
   # tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
   tol = 1e-10
 
@@ -884,7 +884,7 @@ cv.splsdrcox <- function (X, Y,
                                    n.cut_points = NULL,
                                    x.center = x.center, x.scale = x.scale,
                                    y.center = y.center, y.scale = y.scale,
-                                   remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
+                                   remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = FALSE, toKeep.zv = NULL,
                                    alpha = alpha, MIN_EPV = MIN_EPV,
                                    remove_non_significant = remove_non_significant, tol = tol, max.iter = NULL,
                                    returnData = returnData, total_models = total_models,
@@ -932,7 +932,7 @@ cv.splsdrcox <- function (X, Y,
   df_results_evals_run <- NULL
   df_results_evals_fold <- NULL
   optimal_comp_index <- NULL
-  optimal_comp_flag <- F
+  optimal_comp_flag <- FALSE
   optimal_eta_index <- NULL
   optimal_eta <- NULL
 
@@ -942,7 +942,7 @@ cv.splsdrcox <- function (X, Y,
       times <- getTimesVector(Y, max_time_points = max_time_points)
     }
 
-    #As we are measuring just one evaluator and one method - PARALLEL=F
+    #As we are measuring just one evaluator and one method - PARALLEL = FALSE
     lst_df <- get_COX_evaluation_BRIER_sPLS(comp_model_lst = comp_model_lst,
                                             fast_mode = fast_mode,
                                             X_test = X, Y_test = Y,
@@ -951,7 +951,7 @@ cv.splsdrcox <- function (X, Y,
                                             pred.method = pred.method, pred.attr = pred.attr,
                                             max.ncomp = max.ncomp, eta.list = eta.list, n_run = n_run, k_folds = k_folds,
                                             MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                            w_BRIER = w_BRIER, method.train = pkg.env$splsdrcox, PARALLEL = F, verbose = verbose)
+                                            w_BRIER = w_BRIER, method.train = pkg.env$splsdrcox, PARALLEL = FALSE, verbose = verbose)
 
     df_results_evals_comp <- lst_df$df_results_evals_comp
     df_results_evals_run <- lst_df$df_results_evals_run
@@ -971,7 +971,7 @@ cv.splsdrcox <- function (X, Y,
       times <- getTimesVector(Y, max_time_points = max_time_points)
     }
 
-    #As we are measuring just one evaluator and one method - PARALLEL=F
+    #As we are measuring just one evaluator and one method - PARALLEL = FALSE
     lst_df <- get_COX_evaluation_AUC_sPLS(comp_model_lst = comp_model_lst,
                                           X_test = X, Y_test = Y,
                                           lst_X_test = lst_test_indexes, lst_Y_test = lst_test_indexes,
@@ -979,7 +979,7 @@ cv.splsdrcox <- function (X, Y,
                                           fast_mode = fast_mode, pred.method = pred.method, pred.attr = pred.attr,
                                           max.ncomp = max.ncomp, eta.list = eta.list, n_run = n_run, k_folds = k_folds,
                                           MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                          w_AUC = w_AUC, method.train = pkg.env$splsdrcox, PARALLEL = F, verbose = verbose)
+                                          w_AUC = w_AUC, method.train = pkg.env$splsdrcox, PARALLEL = FALSE, verbose = verbose)
 
     if(is.null(df_results_evals_comp)){
       df_results_evals_comp <- lst_df$df_results_evals_comp
@@ -1013,10 +1013,10 @@ cv.splsdrcox <- function (X, Y,
                                                  colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC", colname_BRIER = "BRIER")
 
   if(optimal_comp_flag){
-    best_model_info <- df_results_evals_comp[df_results_evals_comp[,"n.comps"]==optimal_comp_index & df_results_evals_comp[,"eta"]==optimal_eta,, drop=F][1,]
+    best_model_info <- df_results_evals_comp[df_results_evals_comp[,"n.comps"]==optimal_comp_index & df_results_evals_comp[,"eta"]==optimal_eta,, drop = FALSE][1,]
     best_model_info <- as.data.frame(best_model_info)
   }else{
-    best_model_info <- df_results_evals_comp[which(df_results_evals_comp[,"score"] == max(df_results_evals_comp[,"score"], na.rm = T)),, drop=F][1,]
+    best_model_info <- df_results_evals_comp[which(df_results_evals_comp[,"score"] == max(df_results_evals_comp[,"score"], na.rm = TRUE)),, drop = FALSE][1,]
     best_model_info <- as.data.frame(best_model_info)
   }
 
@@ -1059,7 +1059,7 @@ cv.splsdrcox <- function (X, Y,
 # PREDICTION #
 #### ### ### #
 
-predict.mixOmixs.pls <- function(object, newdata){
+predict_mixOmixs.pls <- function(object, newdata){
 
 
   if (missing(newdata))
@@ -1078,10 +1078,10 @@ predict.mixOmixs.pls <- function(object, newdata){
   x.scale <- attr(X,"scaled:scale")
 
   if(is.null(x.center)){
-    x.center <- F
+    x.center <- FALSE
   }
   if(is.null(x.scale)){
-    x.scale <- F
+    x.scale <- FALSE
   }
 
   newdata = scale(newdata, center = x.center, scale = x.scale)
@@ -1093,8 +1093,8 @@ predict.mixOmixs.pls <- function(object, newdata){
   X_ww = object$loadings$X #loading x
   Y_ww = object$loadings$Y #loading y
 
-  X_sco = object$variates$X[,drop=F] #variate x
-  Y_sco = object$variates$Y[,drop=F] #variate Y
+  X_sco = object$variates$X[,drop = FALSE] #variate x
+  Y_sco = object$variates$Y[,drop = FALSE] #variate Y
 
   pp = object$mat.c #matrix of coefficients from the regression of X / residual matrices X on the X-variates, to be used internally by predict.
 
@@ -1157,7 +1157,7 @@ cv.splsdrcox_class = function(pls_model, ...) {
 ### ###
 
 # NA VALUES AS 0, then NA again
-pls2 <- function(X, Y, n.comp, x.center = T, x.scale = F, y.center = T, y.scale = F, it = 500, tol = 1e-20, tol.W.star = 1e-20, verbose = F){
+pls2 <- function(X, Y, n.comp, x.center = TRUE, x.scale = FALSE, y.center = TRUE, y.scale = FALSE, it = 500, tol = 1e-20, tol.W.star = 1e-20, verbose = FALSE){
 
   if(n.comp >= nrow(X)) {
     n.comp <- qr(X)$rank-1
@@ -1232,7 +1232,7 @@ pls2 <- function(X, Y, n.comp, x.center = T, x.scale = F, y.center = T, y.scale 
       wh <- t(wh_num / wh_den)
 
       #3. whn = w' / ||w'||
-      whn <- wh / as.vector(sqrt(sum(wh^2, na.rm = T)))
+      whn <- wh / as.vector(sqrt(sum(wh^2, na.rm = TRUE)))
 
       #4. t = Xh wh / wh'wh
       #4. t = Xh whn
@@ -1244,7 +1244,7 @@ pls2 <- function(X, Y, n.comp, x.center = T, x.scale = F, y.center = T, y.scale 
       ch_den <- as.vector(t(th) %*% th)
       ch <- t(ch_num/ch_den)
 
-      chn <- ch / as.vector(sqrt(sum(ch^2, na.rm = T)))
+      chn <- ch / as.vector(sqrt(sum(ch^2, na.rm = TRUE)))
 
       #6. uhnew = Yhc / c'c
       #6. uhnew = Yhq / q'q
@@ -1315,8 +1315,8 @@ pls2 <- function(X, Y, n.comp, x.center = T, x.scale = F, y.center = T, y.scale 
 
   Xh[XXNA] <- NA
 
-  # B <- lapply(1:n.comp, function(x){W.star[,1:x,drop=F] %*% t(C[,1:x,drop=F]) %*% R[,1:x,drop=F]})
-  # B <- lapply(1:n.comp, function(x){W.star[,1:x,drop=F] %*% t(C[,1:x,drop=F])})
+  # B <- lapply(1:n.comp, function(x){W.star[,1:x,drop = FALSE] %*% t(C[,1:x,drop = FALSE]) %*% R[,1:x,drop = FALSE]})
+  # B <- lapply(1:n.comp, function(x){W.star[,1:x,drop = FALSE] %*% t(C[,1:x,drop = FALSE])})
 
   B <- W.star %*% t(C)
   Brc <- W.star %*% apply(C, 1, function(x){R * x}) #apply gets the transpose matrix
@@ -1324,7 +1324,7 @@ pls2 <- function(X, Y, n.comp, x.center = T, x.scale = F, y.center = T, y.scale 
 
   # aux <- NULL
   # for(c in 1:length(B)){
-  #   aux <- cbind(aux, B[[c]][,c,drop=F])
+  #   aux <- cbind(aux, B[[c]][,c,drop = FALSE])
   # }
   # B <- aux
 

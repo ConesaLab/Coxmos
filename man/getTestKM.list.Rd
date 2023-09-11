@@ -10,11 +10,11 @@ getTestKM.list(
   Y_test,
   lst_cutoff,
   type = "LP",
-  ori_data = T,
+  ori_data = TRUE,
   BREAKTIME = NULL,
   n.breaks = 20,
   title = NULL,
-  verbose = F
+  verbose = FALSE
 )
 }
 \arguments{

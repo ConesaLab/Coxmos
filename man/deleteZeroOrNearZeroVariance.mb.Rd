@@ -6,8 +6,8 @@
 \usage{
 deleteZeroOrNearZeroVariance.mb(
   X,
-  remove_near_zero_variance = F,
-  remove_zero_variance = T,
+  remove_near_zero_variance = FALSE,
+  remove_zero_variance = TRUE,
   toKeep.zv = NULL,
   freqCut = 95/5
 )

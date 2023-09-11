@@ -147,12 +147,12 @@ mb.splsdrcox <- function (X, Y,
                           n.comp = 4, vector = NULL,
                           MIN_NVAR = 10, MAX_NVAR = 10000, n.cut_points = 5, EVAL_METHOD = "AUC",
                           x.center = TRUE, x.scale = FALSE,
-                          remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
-                          remove_non_significant = T, alpha = 0.05,
+                          remove_near_zero_variance = TRUE, remove_zero_variance = TRUE, toKeep.zv = NULL,
+                          remove_non_significant = TRUE, alpha = 0.05,
                           MIN_AUC_INCREASE = 0.01,
                           pred.method = "cenROC", max.iter = 200,
                           times = NULL, max_time_points = 15,
-                          MIN_EPV = 5, returnData = T, verbose = F){
+                          MIN_EPV = 5, returnData = TRUE, verbose = FALSE){
   # tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
   tol = 1e-10
 
@@ -232,8 +232,8 @@ mb.splsdrcox <- function (X, Y,
   SCR <- list()
   SCT <- list()
 
-  XXNA <- purrr::map(Xh, ~is.na(.)) #T is NA
-  YNA <- is.na(Y) #T is NA
+  XXNA <- purrr::map(Xh, ~is.na(.)) #TRUE is NA
+  YNA <- is.na(Y) #TRUE is NA
 
   #### ### ### ### ### ### ### ### ### ### ###
   # ##          MB:sPLS-COX              ## ##
@@ -258,7 +258,7 @@ mb.splsdrcox <- function (X, Y,
   n_dr <- purrr::map(DR_coxph, ~ncol(.))
 
   if(any(unlist(purrr::map(n_dr, ~is.null(.))))){
-    n_dr[unlist(purrr::map(n_dr, ~is.null(.)))==T] = 1
+    n_dr[unlist(purrr::map(n_dr, ~is.null(.)))==TRUE] = 1
   }
 
   #CENTER DEVIANCE RESIUDALS
@@ -282,7 +282,7 @@ mb.splsdrcox <- function (X, Y,
   if(is.null(vector)){
     lst_BV <- getBestVectorMB(Xh = Xh, DR_coxph = DR_coxph, Yh = Yh, n.comp = n.comp, max.iter = max.iter, vector = vector,
                               MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, cut_points = n.cut_points,
-                              EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = F, mode = "spls", times = times,
+                              EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = FALSE, mode = "spls", times = times,
                               max_time_points = max_time_points, verbose = verbose)
     keepX <- lst_BV$best.keepX
     plotVAR <- plot_VAR_eval(lst_BV, EVAL_METHOD = EVAL_METHOD)
@@ -308,7 +308,7 @@ mb.splsdrcox <- function (X, Y,
         message("Vector does not has the proper structure. Optimizing best n.variables by using your vector as start vector.")
         lst_BV <- getBestVectorMB(Xh = Xh, DR_coxph = DR_coxph, Yh = Yh, n.comp = n.comp, max.iter = max.iter, vector = vector,
                                   MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, cut_points = n.cut_points,
-                                  EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = F, mode = "spls", times = times,
+                                  EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = FALSE, mode = "spls", times = times,
                                   max_time_points = max_time_points, verbose = verbose)
         keepX <- lst_BV$best.keepX
         plotVAR <- plot_VAR_eval(lst_BV, EVAL_METHOD = EVAL_METHOD)
@@ -316,7 +316,7 @@ mb.splsdrcox <- function (X, Y,
     }
   }
 
-  mb.spls <- mixOmics::block.spls(Xh, DR_coxph_ori, ncomp = n.comp, keepX = keepX, scale = F, all.outputs = T, near.zero.var = F)
+  mb.spls <- mixOmics::block.spls(Xh, DR_coxph_ori, ncomp = n.comp, keepX = keepX, scale = FALSE, all.outputs = TRUE, near.zero.var = FALSE)
 
   #PREDICTION
   #both methods return same values
@@ -403,24 +403,24 @@ mb.splsdrcox <- function (X, Y,
   for(i in names(Xh)){
     aux <- list()
     for(j in 1:n.comp){
-      aux[[j]] <- rownames(mb.spls$loadings[[i]][which(mb.spls$loadings[[i]][,j]!=0),j,drop=F])
+      aux[[j]] <- rownames(mb.spls$loadings[[i]][which(mb.spls$loadings[[i]][,j]!=0),j,drop = FALSE])
     }
     names(aux) <- colnames(mb.spls$loadings[[i]])
     n.varX_used[[i]] <- aux
   }
 
-  data <- as.data.frame(mb.spls$variates[[1]][,,drop=F])
+  data <- as.data.frame(mb.spls$variates[[1]][,,drop = FALSE])
   for(b in names(Xh)[2:length(Xh)]){
-    data <- cbind(data, as.data.frame(mb.spls$variates[[b]][,,drop=F]))
+    data <- cbind(data, as.data.frame(mb.spls$variates[[b]][,,drop = FALSE]))
   }
 
   update_colnames <- paste0("comp_", 1:ncol(mb.spls$variates[[1]]))
   colnames(data) <- apply(expand.grid(update_colnames, names(Xh)), 1, paste, collapse="_")
 
   cox_model <- cox(X = data, Y = Yh,
-                   x.center = F, x.scale = F,
-                   #y.center = F, y.scale = F,
-                   remove_non_significant = F, alpha = alpha, FORCE = T)
+                   x.center = FALSE, x.scale = FALSE,
+                   #y.center = FALSE, y.scale = FALSE,
+                   remove_non_significant = FALSE, alpha = alpha, FORCE = TRUE)
 
   # RETURN a MODEL with ALL significant Variables from complete, deleting one by one
   removed_variables <- NULL
@@ -460,7 +460,7 @@ mb.splsdrcox <- function (X, Y,
   Tmat <- Pmat <- Cmat <- Wmat <- W.star <- B.hat <- list()
   for(i in 1:length(Xh)){
     #select just features != 0 (selected features)
-    names <- purrr::map(1:n.comp_used, ~rownames(mb.spls$loadings[[i]])[which(mb.spls$loadings[[i]][,.,drop=F]!=0)])
+    names <- purrr::map(1:n.comp_used, ~rownames(mb.spls$loadings[[i]])[which(mb.spls$loadings[[i]][,.,drop = FALSE]!=0)])
     all_names <- unique(unlist(names))
 
     aux_Pmat = matrix(data = 0, nrow = ncol(Xh[[i]]), ncol = n.comp_used)
@@ -468,8 +468,8 @@ mb.splsdrcox <- function (X, Y,
     colnames(aux_Pmat) <- colnames(mb.spls$loadings[[i]])
 
     for(c in 1:n.comp_used){
-      names <- rownames(mb.spls$loadings[[i]])[which(mb.spls$loadings[[i]][,c,drop=F]!=0)]
-      aux <- crossprod(Xh[[i]][,names,drop=F], mb.spls$variates[[i]][,c])
+      names <- rownames(mb.spls$loadings[[i]])[which(mb.spls$loadings[[i]][,c,drop = FALSE]!=0)]
+      aux <- crossprod(Xh[[i]][,names,drop = FALSE], mb.spls$variates[[i]][,c])
       aux_Pmat[names,c] = aux
     }
 
@@ -482,34 +482,34 @@ mb.splsdrcox <- function (X, Y,
     colnames(Pmat[[i]]) <- paste0("comp_", 1:ncol(Pmat[[i]]))
     colnames(Tmat[[i]]) <- paste0("comp_", 1:ncol(Tmat[[i]]))
 
-    # W.star[[i]] <- lapply(1:n.comp, function(x){Wmat[[i]][,1:x,drop=F] %*% solve(t(Pmat[[i]][,1:x,drop=F]) %*% Wmat[[i]][, 1:x,drop=F])})
-    # B.hat[[i]] <- lapply(1:n.comp, function(x){W.star[[i]][[x]][,1:x,drop=F] %*% t(Cmat[[i]][,1:x,drop=F])})
+    # W.star[[i]] <- lapply(1:n.comp, function(x){Wmat[[i]][,1:x,drop = FALSE] %*% solve(t(Pmat[[i]][,1:x,drop = FALSE]) %*% Wmat[[i]][, 1:x,drop = FALSE])})
+    # B.hat[[i]] <- lapply(1:n.comp, function(x){W.star[[i]][[x]][,1:x,drop = FALSE] %*% t(Cmat[[i]][,1:x,drop = FALSE])})
 
     aux_W.star = matrix(data = 0, nrow = ncol(Xh[[i]]), ncol = n.comp_used)
     rownames(aux_W.star) <- colnames(Xh[[i]])
     colnames(aux_W.star) <- colnames(mb.spls$loadings[[i]])
 
     for(c in 1:n.comp_used){
-      names <- rownames(mb.spls$loadings[[i]])[which(mb.spls$loadings[[i]][,c,drop=F]!=0)]
+      names <- rownames(mb.spls$loadings[[i]])[which(mb.spls$loadings[[i]][,c,drop = FALSE]!=0)]
 
-      if(is.null(Pmat[[i]][names,c,drop=F]) | is.null(Wmat[[i]][names,c,drop=F])){
+      if(is.null(Pmat[[i]][names,c,drop = FALSE]) | is.null(Wmat[[i]][names,c,drop = FALSE])){
         message(paste0(pkg.env$mb.splsdrcox, " model cannot be computed because P or W vectors are NULL. Returning NA."))
         # invisible(gc())
         return(NA)
       }
 
-      #aux <- Wmat[[i]][names,c,drop=F] %*% solve(t(Pmat[[i]][names,c,drop=F]) %*% Wmat[[i]][names,c,drop=F])
+      #aux <- Wmat[[i]][names,c,drop = FALSE] %*% solve(t(Pmat[[i]][names,c,drop = FALSE]) %*% Wmat[[i]][names,c,drop = FALSE])
       #W.star
       #sometimes solve(t(P) %*% W)
       #system is computationally singular: reciprocal condition number = 6.24697e-18
-      # PW <- tryCatch(expr = {solve(t(Pmat[[i]][names,c,drop=F]) %*% Wmat[[i]][names,c,drop=F], tol = tol)},
+      # PW <- tryCatch(expr = {solve(t(Pmat[[i]][names,c,drop = FALSE]) %*% Wmat[[i]][names,c,drop = FALSE], tol = tol)},
       #                error = function(e){
       #                  if(verbose){
       #                    message(e$message)
       #                  }
       #                  NA
       #                })
-      PW <- tryCatch(expr = {MASS::ginv(t(Pmat[[i]][names,c,drop=F]) %*% Wmat[[i]][names,c,drop=F])},
+      PW <- tryCatch(expr = {MASS::ginv(t(Pmat[[i]][names,c,drop = FALSE]) %*% Wmat[[i]][names,c,drop = FALSE])},
                      error = function(e){
                        if(verbose){
                          message(e$message)
@@ -524,12 +524,12 @@ mb.splsdrcox <- function (X, Y,
       }
 
       # What happen when you cannot compute W.star but you have P and W?
-      aux <- Wmat[[i]][names,c,drop=F] %*% PW
+      aux <- Wmat[[i]][names,c,drop = FALSE] %*% PW
       aux_W.star[names,c] = aux
     }
 
     W.star[[i]] <- aux_W.star
-    B.hat[[i]] <- W.star[[i]] %*% t(Cmat[[i]][,1:n.comp_used,drop=F])
+    B.hat[[i]] <- W.star[[i]] %*% t(Cmat[[i]][,1:n.comp_used,drop = FALSE])
 
     colnames(W.star[[i]]) <- paste0("comp_", 1:ncol(W.star[[i]]))
   }
@@ -546,11 +546,11 @@ mb.splsdrcox <- function (X, Y,
   #   colnames(Pmat[[i]]) <- paste0("comp_", 1:ncol(Pmat[[i]]))
   #   colnames(Tmat[[i]]) <- paste0("comp_", 1:ncol(Tmat[[i]]))
   #
-  #   # W.star[[i]] <- lapply(1:n.comp, function(x){Wmat[[i]][,1:x,drop=F] %*% solve(t(Pmat[[i]][,1:x,drop=F]) %*% Wmat[[i]][, 1:x,drop=F])})
-  #   # B.hat[[i]] <- lapply(1:n.comp, function(x){Wmat[[i]][,1:x,drop=F] %*% solve(t(Pmat[[i]][,1:x,drop=F]) %*% Wmat[[i]][,1:x,drop=F]) %*% t(Cmat)[[i]][,1:x,drop=F]})
+  #   # W.star[[i]] <- lapply(1:n.comp, function(x){Wmat[[i]][,1:x,drop = FALSE] %*% solve(t(Pmat[[i]][,1:x,drop = FALSE]) %*% Wmat[[i]][, 1:x,drop = FALSE])})
+  #   # B.hat[[i]] <- lapply(1:n.comp, function(x){Wmat[[i]][,1:x,drop = FALSE] %*% solve(t(Pmat[[i]][,1:x,drop = FALSE]) %*% Wmat[[i]][,1:x,drop = FALSE]) %*% t(Cmat)[[i]][,1:x,drop = FALSE]})
   #
-  #   W.star[[i]] <- Wmat[[i]][,1:n.comp_used,drop=F] %*% solve(t(Pmat[[i]][,1:n.comp_used,drop=F]) %*% Wmat[[i]][, 1:n.comp_used,drop=F])
-  #   B.hat[[i]] <- W.star[[i]] %*% t(Cmat[[i]][,1:n.comp_used,drop=F])
+  #   W.star[[i]] <- Wmat[[i]][,1:n.comp_used,drop = FALSE] %*% solve(t(Pmat[[i]][,1:n.comp_used,drop = FALSE]) %*% Wmat[[i]][, 1:n.comp_used,drop = FALSE])
+  #   B.hat[[i]] <- W.star[[i]] %*% t(Cmat[[i]][,1:n.comp_used,drop = FALSE])
   # }
 
   names(Pmat) <- names(Xh)
@@ -783,15 +783,15 @@ cv.mb.splsdrcox <- function(X, Y,
                             MIN_NVAR = 10, MAX_NVAR = 10000, n.cut_points = 5, EVAL_METHOD = "AUC",
                             n_run = 3, k_folds = 10,
                             x.center = TRUE, x.scale = FALSE,
-                            remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
-                            remove_variance_at_fold_level = F,
-                            remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,
+                            remove_near_zero_variance = TRUE, remove_zero_variance = TRUE, toKeep.zv = NULL,
+                            remove_variance_at_fold_level = FALSE,
+                            remove_non_significant_models = FALSE, remove_non_significant = FALSE, alpha = 0.05,
                             w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL,
                             max_time_points = 15,
                             MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
-                            pred.attr = "mean", pred.method = "cenROC", max.iter= 200, fast_mode = F,
-                            MIN_EPV = 5, return_models = F, returnData = F,
-                            PARALLEL = F, verbose = F, seed = 123){
+                            pred.attr = "mean", pred.method = "cenROC", max.iter= 200, fast_mode = FALSE,
+                            MIN_EPV = 5, return_models = FALSE, returnData = FALSE,
+                            PARALLEL = FALSE, verbose = FALSE, seed = 123){
   # tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
   tol = 1e-10
 
@@ -916,7 +916,7 @@ cv.mb.splsdrcox <- function(X, Y,
                                         n.cut_points = n.cut_points,
                                         x.center = x.center, x.scale = x.scale,
                                         y.center = y.center, y.scale = y.scale,
-                                        remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
+                                        remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = FALSE, toKeep.zv = NULL,
                                         alpha = alpha, MIN_EPV = MIN_EPV,
                                         remove_non_significant = remove_non_significant, tol = tol, max.iter = max.iter,
                                         returnData = returnData, total_models = total_models,
@@ -962,7 +962,7 @@ cv.mb.splsdrcox <- function(X, Y,
   df_results_evals_run <- NULL
   df_results_evals_fold <- NULL
   optimal_comp_index <- NULL
-  optimal_comp_flag <- F
+  optimal_comp_flag <- FALSE
   optimal_eta_index <- NULL
   optimal_eta <- NULL
 
@@ -972,7 +972,7 @@ cv.mb.splsdrcox <- function(X, Y,
       times <- getTimesVector(Y, max_time_points = max_time_points)
     }
 
-    #As we are measuring just one evaluator and one method - PARALLEL=F
+    #As we are measuring just one evaluator and one method - PARALLEL = FALSE
     lst_df <- get_COX_evaluation_BRIER(comp_model_lst = comp_model_lst,
                                        fast_mode = fast_mode,
                                        X_test = X, Y_test = Y,
@@ -981,7 +981,7 @@ cv.mb.splsdrcox <- function(X, Y,
                                        pred.method = pred.method, pred.attr = pred.attr,
                                        max.ncomp = max.ncomp, n_run = n_run, k_folds = k_folds,
                                        MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                       w_BRIER = w_BRIER, method.train = pkg.env$mb.splsdrcox, PARALLEL = F, verbose = verbose)
+                                       w_BRIER = w_BRIER, method.train = pkg.env$mb.splsdrcox, PARALLEL = FALSE, verbose = verbose)
 
     df_results_evals_comp <- lst_df$df_results_evals_comp
     df_results_evals_run <- lst_df$df_results_evals_run
@@ -1008,7 +1008,7 @@ cv.mb.splsdrcox <- function(X, Y,
                                      fast_mode = fast_mode, pred.method = pred.method, pred.attr = pred.attr,
                                      max.ncomp = max.ncomp, n_run = n_run, k_folds = k_folds,
                                      MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                     w_AUC = w_AUC, method.train = pkg.env$mb.splsdrcox, PARALLEL = F, verbose = verbose)
+                                     w_AUC = w_AUC, method.train = pkg.env$mb.splsdrcox, PARALLEL = FALSE, verbose = verbose)
 
     if(is.null(df_results_evals_comp)){
       df_results_evals_comp <- lst_df$df_results_evals_comp
@@ -1042,10 +1042,10 @@ cv.mb.splsdrcox <- function(X, Y,
                                                  colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC", colname_BRIER = "BRIER")
 
   if(optimal_comp_flag){
-    best_model_info <- df_results_evals_comp[df_results_evals_comp[,"n.comps"]==optimal_comp_index,, drop=F][1,]
+    best_model_info <- df_results_evals_comp[df_results_evals_comp[,"n.comps"]==optimal_comp_index,, drop = FALSE][1,]
     best_model_info <- as.data.frame(best_model_info)
   }else{
-    best_model_info <- df_results_evals_comp[which(df_results_evals_comp[,"score"] == max(df_results_evals_comp[,"score"], na.rm = T)),, drop=F][1,]
+    best_model_info <- df_results_evals_comp[which(df_results_evals_comp[,"score"] == max(df_results_evals_comp[,"score"], na.rm = TRUE)),, drop = FALSE][1,]
     best_model_info <- as.data.frame(best_model_info)
   }
 

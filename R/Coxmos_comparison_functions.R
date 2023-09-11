@@ -300,8 +300,8 @@ getSurvivalSubset <- function(X, Y, event.val = TRUE, EPV, p.censored, n.patient
 super.trainAllModels <- function(lst_subdata, methods,
                                  comp_calculation = "manual",
                                  ncomp = 5, EN.alpha = 0.5, eta = 0.5,
-                                 x.center = T, x.scale = T,
-                                 MIN_EPV = 0, PARALLEL = T){
+                                 x.center = TRUE, x.scale = TRUE,
+                                 MIN_EPV = 0, PARALLEL = TRUE){
 
   #test
   y.center = y.scale = FALSE
@@ -339,7 +339,7 @@ super.trainAllModels <- function(lst_subdata, methods,
                                                            ncomp = ncomp, EN.alpha = EN.alpha, eta = eta,
                                                            x.center = x.center, x.scale = x.scale,
                                                            y.center = y.center, y.scale = y.scale, MIN_EPV = MIN_EPV),
-                                             .options = furrr_options(seed = T))
+                                             .options = furrr_options(seed = TRUE))
 
     future::plan("sequential")
   }else{
@@ -380,7 +380,7 @@ super.trainAllModels <- function(lst_subdata, methods,
 #' @export
 super.evalAllModels <- function(lst_subdata, lst_subdata_models, lst_evaluations,
                                 pred.attr = "mean", times = NULL, max_time_points = 15,
-                                PARALLEL = F, progress_bar = F){
+                                PARALLEL = FALSE, progress_bar = FALSE){
 
   #test
   lst_models_to_test <- list()
@@ -420,8 +420,8 @@ super.evalAllModels <- function(lst_subdata, lst_subdata_models, lst_evaluations
                                                                           pred.method = .$evaluator,
                                                                           pred.attr = pred.attr,
                                                                           times = times, max_time_points = max_time_points,
-                                                                          PARALLEL = F,
-                                                                          progress_bar = progress_bar, verbose = F))
+                                                                          PARALLEL = FALSE,
+                                                                          progress_bar = progress_bar, verbose = FALSE))
 
     future::plan("sequential")
 
@@ -432,8 +432,8 @@ super.evalAllModels <- function(lst_subdata, lst_subdata_models, lst_evaluations
                                                                        pred.method = .$evaluator,
                                                                        pred.attr = pred.attr,
                                                                        times = times, max_time_points = max_time_points,
-                                                                       PARALLEL = F,
-                                                                       progress_bar = progress_bar, verbose = F))
+                                                                       PARALLEL = FALSE,
+                                                                       progress_bar = progress_bar, verbose = FALSE))
   }
 
   t2 <- Sys.time()
@@ -524,7 +524,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
                                 methods = c("cox", "coxSW", "coxEN", "sPLS-ICOX", "sPLS-DRCOX",
                                             "sPLS-DRCOX-Dynamic", "sPLS-DACOX-Dynamic"),
                                 ncomp = 5, EN.alpha = 0.5, eta = 0.5, comp_calculation = "manual",
-                                n_run = 2, k_folds = 10, fast_mode = F, pred.method = "cenROC",
+                                n_run = 2, k_folds = 10, fast_mode = FALSE, pred.method = "cenROC",
                                 x.center = TRUE, x.scale = FALSE,
                                 y.center = FALSE, y.scale = FALSE, MIN_EPV = 0,
                                 vector = NULL,
@@ -557,13 +557,13 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
   MIN_COMP_TO_CHECK = 3
 
   #others
-  return_models = F
+  return_models = FALSE
   MIN_EPV = MIN_EPV
   pred.attr = "mean"
   seed = 123
   alpha = 0.05
-  remove_non_significant = F #cox and coxEN variables
-  remove_non_significant_models = F  #plscox methods
+  remove_non_significant = FALSE #cox and coxEN variables
+  remove_non_significant_models = FALSE  #plscox methods
   times = NULL
 
   #mixomics num. of variables to study
@@ -579,9 +579,9 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
     stop_quietly(paste0("Parameter 'comp_calculation' must be one of 'auto' or 'manual' options."))
   }
 
-  auto=F
+  auto = FALSE
   if(comp_calculation == "auto"){
-    auto=T
+    auto = TRUE
   }
 
   #### ### ### #
@@ -600,8 +600,8 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
                    x.center = x.center, x.scale = x.scale,
                    #y.center = y.center, y.scale = y.scale,
                    MIN_EPV = MIN_EPV, #by default 0
-                   remove_non_significant = F, alpha = 0.05,
-                   FORCE = T, returnData = F, verbose = F)
+                   remove_non_significant = FALSE, alpha = 0.05,
+                   FORCE = TRUE, returnData = FALSE, verbose = FALSE)
   }else{
     res_cox <- NA
   }
@@ -610,11 +610,11 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
   if(pkg.env$coxSW %in% methods){
 
     res_coxSW <- coxSW(X = X_train, Y = Y_train,
-                       max.variables = ncol(X_train), BACKWARDS = T,
+                       max.variables = ncol(X_train), BACKWARDS = TRUE,
                        x.center = x.center, x.scale = x.scale,
                        #y.center = y.center, y.scale = y.scale,
                        MIN_EPV = MIN_EPV, #by default 0
-                       returnData = F, verbose = F)
+                       returnData = FALSE, verbose = FALSE)
 
   }else{
     res_coxSW <- NA
@@ -640,7 +640,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
                          x.center = x.center, x.scale = x.scale,
                          #y.center = y.center, y.scale = y.scale,
                          MIN_EPV = MIN_EPV, #by default 0
-                         remove_non_significant = F, alpha = 0.05, returnData = F)
+                         remove_non_significant = FALSE, alpha = 0.05, returnData = FALSE)
 
     }else{
 
@@ -648,7 +648,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
                          x.center = x.center, x.scale = x.scale,
                          #y.center = y.center, y.scale = y.scale,
                          MIN_EPV = MIN_EPV, #by default 0
-                         remove_non_significant = F, alpha = 0.05, returnData = F)
+                         remove_non_significant = FALSE, alpha = 0.05, returnData = FALSE)
 
     }
 
@@ -675,14 +675,14 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
                              n.comp = cv.splsicox_res$opt.comp,
                              x.center = x.center, x.scale = x.scale,
                              #y.center = y.center, y.scale = y.scale,
-                             returnData = F)
+                             returnData = FALSE)
 
     }else{
       res_splsicox <- splsicox(X = X_train, Y = data.matrix(Y_train),
                              n.comp = ncomp,
                              x.center = x.center, x.scale = x.scale,
                              #y.center = y.center, y.scale = y.scale,
-                             returnData = F)
+                             returnData = FALSE)
     }
   }else{
     res_splsicox <- NA
@@ -708,7 +708,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
                                eta = cv.splsdrcox_res$opt.eta,
                                x.center = x.center, x.scale = x.scale,
                                #y.scale = y.scale, y.center = y.center,
-                               returnData = F)
+                               returnData = FALSE)
 
     }else{
       #solo un spls
@@ -718,7 +718,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
                                eta = eta,
                                x.center = x.center, x.scale = x.scale,
                                #y.scale = y.scale, y.center = y.center,
-                               returnData = F)
+                               returnData = FALSE)
 
     }
   }else{
@@ -749,7 +749,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
                                                  EVAL_METHOD = EVAL_METHOD,
                                                  x.center = x.center, x.scale = x.scale,
                                                  #y.scale = y.scale, y.center = y.center,
-                                                 returnData = F)
+                                                 returnData = FALSE)
 
     }else{
       #solo un spls
@@ -761,7 +761,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
                                                  EVAL_METHOD = EVAL_METHOD,
                                                  x.center = x.center, x.scale = x.scale,
                                                  #y.scale = y.scale, y.center = y.center,
-                                                 returnData = F)
+                                                 returnData = FALSE)
 
     }
   }else{
@@ -801,7 +801,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
                                  EVAL_METHOD = EVAL_METHOD,
                                  x.center = x.center, x.scale = x.scale,
                                  #y.center = y.center, y.scale = y.scale,
-                                 max.iter = 500, returnData = F)
+                                 max.iter = 500, returnData = FALSE)
 
       }else{
         res_splsdacox_dynamic <- splsdacox_dynamic(X_train, Y_train,
@@ -811,7 +811,7 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
                                  EVAL_METHOD = EVAL_METHOD,
                                  x.center = x.center, x.scale = x.scale,
                                  #y.center = y.center, y.scale = y.scale,
-                                 max.iter = 500, returnData = F)
+                                 max.iter = 500, returnData = FALSE)
 
       }
 
@@ -868,8 +868,8 @@ train_all_models2.5 <- function(lst_X_train, lst_Y_train,
 
 boxplot.performance <- function(df, x.var, y.var, x.fill = NULL, x.alpha = NULL, x.lab = NULL,
                                 y.lab = NULL, fill.lab = NULL, alpha.lab = NULL, title = NULL,
-                                y.limit = NULL, y.limit.exception = NULL, jitter = T,
-                                test = "anova", eval_method = "auto", show.median = T,
+                                y.limit = NULL, y.limit.exception = NULL, jitter = TRUE,
+                                test = "anova", eval_method = "auto", show.median = TRUE,
                                 round.median = 3, legend_title = "Method", legend_size_text = 12,
                                 x_axis_size_text = 10, y_axis_size_text = 10){
 
@@ -901,15 +901,15 @@ boxplot.performance <- function(df, x.var, y.var, x.fill = NULL, x.alpha = NULL,
     df <- df[!is.na(df[,x.alpha]),]
   }
 
-  max <- max(df[!is.na(df[,y.var,drop=T]),y.var,drop=T])
+  max <- max(df[!is.na(df[,y.var,drop = TRUE]),y.var,drop = TRUE])
 
   tests <- c("t.test","wilcox.test","anova","kruskal.test")
   comparisons <-  list()
   cont = 1
   if(!is.null(test)){
-    for(i in 1:(length(levels(df[,x.var, drop=T]))-1)){
-      for(j in (i+1):length(levels(df[,x.var, drop=T]))){
-        comparisons[[cont]] <- c(levels(df[,x.var, drop=T])[i], levels(df[,x.var, drop=T])[j])
+    for(i in 1:(length(levels(df[,x.var, drop = TRUE]))-1)){
+      for(j in (i+1):length(levels(df[,x.var, drop = TRUE]))){
+        comparisons[[cont]] <- c(levels(df[,x.var, drop = TRUE])[i], levels(df[,x.var, drop = TRUE])[j])
         cont = cont + 1
       }
     }
@@ -919,23 +919,23 @@ boxplot.performance <- function(df, x.var, y.var, x.fill = NULL, x.alpha = NULL,
   }
 
   median.val <- NULL
-  for(m in levels(df[,x.var, drop=T])){
-    sub_value <- df[df[,x.var, drop=T]==m,y.var,drop=T]
+  for(m in levels(df[,x.var, drop = TRUE])){
+    sub_value <- df[df[,x.var, drop = TRUE]==m,y.var,drop = TRUE]
     if(eval_method=="median"){
-      median.val <- c(median.val, median(sub_value, na.rm = T))
+      median.val <- c(median.val, median(sub_value, na.rm = TRUE))
     }else{
-      median.val <- c(median.val, mean(sub_value, na.rm = T))
+      median.val <- c(median.val, mean(sub_value, na.rm = TRUE))
     }
   }
 
   if(!is.null(median.val)){
-    names(median.val) <- levels(df[,x.var,drop=T])
+    names(median.val) <- levels(df[,x.var,drop = TRUE])
     median.val <- round(median.val, round.median)
 
     if(eval_method=="median"){
-      x_names <- paste0(levels(df[,x.var,drop=T]), "\nMedian: ", median.val)
+      x_names <- paste0(levels(df[,x.var,drop = TRUE]), "\nMedian: ", median.val)
     }else{
-      x_names <- paste0(levels(df[,x.var,drop=T]), "\nMean: ", median.val)
+      x_names <- paste0(levels(df[,x.var,drop = TRUE]), "\nMean: ", median.val)
     }
   }
 
@@ -972,7 +972,7 @@ boxplot.performance <- function(df, x.var, y.var, x.fill = NULL, x.alpha = NULL,
   }
 
   if(!is.null(x.alpha)){
-    dim_alpha <- length(levels(df[,x.alpha,drop=T]))
+    dim_alpha <- length(levels(df[,x.alpha,drop = TRUE]))
 
     if(!dim_alpha==1){
       s <- 1/dim_alpha
@@ -1042,7 +1042,7 @@ boxplot.performance <- function(df, x.var, y.var, x.fill = NULL, x.alpha = NULL,
 }
 
 lineplot.performace <- function(df, x.var = "time", y.var = "AUC", x.color = "method", x.lab = NULL,
-                                y.lab = NULL, y.limit = NULL, point = T, legend_title = "Method",
+                                y.lab = NULL, y.limit = NULL, point = TRUE, legend_title = "Method",
                                 legend_size_text = 12, x_axis_size_text = 10, y_axis_size_text = 10){
   MAX_X_ELEMENTS = 20
 

@@ -155,12 +155,12 @@ splsdacox_dynamic <- function (X, Y,
                                MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 5,
                                MIN_AUC_INCREASE = 0.01,
                                x.center = TRUE, x.scale = FALSE,
-                               remove_near_zero_variance = T, remove_zero_variance = T,
+                               remove_near_zero_variance = TRUE, remove_zero_variance = TRUE,
                                toKeep.zv = NULL,
-                               remove_non_significant = F, alpha = 0.05,
+                               remove_non_significant = FALSE, alpha = 0.05,
                                EVAL_METHOD = "AUC", pred.method = "cenROC", max.iter = 200,
                                times = NULL, max_time_points = 15,
-                               MIN_EPV = 5, returnData = T, verbose = F){
+                               MIN_EPV = 5, returnData = TRUE, verbose = FALSE){
   # tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
   tol = 1e-10
 
@@ -240,7 +240,7 @@ splsdacox_dynamic <- function (X, Y,
 
   if(is.null(vector)){
     lst_BV <- getBestVector(Xh, DR_coxph, Yh, n.comp, max.iter, vector, MIN_AUC_INCREASE, MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR,
-                            cut_points = n.cut_points, EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = F,
+                            cut_points = n.cut_points, EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = FALSE,
                             mode = "splsda", times = times, max_time_points = max_time_points, verbose = verbose)
     keepX <- lst_BV$best.keepX
     plotVAR <- plot_VAR_eval(lst_BV, EVAL_METHOD = EVAL_METHOD)
@@ -259,7 +259,7 @@ splsdacox_dynamic <- function (X, Y,
     }else{
       message("Vector does not has the proper structure. Optimizing best n.variables by using your vector as start vector.")
       lst_BV <- getBestVector(Xh, DR_coxph, Yh, n.comp, max.iter, vector = NULL, MIN_AUC_INCREASE, MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, cut_points = n.cut_points,
-                             EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = F, mode = "splsda", times = times, max_time_points = max_time_points, verbose = verbose)
+                             EVAL_METHOD = EVAL_METHOD, EVAL_EVALUATOR = pred.method, PARALLEL = FALSE, mode = "splsda", times = times, max_time_points = max_time_points, verbose = verbose)
       keepX <- lst_BV$best.keepX
       plotVAR <- plot_VAR_eval(lst_BV, EVAL_METHOD = EVAL_METHOD)
     }
@@ -269,7 +269,7 @@ splsdacox_dynamic <- function (X, Y,
   ### ##             PLSDA-COX             ###  ##
   #### ### ### ### ### ### ### ### ### ### ### ###
 
-  splsda <- mixOmics::splsda(Xh, Yh[,"event"], scale=F, ncomp = n.comp, keepX = rep(keepX, n.comp), max.iter = max.iter, near.zero.var = T)
+  splsda <- mixOmics::splsda(Xh, Yh[,"event"], scale = FALSE, ncomp = n.comp, keepX = rep(keepX, n.comp), max.iter = max.iter, near.zero.var = TRUE)
 
   # PREDICTION
   # not implemented !!!
@@ -303,10 +303,10 @@ splsdacox_dynamic <- function (X, Y,
       survival::coxph(formula = survival::Surv(time,event) ~ .,
                       data = d,
                       ties = "efron",
-                      singular.ok = T,
-                      robust = T,
+                      singular.ok = TRUE,
+                      robust = TRUE,
                       nocenter = rep(1, ncol(d)),
-                      model=T, x = T)
+                      model = TRUE, x = TRUE)
     },
     # Specifying error message
     error = function(e){
@@ -406,10 +406,10 @@ splsdacox_dynamic <- function (X, Y,
     #update all values
     which_to_keep <- which(colnames(W) %in% names(cox_model$fit$coefficients))
 
-    W <- W[,names(cox_model$fit$coefficients),drop=F]
-    W.star = W.star[,names(cox_model$fit$coefficients),drop=F]
-    P = P[,names(cox_model$fit$coefficients),drop=F]
-    Ts = Ts[,names(cox_model$fit$coefficients),drop=F]
+    W <- W[,names(cox_model$fit$coefficients),drop = FALSE]
+    W.star = W.star[,names(cox_model$fit$coefficients),drop = FALSE]
+    P = P[,names(cox_model$fit$coefficients),drop = FALSE]
+    Ts = Ts[,names(cox_model$fit$coefficients),drop = FALSE]
     n.comp = ncol(max(which_to_keep))
   }
 
@@ -596,19 +596,19 @@ cv.splsdacox_dynamic <- function(X, Y,
                         max.ncomp = 8, vector = NULL,
                         n_run = 3, k_folds = 10,
                         x.center = TRUE, x.scale = FALSE,
-                        remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
-                        remove_variance_at_fold_level = F,
-                        remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,
+                        remove_near_zero_variance = TRUE, remove_zero_variance = TRUE, toKeep.zv = NULL,
+                        remove_variance_at_fold_level = FALSE,
+                        remove_non_significant_models = FALSE, remove_non_significant = FALSE, alpha = 0.05,
                         MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 5,
                         MIN_AUC_INCREASE = 0.01,
                         EVAL_METHOD = "AUC",
                         w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL,
                         max_time_points = 15,
                         MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
-                        pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
+                        pred.attr = "mean", pred.method = "cenROC", fast_mode = FALSE,
                         max.iter = 500,
-                        MIN_EPV = 5, return_models = F, returnData = F,
-                        PARALLEL = F, verbose = F, seed = 123){
+                        MIN_EPV = 5, return_models = FALSE, returnData = FALSE,
+                        PARALLEL = FALSE, verbose = FALSE, seed = 123){
   # tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
   tol = 1e-10
 
@@ -734,7 +734,7 @@ cv.splsdacox_dynamic <- function(X, Y,
                                         n.cut_points = n.cut_points,
                                         x.center = x.center, x.scale = x.scale,
                                         y.center = y.center, y.scale = y.scale,
-                                        remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
+                                        remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = FALSE, toKeep.zv = NULL,
                                         alpha = alpha, MIN_EPV = MIN_EPV,
                                         remove_non_significant = remove_non_significant, tol = tol, max.iter = max.iter,
                                         returnData = returnData, total_models = total_models,
@@ -779,7 +779,7 @@ cv.splsdacox_dynamic <- function(X, Y,
   df_results_evals_run <- NULL
   df_results_evals_fold <- NULL
   optimal_comp_index <- NULL
-  optimal_comp_flag <- F
+  optimal_comp_flag <- FALSE
 
   if(TRUE){ #compute always BRIER SCORE
     #calculate time vector if still NULL
@@ -787,7 +787,7 @@ cv.splsdacox_dynamic <- function(X, Y,
       times <- getTimesVector(Y, max_time_points = max_time_points)
     }
 
-    #As we are measuring just one evaluator and one method - PARALLEL=F
+    #As we are measuring just one evaluator and one method - PARALLEL = FALSE
     lst_df <- get_COX_evaluation_BRIER(comp_model_lst = comp_model_lst,
                                        fast_mode = fast_mode,
                                        X_test = X, Y_test = Y,
@@ -796,7 +796,7 @@ cv.splsdacox_dynamic <- function(X, Y,
                                        pred.method = pred.method, pred.attr = pred.attr,
                                        max.ncomp = max.ncomp, n_run = n_run, k_folds = k_folds,
                                        MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                       w_BRIER = w_BRIER, method.train = pkg.env$splsdacox_dynamic, PARALLEL = F, verbose = verbose)
+                                       w_BRIER = w_BRIER, method.train = pkg.env$splsdacox_dynamic, PARALLEL = FALSE, verbose = verbose)
 
     df_results_evals_comp <- lst_df$df_results_evals_comp
     df_results_evals_run <- lst_df$df_results_evals_run
@@ -823,7 +823,7 @@ cv.splsdacox_dynamic <- function(X, Y,
                                      fast_mode = fast_mode, pred.method = pred.method, pred.attr = pred.attr,
                                      max.ncomp = max.ncomp, n_run = n_run, k_folds = k_folds,
                                      MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                     w_AUC = w_AUC, method.train = pkg.env$splsdacox_dynamic, PARALLEL = F, verbose = verbose)
+                                     w_AUC = w_AUC, method.train = pkg.env$splsdacox_dynamic, PARALLEL = FALSE, verbose = verbose)
 
     if(is.null(df_results_evals_comp)){
       df_results_evals_comp <- lst_df$df_results_evals_comp
@@ -855,10 +855,10 @@ cv.splsdacox_dynamic <- function(X, Y,
                                                  colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC", colname_BRIER = "BRIER")
 
   if(optimal_comp_flag){
-    best_model_info <- df_results_evals_comp[optimal_comp_index,, drop=F][1,]
+    best_model_info <- df_results_evals_comp[optimal_comp_index,, drop = FALSE][1,]
     best_model_info <- as.data.frame(best_model_info)
   }else{
-    best_model_info <- df_results_evals_comp[which(df_results_evals_comp[,"score"] == max(df_results_evals_comp[,"score"], na.rm = T)),, drop=F][1,]
+    best_model_info <- df_results_evals_comp[which(df_results_evals_comp[,"score"] == max(df_results_evals_comp[,"score"], na.rm = TRUE)),, drop = FALSE][1,]
     best_model_info <- as.data.frame(best_model_info)
   }
 

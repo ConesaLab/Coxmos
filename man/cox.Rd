@@ -9,15 +9,15 @@ cox(
   Y,
   x.center = TRUE,
   x.scale = FALSE,
-  remove_near_zero_variance = T,
-  remove_zero_variance = F,
+  remove_near_zero_variance = TRUE,
+  remove_zero_variance = FALSE,
   toKeep.zv = NULL,
-  remove_non_significant = F,
+  remove_non_significant = FALSE,
   alpha = 0.05,
   MIN_EPV = 5,
-  FORCE = F,
-  returnData = T,
-  verbose = F
+  FORCE = FALSE,
+  returnData = TRUE,
+  verbose = FALSE
 )
 }
 \arguments{

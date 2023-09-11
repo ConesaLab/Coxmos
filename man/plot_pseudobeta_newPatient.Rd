@@ -7,13 +7,13 @@
 plot_pseudobeta_newPatient(
   model,
   new_observation,
-  error.bar = T,
-  onlySig = T,
+  error.bar = TRUE,
+  onlySig = TRUE,
   alpha = 0.05,
-  zero.rm = T,
+  zero.rm = TRUE,
   top = NULL,
-  auto.limits = T,
-  show.betas = F
+  auto.limits = TRUE,
+  show.betas = FALSE
 )
 }
 \arguments{

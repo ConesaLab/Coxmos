@@ -15,10 +15,10 @@ mb.splsdacox(
   EVAL_METHOD = "AUC",
   x.center = TRUE,
   x.scale = FALSE,
-  remove_near_zero_variance = T,
-  remove_zero_variance = T,
+  remove_near_zero_variance = TRUE,
+  remove_zero_variance = TRUE,
   toKeep.zv = NULL,
-  remove_non_significant = T,
+  remove_non_significant = TRUE,
   alpha = 0.05,
   MIN_AUC_INCREASE = 0.01,
   pred.method = "cenROC",
@@ -26,8 +26,8 @@ mb.splsdacox(
   times = NULL,
   max_time_points = 15,
   MIN_EPV = 5,
-  returnData = T,
-  verbose = F
+  returnData = TRUE,
+  verbose = FALSE
 )
 }
 \arguments{

@@ -9,10 +9,10 @@ getAutoKM.list(
   lst_models,
   comp = 1:2,
   top = NULL,
-  ori_data = T,
+  ori_data = TRUE,
   BREAKTIME = NULL,
   n.breaks = 20,
-  only_sig = F,
+  only_sig = FALSE,
   alpha = 0.05,
   title = NULL,
   verbose = FALSE

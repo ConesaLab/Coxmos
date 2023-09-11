@@ -8,42 +8,42 @@ coxSW(
   X,
   Y,
   max.variables = 20,
-  BACKWARDS = T,
+  BACKWARDS = TRUE,
   alpha_ENT = 0.1,
   alpha_OUT = 0.15,
   toKeep.sw = NULL,
   initialModel = NULL,
   x.center = TRUE,
   x.scale = FALSE,
-  remove_near_zero_variance = T,
-  remove_zero_variance = F,
+  remove_near_zero_variance = TRUE,
+  remove_zero_variance = FALSE,
   toKeep.zv = NULL,
-  remove_non_significant = F,
+  remove_non_significant = FALSE,
   alpha = 0.05,
   MIN_EPV = 5,
-  returnData = T,
-  verbose = F
+  returnData = TRUE,
+  verbose = FALSE
 )
 
 coxSW(
   X,
   Y,
   max.variables = 20,
-  BACKWARDS = T,
+  BACKWARDS = TRUE,
   alpha_ENT = 0.1,
   alpha_OUT = 0.15,
   toKeep.sw = NULL,
   initialModel = NULL,
   x.center = TRUE,
   x.scale = FALSE,
-  remove_near_zero_variance = T,
-  remove_zero_variance = F,
+  remove_near_zero_variance = TRUE,
+  remove_zero_variance = FALSE,
   toKeep.zv = NULL,
-  remove_non_significant = F,
+  remove_non_significant = FALSE,
   alpha = 0.05,
   MIN_EPV = 5,
-  returnData = T,
-  verbose = F
+  returnData = TRUE,
+  verbose = FALSE
 )
 }
 \arguments{

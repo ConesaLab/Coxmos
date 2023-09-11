@@ -9,10 +9,10 @@ getAutoKM(
   model,
   comp = 1:2,
   top = 10,
-  ori_data = T,
+  ori_data = TRUE,
   BREAKTIME = NULL,
   n.breaks = 20,
-  only_sig = F,
+  only_sig = FALSE,
   alpha = 0.05,
   title = NULL,
   verbose = FALSE

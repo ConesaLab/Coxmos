@@ -11,10 +11,10 @@ plot_PLS_Coxmos(
   factor = NULL,
   legend_title = NULL,
   top = NULL,
-  only_top = F,
+  only_top = FALSE,
   radius = NULL,
-  names = T,
-  colorReverse = F,
+  names = TRUE,
+  colorReverse = FALSE,
   text.size = 2,
   overlaps = 10
 )

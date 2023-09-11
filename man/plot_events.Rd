@@ -10,7 +10,7 @@ plot_events(
   roundTo = 0.1,
   categories = c("Censored", "Death"),
   y.text = "Number of observations",
-  verbose = F
+  verbose = FALSE
 )
 }
 \arguments{

@@ -4,7 +4,7 @@
 \alias{factorToBinary}
 \title{factorToBinary}
 \usage{
-factorToBinary(X, all = T, sep = "_")
+factorToBinary(X, all = TRUE, sep = "_")
 }
 \arguments{
 \item{X}{Numeric matrix or data.frame. Only qualitative variables (factor class) will be
@@ -39,8 +39,8 @@ remain unaltered, preserving the integrity of the original data structure.
 }
 \examples{
 \dontrun{
-X.dummy <- factorToBinary(X, all = F, sep = "_")
-X.pls <- factorToBinary(X, all = T, sep = "_")
+X.dummy <- factorToBinary(X, all = FALSE, sep = "_")
+X.pls <- factorToBinary(X, all = TRUE, sep = "_")
 }
 }
 \author{

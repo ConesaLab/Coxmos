@@ -88,14 +88,14 @@ getEPV.mb <- function(X,Y){
 #'
 #' @export
 
-deleteZeroOrNearZeroVariance.mb <- function(X, remove_near_zero_variance = F, remove_zero_variance = T,
+deleteZeroOrNearZeroVariance.mb <- function(X, remove_near_zero_variance = FALSE, remove_zero_variance = TRUE,
                                             toKeep.zv = NULL, freqCut = 95/5){
 
   auxX <- X
 
   variablesDeleted <- NULL
   if(remove_near_zero_variance){
-    lst.zv <- purrr::map(auxX, ~deleteZeroVarianceVariables(data = ., info = T, mustKeep = toKeep.zv, freqCut = freqCut))
+    lst.zv <- purrr::map(auxX, ~deleteZeroVarianceVariables(data = ., info = TRUE, mustKeep = toKeep.zv, freqCut = freqCut))
     variablesDeleted <- purrr::map(lst.zv, ~.$variablesDeleted[,1])
     if(any(unlist(lapply(variablesDeleted, is.null)))){ #if any not null
       for(n in names(variablesDeleted)){
@@ -107,7 +107,7 @@ deleteZeroOrNearZeroVariance.mb <- function(X, remove_near_zero_variance = F, re
       }
     }
   }else if(remove_zero_variance){
-    lst.zv <- purrr::map(auxX, ~deleteZeroVarianceVariables(data = ., info = T, mustKeep = toKeep.zv, onlyZero = T))
+    lst.zv <- purrr::map(auxX, ~deleteZeroVarianceVariables(data = ., info = TRUE, mustKeep = toKeep.zv, onlyZero = TRUE))
     variablesDeleted <- purrr::map(lst.zv, ~.$variablesDeleted[,1])
     if(any(unlist(lapply(variablesDeleted, is.null)))){ #if any not null
       for(n in names(variablesDeleted)){
@@ -167,7 +167,7 @@ deleteNearZeroCoefficientOfVariation.mb <- function(X, LIMIT = 0.1){
   return(list("X" = newX, "variablesDeleted" = variablesDeleted, "coeff_variation" = cvar))
 }
 
-checkXY.rownames.mb <- function(X, Y, verbose = T){
+checkXY.rownames.mb <- function(X, Y, verbose = TRUE){
   # Check if X and Y are matrices
   if (!isa(X, "list")){
     if(verbose){
@@ -196,7 +196,7 @@ checkXY.rownames.mb <- function(X, Y, verbose = T){
   return(list(X = X, Y = Y))
 }
 
-checkXY.mb.class <- function(X, Y, verbose = T){
+checkXY.mb.class <- function(X, Y, verbose = TRUE){
   # Check if X and Y are matrices
   if (!isa(X, "list")){
     if(verbose){
@@ -237,7 +237,7 @@ checkXY.mb.class <- function(X, Y, verbose = T){
   return(list(X = X, Y = Y))
 }
 
-check.mb.ncomp <- function(X, max.ncomp, verbose = F){
+check.mb.ncomp <- function(X, max.ncomp, verbose = FALSE){
 
   if(length(max.ncomp)>1){
     stop("max.ncomp must be a number. Not a vector.")
@@ -253,7 +253,7 @@ check.mb.ncomp <- function(X, max.ncomp, verbose = F){
   return(max.ncomp)
 }
 
-check.mb.maxPredictors <- function(X, Y, MIN_EPV, max.variables, verbose = F){
+check.mb.maxPredictors <- function(X, Y, MIN_EPV, max.variables, verbose = FALSE){
   max_n_predictors <- purrr::map(X, ~getMaxNPredictors(n.var = ncol(.), Y, MIN_EPV))
   max_n_predictors <- max(unlist(max_n_predictors))
   max.variables.res <- max.variables
@@ -371,23 +371,23 @@ XY.mb.scale <- function(X, Y, x.center, x.scale, y.center, y.scale){
   #CENTERING X
   if(length(x.center)>1){
     if(length(x.center)==length(X) & all(names(X) %in% names(x.center))){
-      Xh <- purrr::map2(.x = X, .y = names(X), ~scale(., center = x.center[[.y]], scale = F))
+      Xh <- purrr::map2(.x = X, .y = names(X), ~scale(., center = x.center[[.y]], scale = FALSE))
     }else{
       stop("Names in x.center do not match with names in X.")
     }
   }else{
-    Xh <- purrr::map(X, ~scale(., center = x.center, scale = F))
+    Xh <- purrr::map(X, ~scale(., center = x.center, scale = FALSE))
   }
 
   #SCALING X
   if(length(x.scale)>1){
     if(length(x.scale)==length(X) & all(names(X) %in% names(x.scale))){
-      Xh <- purrr::map2(.x = Xh, .y = names(X), ~scale(., center = F, scale = x.scale[[.y]]))
+      Xh <- purrr::map2(.x = Xh, .y = names(X), ~scale(., center = FALSE, scale = x.scale[[.y]]))
     }else{
       stop("Names in x.scale do not match with names in X.")
     }
   }else{
-    Xh <- purrr::map(X, ~scale(., center = F, scale = x.scale))
+    Xh <- purrr::map(X, ~scale(., center = FALSE, scale = x.scale))
   }
 
   xmeans <- purrr::map(Xh, ~attr(., "scaled:center"))
@@ -395,7 +395,7 @@ XY.mb.scale <- function(X, Y, x.center, x.scale, y.center, y.scale){
 
   #SCALING Y
   if(y.center | y.scale){
-    Yh_time <- scale(Y[,"time", drop=F], center = y.center, scale = y.scale)
+    Yh_time <- scale(Y[,"time", drop = FALSE], center = y.center, scale = y.scale)
     ymeans <- attr(Y, "scaled:center")
     ysds <- attr(Y, "scaled:scale")
     Yh <- Y
@@ -414,16 +414,16 @@ Xh_XXNA <- function(Xh, XXNA, value = 0){
   return(Xh)
 }
 
-getCIndex_AUC_CoxModel_block.spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keepX, scale = F,
-                                              near.zero.var = F, EVAL_EVALUATOR = "cenROC",
-                                              max.iter = 100, verbose = F, times = NULL,
+getCIndex_AUC_CoxModel_block.spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keepX, scale = FALSE,
+                                              near.zero.var = FALSE, EVAL_EVALUATOR = "cenROC",
+                                              max.iter = 100, verbose = FALSE, times = NULL,
                                               max_time_points = 15){
   model <- mixOmics::block.spls(X = Xh, Y = DR_coxph_ori, ncomp = n.comp, keepX = keepX, scale = scale, near.zero.var = near.zero.var, max.iter = max.iter)
   tt_mbsplsDR = model$variates[names(Xh)]
 
-  d <- as.data.frame(tt_mbsplsDR[[1]][,,drop=F])
+  d <- as.data.frame(tt_mbsplsDR[[1]][,,drop = FALSE])
   for(b in names(Xh)[2:length(Xh)]){
-    d <- cbind(d, as.data.frame(tt_mbsplsDR[[b]][,,drop=F]))
+    d <- cbind(d, as.data.frame(tt_mbsplsDR[[b]][,,drop = FALSE]))
   }
 
   colnames(d) <- apply(expand.grid(colnames(tt_mbsplsDR[[1]]), names(Xh)), 1, paste, collapse="_")
@@ -435,10 +435,10 @@ getCIndex_AUC_CoxModel_block.spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keep
       survival::coxph(formula = survival::Surv(time,event) ~ .,
                       data = cbind(d, Yh),
                       ties = "efron",
-                      singular.ok = T,
-                      robust = T,
+                      singular.ok = TRUE,
+                      robust = TRUE,
                       nocenter = rep(1, ncol(d)),
-                      model=T, x = T)
+                      model = TRUE, x = TRUE)
     },
     # Specifying error message
     error = function(e){
@@ -463,16 +463,16 @@ getCIndex_AUC_CoxModel_block.spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keep
   return(list("c_index" = cox_model$fit$concordance["concordance"], "AUC" = lst_AUC_values$AUC, "BRIER" = lst_BRIER_values$ierror))
 }
 
-getCIndex_AUC_CoxModel_block.splsda <- function(Xh, Yh, n.comp, keepX, scale = F, near.zero.var = F,
+getCIndex_AUC_CoxModel_block.splsda <- function(Xh, Yh, n.comp, keepX, scale = FALSE, near.zero.var = FALSE,
                                                 EVAL_EVALUATOR = "cenROC", max.iter = 100,
                                                 verbose = verbose, times = NULL,
                                                 max_time_points = 15){
   model <- mixOmics::block.splsda(X = Xh, Y = Yh[,"event"], ncomp = n.comp, keepX = keepX, scale = scale, near.zero.var = near.zero.var, max.iter = max.iter)
   tt_mbsplsDR = model$variates[names(Xh)]
 
-  d <- as.data.frame(tt_mbsplsDR[[1]][,,drop=F])
+  d <- as.data.frame(tt_mbsplsDR[[1]][,,drop = FALSE])
   for(b in names(Xh)[2:length(Xh)]){
-    d <- cbind(d, as.data.frame(tt_mbsplsDR[[b]][,,drop=F]))
+    d <- cbind(d, as.data.frame(tt_mbsplsDR[[b]][,,drop = FALSE]))
   }
 
   colnames(d) <- apply(expand.grid(colnames(tt_mbsplsDR[[1]]), names(Xh)), 1, paste, collapse="_")
@@ -484,10 +484,10 @@ getCIndex_AUC_CoxModel_block.splsda <- function(Xh, Yh, n.comp, keepX, scale = F
       survival::coxph(formula = survival::Surv(time,event) ~ .,
                       data = cbind(d, Yh),
                       ties = "efron",
-                      singular.ok = T,
-                      robust = T,
+                      singular.ok = TRUE,
+                      robust = TRUE,
                       nocenter = rep(1, ncol(d)),
-                      model=T, x = T)
+                      model = TRUE, x = TRUE)
     },
     # Specifying error message
     error = function(e){
@@ -512,15 +512,15 @@ getCIndex_AUC_CoxModel_block.splsda <- function(Xh, Yh, n.comp, keepX, scale = F
   return(list("c_index" = cox_model$fit$concordance["concordance"], "AUC" = lst_AUC_values$AUC, "BRIER" = lst_BRIER_values$ierror))
 }
 
-getVarExpModel_block.spls <- function(Xh, DR_coxph_ori, n.comp, keepX, scale = F){
+getVarExpModel_block.spls <- function(Xh, DR_coxph_ori, n.comp, keepX, scale = FALSE){
   model <- mixOmics::block.spls(X = Xh, Y = DR_coxph_ori, ncomp = n.comp, keepX = keepX, scale = scale)
   var_exp <- data.frame(lapply(model$prop_expl_var, sum))
 }
 
 getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN_AUC_INCREASE,
                             MIN_NVAR = 10, MAX_NVAR = 10000, cut_points = 5, EVAL_METHOD = "AUC",
-                            EVAL_EVALUATOR = "cenROC", PARALLEL = F, mode = "spls", times = NULL,
-                            max_time_points = 15, verbose = F){
+                            EVAL_EVALUATOR = "cenROC", PARALLEL = FALSE, mode = "spls", times = NULL,
+                            max_time_points = 15, verbose = FALSE){
 
   if(!mode %in% c("spls", "splsda")){
     stop("Mode must be one of: 'spls' or 'splsda'")
@@ -594,18 +594,18 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
 
     t1 <- Sys.time()
     if(mode %in% "spls"){
-      lst_cox_value <- furrr::future_map(list_KeepX, ~getCIndex_AUC_CoxModel_block.spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter, verbose = verbose, times = times, max_time_points = max_time_points), .progress = F)
+      lst_cox_value <- furrr::future_map(list_KeepX, ~getCIndex_AUC_CoxModel_block.spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = FALSE, near.zero.var = FALSE, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter, verbose = verbose, times = times, max_time_points = max_time_points), .progress = FALSE)
     }else{
-      lst_cox_value <- furrr::future_map(list_KeepX, ~getCIndex_AUC_CoxModel_block.splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter, verbose = verbose, times = times, max_time_points = max_time_points), .progress = F)
+      lst_cox_value <- furrr::future_map(list_KeepX, ~getCIndex_AUC_CoxModel_block.splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = FALSE, near.zero.var = FALSE, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter, verbose = verbose, times = times, max_time_points = max_time_points), .progress = FALSE)
     }
     t2 <- Sys.time()
     future::plan("sequential")
   }else{
     t1 <- Sys.time()
     if(mode %in% "spls"){
-      lst_cox_value <- purrr::map(list_KeepX, ~getCIndex_AUC_CoxModel_block.spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter, verbose = verbose, times = times, max_time_points = max_time_points), .progress = F)
+      lst_cox_value <- purrr::map(list_KeepX, ~getCIndex_AUC_CoxModel_block.spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = FALSE, near.zero.var = FALSE, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter, verbose = verbose, times = times, max_time_points = max_time_points), .progress = FALSE)
     }else{
-      lst_cox_value <- purrr::map(list_KeepX, ~getCIndex_AUC_CoxModel_block.splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter, verbose = verbose, times = times, max_time_points = max_time_points), .progress = F)
+      lst_cox_value <- purrr::map(list_KeepX, ~getCIndex_AUC_CoxModel_block.splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = FALSE, near.zero.var = FALSE, EVAL_EVALUATOR = EVAL_EVALUATOR, max.iter = max.iter, verbose = verbose, times = times, max_time_points = max_time_points), .progress = FALSE)
     }
     t2 <- Sys.time()
   }
@@ -629,7 +629,7 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
 
   #Select best keepX
   keepX <- list_KeepX[[index]]
-  FLAG = T
+  FLAG = TRUE
   cont = 0
 
   best_c_index <- df_cox_value[index]
@@ -734,18 +734,18 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
 
       t1 <- Sys.time()
       if(mode %in% "spls"){
-        lst_cox_value <- furrr::future_map(list_KeepX_aux, ~getCIndex_AUC_CoxModel_block.spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter, verbose = verbose, times = times, max_time_points = max_time_points), .progress = F)
+        lst_cox_value <- furrr::future_map(list_KeepX_aux, ~getCIndex_AUC_CoxModel_block.spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = FALSE, near.zero.var = FALSE, max.iter = max.iter, verbose = verbose, times = times, max_time_points = max_time_points), .progress = FALSE)
       }else{
-        lst_cox_value <- furrr::future_map(list_KeepX_aux, ~getCIndex_AUC_CoxModel_block.splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter, verbose = verbose, times = times, max_time_points = max_time_points), .progress = F)
+        lst_cox_value <- furrr::future_map(list_KeepX_aux, ~getCIndex_AUC_CoxModel_block.splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = FALSE, near.zero.var = FALSE, max.iter = max.iter, verbose = verbose, times = times, max_time_points = max_time_points), .progress = FALSE)
       }
       t2 <- Sys.time()
       future::plan("sequential")
     }else{
       t1 <- Sys.time()
       if(mode %in% "spls"){
-        lst_cox_value <- purrr::map(list_KeepX_aux, ~getCIndex_AUC_CoxModel_block.spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter, verbose = verbose, times = times, max_time_points = max_time_points), .progress = F)
+        lst_cox_value <- purrr::map(list_KeepX_aux, ~getCIndex_AUC_CoxModel_block.spls(Xh = Xh, DR_coxph_ori = DR_coxph, Yh = Yh, n.comp = n.comp, keepX = ., scale = FALSE, near.zero.var = FALSE, max.iter = max.iter, verbose = verbose, times = times, max_time_points = max_time_points), .progress = FALSE)
       }else{
-        lst_cox_value <- purrr::map(list_KeepX_aux, ~getCIndex_AUC_CoxModel_block.splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = F, near.zero.var = F, max.iter = max.iter, verbose = verbose, times = times, max_time_points = max_time_points), .progress = F)
+        lst_cox_value <- purrr::map(list_KeepX_aux, ~getCIndex_AUC_CoxModel_block.splsda(Xh = Xh, Yh = Yh, n.comp = n.comp, keepX = ., scale = FALSE, near.zero.var = FALSE, max.iter = max.iter, verbose = verbose, times = times, max_time_points = max_time_points), .progress = FALSE)
       }
       t2 <- Sys.time()
     }
@@ -772,7 +772,7 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
     p_val[rownames(df_cox_value_aux)] <- df_cox_value_aux
 
     if(best_c_index >= best_c_index_aux | best_c_index_aux-best_c_index <= MIN_AUC_INCREASE){
-      FLAG = F
+      FLAG = FALSE
       if(verbose){
         message(paste0("End: \n"), paste0(paste0("Block ", names(best_keepX), ": ", unlist(purrr::map(best_keepX, ~unique(.)))), "\n"), paste0("Pred. Value: ", round(best_c_index, 4), "\n"))
       }

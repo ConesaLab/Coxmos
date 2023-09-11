@@ -11,10 +11,10 @@ super.trainAllModels(
   ncomp = 5,
   EN.alpha = 0.5,
   eta = 0.5,
-  x.center = T,
-  x.scale = T,
+  x.center = TRUE,
+  x.scale = TRUE,
   MIN_EPV = 0,
-  PARALLEL = T
+  PARALLEL = TRUE
 )
 }
 \arguments{

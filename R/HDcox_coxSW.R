@@ -82,13 +82,13 @@
 #' }
 
 coxSW <- function(X, Y,
-                  max.variables = 20, BACKWARDS = T,
+                  max.variables = 20, BACKWARDS = TRUE,
                   alpha_ENT = 0.1, alpha_OUT = 0.15, toKeep.sw = NULL,
                   initialModel = NULL,
                   x.center = TRUE, x.scale = FALSE,
-                  remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
-                  remove_non_significant = F, alpha = 0.05,
-                  MIN_EPV = 5, returnData = T, verbose = F){
+                  remove_near_zero_variance = TRUE, remove_zero_variance = FALSE, toKeep.zv = NULL,
+                  remove_non_significant = FALSE, alpha = 0.05,
+                  MIN_EPV = 5, returnData = TRUE, verbose = FALSE){
 
   t1 <- Sys.time()
   y.center = y.scale = FALSE
@@ -123,9 +123,9 @@ coxSW <- function(X, Y,
   colnames(X) <- transformIllegalChars(old_colnames)
   if(all(old_colnames %in% colnames(X))){
     #colnames changed
-    FLAG_COLNAMES = T
+    FLAG_COLNAMES = TRUE
   }else{
-    FLAG_COLNAMES = F
+    FLAG_COLNAMES = FALSE
   }
 
   #### REQUIREMENTS
@@ -179,7 +179,7 @@ coxSW <- function(X, Y,
   data.all <- NULL
   oneToDelete <- c("")
   lstMeetAssumption = NULL
-  problem_flag = F
+  problem_flag = FALSE
   removed_variables = NULL
   removed_variables_cor = NULL
 
@@ -206,7 +206,7 @@ coxSW <- function(X, Y,
 
   # if all NA, returna NULL model
   if(all(is.na(model))){
-    problem_flag = T
+    problem_flag = TRUE
     survival_model = NULL
     func_call <- match.call()
     return(coxSW_class(list(X = list("data" = if(returnData) data.all else NA, "x.mean" = xmeans, "x.sd" = xsds),
@@ -225,7 +225,7 @@ coxSW <- function(X, Y,
 
   ## STEPWISE MODEL IS A NOT-ROBUST COX MODEL
   ## make it robust to have the same P-VAL
-  model <- cox(X = Xh[,names(model$coefficients), drop=F], Y = Yh,
+  model <- cox(X = Xh[,names(model$coefficients), drop = FALSE], Y = Yh,
                alpha = alpha, MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose)
 
   # REMOVE NA-PVAL VARIABLES
@@ -303,7 +303,7 @@ coxSW <- function(X, Y,
 stepwise.coxph <- function(Time = NULL, Status = NULL, variable.list,
                            in.variable = "NULL", data, max.variables = NULL,
                            sle = 0.15, sls = 0.15,
-                           startBackwards = F, verbose = F){
+                           startBackwards = FALSE, verbose = FALSE){
 
   if(is.null(variable.list)){
     variable.list <- colnames(data)[!colnames(data) %in% c("time", "event", "status")]
@@ -328,17 +328,17 @@ stepwise.coxph <- function(Time = NULL, Status = NULL, variable.list,
       in.variable <- rownames(icox[1:min(max.variables, length(rownames(icox))),])
 
       # we cannot compute a standard cox bc the p.val and coefficients are not well computed for HD models
-      # we are using a FORCE = T model
+      # we are using a FORCE = TRUE model
       # we should run a Individual COX model for starting
 
-      aux_data <- as.data.frame(data[,colnames(data) %in% c(in.variable, "time", "event", "status"),drop=F])
+      aux_data <- as.data.frame(data[,colnames(data) %in% c(in.variable, "time", "event", "status"),drop = FALSE])
 
       f <- as.formula(paste0("survival::Surv(", Time, ", ", Status, ") ~ ", paste0(in.variable, collapse = " + ")))
       initial.model <- survival::coxph(formula = f, data = aux_data,
-                                       method = "efron", model = T, singular.ok = T, x = T)
+                                       method = "efron", model = TRUE, singular.ok = TRUE, x = TRUE)
 
       #initial.model <- survival::coxph(as.formula(paste("Surv(", Time, ", ", Status, ") ~ .")), data = aux_data,
-                                       #method = "efron", model = T, singular.ok = T, x = T)
+                                       #method = "efron", model = TRUE, singular.ok = TRUE, x = TRUE)
 
       # REMOVE NA-PVAL VARIABLES
       # p_val could be NA for some variables (if NA change to P-VAL=1)
@@ -352,12 +352,12 @@ stepwise.coxph <- function(Time = NULL, Status = NULL, variable.list,
 
     }else{
       # we CAN compute a standard cox bc te data has lesser variables than observations
-      aux_data <- as.data.frame(data[,colnames(data) %in% c(in.variable, "time", "event", "status"),drop=F])
+      aux_data <- as.data.frame(data[,colnames(data) %in% c(in.variable, "time", "event", "status"),drop = FALSE])
       #initial.model <- survival::coxph(as.formula(paste("Surv(", Time, ", ", Status, ") ~ .")), data = aux_data,
-      #                                 method = "efron", model = T, singular.ok = T, x = T)
+      #                                 method = "efron", model = TRUE, singular.ok = TRUE, x = TRUE)
       f <- as.formula(paste0("survival::Surv(", Time, ", ", Status, ") ~ ", paste0(in.variable, collapse = " + ")))
       initial.model <- survival::coxph(formula = f, data = aux_data,
-                                       method = "efron", model = T, singular.ok = T, x = T)
+                                       method = "efron", model = TRUE, singular.ok = TRUE, x = TRUE)
 
       lst_model <- removeNAorINFcoxmodel(initial.model, aux_data)
       initial.model <- lst_model$model
@@ -375,15 +375,15 @@ stepwise.coxph <- function(Time = NULL, Status = NULL, variable.list,
     }
 
     # we cannot compute a standard cox bc the p.val and coefficients are not well computed for HD models
-    # we are using a FORCE = T model
+    # we are using a FORCE = TRUE model
     # we should run a Individual COX model for starting
 
     icox <- getIndividualCox(data[,colnames(data) %in% c(in.variable, "time", "event", "status")])
     in.variable <- rownames(icox[1,])
 
-    aux_data <- as.data.frame(data[,colnames(data) %in% c(in.variable, "time", "event", "status"),drop=F])
+    aux_data <- as.data.frame(data[,colnames(data) %in% c(in.variable, "time", "event", "status"),drop = FALSE])
     initial.model <- survival::coxph(as.formula(paste("Surv(", Time, ", ", Status, ") ~ .")), data = aux_data,
-                                     method = "efron", model = T, singular.ok = T, x = T)
+                                     method = "efron", model = TRUE, singular.ok = TRUE, x = TRUE)
     lst_model <- removeNAorINFcoxmodel(initial.model, aux_data)
     initial.model <- lst_model$model
   }
@@ -394,7 +394,7 @@ stepwise.coxph <- function(Time = NULL, Status = NULL, variable.list,
   #stepwise algorithm model by My.stepwise
   i <- 0
   break.rule <- TRUE
-  broke = F
+  broke = FALSE
   iter = 0
   last_removed = ""
   while(break.rule){
@@ -432,7 +432,7 @@ stepwise.coxph <- function(Time = NULL, Status = NULL, variable.list,
           coeff <- names(coefficients(temp.model))
           f <- as.formula(paste0("survival::Surv(", Time, ", ", Status, ") ~ ", paste0(c(coeff, variable.list2[k]), collapse = " + ")))
           survival::coxph(formula = f, data = as.data.frame(data),
-                          method = "efron", model = T, singular.ok = T, x = T)
+                          method = "efron", model = TRUE, singular.ok = TRUE, x = TRUE)
           },
           # save the error
           error=function(e){
@@ -488,7 +488,7 @@ stepwise.coxph <- function(Time = NULL, Status = NULL, variable.list,
           coeff <- names(coefficients(temp.model))
           f <- as.formula(paste0("survival::Surv(", Time, ", ", Status, ") ~ ", paste0(c(coeff, enter.x), collapse = " + ")))
           temp.model <- survival::coxph(formula = f, data = as.data.frame(data),
-                                        method = "efron", model = T, singular.ok = T, x = T)
+                                        method = "efron", model = TRUE, singular.ok = TRUE, x = TRUE)
         }
       }
 
@@ -518,7 +518,7 @@ stepwise.coxph <- function(Time = NULL, Status = NULL, variable.list,
             coeff <- coeff[-which(coeff == variable.list3[k])]
             f <- as.formula(paste0("survival::Surv(", Time, ", ", Status, ") ~ ", paste0(coeff, collapse = " + ")))
             survival::coxph(formula = f, data = as.data.frame(data),
-                            method = "efron", model = T, singular.ok = T, x = T)
+                            method = "efron", model = TRUE, singular.ok = TRUE, x = TRUE)
             },
 
             # save the error
@@ -545,8 +545,8 @@ stepwise.coxph <- function(Time = NULL, Status = NULL, variable.list,
 
         if(is.null(anova.pvalue)){
           message("LEAVE: anova is null")
-          broke = T
-          break.rule = F
+          broke = TRUE
+          break.rule = FALSE
           next
         }
 
@@ -570,7 +570,7 @@ stepwise.coxph <- function(Time = NULL, Status = NULL, variable.list,
           }
 
           #check enter==out
-          equal = F
+          equal = FALSE
           if(length(enter.x)>0){
             equal <- enter.x == out.x
           }
@@ -585,7 +585,7 @@ stepwise.coxph <- function(Time = NULL, Status = NULL, variable.list,
             coeff <- coeff[-which(coeff == out.x)]
             f <- as.formula(paste0("survival::Surv(", Time, ", ", Status, ") ~ ", paste0(coeff, collapse = " + ")))
             temp.model <- survival::coxph(formula = f, data = as.data.frame(data),
-                            method = "efron", model = T, singular.ok = T, x = T)
+                            method = "efron", model = TRUE, singular.ok = TRUE, x = TRUE)
 
           }else{
             # enter.x is the same as out.x (no-sense)?
@@ -638,8 +638,8 @@ getRealNameVarFromCoxModel <- function(x_sw_train, var, symbol = ":"){
     if(isInteraction(var)){#check ifeach individual_variable is a factor
       n <- strsplit(var, symbol)[[1]]
       in_vector <- sapply(n, function(x){x %in% colnames(x_sw_train)})
-      names_updated <- sapply(names(in_vector[in_vector==F]), function(x){x <- substr(x, 0, nchar(x)-1)})
-      names(in_vector)[in_vector==F] <- names_updated
+      names_updated <- sapply(names(in_vector[in_vector==FALSE]), function(x){x <- substr(x, 0, nchar(x)-1)})
+      names(in_vector)[in_vector==FALSE] <- names_updated
 
       res_var <- paste(names(in_vector), collapse = real.symbol)
 
@@ -668,13 +668,13 @@ isInteraction <- function(cn, symbol = ":"){
   if(symbol==".")
     symbol = "\\."
   if(length(grep(symbol,cn))>0){
-    return(T)
+    return(TRUE)
   }else{
-    return(F)
+    return(FALSE)
   }
 }
 
-deleteVariablesCox <- function(x_sw_train, x_sw_test=NULL, td, interactions=F, symbol = ":"){
+deleteVariablesCox <- function(x_sw_train, x_sw_test=NULL, td, interactions = FALSE, symbol = ":"){
   real.symbol = symbol
 
   if(symbol==".")
@@ -725,7 +725,7 @@ plotZPH <- function(fit_zph, oneToDelete, df=3){
   aux <- as.data.frame(cbind(fit_zph$time, fit_zph$y[,oneToDelete]))
   colnames(aux) <- c("x","y")
   ggp <- ggplot(aux, aes(x=x, y=y)) + geom_point() +
-    geom_smooth(method = "lm", formula = y ~ splines::ns(x, df = df, intercept = T), color = "red", #should be a base R package
+    geom_smooth(method = "lm", formula = y ~ splines::ns(x, df = df, intercept = TRUE), color = "red", #should be a base R package
                 se = TRUE, level = 0.95) +
     xlab(label = "Time") + ylab(label = paste0("Beta(t) for ", oneToDelete))
   return(ggp)

@@ -11,14 +11,14 @@ coxEN(
   max.variables = 15,
   x.center = TRUE,
   x.scale = FALSE,
-  remove_near_zero_variance = T,
-  remove_zero_variance = F,
+  remove_near_zero_variance = TRUE,
+  remove_zero_variance = FALSE,
   toKeep.zv = NULL,
-  remove_non_significant = F,
+  remove_non_significant = FALSE,
   alpha = 0.05,
   MIN_EPV = 5,
-  returnData = T,
-  verbose = F
+  returnData = TRUE,
+  verbose = FALSE
 )
 }
 \arguments{

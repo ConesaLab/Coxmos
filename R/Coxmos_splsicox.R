@@ -128,9 +128,9 @@
 splsicox <- function(X, Y,
                      n.comp = 4, spv_penalty = 0,
                      x.center = TRUE, x.scale = FALSE,
-                     remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
-                     remove_non_significant = F, alpha = 0.05,
-                     MIN_EPV = 5, returnData = T, verbose = F){
+                     remove_near_zero_variance = TRUE, remove_zero_variance = FALSE, toKeep.zv = NULL,
+                     remove_non_significant = FALSE, alpha = 0.05,
+                     MIN_EPV = 5, returnData = TRUE, verbose = FALSE){
 
   # tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
   tol = 1e-10
@@ -209,8 +209,8 @@ splsicox <- function(X, Y,
   P <- NULL
   E <- list(Xh)
 
-  XXNA <- is.na(Xh) #T is NA
-  YNA <- is.na(Yh) #T is NA
+  XXNA <- is.na(Xh) #TRUE is NA
+  YNA <- is.na(Yh) #TRUE is NA
 
   #### ### ### ### ### ### ### ### ### ### ### ###
   #### ### ### ### ### ### ### ### ### ### ### ###
@@ -226,19 +226,19 @@ splsicox <- function(X, Y,
   }
 
   var_by_component <- list()
-  stopped = F
+  stopped = FALSE
   for(h in 1:n.comp){
 
     # Break if residuals is not the solution because in some cases, it is not a problem to compute wh vector. !!!!
 
     # #residuals^2
-    # residuals <- sqrt(colSums(Xh^2, na.rm=TRUE))
+    # residuals <- sqrt(colSums(Xh^2, na.rm = TRUE))
     #
     # #break iteration
     # if(any(residuals<tol)){
     #   bad_var <- paste0(names(residuals)[residuals < tol], collapse = ", ")
     #   message(paste0(paste0("Individual COX model cannot be computed for variables (", bad_var, "). Stopped at component ", h, ".")))
-    #   stopped = T
+    #   stopped = TRUE
     #   break
     # }
 
@@ -273,7 +273,7 @@ splsicox <- function(X, Y,
     #                                             event = event,
     #                                             type = "right") ~ ., as.data.frame(cbind(Ts,x)),
     #                              control = control,
-    #                              singular.ok = T)
+    #                              singular.ok = TRUE)
     #
     #       if(length(getPvalFromCox(fit))==1){
     #         aux <- c(fit$coefficients["x"], getPvalFromCox(fit))
@@ -299,22 +299,22 @@ splsicox <- function(X, Y,
     #   #replace for beta of 0, and p-value of 1
     #   wh[which(is.na(wh[,1])),] <- c(rep(0, length(rownames(wh)[is.na(wh[,1])])), rep(1, length(rownames(wh)[is.na(wh[,1])])))
     #
-    #   #stopped = T
+    #   #stopped = TRUE
     #   #break
     # }
 
     if(all(is.na(wh))){
       message(paste0("Stopping at component ", h-1, ": The weight vector could not be computed.."))
       h = h-1
-      stopped = T
+      stopped = TRUE
       break
     }
 
     ### ## ## ##
     #filter variables by p-val cutoff
     ### ## ## ##
-    index2zero <- which(wh[,2,drop=T]>(1-spv_penalty))# 1-spv_penalty because is a penalty - remove 0.8 of variables equals to keep 0.2
-    index2keep <- which(wh[,2,drop=T]<=(1-spv_penalty))
+    index2zero <- which(wh[,2,drop = TRUE]>(1-spv_penalty))# 1-spv_penalty because is a penalty - remove 0.8 of variables equals to keep 0.2
+    index2keep <- which(wh[,2,drop = TRUE]<=(1-spv_penalty))
 
     if(length(index2keep)==0){
       if(verbose){
@@ -329,7 +329,7 @@ splsicox <- function(X, Y,
 
     nm <- rownames(wh)
     nm_keep <- var_by_component[[h]]
-    wh <- wh[,1,drop=T]
+    wh <- wh[,1,drop = TRUE]
     names(wh) <- nm
 
     sub_wh <- wh[nm_keep]
@@ -349,10 +349,10 @@ splsicox <- function(X, Y,
     }
 
     if(length(XXNA)>0){
-      # th <- (Xh[,nm_keep,drop=F] %*% sub_wh_norm)/((!XXNA[,nm_keep,drop=F]) %*% sub_wh_norm^2) # do not remember why
-      th <- (Xh[,nm_keep,drop=F] %*% sub_wh_norm)
+      # th <- (Xh[,nm_keep,drop = FALSE] %*% sub_wh_norm)/((!XXNA[,nm_keep,drop = FALSE]) %*% sub_wh_norm^2) # do not remember why
+      th <- (Xh[,nm_keep,drop = FALSE] %*% sub_wh_norm)
     }else{
-      th <- (Xh[,nm_keep,drop=F] %*% sub_wh_norm)
+      th <- (Xh[,nm_keep,drop = FALSE] %*% sub_wh_norm)
     }
 
     #th <- t(lm(t(Xh)~0 + sub_wh_norm)$coefficients)/((!XXNA)%*%(sub_wh_norm^2))
@@ -369,10 +369,10 @@ splsicox <- function(X, Y,
     ph[,1] <- 0
 
     if(length(XXNA)>0){
-      # sub_ph <- t(t(th) %*% Xh[,nm_keep,drop=F]) / (t((!XXNA[,nm_keep,drop=F])) %*% th^2) # do not remember why
-      sub_ph <- t(t(th) %*% Xh[,nm_keep,drop=F]) / (as.vector(t(th) %*% th))
+      # sub_ph <- t(t(th) %*% Xh[,nm_keep,drop = FALSE]) / (t((!XXNA[,nm_keep,drop = FALSE])) %*% th^2) # do not remember why
+      sub_ph <- t(t(th) %*% Xh[,nm_keep,drop = FALSE]) / (as.vector(t(th) %*% th))
     }else{
-      sub_ph <- t(t(th) %*% Xh[,nm_keep,drop=F]) / (as.vector(t(th) %*% th))
+      sub_ph <- t(t(th) %*% Xh[,nm_keep,drop = FALSE]) / (as.vector(t(th) %*% th))
     }
 
     ph[nm_keep,] <- sub_ph
@@ -383,7 +383,7 @@ splsicox <- function(X, Y,
 
     #6. Residuals
     #res$residXX <- XXwotNA-temptt%*%temppp #residuals to the new matrix to get next components
-    Xh_sub <- Xh[,nm_keep,drop=F] - th %*% t(sub_ph)
+    Xh_sub <- Xh[,nm_keep,drop = FALSE] - th %*% t(sub_ph)
     Xh[,nm_keep] <- Xh_sub
 
     Ts <- cbind(Ts, th)
@@ -427,9 +427,9 @@ splsicox <- function(X, Y,
 
   ### DELETE VARIABLES ALL 0s (in all components)
   rm_var <- names(which(rowSums(W)==0))
-  W <- W[!rownames(W) %in% rm_var,,drop=F]
-  W_norm <- W_norm[!rownames(W_norm) %in% rm_var,,drop=F]
-  P <- P[!rownames(P) %in% rm_var,,drop=F]
+  W <- W[!rownames(W) %in% rm_var,,drop = FALSE]
+  W_norm <- W_norm[!rownames(W_norm) %in% rm_var,,drop = FALSE]
+  P <- P[!rownames(P) %in% rm_var,,drop = FALSE]
 
   colnames(Ts) <- paste0("comp_", 1:h)
   colnames(P) <- paste0("comp_", 1:h)
@@ -456,12 +456,12 @@ splsicox <- function(X, Y,
     # Specifying expression
     expr = {
       survival::coxph(formula = survival::Surv(time,event) ~ .,
-                      data = d[,1:h,drop=F],
+                      data = d[,1:h,drop = FALSE],
                       ties = "efron",
-                      singular.ok = T,
-                      robust = T,
-                      nocenter = rep(1, ncol(d[,1:h,drop=F])),
-                      model=T, x = T)
+                      singular.ok = TRUE,
+                      robust = TRUE,
+                      nocenter = rep(1, ncol(d[,1:h,drop = FALSE])),
+                      model = TRUE, x = TRUE)
     },
     # Specifying error message
     error = function(e){
@@ -478,12 +478,12 @@ splsicox <- function(X, Y,
       # Specifying expression
       expr = {
         survival::coxph(formula = survival::Surv(time,event) ~ .,
-                        data = d[,1:h,drop=F],
+                        data = d[,1:h,drop = FALSE],
                         ties = "efron",
-                        singular.ok = T,
-                        robust = T,
-                        nocenter = rep(1, ncol(d[,1:h,drop=F])),
-                        model=T, x = T)
+                        singular.ok = TRUE,
+                        robust = TRUE,
+                        nocenter = rep(1, ncol(d[,1:h,drop = FALSE])),
+                        model = TRUE, x = TRUE)
       },
       # Specifying error message
       error = function(e){
@@ -531,10 +531,10 @@ splsicox <- function(X, Y,
       message(paste0("Model cannot be computed for all components. Final model select ", h," components instead of ", n.comp,"."))
     }
     #update all values
-    W <- W[,1:h,drop=F]
-    W_norm = W_norm[,1:h,drop=F]
-    P = P[,1:h,drop=F]
-    Ts = Ts[,1:h,drop=F]
+    W <- W[,1:h,drop = FALSE]
+    W_norm = W_norm[,1:h,drop = FALSE]
+    P = P[,1:h,drop = FALSE]
+    Ts = Ts[,1:h,drop = FALSE]
     E = E[1:h]
     n.comp = ncol(Ts)
   }
@@ -547,10 +547,10 @@ splsicox <- function(X, Y,
     #update all values
     which_to_keep <- which(colnames(W) %in% names(cox_model$fit$coefficients))
 
-    W <- W[,names(cox_model$fit$coefficients),drop=F]
-    W_norm = W_norm[,names(cox_model$fit$coefficients),drop=F]
-    P = P[,names(cox_model$fit$coefficients),drop=F]
-    Ts = Ts[,names(cox_model$fit$coefficients),drop=F]
+    W <- W[,names(cox_model$fit$coefficients),drop = FALSE]
+    W_norm = W_norm[,names(cox_model$fit$coefficients),drop = FALSE]
+    P = P[,names(cox_model$fit$coefficients),drop = FALSE]
+    Ts = Ts[,names(cox_model$fit$coefficients),drop = FALSE]
 
     E = E[which_to_keep]
     n.comp = which_to_keep
@@ -788,15 +788,15 @@ cv.splsicox <- function (X, Y,
                         max.ncomp = 8, spv_penalty.list = seq(0,0.9,0.1),
                         n_run = 3, k_folds = 10,
                         x.center = TRUE, x.scale = FALSE,
-                        remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
-                        remove_variance_at_fold_level = F,
-                        remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,
+                        remove_near_zero_variance = TRUE, remove_zero_variance = TRUE, toKeep.zv = NULL,
+                        remove_variance_at_fold_level = FALSE,
+                        remove_non_significant_models = FALSE, remove_non_significant = FALSE, alpha = 0.05,
                         w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL,
                         max_time_points = 15,
                         MIN_AUC_INCREASE = 0.05, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
-                        pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
-                        MIN_EPV = 5, return_models = F, returnData = F,
-                        PARALLEL = F, verbose = F, seed = 123){
+                        pred.attr = "mean", pred.method = "cenROC", fast_mode = FALSE,
+                        MIN_EPV = 5, return_models = FALSE, returnData = FALSE,
+                        PARALLEL = FALSE, verbose = FALSE, seed = 123){
 
   # tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
   tol = 1e-10
@@ -931,7 +931,7 @@ cv.splsicox <- function (X, Y,
                                    n.cut_points = NULL,
                                    x.center = x.center, x.scale = x.scale,
                                    y.center = y.center, y.scale = y.scale,
-                                   remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
+                                   remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = FALSE, toKeep.zv = NULL,
                                    alpha = alpha, MIN_EPV = MIN_EPV,
                                    remove_non_significant = remove_non_significant, tol = tol, max.iter = NULL,
                                    returnData = returnData, total_models = total_models,
@@ -981,7 +981,7 @@ cv.splsicox <- function (X, Y,
   df_results_evals_run <- NULL
   df_results_evals_fold <- NULL
   optimal_comp_index <- NULL
-  optimal_comp_flag <- F
+  optimal_comp_flag <- FALSE
   optimal_eta_index <- NULL
   optimal_eta <- NULL
 
@@ -991,7 +991,7 @@ cv.splsicox <- function (X, Y,
       times <- getTimesVector(Y, max_time_points = max_time_points)
     }
 
-    #As we are measuring just one evaluator and one method - PARALLEL=F
+    #As we are measuring just one evaluator and one method - PARALLEL = FALSE
     lst_df <- get_COX_evaluation_BRIER_sPLS(comp_model_lst = comp_model_lst,
                                             fast_mode = fast_mode,
                                             X_test = X, Y_test = Y,
@@ -1000,7 +1000,7 @@ cv.splsicox <- function (X, Y,
                                             pred.method = pred.method, pred.attr = pred.attr,
                                             max.ncomp = max.ncomp, eta.list = spv_penalty.list, n_run = n_run, k_folds = k_folds,
                                             MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                            w_BRIER = w_BRIER, method.train = pkg.env$splsicox, PARALLEL = F, verbose = verbose)
+                                            w_BRIER = w_BRIER, method.train = pkg.env$splsicox, PARALLEL = FALSE, verbose = verbose)
 
     df_results_evals_comp <- lst_df$df_results_evals_comp
     df_results_evals_run <- lst_df$df_results_evals_run
@@ -1021,7 +1021,7 @@ cv.splsicox <- function (X, Y,
       times <- getTimesVector(Y, max_time_points = max_time_points)
     }
 
-    #As we are measuring just one evaluator and one method - PARALLEL=F
+    #As we are measuring just one evaluator and one method - PARALLEL = FALSE
     lst_df <- get_COX_evaluation_AUC_sPLS(comp_model_lst = comp_model_lst,
                                           X_test = X, Y_test = Y,
                                           lst_X_test = lst_test_indexes, lst_Y_test = lst_test_indexes,
@@ -1029,7 +1029,7 @@ cv.splsicox <- function (X, Y,
                                           fast_mode = fast_mode, pred.method = pred.method, pred.attr = pred.attr,
                                           max.ncomp = max.ncomp, eta.list = spv_penalty.list, n_run = n_run, k_folds = k_folds,
                                           MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                          w_AUC = w_AUC, method.train = pkg.env$splsicox, PARALLEL = F, verbose = verbose)
+                                          w_AUC = w_AUC, method.train = pkg.env$splsicox, PARALLEL = FALSE, verbose = verbose)
 
     if(is.null(df_results_evals_comp)){
       df_results_evals_comp <- lst_df$df_results_evals_comp
@@ -1062,10 +1062,10 @@ cv.splsicox <- function (X, Y,
                                                  colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC", colname_BRIER = "BRIER")
 
   if(optimal_comp_flag){
-    best_model_info <- df_results_evals_comp[optimal_comp_index,, drop=F][1,]
+    best_model_info <- df_results_evals_comp[optimal_comp_index,, drop = FALSE][1,]
     best_model_info <- as.data.frame(best_model_info)
   }else{
-    best_model_info <- df_results_evals_comp[which(df_results_evals_comp[,"score"] == max(df_results_evals_comp[,"score"], na.rm = T)),, drop=F][1,]
+    best_model_info <- df_results_evals_comp[which(df_results_evals_comp[,"score"] == max(df_results_evals_comp[,"score"], na.rm = TRUE)),, drop = FALSE][1,]
     best_model_info <- as.data.frame(best_model_info)
   }
 

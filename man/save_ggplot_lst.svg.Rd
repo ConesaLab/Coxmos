@@ -9,7 +9,7 @@ save_ggplot_lst.svg(
   folder = NULL,
   prefix = NULL,
   suffix = NULL,
-  wide = T,
+  wide = TRUE,
   quality = "4K",
   dpi = 80,
   custom = NULL,

@@ -4,7 +4,7 @@
 \alias{w.starplot.Coxmos}
 \title{w.starplot.Coxmos}
 \usage{
-w.starplot.Coxmos(model, zero.rm = F, top = NULL, auto.limits = T)
+w.starplot.Coxmos(model, zero.rm = FALSE, top = NULL, auto.limits = TRUE)
 }
 \arguments{
 \item{model}{Coxmos model.}

@@ -2,7 +2,7 @@
 title: "Step-by-step guide to the MO-Coxmos pipeline"
 author: 
     name: "Pedro Salguero García"
-    affiliation: "Institute for Integrative Systems Biology (I2SysBio) and Polytechnic University of Valencia, Valencia, Spain"
+    affiliation: "Polytechnic University of Valencia and Institute for Integrative Systems Biology (I2SysBio), Valencia, Spain"
     email: pedrosalguerog@gmail.com
 package: Coxmos
 date: "Last updated: `r format(Sys.time(), '%d %B, %Y')`"
@@ -50,17 +50,15 @@ rm(dpi)
 
 # Introduction
 
-The **Coxmos** R package contains the necessary functions to reproduce the
-pipeline in [this paper*](),
-a study by *Salguero-Garcia et al.* in which we analyze ....
+The **Coxmos** R package includes the following basic analysis blocks:
 
-The pipeline includes ... basic analysis blocks:
+1. **Cross-validation and Modeling for High-Dimensional Data**: The user can use the *Coxmos* package to select the optimal parameters for survival models in high-dimensional datasets. The package provides tools for estimating the best values for the parameters.
 
-1. **Cross-validation and performing survival models for high dimensional data sets**. First, ... 
+2. **Comparing Classical and High-Dimensional Survival Models**: After obtaining multiple survival models, the user can compare them to determine which one gives the best results. The package includes several functions for comparing the models.
 
-2. **Comparing multiple survival models**. ...
+3. **Interpreting Results**: After selecting the best model or models, the user can interpret the results. The package includes several functions for understanding the impact of the original variables on survival prediction, even when working with (s)PLS methods.
 
-3. **Understanding the results in terms of the original variables**. ...
+4. **Predicting New Patients**: Finally, if a new dataset of patients is available, the user can use the model to make predictions for the new patients and compare the variables against the model coefficients to estimate the patients' risk of an event.
 
 # Installation
 
@@ -91,7 +89,7 @@ After install:
 devtools::install_github("ConesaLab/RColorConesa")
 ```
 
-...you can load and set the theme of your R session as follows:
+After the installation you can load and set the *theme* of your R session as follows:
 
 ```{r}
 library(RColorConesa)
@@ -102,11 +100,7 @@ library(RColorConesa)
 
 The Coxmos pipeline requires two matrices as input. First one must be the features under study, and the second one a matrix with two columns called **time** and **event** for survival information.
 
-To generate the matrices, we first processed the data from ... Details to this process can be found in [our manuscript]() 
-(see Supplementary Note and Methods).
-
-If you wish to reproduce the analyses in Salguero-Garcia et al. [[1]](#1)), you can load the
-`X_multiomic` object to use our dataset:
+After quality control, the data contains expression data for miRNAs and Protein information. The data could be load as follows:
 
 ```{r}
 # load dataset
@@ -119,7 +113,7 @@ Y <- Y_multiomic
 rm(X_multiomic, Y_multiomic)
 ```
 
-These contain a `list` of three blocks and a `data.frame` object. Out toy example has a total of **150 observations, 642 miRNAs and 369 proteins**:
+These files contain a `list` of two blocks and a `data.frame` object. Our toy example has a total of **150 observations, 642 miRNAs and 369 proteins**:
 
 ```{r, echo = FALSE}
 knitr::kable(X$mirna[1:5,1:5]);knitr::kable(X$proteomic[1:5,1:5])
@@ -486,13 +480,13 @@ eval_results
 
 However, we can also obtain graphical results where we can compare each method over time, as well as their average scores using the function "plot_evaluation" or "plot_evaluation.list" if multiple evaluators have been tested. The user could choose to plot the AUC for time prediction points or Brier Score. In case of use Brier Score, instead of uses the Integrative Brier Score for the boxplots, the mean or median is used (plot_evaluation parameter).
 
-```{r}
+```{r, warning=F}
 lst_eval_results <- plot_evaluation(eval_results, evaluation = "AUC")
 lst_eval_results_brier <- plot_evaluation(eval_results, evaluation = "Brier")
 ```
 After performing the cross-validation, we obtain a list in R that contains two new lists. The first of these refers to the evaluation over time for each of the methods used, as well as a variant where the average value of each of them is shown. On the other hand, we can compare the mean results of each method using: T-test, Wilcoxon-test, anova or Kruskal-Wallis.
 
-```{r, fig.small=T}
+```{r, fig.small=T, warning=F}
 lst_eval_results$lst_plots$lineplot.mean
 lst_eval_results$lst_plot_comparisons$t.test
 
@@ -596,7 +590,7 @@ ggp_scores <- plot_PLS_Coxmos(model = lst_models$`iSB.sPLS-DRCOX`,
                              comp = c(1,2), mode = "scores")
 ```
 
-```{r, fig.small=T}
+```{r, fig.small=T, warning=FALSE}
 ggp_scores$plot_block
 ```
 
@@ -606,7 +600,7 @@ ggp_loadings <- plot_PLS_Coxmos(model = lst_models$`iSB.sPLS-DRCOX`,
                                top = 10) #length from 0,0
 ```
 
-```{r, fig.small=T}
+```{r, fig.small=T, warning=FALSE}
 ggp_loadings$plot_block
 ```
 
@@ -617,7 +611,7 @@ ggp_biplot <- plot_PLS_Coxmos(model = lst_models$`iSB.sPLS-DRCOX`,
                              only_top = T)
 ```
 
-```{r, fig.small=T}
+```{r, fig.small=T, warning=FALSE}
 ggp_biplot$plot_block
 ```
 
@@ -677,7 +671,7 @@ For a more intuitive understanding of the model, the user can also employ the `g
 
 To run the full Kaplan-Meier model, the "type" parameter must be set to "LP" (linear predictors). This means that the linear predictor value for each patient will be used to divide the groups (in this case, the score value multiplied by the Cox coefficient). The "surv_cutpoint" function from the R package "survminer" is used to determine the optimal cut-point. Other parameters are not used in this specific method.
 
-```{r}
+```{r, warning=F}
 LST_KM_RES_LP <- getAutoKM.list(type = "LP",
                                 lst_models = lst_models,
                                 comp = 1:4,
@@ -717,7 +711,7 @@ LST_KM_TEST_LP$`iSB.sPLS-DRCOX`
 
 To generate a Kaplan-Meier curve for a specific component, the "type" parameter must be set to "COMP" (component). This means that the linear predictor is computed using only one component at a time to split the groups. In this case, the "comp" parameter can be used to specify which component should be computed (if multiple components, each one will be computed separately).
 
-```{r}
+```{r, warning=F}
 LST_KM_RES_COMP <- getAutoKM.list(type = "COMP",
                                   lst_models = lst_models,
                                   comp = 1:4,
@@ -732,7 +726,7 @@ LST_KM_RES_COMP$`iSB.sPLS-DRCOX`$LST_PLOTS$proteomic$comp_1
 LST_KM_RES_COMP$`iSB.sPLS-DRCOX`$LST_PLOTS$proteomic$comp_2
 ```
 
-```{r}
+```{r, warning=F}
 lst_cutoff <- getCutoffAutoKM.list(LST_KM_RES_COMP)
 
 LST_KM_TEST_COMP <- getTestKM.list(lst_models = lst_models, 
@@ -753,7 +747,7 @@ To generate a Kaplan-Meier curve for original variables, the "type" parameter mu
 
 Additionally, the "top" parameter can be used to plot a specific number of variables, sorted by P-Value (Log-Rank test). The best cutpoint is determined by the "surv_cutpoint" function. Both qualitative and quantitative variables are supported.
 
-```{r}
+```{r, warning=F}
 LST_KM_RES_VAR <- getAutoKM.list(type = "VAR",
                                  lst_models = lst_models,
                                  comp = 1:4,
@@ -810,6 +804,11 @@ ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient.list(lst_models = lst_mo
                                                              new_observation = new_pat,
                                                              error.bar = T, onlySig = T, alpha = 0.05,
                                                              zero.rm = T, auto.limits = T, show.betas = T, top = 20)
+
+# ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient(model = lst_models$`sPLS-DRCOX`,
+#                                                         new_observation = new_pat,
+#                                                         error.bar = T, onlySig = T, alpha = 0.05,
+#                                                         zero.rm = T, auto.limits = T, show.betas = T, top = 20)
 ```
 
 On the left, a linear predictor value is shown for the observation and each variable. On the right, the pseudo-beta coefficients for the model's original variables are illustrated. This allows the user to compare the direction of the linear predictors per variable. A change in direction means that the variable's value is below the mean for hazard variables or above the mean for protective ones. Having an opposite direction for hazard variables and maintaining the direction for protective variables makes the observation safer over time.

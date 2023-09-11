@@ -132,9 +132,9 @@
 sb.splsdrcox <- function (X, Y,
                          n.comp = 4, eta = 0.5,
                          x.center = TRUE, x.scale = FALSE,
-                         remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
-                         remove_non_significant = F, alpha = 0.05,
-                         MIN_EPV = 5, returnData = T, verbose = F){
+                         remove_near_zero_variance = TRUE, remove_zero_variance = TRUE, toKeep.zv = NULL,
+                         remove_non_significant = FALSE, alpha = 0.05,
+                         MIN_EPV = 5, returnData = TRUE, verbose = FALSE){
   # tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
   tol = 1e-10
 
@@ -209,11 +209,11 @@ sb.splsdrcox <- function (X, Y,
   lst_sb.spls <- list()
   for(b in names(Xh)){
     lst_sb.spls[[b]] <- splsdrcox(X = Xh[[b]], Y = Yh, n.comp = n.comp, eta = eta,
-                                 x.scale = F, x.center = F,
-                                 #y.scale = F, y.center = F,
-                                 remove_near_zero_variance = F, remove_zero_variance = F, toKeep.zv = NULL, #zero_var already checked
+                                 x.scale = FALSE, x.center = FALSE,
+                                 #y.scale = FALSE, y.center = FALSE,
+                                 remove_near_zero_variance = FALSE, remove_zero_variance = FALSE, toKeep.zv = NULL, #zero_var already checked
                                  remove_non_significant = remove_non_significant, alpha = alpha,
-                                 returnData = F, verbose = verbose)
+                                 returnData = FALSE, verbose = verbose)
   }
 
   # CHECK ALL MODELS SAME COMPONENTS
@@ -234,10 +234,10 @@ sb.splsdrcox <- function (X, Y,
   #colnames(data) <- apply(expand.grid(colnames(lst_sb.spls[[1]]$X$scores), names(Xh)), 1, paste, collapse="_")
   colnames(data) <- cn.merge
   cox_model <- cox(X = data, Y = Yh,
-                   x.center = F, x.scale = F,
-                   #y.center = F, y.scale = F,
-                   remove_near_zero_variance = F, remove_zero_variance = F,
-                   remove_non_significant = remove_non_significant, FORCE = T)
+                   x.center = FALSE, x.scale = FALSE,
+                   #y.center = FALSE, y.scale = FALSE,
+                   remove_near_zero_variance = FALSE, remove_zero_variance = FALSE,
+                   remove_non_significant = remove_non_significant, FORCE = TRUE)
 
   # RETURN a MODEL with ALL significant Variables from complete, deleting one by one
   removed_variables <- NULL
@@ -455,15 +455,15 @@ cv.sb.splsdrcox <- function(X, Y,
                            max.ncomp = 8, eta.list = seq(0.1,0.9,0.2),
                            n_run = 3, k_folds = 10,
                            x.center = TRUE, x.scale = FALSE,
-                           remove_near_zero_variance = T, remove_zero_variance = T, toKeep.zv = NULL,
-                           remove_variance_at_fold_level = F,
-                           remove_non_significant_models = F, remove_non_significant = F, alpha = 0.05,
+                           remove_near_zero_variance = TRUE, remove_zero_variance = TRUE, toKeep.zv = NULL,
+                           remove_variance_at_fold_level = FALSE,
+                           remove_non_significant_models = FALSE, remove_non_significant = FALSE, alpha = 0.05,
                            w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL,
                            max_time_points = 15,
                            MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
-                           pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
-                           MIN_EPV = 5, return_models = F, returnData = F,
-                           PARALLEL = F, verbose = F, seed = 123){
+                           pred.attr = "mean", pred.method = "cenROC", fast_mode = FALSE,
+                           MIN_EPV = 5, return_models = FALSE, returnData = FALSE,
+                           PARALLEL = FALSE, verbose = FALSE, seed = 123){
   # tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
   tol = 1e-10
 
@@ -596,7 +596,7 @@ cv.sb.splsdrcox <- function(X, Y,
                                    n.cut_points = NULL,
                                    x.center = x.center, x.scale = x.scale,
                                    y.center = y.center, y.scale = y.scale,
-                                   remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
+                                   remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = FALSE, toKeep.zv = NULL,
                                    alpha = alpha, MIN_EPV = MIN_EPV,
                                    remove_non_significant = remove_non_significant, tol = tol, max.iter = NULL,
                                    returnData = returnData, total_models = total_models,
@@ -642,7 +642,7 @@ cv.sb.splsdrcox <- function(X, Y,
   df_results_evals_run <- NULL
   df_results_evals_fold <- NULL
   optimal_comp_index <- NULL
-  optimal_comp_flag <- F
+  optimal_comp_flag <- FALSE
   optimal_eta_index <- NULL
   optimal_eta <- NULL
 
@@ -652,7 +652,7 @@ cv.sb.splsdrcox <- function(X, Y,
       times <- getTimesVector(Y, max_time_points = max_time_points)
     }
 
-    #As we are measuring just one evaluator and one method - PARALLEL=F
+    #As we are measuring just one evaluator and one method - PARALLEL = FALSE
     lst_df <- get_COX_evaluation_BRIER_sPLS(comp_model_lst = lst_model$comp_model_lst,
                                             fast_mode = fast_mode,
                                             X_test = X, Y_test = Y,
@@ -661,7 +661,7 @@ cv.sb.splsdrcox <- function(X, Y,
                                             pred.method = pred.method, pred.attr = pred.attr,
                                             max.ncomp = max.ncomp, eta.list = eta.list, n_run = n_run, k_folds = k_folds,
                                             MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                            w_BRIER = w_BRIER, method.train = pkg.env$sb.splsdrcox, PARALLEL = F, verbose = verbose)
+                                            w_BRIER = w_BRIER, method.train = pkg.env$sb.splsdrcox, PARALLEL = FALSE, verbose = verbose)
 
     df_results_evals_comp <- lst_df$df_results_evals_comp
     df_results_evals_run <- lst_df$df_results_evals_run
@@ -688,7 +688,7 @@ cv.sb.splsdrcox <- function(X, Y,
                                           fast_mode = fast_mode, pred.method = pred.method, pred.attr = pred.attr,
                                           max.ncomp = max.ncomp, eta.list = eta.list, n_run = n_run, k_folds = k_folds,
                                           MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
-                                          w_AUC = w_AUC, method.train = pkg.env$sb.splsdrcox, PARALLEL = F, verbose = verbose)
+                                          w_AUC = w_AUC, method.train = pkg.env$sb.splsdrcox, PARALLEL = FALSE, verbose = verbose)
 
     if(is.null(df_results_evals_comp)){
       df_results_evals_comp <- lst_df$df_results_evals_comp
@@ -722,10 +722,10 @@ cv.sb.splsdrcox <- function(X, Y,
                                                  colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC", colname_BRIER = "BRIER")
 
   if(optimal_comp_flag){
-    best_model_info <- df_results_evals_comp[df_results_evals_comp[,"n.comps"]==optimal_comp_index & df_results_evals_comp[,"eta"]==optimal_eta,, drop=F][1,]
+    best_model_info <- df_results_evals_comp[df_results_evals_comp[,"n.comps"]==optimal_comp_index & df_results_evals_comp[,"eta"]==optimal_eta,, drop = FALSE][1,]
     best_model_info <- as.data.frame(best_model_info)
   }else{
-    best_model_info <- df_results_evals_comp[which(df_results_evals_comp[,"score"] == max(df_results_evals_comp[,"score"], na.rm = T)),, drop=F][1,]
+    best_model_info <- df_results_evals_comp[which(df_results_evals_comp[,"score"] == max(df_results_evals_comp[,"score"], na.rm = TRUE)),, drop = FALSE][1,]
     best_model_info <- as.data.frame(best_model_info)
   }
 
@@ -938,16 +938,16 @@ cv.isb.splsdrcox <- function(X, Y,
                              max.ncomp = 8, eta.list = seq(0.1,0.9,0.2),
                              n_run = 3, k_folds = 10,
                              x.center = TRUE, x.scale = FALSE,
-                             remove_near_zero_variance = T, remove_zero_variance = T,
-                             toKeep.zv = NULL, remove_variance_at_fold_level = F,
-                             remove_non_significant_models = F, remove_non_significant = F,
+                             remove_near_zero_variance = TRUE, remove_zero_variance = TRUE,
+                             toKeep.zv = NULL, remove_variance_at_fold_level = FALSE,
+                             remove_non_significant_models = FALSE, remove_non_significant = FALSE,
                              alpha = 0.05,
                              w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL,
                              max_time_points = 15,
                              MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
-                             pred.attr = "mean", pred.method = "cenROC", fast_mode = F,
-                             MIN_EPV = 5, returnData = T, return_models = F,
-                             PARALLEL = F, verbose = F, seed = 123){
+                             pred.attr = "mean", pred.method = "cenROC", fast_mode = FALSE,
+                             MIN_EPV = 5, returnData = TRUE, return_models = FALSE,
+                             PARALLEL = FALSE, verbose = FALSE, seed = 123){
   # tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
   tol = 1e-10
 
@@ -1086,19 +1086,19 @@ cv.isb.splsdrcox <- function(X, Y,
                                      MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
                                      x.scale = x.scale[[b]], x.center = x.center[[b]],
                                      #y.scale = y.scale, y.center = y.center,
-                                     remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
+                                     remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = FALSE, toKeep.zv = NULL,
                                      remove_variance_at_fold_level = remove_variance_at_fold_level,
                                      fast_mode = fast_mode, return_models = return_models,
                                      MIN_EPV = MIN_EPV, verbose = verbose,
-                                     pred.attr = pred.attr, pred.method = pred.method, seed = seed, PARALLEL = PARALLEL, returnData = F)
+                                     pred.attr = pred.attr, pred.method = pred.method, seed = seed, PARALLEL = PARALLEL, returnData = FALSE)
 
     lst_sb.spls[[b]] <- splsdrcox(X = Xh[[b]],
                                   Y = Yh,
                                   n.comp = cv.splsdrcox_res$opt.comp,
                                   eta = cv.splsdrcox_res$opt.eta,
-                                  remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = F, toKeep.zv = NULL,
+                                  remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = FALSE, toKeep.zv = NULL,
                                   remove_non_significant = remove_non_significant, alpha = alpha,
-                                  returnData = F,
+                                  returnData = FALSE,
                                   x.center = x.center[[b]], x.scale = x.scale[[b]],
                                   #y.scale = y.scale, y.center = y.center,
                                   verbose = verbose)
@@ -1129,9 +1129,9 @@ cv.isb.splsdrcox <- function(X, Y,
   #colnames(data) <- apply(expand.grid(colnames(lst_sb.spls[[1]]$X$scores), names(Xh)), 1, paste, collapse="_")
   colnames(data) <- cn.merge
   cox_model <- cox(X = data, Y = Yh,
-                   x.center = F, x.scale = F,
-                   #y.center = F, y.scale = F,
-                   remove_non_significant = remove_non_significant, FORCE = T)
+                   x.center = FALSE, x.scale = FALSE,
+                   #y.center = FALSE, y.scale = FALSE,
+                   remove_non_significant = remove_non_significant, FORCE = TRUE)
 
   if(remove_non_significant){
     removed_variables <- cox_model$nsv

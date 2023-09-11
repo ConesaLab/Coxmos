@@ -11,10 +11,10 @@ eval_Coxmos_models(
   pred.method,
   pred.attr = "mean",
   times = NULL,
-  PARALLEL = F,
+  PARALLEL = FALSE,
   max_time_points = 15,
-  verbose = F,
-  progress_bar = T
+  verbose = FALSE,
+  progress_bar = TRUE
 )
 }
 \arguments{

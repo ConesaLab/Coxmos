@@ -4,7 +4,7 @@
 \alias{loadingplot.Coxmos}
 \title{loadingplot.Coxmos}
 \usage{
-loadingplot.Coxmos(model, zero.rm = T, top = NULL, auto.limits = T)
+loadingplot.Coxmos(model, zero.rm = TRUE, top = NULL, auto.limits = TRUE)
 }
 \arguments{
 \item{model}{Coxmos model.}
