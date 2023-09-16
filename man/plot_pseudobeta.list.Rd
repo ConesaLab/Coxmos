@@ -42,14 +42,26 @@ for each variable to the full model (default: TRUE).}
 
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
+\value{
+A list containing the following elements per model:
+\code{plot}: Depending on the model type, this can either be a single ggplot object visualizing the pseudo-beta coefficients for the original variables in a single block PLS-Cox model, or a list of ggplot objects for each block in a multiblock PLS-Cox model. Each plot provides a comprehensive visualization of the pseudo-beta coefficients, potentially including error bars, significance filtering, and variable contribution percentages.
+\code{beta}: A matrix or list of matrices (for multiblock models) containing the computed pseudo-beta coefficients for the original variables. These coefficients represent the influence of each original variable on the survival prediction.
+\code{sd.min}: A matrix or list of matrices (for multiblock models) representing the lower bounds of the error bars for the pseudo-beta coefficients.
+\code{sd.max}: A matrix or list of matrices (for multiblock models) representing the upper bounds of the error bars for the pseudo-beta coefficients.
+}
 \description{
 Run the function "plot_pseudobeta" for a list of models. More information in
 "?plot_pseudobeta".
 }
 \examples{
-\dontrun{
-plot_pseudobeta.list(lst_models)
-}
+data("X_proteomic")
+data("Y_proteomic")
+X <- X_proteomic[,1:50]
+Y <- Y_proteomic
+splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+splsdrcox.model <- splsdrcox(X, Y, n.comp = 2, eta = 0.5, x.center = TRUE, x.scale = TRUE)
+lst_models = list("sPLSICOX" = splsicox.model, "sPLSDRCOX" = splsdrcox.model)
+plot_pseudobeta.list(lst_models = lst_models)
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

@@ -15,7 +15,7 @@
 Qualitative variables must be transform into binary variables.}
 }
 \value{
-Score values for new data using the Coxmos model selected.
+Score values data.frame for new data using the Coxmos model selected.
 }
 \description{
 Generates the prediction score matrix for Partial Least Squares (PLS) Survival models,
@@ -31,13 +31,17 @@ obtained serves as a compact representation of the original data, capturing the 
 features that influence survival outcomes.
 }
 \examples{
-\dontrun{
-X <- data[train_index,]
-Y <- data_Y[train_index,]
-X_test <- data[-train_index,]
-model <- splsicox(X, Y)
-predict.Coxmos(object = model, newdata = X_test)
-}
+data("X_proteomic")
+data("Y_proteomic")
+set.seed(123)
+index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+X_train <- X_proteomic[index_train,1:50]
+Y_train <- Y_proteomic[index_train,]
+
+X_test <- X_proteomic[-index_train,1:50]
+Y_test <- Y_proteomic[-index_train,]
+model <- splsicox(X_train, Y_train, n.comp = 2) #after CV
+predict(object = model, newdata = X_test)
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

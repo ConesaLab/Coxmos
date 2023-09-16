@@ -131,10 +131,11 @@ not be suitable for high-dimensional data. In such cases, users are advised to c
 methods like \code{coxEN()} or PLS-based Cox methods.
 }
 \examples{
-\dontrun{
-cox(X, Y)
+data("X_proteomic")
+data("Y_proteomic")
+X <- X_proteomic[,1:10]
+Y <- Y_proteomic
 cox(X, Y, x.center = TRUE, x.scale = TRUE)
-}
 }
 \references{
 \insertRef{Cox_1972}{Coxmos}

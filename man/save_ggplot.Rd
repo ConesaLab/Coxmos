@@ -15,26 +15,33 @@ save_ggplot(
 )
 }
 \arguments{
-\item{plot}{ggplot2 object}
+\item{plot}{'ggplot2' object. Object to plot and save.}
 
-\item{folder}{folder}
+\item{folder}{Character. Folder path as character type.}
 
-\item{name}{file name}
+\item{name}{Character. File name.}
 
-\item{wide}{16:9 or 4:3}
+\item{wide}{Logical. If TRUE, widescreen format (16:9) is used, in other case (4:3) format.}
 
-\item{quality}{one of: "HD", "FHD", "2K", "4K", "8K"}
+\item{quality}{Character. One of: "HD", "FHD", "2K", "4K", "8K"}
 
-\item{dpi}{dpi}
+\item{dpi}{Numeric. Dpi value for the image.}
 
-\item{custom}{Custom size. Numeric vector of width and height}
+\item{custom}{Numeric vector. Custom size of the image. Numeric vector of width and height.}
+}
+\value{
+Generate a plot image in the specific folder or working directory.
 }
 \description{
-Allows to save ggplot2 objects in .tiff format based on an specific resolution.
+Allows to save 'ggplot2' objects in .tiff format based on an specific resolution.
 }
 \examples{
 \dontrun{
-save_ggplot(plot, folder)
+library(ggplot2)
+data(iris)
+g <- ggplot(iris, aes(Sepal.Width, Sepal.Length, color = Species))
+g <- g + geom_point(size = 4)
+save_ggplot(g)
 }
 }
 \author{

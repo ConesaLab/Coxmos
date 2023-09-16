@@ -23,7 +23,7 @@ plot_evaluation(
 )
 }
 \arguments{
-\item{eval_results}{Coxmos evaluation object.}
+\item{eval_results}{Coxmos evaluation object from \code{eval_Coxmos_models()}.}
 
 \item{evaluation}{Character. Perform the evaluation using the "AUC" or "Brier" metric (default: "AUC").}
 
@@ -57,9 +57,16 @@ zero (default = 2).}
 
 \item{label_y_axis_size}{Numeric. Text size for y label axis (default: 10).}
 }
+\value{
+A list of lst_eval_results length. Each element is a list of three elements.
+\code{lst_plots}: A list of two plots. The evaluation over the time, and the extension adding the
+mean or median on the right.
+\code{lst_plot_comparisons}: A list of comparative boxplots by t.test, anova, wilcoxon, kruscal.
+\code{df}: Data.frame of evaluation result.
+}
 \description{
 Generates a comprehensive evaluation of the performance of a given Coxmos evaluation
-object, offering both statistical tests and visual plots for assessment.
+object from \code{eval_Coxmos_models()}, offering both statistical tests and visual plots for assessment.
 }
 \details{
 The \code{plot_evaluation} function is designed to facilitate a rigorous evaluation of the
@@ -78,16 +85,24 @@ performance across different methods. Supported tests include the t-test, ANOVA,
 test, and Kruskal-Wallis test. These tests provide a quantitative measure of the differences in
 performance, aiding in the objective assessment of the models.
 
-The visual outputs are generated using the ggplot2 package, ensuring high-quality and interpretable
+The visual outputs are generated using the 'ggplot2' package, ensuring high-quality and interpretable
 plots. The function also offers extensive customization options for the plots, including axis
 labels, title, and text sizes, ensuring that the outputs align with the user's preferences and the
 intended audience's expectations.
 }
 \examples{
-\dontrun{
-eval_results <- eval_Coxmos_models(lst_models, X_test, Y_test, pred.method)
-plot_evaluation(eval_results)
-}
+data("X_proteomic")
+data("Y_proteomic")
+set.seed(123)
+index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+X_train <- X_proteomic[index_train,1:50]
+Y_train <- Y_proteomic[index_train,]
+X_test <- X_proteomic[-index_train,1:50]
+Y_test <- Y_proteomic[-index_train,]
+coxEN.model <- coxEN(X_train, Y_train, x.center = TRUE, x.scale = TRUE)
+eval_results <- eval_Coxmos_models(lst_models = list("coxEN" = coxEN.model), X_test = X_test,
+Y_test = Y_test)
+plot_eval_results <- plot_evaluation(eval_results)
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

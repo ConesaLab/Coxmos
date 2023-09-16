@@ -34,6 +34,7 @@ Imports:
     survcomp,
     survival,
     survminer,
+    svglite,
     tidyr,
     utils
 Suggests:

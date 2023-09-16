@@ -198,10 +198,11 @@ EVAL_METHOD parameter. The function supports various evaluation algorithms for a
 performance, as indicated by the pred.method parameter.
 }
 \examples{
-\dontrun{
-splsdrcox_dynamic(X, Y)
+data("X_proteomic")
+data("Y_proteomic")
+X <- X_proteomic[,1:50]
+Y <- Y_proteomic
 splsdrcox_dynamic(X, Y, n.comp = 3, vector = NULL, x.center = TRUE, x.scale = TRUE)
-}
 }
 \references{
 \insertRef{Bastien_2008}{Coxmos}

@@ -234,10 +234,16 @@ Visualization tools are also provided to aid in understanding the model's perfor
 different hyperparameters.
 }
 \examples{
-\dontrun{
-isb.splsicox_model <- cv.isb.splsicox(X, Y, max.ncomp = 10,
-spv_penalty.list = seq(0.1,0.9,0.2), x.center = TRUE, x.scale = TRUE)
-}
+data("X_multiomic")
+data("Y_multiomic")
+set.seed(123)
+index_train <- caret::createDataPartition(Y_multiomic$event, p = .5, list = FALSE, times = 1)
+X_train <- X_multiomic
+X_train$mirna <- X_train$mirna[index_train,1:50]
+X_train$proteomic <- X_train$proteomic[index_train,1:50]
+Y_train <- Y_multiomic[index_train,]
+isb.splsicox_model <- cv.isb.splsicox(X_train, Y_train, max.ncomp = 2, spv_penalty.list = c(0.5),
+n_run = 1, k_folds = 2, x.center = TRUE, x.scale = TRUE)
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

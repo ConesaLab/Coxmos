@@ -17,30 +17,40 @@ save_ggplot_lst(
 )
 }
 \arguments{
-\item{lst_plots}{list of ggplot2}
+\item{lst_plots}{List of 'ggplot2'.}
 
-\item{folder}{folder}
+\item{folder}{Character. Folder path as character type.}
 
-\item{prefix}{prefix for file name}
+\item{prefix}{Character. Prefix for file name.}
 
-\item{suffix}{sufix for file name}
+\item{suffix}{Character. Sufix for file name.}
 
-\item{wide}{16:9 or 4:3}
+\item{wide}{Logical. If TRUE, widescreen format (16:9) is used, in other case (4:3) format.}
 
-\item{quality}{one of: "HD", "FHD", "2K", "4K", "8K"}
+\item{quality}{Character. One of: "HD", "FHD", "2K", "4K", "8K"}
 
-\item{dpi}{dpi}
+\item{dpi}{Numeric. Dpi value for the image.}
 
-\item{custom}{Custom size. Numeric vector of width and height}
+\item{custom}{Numeric vector. Custom size of the image. Numeric vector of width and height.}
 
-\item{object_name}{file name}
+\item{object_name}{Character. If the file to plot it is inside of a list, name of the object to save.}
+}
+\value{
+Generate a plot image in the specific folder or working directory.
 }
 \description{
-Allows to save a list of ggplot2 objects in .tiff format based on an specific resolution.
+Allows to save a list of 'ggplot2' objects in .tiff format based on an specific resolution.
 }
 \examples{
 \dontrun{
-save_ggplot_lst(plot_lst, folder)
+library(ggplot2)
+data(iris)
+g <- ggplot(iris, aes(Sepal.Width, Sepal.Length, color = Species))
+g <- g + geom_point(size = 4)
+g2 <- ggplot(iris, aes(Petal.Width, Petal.Length, color = Species))
+g2 <- g2 + geom_point(size = 4)
+lst_plots <- list("Sepal" = g, "Petal" = g2)
+save_ggplot_lst(lst_plots)
 }
 }
 \author{

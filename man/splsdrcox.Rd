@@ -165,10 +165,11 @@ The \code{sPLS-DRCOX} function is grounded in established methodologies and is a
 researchers aiming to unravel complex survival associations in high-dimensional datasets.
 }
 \examples{
-\dontrun{
-splsdrcox(X, Y)
+data("X_proteomic")
+data("Y_proteomic")
+X <- X_proteomic[,1:50]
+Y <- Y_proteomic
 splsdrcox(X, Y, n.comp = 3, eta = 0.25, x.center = TRUE, x.scale = TRUE)
-}
 }
 \references{
 \insertRef{Bastien_2008}{Coxmos}

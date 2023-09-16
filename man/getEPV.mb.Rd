@@ -14,6 +14,9 @@ into binary variables.}
 "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event
 observations.}
 }
+\value{
+Return the EPV value for a specific X (explanatory variables) and Y (time and censored variables) data.
+}
 \description{
 Provides a quantitative assessment of the dataset by computing the Events per Variable
 (EPV) metric for multi-block data, which gauges the proportionality between observed events and the
@@ -31,9 +34,11 @@ To ensure the integrity of the data and the precision of the computation, the fu
 with an error mechanism that activates if the "event" column remains undetected.
 }
 \examples{
-\dontrun{
+data("X_multiomic")
+data("Y_multiomic")
+X <- X_multiomic
+Y <- Y_multiomic
 getEPV.mb(X,Y)
-}
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

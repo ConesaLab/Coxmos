@@ -23,7 +23,7 @@ plot_evaluation.list(
 )
 }
 \arguments{
-\item{lst_eval_results}{List (named) of Coxmos evaluation results.}
+\item{lst_eval_results}{List (named) of Coxmos evaluation results from \code{eval_Coxmos_models()}.}
 
 \item{evaluation}{Character. Perform the evaluation using the "AUC" or "Brier" metric (default: "AUC").}
 
@@ -57,15 +57,33 @@ equal zero (default = 2).}
 
 \item{label_y_axis_size}{Numeric. Text size for y label axis (default: 10).}
 }
+\value{
+A list of lst_eval_results length. Each element is a list of three elements.
+\code{lst_plots}: A list of two plots. The evaluation over the time, and the extension adding the
+mean or median on the right.
+\code{lst_plot_comparisons}: A list of comparative boxplots by t.test, anova, wilcoxon, kruscal.
+\code{df}: Data.frame of evaluation result.
+}
 \description{
 Run the function "plot_evaluation" for a list of results. More information in
 "?plot_evaluation".
 }
 \examples{
-\dontrun{
-#lst_eval_results #list of multiple eval_Coxmos_models()
-plot_evaluation.list(lst_eval_results)
-}
+data("X_proteomic")
+data("Y_proteomic")
+set.seed(123)
+index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+X_train <- X_proteomic[index_train,1:50]
+Y_train <- Y_proteomic[index_train,]
+X_test <- X_proteomic[-index_train,1:50]
+Y_test <- Y_proteomic[-index_train,]
+coxEN.model <- coxEN(X_train, Y_train, x.center = TRUE, x.scale = TRUE)
+eval_results <- list()
+eval_results[["cenROC"]] <- eval_Coxmos_models(lst_models = list("coxEN" = coxEN.model),
+X_test = X_test, Y_test = Y_test, pred.method = "cenROC")
+eval_results[["survivalROC"]] <- eval_Coxmos_models(lst_models = list("coxEN" = coxEN.model),
+X_test = X_test, Y_test = Y_test, pred.method = "survivalROC")
+plot_eval_results <- plot_evaluation.list(eval_results)
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

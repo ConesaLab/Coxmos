@@ -34,14 +34,18 @@ checkColnamesIllegalChars.mb <- function(X){
 #' "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event
 #' observations.
 #'
+#' @return Return the EPV value for a specific X (explanatory variables) and Y (time and censored variables) data.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' data("X_multiomic")
+#' data("Y_multiomic")
+#' X <- X_multiomic
+#' Y <- Y_multiomic
 #' getEPV.mb(X,Y)
-#' }
 
 getEPV.mb <- function(X,Y){
   EPV_lst <- list()
@@ -84,11 +88,22 @@ getEPV.mb <- function(X,Y){
 #' @param freqCut Numeric. Cutoff for the ratio of the most common value to the second most common
 #' value (default: 95/5).
 #'
+#' @return A list of two objects.
+#' \code{X}: A list with as many blocks as X input, but with the variables filtered.
+#' \code{variablesDeleted}: A list with as many blocks as X input, with the name of the variables
+#' that have been removed.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
+#'
+#' @examples
+#' data("X_multiomic")
+#' X <- X_multiomic
+#' filter <- deleteZeroOrNearZeroVariance.mb(X, remove_near_zero_variance = TRUE)
 
-deleteZeroOrNearZeroVariance.mb <- function(X, remove_near_zero_variance = FALSE, remove_zero_variance = TRUE,
+deleteZeroOrNearZeroVariance.mb <- function(X, remove_near_zero_variance = FALSE,
+                                            remove_zero_variance = TRUE,
                                             toKeep.zv = NULL, freqCut = 95/5){
 
   auxX <- X
@@ -146,11 +161,23 @@ deleteZeroOrNearZeroVariance.mb <- function(X, remove_near_zero_variance = FALSE
 #' @param LIMIT Numeric. Cutoff for minimum variation. If coefficient is lesser than the limit, the
 #' variables are removed because not vary enough (default: 0.1).
 #'
+#' @return A list of three objects.
+#' \code{X}: A list with as many blocks as X input, but with the variables filtered.
+#' \code{variablesDeleted}: A list with as many blocks as X input, with the name of the variables that have been removed.
+#' \code{coeff_variation}: A list with as many blocks as X input, with the coefficient of variation per variable.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
+#'
+#' @examples
+#' data("X_multiomic")
+#' X <- X_multiomic
+#' filter <- deleteNearZeroCoefficientOfVariation.mb(X, LIMIT = 0.1)
+#'
 deleteNearZeroCoefficientOfVariation.mb <- function(X, LIMIT = 0.1){
   variablesDeleted <- list()
+  coef_list <- list()
   newX <- X
   for(b in names(newX)){
     cvar <- apply(newX[[b]], 2, function(x){sd(x)/abs(mean(x))})
@@ -160,11 +187,12 @@ deleteNearZeroCoefficientOfVariation.mb <- function(X, LIMIT = 0.1){
     }else{
       variablesDeleted[[b]] <- 0
     }
+    coef_list[[b]] <- cvar
   }
 
   variablesDeleted <- purrr::map(variablesDeleted, ~{.==0;NULL})
 
-  return(list("X" = newX, "variablesDeleted" = variablesDeleted, "coeff_variation" = cvar))
+  return(list("X" = newX, "variablesDeleted" = variablesDeleted, "coeff_variation" = coef_list))
 }
 
 checkXY.rownames.mb <- function(X, Y, verbose = TRUE){
@@ -387,7 +415,7 @@ XY.mb.scale <- function(X, Y, x.center, x.scale, y.center, y.scale){
       stop("Names in x.scale do not match with names in X.")
     }
   }else{
-    Xh <- purrr::map(X, ~scale(., center = FALSE, scale = x.scale))
+    Xh <- purrr::map(Xh, ~scale(., center = FALSE, scale = x.scale))
   }
 
   xmeans <- purrr::map(Xh, ~attr(., "scaled:center"))
@@ -463,7 +491,8 @@ getCIndex_AUC_CoxModel_block.spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keep
   return(list("c_index" = cox_model$fit$concordance["concordance"], "AUC" = lst_AUC_values$AUC, "BRIER" = lst_BRIER_values$ierror))
 }
 
-getCIndex_AUC_CoxModel_block.splsda <- function(Xh, Yh, n.comp, keepX, scale = FALSE, near.zero.var = FALSE,
+getCIndex_AUC_CoxModel_block.splsda <- function(Xh, Yh, n.comp, keepX, scale = FALSE,
+                                                near.zero.var = FALSE,
                                                 EVAL_EVALUATOR = "cenROC", max.iter = 100,
                                                 verbose = verbose, times = NULL,
                                                 max_time_points = 15){

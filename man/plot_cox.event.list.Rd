@@ -13,14 +13,28 @@ plot_cox.event.list(lst_models, type = "lp", n.breaks = 20)
 
 \item{n.breaks}{Numeric. Number of time-break points to compute (default: 20).}
 }
+\value{
+A list containing three elements per each model:
+\code{df}: A data.frame with the computed predictions based on the specified type and the
+corresponding event status.
+\code{plot.density}: A ggplot object representing the density plot of the event distribution,
+with separate curves for censored and occurred events.
+\code{plot.histogram}: A ggplot object representing the histogram of the event distribution,
+with bins stacked by event type.
+}
 \description{
 Run the function "plot_cox.event" for a list of models. More information in
 "?plot_cox.event".
 }
 \examples{
-\dontrun{
+data("X_proteomic")
+data("Y_proteomic")
+X <- X_proteomic[,1:50]
+Y <- Y_proteomic
+splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+splsdrcox.model <- splsdrcox(X, Y, n.comp = 2, eta = 0.5, x.center = TRUE, x.scale = TRUE)
+lst_models = list("sPLSICOX" = splsicox.model, "sPLSDRCOX" = splsdrcox.model)
 plot_cox.event.list(lst_models)
-}
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

@@ -7,7 +7,7 @@
 plot_time.list(lst_models, x.text = "Method", y.text = NULL)
 }
 \arguments{
-\item{lst_models}{List of Coxmos models. Each HDCox object has the attribute time measured in
+\item{lst_models}{List of Coxmos models. Each Coxmos object has the attribute time measured in
 minutes (cross-validation models could be also added to this function).}
 
 \item{x.text}{Character. X axis title.}
@@ -15,7 +15,7 @@ minutes (cross-validation models could be also added to this function).}
 \item{y.text}{Character. Y axis title. If y.text = NULL, then y.text = "Time (mins)" (default: NULL).}
 }
 \value{
-A ggplot2 bar plot.
+A 'ggplot2' bar plot object.
 }
 \description{
 Produces a visual representation, using ggplot2, of the computational time consumed
@@ -32,19 +32,21 @@ aggregated, and visualized in a bar plot format. The function is versatile enoug
 individual models and cross-validation models, summing up the computational times in the latter
 case to provide an aggregate view.
 
-The resultant plot is generated using the ggplot2 package, ensuring a high-quality and interpretable
+The resultant plot is generated using the 'ggplot2' package, ensuring a high-quality and interpretable
 visualization. The Y-axis of the plot represents the computational time, typically in minutes, while
 the X-axis enumerates the different models. The function also offers customization options for axis
 labels, ensuring that the resultant plot aligns with the user's preferences and the intended audience's
 expectations.
 }
 \examples{
-\dontrun{
-  lst_models = list("cox" = cox.model,
-  "cv.sPLS-ICOX" = cv.splsicox_model,
-  "sPLS-ICOX" = splsicox_model)
-  plot_time.list(lst_models, x.text = "Method")
-}
+data("X_proteomic")
+data("Y_proteomic")
+X <- X_proteomic[,1:50]
+Y <- Y_proteomic
+coxSW.model <- coxSW(X, Y, x.center = TRUE, x.scale = TRUE)
+coxEN.model <- coxEN(X, Y, x.center = TRUE, x.scale = TRUE)
+lst_models = list("coxSW" = coxSW.model, "coxEN" = coxEN.model)
+plot_time.list(lst_models, x.text = "Method")
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

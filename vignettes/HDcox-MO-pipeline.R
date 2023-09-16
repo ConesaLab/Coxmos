@@ -281,11 +281,11 @@ eval_results <- eval_Coxmos_models(lst_models = lst_models,
 ## -----------------------------------------------------------------------------
 eval_results
 
-## -----------------------------------------------------------------------------
+## ---- warning=F---------------------------------------------------------------
 lst_eval_results <- plot_evaluation(eval_results, evaluation = "AUC")
 lst_eval_results_brier <- plot_evaluation(eval_results, evaluation = "Brier")
 
-## ---- fig.small=T-------------------------------------------------------------
+## ---- fig.small=T, warning=F--------------------------------------------------
 lst_eval_results$lst_plots$lineplot.mean
 lst_eval_results$lst_plot_comparisons$t.test
 
@@ -334,7 +334,7 @@ density.plots.lp$`iSB.sPLS-DRCOX`$plot.histogram
 ggp_scores <- plot_PLS_Coxmos(model = lst_models$`iSB.sPLS-DRCOX`,
                              comp = c(1,2), mode = "scores")
 
-## ---- fig.small=T-------------------------------------------------------------
+## ---- fig.small=T, warning=FALSE----------------------------------------------
 ggp_scores$plot_block
 
 ## -----------------------------------------------------------------------------
@@ -342,7 +342,7 @@ ggp_loadings <- plot_PLS_Coxmos(model = lst_models$`iSB.sPLS-DRCOX`,
                                comp = c(1,2), mode = "loadings",
                                top = 10) #length from 0,0
 
-## ---- fig.small=T-------------------------------------------------------------
+## ---- fig.small=T, warning=FALSE----------------------------------------------
 ggp_loadings$plot_block
 
 ## -----------------------------------------------------------------------------
@@ -351,7 +351,7 @@ ggp_biplot <- plot_PLS_Coxmos(model = lst_models$`iSB.sPLS-DRCOX`,
                              top = 15,
                              only_top = T)
 
-## ---- fig.small=T-------------------------------------------------------------
+## ---- fig.small=T, warning=FALSE----------------------------------------------
 ggp_biplot$plot_block
 
 ## ---- warning=F---------------------------------------------------------------
@@ -376,7 +376,7 @@ ggp.simulated_beta <- plot_pseudobeta.list(lst_models = lst_models,
 ## ---- fig.small=T-------------------------------------------------------------
 ggp.simulated_beta$`iSB.sPLS-DRCOX`$plot
 
-## -----------------------------------------------------------------------------
+## ---- warning=F---------------------------------------------------------------
 LST_KM_RES_LP <- getAutoKM.list(type = "LP",
                                 lst_models = lst_models,
                                 comp = 1:4,
@@ -400,7 +400,7 @@ LST_KM_TEST_LP <- getTestKM.list(lst_models = lst_models,
 ## -----------------------------------------------------------------------------
 LST_KM_TEST_LP$`iSB.sPLS-DRCOX`
 
-## -----------------------------------------------------------------------------
+## ---- warning=F---------------------------------------------------------------
 LST_KM_RES_COMP <- getAutoKM.list(type = "COMP",
                                   lst_models = lst_models,
                                   comp = 1:4,
@@ -413,7 +413,7 @@ LST_KM_RES_COMP <- getAutoKM.list(type = "COMP",
 LST_KM_RES_COMP$`iSB.sPLS-DRCOX`$LST_PLOTS$proteomic$comp_1
 LST_KM_RES_COMP$`iSB.sPLS-DRCOX`$LST_PLOTS$proteomic$comp_2
 
-## -----------------------------------------------------------------------------
+## ---- warning=F---------------------------------------------------------------
 lst_cutoff <- getCutoffAutoKM.list(LST_KM_RES_COMP)
 
 LST_KM_TEST_COMP <- getTestKM.list(lst_models = lst_models, 
@@ -426,7 +426,7 @@ LST_KM_TEST_COMP <- getTestKM.list(lst_models = lst_models,
 LST_KM_TEST_COMP$`iSB.sPLS-DRCOX`$comp_1_proteomic
 LST_KM_TEST_COMP$`iSB.sPLS-DRCOX`$comp_2_proteomic
 
-## -----------------------------------------------------------------------------
+## ---- warning=F---------------------------------------------------------------
 LST_KM_RES_VAR <- getAutoKM.list(type = "VAR",
                                  lst_models = lst_models,
                                  comp = 1:4,
@@ -468,23 +468,28 @@ ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient.list(lst_models = lst_mo
                                                              error.bar = T, onlySig = T, alpha = 0.05,
                                                              zero.rm = T, auto.limits = T, show.betas = T, top = 20)
 
+# ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient(model = lst_models$`sPLS-DRCOX`,
+#                                                         new_observation = new_pat,
+#                                                         error.bar = T, onlySig = T, alpha = 0.05,
+#                                                         zero.rm = T, auto.limits = T, show.betas = T, top = 20)
+
 ## ---- fig.small=T-------------------------------------------------------------
 ggp.simulated_beta_newPat$`iSB.sPLS-DRCOX`$plot$proteomic
 
 ## -----------------------------------------------------------------------------
-pat_density <- plot_patient.eventDensity(patient = new_pat, 
-                                         time = NULL, 
-                                         model = lst_models$`iSB.sPLS-DRCOX`, 
-                                         type = "lp")
+pat_density <- plot_observation.eventDensity(patient = new_pat, 
+                                             model = lst_models$`iSB.sPLS-DRCOX`, 
+                                             time = NULL, 
+                                             type = "lp")
 
 ## ---- fig.small=T-------------------------------------------------------------
 pat_density
 
 ## -----------------------------------------------------------------------------
-pat_histogram <- plot_patient.eventHistogram(patient = new_pat, 
-                                             time = NULL, 
-                                             model = lst_models$`iSB.sPLS-DRCOX`, 
-                                             type = "lp")
+pat_histogram <- plot_observation.eventHistogram(patient = new_pat, 
+                                                 model = lst_models$`iSB.sPLS-DRCOX`, 
+                                                 time = NULL, 
+                                                 type = "lp")
 
 ## ---- fig.small=T-------------------------------------------------------------
 pat_histogram

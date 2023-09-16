@@ -28,6 +28,11 @@ filtering (default: NULL).}
 \item{freqCut}{Numeric. Cutoff for the ratio of the most common value to the second most common
 value (default: 95/5).}
 }
+\value{
+Return a list of two objects:
+\code{X}: The new data.frame X filtered.
+\code{variablesDeleted}: The variables that have been removed by the filter.
+}
 \description{
 Provides a robust mechanism to filter out variables from a dataset that exhibit zero
 or near-zero variance, thereby enhancing the quality and interpretability of subsequent statistical
@@ -48,12 +53,9 @@ should not be removed regardless of their variance, the \code{toKeep.zv} paramet
 specify a list of such variables.
 }
 \examples{
-\dontrun{
-# zero-variance variables
-deleteZeroOrNearZeroVariance(X, remove_near_zero_variance = FALSE, remove_zero_variance = TRUE)
-# near-zero-variance variables
-deleteZeroOrNearZeroVariance(X, remove_near_zero_variance = TRUE, remove_zero_variance = TRUE)
-}
+data("X_proteomic")
+X <- X_proteomic
+filter <- deleteZeroOrNearZeroVariance(X, remove_near_zero_variance = TRUE)
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

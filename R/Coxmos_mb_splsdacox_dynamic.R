@@ -144,9 +144,14 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' mb.splsdacox(X, Y)
-#' mb.splsdacox(X, Y, n.comp = 3, vector = NULL, x.center = TRUE, x.scale = TRUE)
+#' \donttest{
+#' data("X_multiomic")
+#' data("Y_multiomic")
+#' X <- X_multiomic
+#' X$mirna <- X$mirna[,1:50]
+#' X$proteomic <- X$proteomic[,1:50]
+#' Y <- Y_multiomic
+#' mb.splsdacox(X, Y, n.comp = 2, vector = NULL, x.center = TRUE, x.scale = TRUE)
 #' }
 
 mb.splsdacox <- function (X, Y,
@@ -745,11 +750,17 @@ mb.splsdacox <- function (X, Y,
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' cv.mb.splsdacox_model <- cv.splsdacox_dynamic(X, Y, max.ncomp = 8, vector = NULL,
-#' x.center = TRUE, x.scale = TRUE)
-#' mb.splsdacox_model <- mb.splsdacox(X, Y, n.comp = cv.mb.splsdacox_model$opt.comp,
-#' vector = cv.mb.splsdacox_model$opt.nvar, x.center = TRUE, x.scale = TRUE)
+#' \donttest{
+#' data("X_multiomic")
+#' data("Y_multiomic")
+#' set.seed(123)
+#' index_train <- caret::createDataPartition(Y_multiomic$event, p = .5, list = FALSE, times = 1)
+#' X_train <- X_multiomic
+#' X_train$mirna <- X_train$mirna[index_train,1:50]
+#' X_train$proteomic <- X_train$proteomic[index_train,1:50]
+#' Y_train <- Y_multiomic[index_train,]
+#' cv.mb.splsdacox_model <- cv.mb.splsdacox(X_train, Y_train, max.ncomp = 2, vector = NULL,
+#' n_run = 1, k_folds = 2, x.center = TRUE, x.scale = TRUE)
 #' }
 
 cv.mb.splsdacox <- function(X, Y,

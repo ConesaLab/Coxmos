@@ -10,7 +10,10 @@ plot_proportionalHazard(model)
 \item{model}{Coxmos model.}
 }
 \value{
-A ggplot2 plot.
+A \code{ggplot2} object visualizing the assessment of the proportional hazards assumption
+for the given Coxmos model. The plot displays the Schoenfeld residuals against time for each
+variable or factor level from the model. A line is fitted to these residuals to indicate any trend,
+which can suggest a violation of the proportional hazards assumption.
 }
 \description{
 Generates a visual assessment of the proportional hazards assumption for a given Coxmos model.
@@ -39,9 +42,12 @@ offering a comprehensive visualization that aids in the interpretation and valid
 model's assumptions.
 }
 \examples{
-\dontrun{
-plot_proportionalHazard(model)
-}
+data("X_proteomic")
+data("Y_proteomic")
+X <- X_proteomic[,1:50]
+Y <- Y_proteomic
+splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+plot_proportionalHazard(splsicox.model)
 }
 \references{
 \insertRef{survival_package}{Coxmos}

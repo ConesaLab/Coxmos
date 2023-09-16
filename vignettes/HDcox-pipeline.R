@@ -495,19 +495,19 @@ ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient.list(lst_models = lst_mo
 ggp.simulated_beta_newPat$`sPLS-DRCOX`$plot
 
 ## -----------------------------------------------------------------------------
-pat_density <- plot_patient.eventDensity(patient = new_pat, 
-                                         time = NULL, 
-                                         model = lst_models$`sPLS-DRCOX`, 
-                                         type = "lp")
+pat_density <- plot_observation.eventDensity(patient = new_pat,
+                                             model = lst_models$`sPLS-DRCOX`,
+                                             time = NULL, 
+                                             type = "lp")
 
 ## ---- fig.small=T, warning=F--------------------------------------------------
 pat_density
 
 ## -----------------------------------------------------------------------------
-pat_histogram <- plot_patient.eventHistogram(patient = new_pat, 
-                                             time = NULL, 
-                                             model = lst_models$`sPLS-DRCOX`, 
-                                             type = "lp")
+pat_histogram <- plot_observation.eventHistogram(patient = new_pat, 
+                                                 model = lst_models$`sPLS-DRCOX`, 
+                                                 time = NULL, 
+                                                 type = "lp")
 
 ## ---- fig.small=T, warning=F--------------------------------------------------
 pat_histogram

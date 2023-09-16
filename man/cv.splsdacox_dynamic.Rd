@@ -210,12 +210,14 @@ and Area Under the Curve (AUC). The function provides flexibility in choosing th
 and its method.
 }
 \examples{
-\dontrun{
-cv.splsdacox_dynamic_model <- cv.splsdacox_dynamic(X, Y, max.ncomp = 8, vector = NULL,
-x.center = TRUE, x.scale = TRUE)
-splsdacox_model <- splsdacox(X, Y, n.comp = cv.splsdacox_dynamic_model$opt.comp,
-vector = cv.splsdacox_dynamic_model$opt.nvar, x.center = TRUE, x.scale = TRUE)
-}
+data("X_proteomic")
+data("Y_proteomic")
+set.seed(123)
+index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+X_train <- X_proteomic[index_train,1:50]
+Y_train <- Y_proteomic[index_train,]
+cv.splsdacox_dynamic_model <- cv.splsdacox_dynamic(X_train, Y_train, max.ncomp = 2, vector = NULL,
+n_run = 1, k_folds = 2, x.center = TRUE, x.scale = TRUE)
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

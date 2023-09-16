@@ -17,6 +17,9 @@ Otherwise, k-1 variables will be used where the first level will be use as "defa
 \item{sep}{Character. Character symbol to generate new colnames. Ex. If variable name is "sex" and
 sep = "_". Dummy variables will be "sex_male" and "sex_female".}
 }
+\value{
+A matrix or data.frame with k-1 or k dummy variables for categorical/factor data.
+}
 \description{
 Transforms factor variables within a matrix or data frame into binary dummy variables,
 facilitating numerical representation for subsequent statistical analyses. The function provides
@@ -38,10 +41,10 @@ separated by a user-defined character, ensuring clarity and interpretability. No
 remain unaltered, preserving the integrity of the original data structure.
 }
 \examples{
-\dontrun{
+data("X_proteomic")
+X <- X_proteomic
 X.dummy <- factorToBinary(X, all = FALSE, sep = "_")
 X.pls <- factorToBinary(X, all = TRUE, sep = "_")
-}
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

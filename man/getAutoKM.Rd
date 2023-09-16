@@ -48,6 +48,12 @@ threshold (default: 0.05).}
 
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
+\value{
+A list of two elements per each model in the list:
+\code{info_logrank_num}: A list of two data.frames with the numerical variables categorize as
+qualitative and the cutpoint to divide the data into two groups.
+\code{LST_PLOTS}: A list with the Kaplan-Meier Plots.
+}
 \description{
 Generates a Kaplan-Meier plot for the specified Coxmos model. The plot can be
 constructed based on the model's Linear Predictor value, the PLS-COX component, or the original
@@ -73,9 +79,17 @@ It's essential to ensure that the provided \code{model} is of the correct class 
 will return an error message if an incompatible model is supplied.
 }
 \examples{
-\dontrun{
-getAutoKM(type = "LP", model)
-}
+data("X_proteomic")
+data("Y_proteomic")
+set.seed(123)
+index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+X_train <- X_proteomic[index_train,1:50]
+Y_train <- Y_proteomic[index_train,]
+X_test <- X_proteomic[-index_train,1:50]
+Y_test <- Y_proteomic[-index_train,]
+splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, spv_penalty = 0.5, x.center = TRUE,
+x.scale = TRUE)
+getAutoKM(type = "LP", model = splsicox.model)
 }
 \references{
 \insertRef{Kaplan_1958}{Coxmos}

@@ -44,6 +44,15 @@ total cores - 1 will be used. It could lead to higher RAM consumption (default: 
 
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
+\value{
+A list of two objects:
+\code{df}: A data.frame which the predictions for the specific model split into the full model (LP)
+and each component individually. This data.frame is used to plot the information by the
+function \code{plot_evaluation()}.
+\code{lst_AUC}: A list of the full model prediction and its components where the user can check
+the linear predictors used, the global AUC, the AUC per time point and the predicted time points
+selected.
+}
 \description{
 The \code{eval_Coxmos_model_per_variable} function offers a granular evaluation of a specific Coxmos
 model, focusing on the influence of individual variables or components on the model's predictive
@@ -69,14 +78,18 @@ preference, which can expedite the evaluation process, especially when dealing w
 or multiple time points.
 }
 \examples{
-\dontrun{
-X <- data[train_index,]
-Y <- data_Y[train_index,]
-X_test <- data[-train_index,]
-Y_test <- data_Y[-train_index,]
-model_icox <- splsicox(X, Y)
+data("X_proteomic")
+data("Y_proteomic")
+set.seed(123)
+index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+X_train <- X_proteomic[index_train,1:50]
+Y_train <- Y_proteomic[index_train,]
+
+X_test <- X_proteomic[-index_train,1:50]
+Y_test <- Y_proteomic[-index_train,]
+
+model_icox <- splsicox(X_train, Y_train, n.comp = 2)
 eval_Coxmos_model_per_variable(model_icox, X_test, Y_test, pred.method = "cenROC")
-}
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

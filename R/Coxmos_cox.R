@@ -109,10 +109,11 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' cox(X, Y)
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' X <- X_proteomic[,1:10]
+#' Y <- Y_proteomic
 #' cox(X, Y, x.center = TRUE, x.scale = TRUE)
-#' }
 
 cox <- function (X, Y,
                  x.center = TRUE, x.scale = FALSE,

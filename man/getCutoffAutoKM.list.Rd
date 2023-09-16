@@ -9,14 +9,32 @@ getCutoffAutoKM.list(lst_results)
 \arguments{
 \item{lst_results}{List of lists. Result of getAutoKM.list() function.}
 }
+\value{
+A list where each element corresponds to the result of the
+\code{getCutoffAutoKM} function applied to each model in the input list. The structure and
+content of each element will be consistent with the output of the
+\code{getCutoffAutoKM} function.
+}
 \description{
 Run the function "getCutoffAutoKM" for a list of models. More information in
 "?getCutoffAutoKM".
 }
 \examples{
-\dontrun{
+data("X_proteomic")
+data("Y_proteomic")
+set.seed(123)
+index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+X_train <- X_proteomic[index_train,1:50]
+Y_train <- Y_proteomic[index_train,]
+X_test <- X_proteomic[-index_train,1:50]
+Y_test <- Y_proteomic[-index_train,]
+splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, spv_penalty = 0.5, x.center = TRUE,
+x.scale = TRUE)
+splsdrcox.model <- splsdrcox(X_train, Y_train, n.comp = 2, eta = 0.5, x.center = TRUE,
+x.scale = TRUE)
+lst_models = list("sPLSICOX" = splsicox.model, "sPLSDRCOX" = splsdrcox.model)
+lst_results = getAutoKM.list(type = "LP", lst_models)
 getCutoffAutoKM.list(lst_results)
-}
 }
 \references{
 \insertRef{Kaplan_1958}{Coxmos}

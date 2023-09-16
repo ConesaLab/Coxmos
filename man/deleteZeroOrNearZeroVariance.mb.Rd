@@ -28,6 +28,12 @@ filtering (default: NULL).}
 \item{freqCut}{Numeric. Cutoff for the ratio of the most common value to the second most common
 value (default: 95/5).}
 }
+\value{
+A list of two objects.
+\code{X}: A list with as many blocks as X input, but with the variables filtered.
+\code{variablesDeleted}: A list with as many blocks as X input, with the name of the variables
+that have been removed.
+}
 \description{
 Provides a robust mechanism to filter out variables from a dataset that exhibit zero
 or near-zero variance, thereby enhancing the quality and interpretability of subsequent statistical
@@ -46,6 +52,11 @@ determines the threshold for near-zero variance based on the ratio of the most f
 the second most frequent value. For scenarios where certain variables are deemed essential and
 should not be removed regardless of their variance, the \code{toKeep.zv} parameter allows users to specify
 a list of such variables.
+}
+\examples{
+data("X_multiomic")
+X <- X_multiomic
+filter <- deleteZeroOrNearZeroVariance.mb(X, remove_near_zero_variance = TRUE)
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

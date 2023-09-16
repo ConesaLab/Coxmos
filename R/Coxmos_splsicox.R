@@ -120,10 +120,11 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' splsicox(X, Y)
-#' splsicox(X, Y, n.comp = 3, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' X <- X_proteomic[,1:50]
+#' Y <- Y_proteomic
+#' splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
 
 splsicox <- function(X, Y,
                      n.comp = 4, spv_penalty = 0,
@@ -777,12 +778,14 @@ splsicox <- function(X, Y,
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' cv.splsicox_model <- cv.splsicox(X, Y, max.ncomp = 8, spv_penalty.list = c(0.1,0.5,0.8),
-#' x.center = TRUE, x.scale = TRUE)
-#' splsicox_model <- splsicox(X, Y, n.comp = cv.splsicox_model$opt.comp,
-#' spv_penalty = cv.splsicox_model$opt.spv_penalty, x.center = TRUE, x.scale = TRUE)
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' set.seed(123)
+#' index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+#' X_train <- X_proteomic[index_train,1:50]
+#' Y_train <- Y_proteomic[index_train,]
+#' cv.splsicox_model <- cv.splsicox(X_train, Y_train, max.ncomp = 2, spv_penalty.list = c(0.1),
+#' n_run = 1, k_folds = 2, x.center = TRUE, x.scale = TRUE)
 
 cv.splsicox <- function (X, Y,
                         max.ncomp = 8, spv_penalty.list = seq(0,0.9,0.1),

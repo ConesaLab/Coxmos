@@ -32,7 +32,7 @@ If BREAKTIME = NULL, "n.breaks" is used (default: NULL).}
 \item{x.text}{Character. Title for X axis.}
 }
 \value{
-A ggplot2 two side bar plot. X axis represent the number of samples per each NAMEVAR1
+A 'ggplot2' two side bar plot. X axis represent the number of samples per each NAMEVAR1
 factor levels and Y axis, the X NAMEVAR2 numerical variables categorize in groups of breaks.
 }
 \description{

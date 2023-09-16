@@ -124,10 +124,13 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' sb.splsdrcox(X, Y)
-#' sb.splsdrcox(X, Y, n.comp = 3, eta = 0.5, x.center = TRUE, x.scale = TRUE)
-#' }
+#' data("X_multiomic")
+#' data("Y_multiomic")
+#' X <- X_multiomic
+#' X$mirna <- X$mirna[,1:50]
+#' X$proteomic <- X$proteomic[,1:50]
+#' Y <- Y_multiomic
+#' sb.splsdrcox(X, Y, n.comp = 2, eta = 0.5, x.center = TRUE, x.scale = TRUE)
 
 sb.splsdrcox <- function (X, Y,
                          n.comp = 4, eta = 0.5,
@@ -444,12 +447,16 @@ sb.splsdrcox <- function (X, Y,
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' cv.sb.splsdrcox_model <- cv.sb.splsdrcox(X, Y, max.ncomp = 10,
-#' eta.list = seq(0.1,0.9,0.2), x.center = TRUE, x.scale = TRUE)
-#' sb.splsdrcox_model <- sb.splsdrcox(X, Y, n.comp = cv.sb.splsdrcox_model$opt.comp,
-#' eta = cv.sb.splsdrcox_model$opt.eta, x.center = TRUE, x.scale = TRUE)
-#' }
+#' data("X_multiomic")
+#' data("Y_multiomic")
+#' set.seed(123)
+#' index_train <- caret::createDataPartition(Y_multiomic$event, p = .5, list = FALSE, times = 1)
+#' X_train <- X_multiomic
+#' X_train$mirna <- X_train$mirna[index_train,1:50]
+#' X_train$proteomic <- X_train$proteomic[index_train,1:50]
+#' Y_train <- Y_multiomic[index_train,]
+#' cv.sb.splsdrcox_model <- cv.sb.splsdrcox(X_train, Y_train, max.ncomp = 2, eta.list = c(0.5),
+#' n_run = 1, k_folds = 2, x.center = TRUE, x.scale = TRUE)
 
 cv.sb.splsdrcox <- function(X, Y,
                            max.ncomp = 8, eta.list = seq(0.1,0.9,0.2),
@@ -929,10 +936,16 @@ cv.sb.splsdrcox <- function(X, Y,
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' isb.splsdrcox_model <- cv.isb.splsdrcox(X, Y, max.ncomp = 10,
-#' eta.list = seq(0.1,0.9,0.2), x.center = TRUE, x.scale = TRUE)
-#' }
+#' data("X_multiomic")
+#' data("Y_multiomic")
+#' set.seed(123)
+#' index_train <- caret::createDataPartition(Y_multiomic$event, p = .5, list = FALSE, times = 1)
+#' X_train <- X_multiomic
+#' X_train$mirna <- X_train$mirna[index_train,1:50]
+#' X_train$proteomic <- X_train$proteomic[index_train,1:50]
+#' Y_train <- Y_multiomic[index_train,]
+#' isb.splsdrcox_model <- cv.isb.splsdrcox(X_train, Y_train, max.ncomp = 2, eta.list = c(0.5),
+#' n_run = 1, k_folds = 2, x.center = TRUE, x.scale = TRUE)
 
 cv.isb.splsdrcox <- function(X, Y,
                              max.ncomp = 8, eta.list = seq(0.1,0.9,0.2),

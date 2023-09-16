@@ -189,10 +189,11 @@ The function also offers the flexibility to refine the model further by removing
 variables based on a specified alpha threshold.
 }
 \examples{
-\dontrun{
-splsdacox_dynamic(X, Y)
-splsdacox_dynamic(X, Y, n.comp = 3, vector = NULL, x.center = TRUE, x.scale = TRUE)
-}
+data("X_proteomic")
+data("Y_proteomic")
+X <- X_proteomic[,1:50]
+Y <- Y_proteomic
+splsdacox_dynamic(X, Y, n.comp = 2, vector = NULL, x.center = TRUE, x.scale = TRUE)
 }
 \references{
 \insertRef{MixOmics}{Coxmos}

@@ -147,10 +147,11 @@ germane to the sPLS-ICOX model, inclusive of the normalized data matrices, sPLS 
 loadings, scores, and an exhaustive compilation of survival model metrics.
 }
 \examples{
-\dontrun{
-splsicox(X, Y)
-splsicox(X, Y, n.comp = 3, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
-}
+data("X_proteomic")
+data("Y_proteomic")
+X <- X_proteomic[,1:50]
+Y <- Y_proteomic
+splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
 }
 \references{
 \insertRef{Bastien_2005}{Coxmos}

@@ -107,10 +107,11 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' coxEN(X, Y)
-#' coxEN(X, Y, EN.alpha = 0.75, x.center = TRUE, x.scale = TRUE)
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' X <- X_proteomic[,1:50]
+#' Y <- Y_proteomic
+#' coxEN(X, Y, EN.alpha = 0.75, x.center = TRUE, x.scale = TRUE, remove_non_significant = TRUE)
 
 coxEN <- function(X, Y,
                   EN.alpha = 0.5, max.variables = 15,
@@ -596,10 +597,14 @@ coxEN <- function(X, Y,
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' cv.coxEN_model <- cv.coxEN(X, Y, EN.alpha.list = c(0.1,0.5,0.1), x.center = TRUE, x.scale = TRUE)
-#' coxEN_model <- coxEN(X, Y, EN.alpha = cv.coxEN_model$opt.EN.alpha, x.center = TRUE, x.scale = TRUE)
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' set.seed(123)
+#' index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+#' X_train <- X_proteomic[index_train,1:50]
+#' Y_train <- Y_proteomic[index_train,]
+#' cv.coxEN_model <- cv.coxEN(X_train, Y_train, EN.alpha.list = c(0.1,0.5),
+#' x.center = TRUE, x.scale = TRUE)
 
 cv.coxEN <- function(X, Y,
                      EN.alpha.list = seq(0,1,0.1),

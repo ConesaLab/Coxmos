@@ -34,14 +34,33 @@ threshold (default: 0.05).}
 
 \item{top}{Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: NULL).}
 }
+\value{
+A list of ggplot objects for each model in the \code{lst_models}. Each plot visualizes
+the linear predictor values for multiple patients based on the specified Coxmos model. The plots
+can optionally display error bars, consider only significant components, and can be limited to a
+specified number of top variables. The visualization aids in understanding the influence of
+explanatory variables on the survival prediction for each patient in the context of the provided
+models.
+}
 \description{
 Run the function "plot_LP.multiplePatients" for a list of models. More information
 in "?plot_LP.multiplePatients".
 }
 \examples{
-\dontrun{
-plot_LP.multiplePatients.list(lst_models, new_data)
-}
+data("X_proteomic")
+data("Y_proteomic")
+set.seed(123)
+index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+X_train <- X_proteomic[index_train,1:50]
+Y_train <- Y_proteomic[index_train,]
+X_test <- X_proteomic[-index_train,1:50]
+Y_test <- Y_proteomic[-index_train,]
+splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, spv_penalty = 0.5, x.center = TRUE,
+x.scale = TRUE)
+splsdrcox.model <- splsdrcox(X_train, Y_train, n.comp = 2, eta = 0.5, x.center = TRUE,
+x.scale = TRUE)
+lst_models = list("sPLSICOX" = splsicox.model, "sPLSDRCOX" = splsdrcox.model)
+plot_LP.multiplePatients.list(lst_models = lst_models, X_test[1:5,])
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

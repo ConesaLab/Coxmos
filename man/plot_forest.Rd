@@ -27,6 +27,10 @@ plot_forest(
 
 \item{noDigits}{Numeric. Number of digits for estimates and p-values in the plot (default: 2).}
 }
+\value{
+A ggplot object representing the forest plot. The plot visualizes the hazard ratios and
+their confidence intervals for each variable or component from the Coxmos model.
+}
 \description{
 Generates a forest plot for Coxmos models, visualizing the hazard ratios and their confidence
 intervals. The function leverages the capabilities of the \code{survminer::ggforest} function to
@@ -49,9 +53,12 @@ Forest plots are instrumental in the field of survival analysis, offering a conc
 of the model's results, making them easier to interpret and communicate.
 }
 \examples{
-\dontrun{
-plot_forest(model)
-}
+data("X_proteomic")
+data("Y_proteomic")
+X <- X_proteomic[,1:50]
+Y <- Y_proteomic
+splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+plot_forest(splsicox.model)
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

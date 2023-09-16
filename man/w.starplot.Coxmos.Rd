@@ -15,6 +15,36 @@ w.starplot.Coxmos(model, zero.rm = FALSE, top = NULL, auto.limits = TRUE)
 
 \item{auto.limits}{Logical. If "auto.limits" = TRUE, limits are detected automatically (default: TRUE).}
 }
+\value{
+A list of \code{ggplot2} objects, each representing the W* values for a component of
+the Coxmos model.
+}
 \description{
-w.starplot.Coxmos
+The \code{w.starplot.Coxmos} function offers a graphical representation of the W* (W star) values from
+a given Coxmos model. Through this visualization, users can gain insights into the variable
+contributions and their significance in the model. The function provides options for customization,
+allowing users to focus on specific variables, exclude zero values, and adjust the visual limits.
+}
+\details{
+The \code{w.starplot.Coxmos} function is tailored to visualize the W* values, which are indicative of
+the variable contributions in a Coxmos model. Initially, the function checks the class of the
+provided model to ensure its compatibility with the Coxmos framework.
+
+The W* values are extracted from the model and subsequently processed based on user-defined
+parameters. The \code{zero.rm} option allows users to exclude variables with zero W* values, ensuring
+a more concise visualization. If the \code{top} parameter is specified, the function focuses on
+displaying only the top-ranked variables based on their absolute W* values.
+
+The visualization is constructed using the 'ggplot2' framework. The color scale can be automatically
+adjusted to the maximum absolute W* value when the \code{auto.limits} parameter is set to TRUE. The
+function also checks for the availability of the \code{RColorConesa} package. If present, it leverages
+its color palettes for a more refined visualization; in its absence, default color schemes are applied.
+}
+\examples{
+data("X_proteomic")
+data("Y_proteomic")
+X <- X_proteomic[,1:50]
+Y <- Y_proteomic
+splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+w.starplot.Coxmos(model = splsicox.model)
 }

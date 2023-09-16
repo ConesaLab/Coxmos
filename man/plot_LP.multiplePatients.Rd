@@ -34,6 +34,10 @@ threshold (default: 0.05).}
 
 \item{top}{Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: NULL).}
 }
+\value{
+A ggplot object visualizing the linear predictors for multiple patients based on the
+provided Coxmos model.
+}
 \description{
 Visualizes the linear predictors for multiple patients based on a given Coxmos model.
 }
@@ -49,9 +53,17 @@ multi-block PLS models. Each of these methods is tailored to handle specific mod
 produce the desired plots.
 }
 \examples{
-\dontrun{
-plot_LP.multiplePatients(model, new_data)
-}
+data("X_proteomic")
+data("Y_proteomic")
+set.seed(123)
+index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+X_train <- X_proteomic[index_train,1:50]
+Y_train <- Y_proteomic[index_train,]
+X_test <- X_proteomic[-index_train,1:50]
+Y_test <- Y_proteomic[-index_train,]
+splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, spv_penalty = 0.5, x.center = TRUE,
+x.scale = TRUE)
+plot_LP.multiplePatients(model = splsicox.model, X_test[1:5,])
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

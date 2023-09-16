@@ -47,14 +47,32 @@ compute (default: 20).}
 
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
+\value{
+A list where each element corresponds to a Kaplan-Meier plot generated for each model in
+the input list. Each plot visualizes the survival probabilities based on the specified cutoff
+values for the respective model. The list's names correspond to the names of the models provided
+in the input list.
+}
 \description{
 Run the function "getTestKM" for a list of models. More information in "?getTestKM".
 }
 \examples{
-\dontrun{
-lst_cutoff <- getCutoffAutoKM.list(LST_KM_RES_LP)
+data("X_proteomic")
+data("Y_proteomic")
+set.seed(123)
+index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+X_train <- X_proteomic[index_train,1:50]
+Y_train <- Y_proteomic[index_train,]
+X_test <- X_proteomic[-index_train,1:50]
+Y_test <- Y_proteomic[-index_train,]
+splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, spv_penalty = 0.5, x.center = TRUE,
+x.scale = TRUE)
+splsdrcox.model <- splsdrcox(X_train, Y_train, n.comp = 2, eta = 0.5, x.center = TRUE,
+x.scale = TRUE)
+lst_models = list("sPLSICOX" = splsicox.model, "sPLSDRCOX" = splsdrcox.model)
+lst_results = getAutoKM.list(type = "LP", lst_models)
+lst_cutoff <- getCutoffAutoKM.list(lst_results)
 getTestKM.list(lst_models, X_test, Y_test, lst_cutoff)
-}
 }
 \references{
 \insertRef{Kaplan_1958}{Coxmos}

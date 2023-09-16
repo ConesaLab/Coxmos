@@ -134,10 +134,11 @@ It's important to note that when using the ridge penalty (\code{EN.alpha = 0}), 
 \code{max.variables} parameters will not be considered.
 }
 \examples{
-\dontrun{
-coxEN(X, Y)
-coxEN(X, Y, EN.alpha = 0.75, x.center = TRUE, x.scale = TRUE)
-}
+data("X_proteomic")
+data("Y_proteomic")
+X <- X_proteomic[,1:50]
+Y <- Y_proteomic
+coxEN(X, Y, EN.alpha = 0.75, x.center = TRUE, x.scale = TRUE, remove_non_significant = TRUE)
 }
 \references{
 \insertRef{Simon_2011}{Coxmos}

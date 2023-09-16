@@ -17,10 +17,11 @@ variables must be transform into binary variables.}
 \item{type}{Character. Prediction type: "lp", "risk", "expected" or "survival" (default: "lp").}
 
 \item{method}{Character. Prediction method. It can be compute by using the cox model "cox" or by
-using W.star "W.star" (default: "cox"). (not implemented for MB approaches)!!!}
+using W.star "W.star" (default: "cox").}
 }
 \value{
-Return the lp or other metric for the patient
+Return the "lp", "risk", "expected" or "survival" metric for test data using the specific
+Coxmos model.
 }
 \description{
 The \code{cox.prediction} function facilitates Cox predictions based on a given Coxmos model,
@@ -49,12 +50,18 @@ or missing components in the model, ensuring robustness in predictions and minim
 errors during execution.
 }
 \examples{
-\dontrun{
-X <- data[train_index,]
-X_test <- data[-train_index,]
-model <- plsicox(X, Y)
-cox.prediction(model = model, new_data = X_test)
-}
+data("X_proteomic")
+data("Y_proteomic")
+set.seed(123)
+index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+X_train <- X_proteomic[index_train,1:50]
+Y_train <- Y_proteomic[index_train,]
+
+X_test <- X_proteomic[-index_train,1:50]
+Y_test <- Y_proteomic[-index_train,]
+
+model_icox <- splsicox(X_train, Y_train, n.comp = 2)
+cox.prediction(model = model_icox, new_data = X_test, type = "lp")
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

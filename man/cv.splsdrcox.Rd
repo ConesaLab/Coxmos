@@ -202,12 +202,14 @@ hyperparameter combination. Visualization plots like AIC, C-Index, Brier Score, 
 further aid in understanding the model's performance across different configurations.
 }
 \examples{
-\dontrun{
-cv.splsdrcox_model <- cv.splsdrcox(X, Y, max.ncomp = 10,
-eta.list = seq(0.1,0.9,0.2), x.center = TRUE, x.scale = TRUE)
-splsdrcox_model <- splsdrcox(X, Y, n.comp = cv.splsdrcox_model$opt.comp,
-eta = cv.splsdrcox_model$opt.eta, x.center = TRUE, x.scale = TRUE)
-}
+data("X_proteomic")
+data("Y_proteomic")
+set.seed(123)
+index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+X_train <- X_proteomic[index_train,1:50]
+Y_train <- Y_proteomic[index_train,]
+cv.splsdrcox_model <- cv.splsdrcox(X_train, Y_train, max.ncomp = 2, eta.list = c(0.1),
+n_run = 1, k_folds = 2, x.center = TRUE, x.scale = TRUE)
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

@@ -30,6 +30,11 @@ non-censored observations (default: c("Censored","Death")).}
 
 \item{verbose}{Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).}
 }
+\value{
+A list of two elements.
+\code{plot}: Barplot.
+\code{df}: Data.frame used for the plotting.
+}
 \description{
 Generates a bar plot visualizing the distribution of events over time, categorizing
 observations as either censored or non-censored.
@@ -51,9 +56,10 @@ interval. The bars in the plot are color-coded based on the event type, offering
 distinction between the two categories.
 }
 \examples{
-\dontrun{
-plot_events(Y, categories = c("Censored","Death"))
-}
+data("X_proteomic")
+data("Y_proteomic")
+Y_train <- Y_proteomic
+plot_events(Y_train, categories = c("Censored","Death"))
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

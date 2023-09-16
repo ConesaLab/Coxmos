@@ -15,6 +15,36 @@ loadingplot.Coxmos(model, zero.rm = TRUE, top = NULL, auto.limits = TRUE)
 
 \item{auto.limits}{Logical. If "auto.limits" = TRUE, limits are detected automatically (default: TRUE).}
 }
+\value{
+A list of \code{ggplot2} objects, each representing the loading values for a component of
+the Coxmos model.
+}
 \description{
-loadingplot.Coxmos
+The \code{loadingplot.Coxmos} function visualizes the loading values of a given Coxmos model. The
+function produces a series of bar plots for each component's loading values, offering a
+comprehensive view of the model's variable contributions. The plots can be customized to exclude
+zero loadings, display only the top variables, and automatically adjust the color scale limits.
+}
+\details{
+The primary objective of the \code{loadingplot.Coxmos} function is to facilitate the interpretation of
+Coxmos models by visualizing the loading values of each component. The function first verifies the
+class of the provided model to ensure it is a valid Coxmos model.
+
+The loading values are extracted from the model and processed based on the user's specifications.
+If the \code{zero.rm} parameter is set to TRUE, variables with zero loadings are excluded from the
+visualization. Additionally, if the \code{top} parameter is specified, only the top variables, ranked
+by their absolute loading values, are displayed.
+
+The function employs the 'ggplot2' framework for visualization. The color scale of the plots can be
+automatically adjusted based on the maximum absolute loading value when \code{auto.limits} is set to
+TRUE. If the \code{RColorConesa} package is available, it utilizes its color palettes for enhanced
+visualization; otherwise, default colors are applied.
+}
+\examples{
+data("X_proteomic")
+data("Y_proteomic")
+X <- X_proteomic[,1:50]
+Y <- Y_proteomic
+splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+loadingplot.Coxmos(model = splsicox.model)
 }

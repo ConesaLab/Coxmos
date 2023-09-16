@@ -11,6 +11,9 @@
 
 \item{...}{further arguments passed to or from other methods.}
 }
+\value{
+Print information relative to a Coxmos object.
+}
 \description{
 Provides a structured print output for objects of class Coxmos, detailing either the
 final Cox survival model or the attributes of the optimal model from cross-validation.
@@ -27,14 +30,12 @@ objects, it systematically enumerates the methods evaluated and provides a summa
 each method.
 }
 \examples{
-\dontrun{
-cv.model <- cv.splsicox(X,Y, max.ncomp = 8, spv_penalty.list = seq(0.1,0.9,0.2), n_run = 5,
-k_folds = 10)
-print.Coxmos(cv.model)
-
-model <- splsicox(X,Y)
-print.Coxmos(model)
-}
+data("X_proteomic")
+data("Y_proteomic")
+X <- X_proteomic[,1:50]
+Y <- Y_proteomic
+model <- splsicox(X, Y, x.center = TRUE, x.scale = TRUE)
+print(model)
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

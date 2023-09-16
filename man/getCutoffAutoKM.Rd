@@ -9,13 +9,25 @@ getCutoffAutoKM(result)
 \arguments{
 \item{result}{List. Result of getAutoKM() function.}
 }
+\value{
+A named numeric vector where each element represents the cutoff value.
+}
 \description{
 Gets the cutoff value from the results of getAutoKM() functions.
 }
 \examples{
-\dontrun{
-getCutoffAutoKM(result)
-}
+data("X_proteomic")
+data("Y_proteomic")
+set.seed(123)
+index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+X_train <- X_proteomic[index_train,1:50]
+Y_train <- Y_proteomic[index_train,]
+X_test <- X_proteomic[-index_train,1:50]
+Y_test <- Y_proteomic[-index_train,]
+splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, spv_penalty = 0.5, x.center = TRUE,
+x.scale = TRUE)
+KMresult = getAutoKM(type = "LP", model = splsicox.model)
+getCutoffAutoKM(result = KMresult)
 }
 \references{
 \insertRef{Kaplan_1958}{Coxmos}

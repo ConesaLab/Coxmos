@@ -153,10 +153,13 @@ high-dimensional settings, ensuring optimal feature selection, dimensionality re
 predictive modeling for each individual block in the dataset.
 }
 \examples{
-\dontrun{
-sb.splsicox(X, Y)
-sb.splsicox(X, Y, n.comp = 3, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
-}
+data("X_multiomic")
+data("Y_multiomic")
+X <- X_multiomic
+X$mirna <- X$mirna[,1:50]
+X$proteomic <- X$proteomic[,1:50]
+Y <- Y_multiomic
+sb.splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

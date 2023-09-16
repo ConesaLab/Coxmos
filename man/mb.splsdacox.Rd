@@ -188,9 +188,14 @@ available, such as centering and scaling of the explanatory variables, and remov
 with near-zero or zero variance.
 }
 \examples{
-\dontrun{
-mb.splsdacox(X, Y)
-mb.splsdacox(X, Y, n.comp = 3, vector = NULL, x.center = TRUE, x.scale = TRUE)
+\donttest{
+data("X_multiomic")
+data("Y_multiomic")
+X <- X_multiomic
+X$mirna <- X$mirna[,1:50]
+X$proteomic <- X$proteomic[,1:50]
+Y <- Y_multiomic
+mb.splsdacox(X, Y, n.comp = 2, vector = NULL, x.center = TRUE, x.scale = TRUE)
 }
 }
 \references{

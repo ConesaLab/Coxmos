@@ -44,6 +44,15 @@ compute (default: 20).}
 
 \item{title}{Character. Kaplan-Meier plot title (default: NULL).}
 }
+\value{
+Depending on the specified \code{type} parameter, the function returns:
+\itemize{
+\item \code{LP}: A ggplot object visualizing the Kaplan-Meier survival curve based on the linear predictor, segmented by the specified cutoff.
+\item \code{COMP}: A list of ggplot objects, where each plot represents the Kaplan-Meier survival curve for a specific PLS component in the model, segmented by the respective cutoffs.
+\item \code{VAR}: A list of ggplot objects, where each plot visualizes the Kaplan-Meier survival curve for a specific variable in the test dataset, segmented by the respective cutoffs.
+}
+Each plot provides a visual representation of the survival probabilities over time, allowing for a comprehensive evaluation of the test dataset's survival characteristics in the context of the original model.
+}
 \description{
 This function computes and visualizes the Kaplan-Meier survival curve for a given
 test dataset, utilizing the cutoff derived from the original model. The function offers
@@ -76,10 +85,19 @@ over time, segmented based on the specified cutoff. This allows for a comprehens
 the test dataset's survival characteristics in the context of the original model.
 }
 \examples{
-\dontrun{
-cutoff <- getCutoffAutoKM(KM_RES_LP)
-getTestKM(model, X_test, Y_test, cutoff)
-}
+data("X_proteomic")
+data("Y_proteomic")
+set.seed(123)
+index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+X_train <- X_proteomic[index_train,1:50]
+Y_train <- Y_proteomic[index_train,]
+X_test <- X_proteomic[-index_train,1:50]
+Y_test <- Y_proteomic[-index_train,]
+splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, spv_penalty = 0.5, x.center = TRUE,
+x.scale = TRUE)
+KMresult = getAutoKM(type = "LP", model = splsicox.model)
+cutoff <- getCutoffAutoKM(result = KMresult)
+getTestKM(splsicox.model, X_test, Y_test, cutoff)
 }
 \references{
 \insertRef{Kaplan_1958}{Coxmos}

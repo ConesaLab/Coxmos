@@ -13,6 +13,12 @@ be transform into binary variables.}
 \item{LIMIT}{Numeric. Cutoff for minimum variation. If coefficient is lesser than the limit, the
 variables are removed because not vary enough (default: 0.1).}
 }
+\value{
+A list of three objects.
+\code{X}: A list with as many blocks as X input, but with the variables filtered.
+\code{variablesDeleted}: A list with as many blocks as X input, with the name of the variables that have been removed.
+\code{coeff_variation}: A list with as many blocks as X input, with the coefficient of variation per variable.
+}
 \description{
 Filters out variables from a dataset that exhibit a coefficient of variation below a
 specified threshold, ensuring the retention of variables with meaningful variability.
@@ -30,6 +36,12 @@ to the variability of the dataset and could be redundant or even detrimental for
 The function returns a modified dataset, a list of deleted variables, and the computed coefficients
 of variation for each variable. This comprehensive output ensures that researchers are well-informed
 about the preprocessing steps and can make subsequent analytical decisions with confidence.
+}
+\examples{
+data("X_multiomic")
+X <- X_multiomic
+filter <- deleteNearZeroCoefficientOfVariation.mb(X, LIMIT = 0.1)
+
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

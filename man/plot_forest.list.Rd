@@ -27,13 +27,22 @@ plot_forest.list(
 
 \item{noDigits}{Numeric. Number of digits for estimates and p-values in the plot (default: 2).}
 }
+\value{
+A ggplot object per model representing the forest plot. The plot visualizes the hazard ratios and
+their confidence intervals for each variable or component from the Coxmos model.
+}
 \description{
 Run the function "plot_forest" for a list of models. More information in "?plot_forest".
 }
 \examples{
-\dontrun{
+data("X_proteomic")
+data("Y_proteomic")
+X <- X_proteomic[,1:50]
+Y <- Y_proteomic
+splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+splsdrcox.model <- splsdrcox(X, Y, n.comp = 2, eta = 0.5, x.center = TRUE, x.scale = TRUE)
+lst_models = list("sPLSICOX" = splsicox.model, "sPLSDRCOX" = splsdrcox.model)
 plot_forest.list(lst_models)
-}
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

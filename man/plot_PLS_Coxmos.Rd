@@ -49,6 +49,11 @@ size (default: TRUE).}
 
 \item{overlaps}{Numeric. Number of overlaps to show when plotting loading names (default: 10).}
 }
+\value{
+A list of two elements.
+\code{plot}: Score, Loading or Biplot graph in 'ggplot2' format.
+\code{outliers}: Data.frame of outliers detected in the plot.
+}
 \description{
 Visualizes the Coxmos models based on partial least squares (PLS) or Multi-block PLS approaches.
 This function offers various plotting modes, including scores, loadings, and biplot visualizations,
@@ -80,9 +85,12 @@ It's important to note that the function performs checks to ensure the input mod
 correct class and provides informative messages for any inconsistencies detected.
 }
 \examples{
-\dontrun{
-plot_PLS_Coxmos(model, comp = c(1,2), mode = "scores")
-}
+data("X_proteomic")
+data("Y_proteomic")
+X <- X_proteomic[,1:50]
+Y <- Y_proteomic
+splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+plot_PLS_Coxmos(splsicox.model, comp = c(1,2), mode = "scores")
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

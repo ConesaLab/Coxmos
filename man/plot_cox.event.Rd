@@ -14,6 +14,15 @@ plot_cox.event(model, type = "lp", n.breaks = 20)
 \item{n.breaks}{Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to
 compute (default: 20).}
 }
+\value{
+A list containing three elements:
+\code{df}: A data.frame with the computed predictions based on the specified type and the
+corresponding event status.
+\code{plot.density}: A ggplot object representing the density plot of the event distribution,
+with separate curves for censored and occurred events.
+\code{plot.histogram}: A ggplot object representing the histogram of the event distribution,
+with bins stacked by event type.
+}
 \description{
 Visualizes the distribution of events based on a Coxmos model's predictions. The function provides
 both density and histogram plots to elucidate the event distribution, which can be instrumental in
@@ -38,9 +47,12 @@ It's imperative to note that the models should be run with the \code{returnData 
 the necessary data is available for plotting.
 }
 \examples{
-\dontrun{
-plot_cox.event(model)
-}
+data("X_proteomic")
+data("Y_proteomic")
+X <- X_proteomic[,1:50]
+Y <- Y_proteomic
+splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+plot_cox.event(splsicox.model)
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

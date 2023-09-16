@@ -14,6 +14,9 @@ transform into binary variables.}
 "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and
 event observations.}
 }
+\value{
+Return the EPV value for a specific X (explanatory variables) and Y (time and censored variables) data.
+}
 \description{
 Provides a quantitative assessment of the dataset by computing the Events per Variable
 (EPV) metric, which gauges the proportionality between observed events and the number of explanatory
@@ -31,9 +34,11 @@ observations. To ensure the integrity of the data and the precision of the compu
 is equipped with an error mechanism that activates if the "event" column remains undetected.
 }
 \examples{
-\dontrun{
+data("X_proteomic")
+data("Y_proteomic")
+X <- X_proteomic
+Y <- Y_proteomic
 getEPV(X,Y)
-}
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

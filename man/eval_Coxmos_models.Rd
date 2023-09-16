@@ -8,7 +8,7 @@ eval_Coxmos_models(
   lst_models,
   X_test,
   Y_test,
-  pred.method,
+  pred.method = "cenROC",
   pred.attr = "mean",
   times = NULL,
   PARALLEL = FALSE,
@@ -47,6 +47,16 @@ total cores - 1 will be used. It could lead to higher RAM consumption (default: 
 
 \item{progress_bar}{Logical. If progress_bar = TRUE, progress bar is shown (default = TRUE).}
 }
+\value{
+A list of four objects.
+\code{df}: A data.frame which the global predictions for all models. This data.frame is used to
+plot the information by the function \code{plot_evaluation()}.
+\code{lst_AUC}: A list of models where the user can check the linear predictors computed, the
+global AUC, the AUC per time point and the predicted time points selected.
+\code{lst_BRIER}: A list of models where the user can check the predicted time points selected,
+the Brier Score per time point and the Integrative Brier score (computed by \code{survcomp::sbrier.score2proba}).
+\code{time}: Time used for evaluation process.
+}
 \description{
 The \code{eval_Coxmos_models} function facilitates the comprehensive evaluation of multiple Coxmos
 models in a concurrent manner. It is designed to provide a detailed assessment of the models'
@@ -73,16 +83,20 @@ noting that potential issues in AUC computation, often arising from sparse sampl
 to the user for further inspection.
 }
 \examples{
-\dontrun{
-X <- data[train_index,]
-Y <- data_Y[train_index,]
-X_test <- data[-train_index,]
-Y_test <- data_Y[-train_index,]
-model_icox <- splsicox(X, Y)
-model_drcox <- splsdrcox(X, Y)
-lst_models <- list("splsicox" = model, "splsdrcox" = model_drcox)
+data("X_proteomic")
+data("Y_proteomic")
+set.seed(123)
+index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+X_train <- X_proteomic[index_train,1:50]
+Y_train <- Y_proteomic[index_train,]
+
+X_test <- X_proteomic[-index_train,1:50]
+Y_test <- Y_proteomic[-index_train,]
+
+model_icox <- splsicox(X_train, Y_train, n.comp = 2)
+model_drcox <- splsdrcox(X_train, Y_train, n.comp = 2)
+lst_models <- list("splsicox" = model_icox, "splsdrcox" = model_drcox)
 eval_Coxmos_models(lst_models, X_test, Y_test, pred.method = "cenROC")
-}
 }
 \references{
 \insertRef{C_INDEX}{Coxmos}

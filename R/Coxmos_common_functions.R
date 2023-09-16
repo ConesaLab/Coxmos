@@ -15,6 +15,7 @@
 #' @import survival
 #' @importFrom survcomp sbrier.score2proba
 #' @import survminer
+#' @import svglite
 #' @importFrom tidyr pivot_longer starts_with
 #' @import utils
 #' @importFrom mixOmics spls plsda block.spls block.splsda tune.spls
@@ -112,15 +113,17 @@ assign(x = 'IllegalChars', value = c("`"), pkg.env)
 #' @param sep Character. Character symbol to generate new colnames. Ex. If variable name is "sex" and
 #' sep = "_". Dummy variables will be "sex_male" and "sex_female".
 #'
+#' @return A matrix or data.frame with k-1 or k dummy variables for categorical/factor data.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' data("X_proteomic")
+#' X <- X_proteomic
 #' X.dummy <- factorToBinary(X, all = FALSE, sep = "_")
 #' X.pls <- factorToBinary(X, all = TRUE, sep = "_")
-#' }
 factorToBinary <- function(X, all = TRUE, sep = "_"){
 
   if(nrow(X)==0 | is.null(X)){
@@ -193,19 +196,19 @@ norm01 <- function(x){
 #' @param x Coxmos object
 #' @param ... further arguments passed to or from other methods.
 #'
+#' @return Print information relative to a Coxmos object.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' cv.model <- cv.splsicox(X,Y, max.ncomp = 8, spv_penalty.list = seq(0.1,0.9,0.2), n_run = 5,
-#' k_folds = 10)
-#' print.Coxmos(cv.model)
-#'
-#' model <- splsicox(X,Y)
-#' print.Coxmos(model)
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' X <- X_proteomic[,1:50]
+#' Y <- Y_proteomic
+#' model <- splsicox(X, Y, x.center = TRUE, x.scale = TRUE)
+#' print(model)
 
 print.Coxmos <- function(x, ...){
 
@@ -300,14 +303,18 @@ print.Coxmos <- function(x, ...){
 #' "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and
 #' event observations.
 #'
+#' @return Return the EPV value for a specific X (explanatory variables) and Y (time and censored variables) data.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' X <- X_proteomic
+#' Y <- Y_proteomic
 #' getEPV(X,Y)
-#' }
 
 getEPV <- function(X,Y){
   if("event" %in% colnames(Y)){
@@ -347,17 +354,18 @@ getEPV <- function(X,Y){
 #' @param freqCut Numeric. Cutoff for the ratio of the most common value to the second most common
 #' value (default: 95/5).
 #'
+#' @return Return a list of two objects:
+#' \code{X}: The new data.frame X filtered.
+#' \code{variablesDeleted}: The variables that have been removed by the filter.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' # zero-variance variables
-#' deleteZeroOrNearZeroVariance(X, remove_near_zero_variance = FALSE, remove_zero_variance = TRUE)
-#' # near-zero-variance variables
-#' deleteZeroOrNearZeroVariance(X, remove_near_zero_variance = TRUE, remove_zero_variance = TRUE)
-#' }
+#' data("X_proteomic")
+#' X <- X_proteomic
+#' filter <- deleteZeroOrNearZeroVariance(X, remove_near_zero_variance = TRUE)
 
 deleteZeroOrNearZeroVariance <- function(X, remove_near_zero_variance = FALSE, remove_zero_variance = TRUE,
                                          toKeep.zv = NULL, freqCut = 95/5){
@@ -452,9 +460,19 @@ deleteZeroVarianceVariables <- function(data, mustKeep = NULL, names = NULL, inf
 #' @param LIMIT Numeric. Cutoff for minimum variation. If coefficient is lesser than the limit, the
 #' variables are removed because not vary enough (default: 0.1).
 #'
+#' @return Return a list of two objects:
+#' \code{X}: The new data.frame X filtered.
+#' \code{variablesDeleted}: The variables that have been removed by the filter.
+#' \code{coeff_variation}: The coefficient variables per each variable tested.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
+#'
+#' @examples
+#' data("X_proteomic")
+#' X <- X_proteomic
+#' filter <- deleteNearZeroCoefficientOfVariation(X, LIMIT = 0.1)
 deleteNearZeroCoefficientOfVariation <- function(X, LIMIT = 0.1){
   variablesDeleted <- NULL
   newX <- X
@@ -1338,20 +1356,24 @@ getCOMPLETE_LP_AUC <- function(Y_test_full, lst_linear.predictors, df_results_ev
 #' @param newdata Numeric matrix or data.frame. New data for explanatory variables (raw data).
 #' Qualitative variables must be transform into binary variables.
 #'
-#' @return Score values for new data using the Coxmos model selected.
+#' @return Score values data.frame for new data using the Coxmos model selected.
 #'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' X <- data[train_index,]
-#' Y <- data_Y[train_index,]
-#' X_test <- data[-train_index,]
-#' model <- splsicox(X, Y)
-#' predict.Coxmos(object = model, newdata = X_test)
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' set.seed(123)
+#' index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+#' X_train <- X_proteomic[index_train,1:50]
+#' Y_train <- Y_proteomic[index_train,]
+#'
+#' X_test <- X_proteomic[-index_train,1:50]
+#' Y_test <- Y_proteomic[-index_train,]
+#' model <- splsicox(X_train, Y_train, n.comp = 2) #after CV
+#' predict(object = model, newdata = X_test)
 
 predict.Coxmos <- function(object, ..., newdata = NULL){
 
@@ -1415,7 +1437,11 @@ predict.Coxmos <- function(object, ..., newdata = NULL){
               }
             }
 
-            X_test[[b]] <- scale(newdata[[b]][,names(model$X$x.mean[[b]]),drop = FALSE], center = center_value, scale = scale_value)
+            var_names <- names(model$X$x.mean[[b]])
+            if(is.null(var_names)){var_names <- names(model$X$x.sd[[b]])}
+            if(is.null(var_names)){stop("No mean or sd computed")}
+
+            X_test[[b]] <- scale(newdata[[b]][,var_names,drop = FALSE], center = center_value, scale = scale_value)
           }
         }
       }else{
@@ -1495,7 +1521,11 @@ predict.Coxmos <- function(object, ..., newdata = NULL){
               }
             }
 
-            X_test[[b]] <- scale(newdata[[b]][,names(model$X$x.mean[[b]]),drop = FALSE], center = center_value, scale = scale_value)
+            var_names <- names(model$X$x.mean[[b]])
+            if(is.null(var_names)){var_names <- names(model$X$x.sd[[b]])}
+            if(is.null(var_names)){stop("No mean or sd computed")}
+
+            X_test[[b]] <- scale(newdata[[b]][,var_names,drop = FALSE], center = center_value, scale = scale_value)
           }
         }
       }else{
@@ -4775,6 +4805,15 @@ checkTestTimesVSTrainTimes <- function(lst_models, Y_test){
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #' @param progress_bar Logical. If progress_bar = TRUE, progress bar is shown (default = TRUE).
 #'
+#' @return A list of four objects.
+#' \code{df}: A data.frame which the global predictions for all models. This data.frame is used to
+#' plot the information by the function `plot_evaluation()`.
+#' \code{lst_AUC}: A list of models where the user can check the linear predictors computed, the
+#' global AUC, the AUC per time point and the predicted time points selected.
+#' \code{lst_BRIER}: A list of models where the user can check the predicted time points selected,
+#' the Brier Score per time point and the Integrative Brier score (computed by `survcomp::sbrier.score2proba`).
+#' \code{time}: Time used for evaluation process.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @references
@@ -4789,19 +4828,23 @@ checkTestTimesVSTrainTimes <- function(lst_models, Y_test){
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' X <- data[train_index,]
-#' Y <- data_Y[train_index,]
-#' X_test <- data[-train_index,]
-#' Y_test <- data_Y[-train_index,]
-#' model_icox <- splsicox(X, Y)
-#' model_drcox <- splsdrcox(X, Y)
-#' lst_models <- list("splsicox" = model, "splsdrcox" = model_drcox)
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' set.seed(123)
+#' index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+#' X_train <- X_proteomic[index_train,1:50]
+#' Y_train <- Y_proteomic[index_train,]
+#'
+#' X_test <- X_proteomic[-index_train,1:50]
+#' Y_test <- Y_proteomic[-index_train,]
+#'
+#' model_icox <- splsicox(X_train, Y_train, n.comp = 2)
+#' model_drcox <- splsdrcox(X_train, Y_train, n.comp = 2)
+#' lst_models <- list("splsicox" = model_icox, "splsdrcox" = model_drcox)
 #' eval_Coxmos_models(lst_models, X_test, Y_test, pred.method = "cenROC")
-#' }
 
 ## Eval all models by the pred.methods the user defined
-eval_Coxmos_models <- function(lst_models, X_test, Y_test, pred.method, pred.attr = "mean",
+eval_Coxmos_models <- function(lst_models, X_test, Y_test, pred.method = "cenROC", pred.attr = "mean",
                                times = NULL, PARALLEL = FALSE, max_time_points = 15, verbose = FALSE,
                                progress_bar = TRUE){
 
@@ -4963,7 +5006,7 @@ eval_Coxmos_models <- function(lst_models, X_test, Y_test, pred.method, pred.att
   return(evaluation_Coxmos_class(list(df = new_df, lst_AUC = lst_AUC, lst_BRIER = lst_BRIER, time = time)))
 }
 
-evaluation_list_Coxmos <- function(model, X_test, Y_test, pred.method, pred.attr = "mean",
+evaluation_list_Coxmos <- function(model, X_test, Y_test, pred.method = "cenROC", pred.attr = "mean",
                                    times = NULL, PARALLEL = FALSE, verbose = FALSE, progress_bar = FALSE){
 
   t3 <- Sys.time()
@@ -5062,19 +5105,31 @@ evaluation_Coxmos_class = function(object, ...) {
 #' (default: 15).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #'
+#' @return A list of two objects:
+#' \code{df}: A data.frame which the predictions for the specific model split into the full model (LP)
+#' and each component individually. This data.frame is used to plot the information by the
+#' function `plot_evaluation()`.
+#' \code{lst_AUC}: A list of the full model prediction and its components where the user can check
+#' the linear predictors used, the global AUC, the AUC per time point and the predicted time points
+#' selected.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' X <- data[train_index,]
-#' Y <- data_Y[train_index,]
-#' X_test <- data[-train_index,]
-#' Y_test <- data_Y[-train_index,]
-#' model_icox <- splsicox(X, Y)
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' set.seed(123)
+#' index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+#' X_train <- X_proteomic[index_train,1:50]
+#' Y_train <- Y_proteomic[index_train,]
+#'
+#' X_test <- X_proteomic[-index_train,1:50]
+#' Y_test <- Y_proteomic[-index_train,]
+#'
+#' model_icox <- splsicox(X_train, Y_train, n.comp = 2)
 #' eval_Coxmos_model_per_variable(model_icox, X_test, Y_test, pred.method = "cenROC")
-#' }
 eval_Coxmos_model_per_variable <- function(model,
                                           X_test, Y_test,
                                           pred.method = "cenROC", pred.attr = "mean",
@@ -5146,21 +5201,28 @@ eval_Coxmos_model_per_variable <- function(model,
 #' @param time Numeric. Time point where the AUC will be evaluated (default: NULL).
 #' @param type Character. Prediction type: "lp", "risk", "expected" or "survival" (default: "lp").
 #' @param method Character. Prediction method. It can be compute by using the cox model "cox" or by
-#' using W.star "W.star" (default: "cox"). (not implemented for MB approaches)!!!
+#' using W.star "W.star" (default: "cox").
 #'
-#' @return Return the lp or other metric for the patient
+#' @return Return the "lp", "risk", "expected" or "survival" metric for test data using the specific
+#' Coxmos model.
 #'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' X <- data[train_index,]
-#' X_test <- data[-train_index,]
-#' model <- plsicox(X, Y)
-#' cox.prediction(model = model, new_data = X_test)
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' set.seed(123)
+#' index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+#' X_train <- X_proteomic[index_train,1:50]
+#' Y_train <- Y_proteomic[index_train,]
+#'
+#' X_test <- X_proteomic[-index_train,1:50]
+#' Y_test <- Y_proteomic[-index_train,]
+#'
+#' model_icox <- splsicox(X_train, Y_train, n.comp = 2)
+#' cox.prediction(model = model_icox, new_data = X_test, type = "lp")
 
 cox.prediction <- function(model, new_data, time = NULL, type = "lp", method = "cox"){
   #could be obtain by predicting scores or by computing W*

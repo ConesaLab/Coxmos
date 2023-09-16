@@ -139,10 +139,11 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' splsdrcox(X, Y)
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' X <- X_proteomic[,1:50]
+#' Y <- Y_proteomic
 #' splsdrcox(X, Y, n.comp = 3, eta = 0.25, x.center = TRUE, x.scale = TRUE)
-#' }
 
 splsdrcox <- function (X, Y,
                       n.comp = 4, eta = 0.5,
@@ -730,12 +731,14 @@ splsdrcox <- function (X, Y,
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' cv.splsdrcox_model <- cv.splsdrcox(X, Y, max.ncomp = 10,
-#' eta.list = seq(0.1,0.9,0.2), x.center = TRUE, x.scale = TRUE)
-#' splsdrcox_model <- splsdrcox(X, Y, n.comp = cv.splsdrcox_model$opt.comp,
-#' eta = cv.splsdrcox_model$opt.eta, x.center = TRUE, x.scale = TRUE)
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' set.seed(123)
+#' index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+#' X_train <- X_proteomic[index_train,1:50]
+#' Y_train <- Y_proteomic[index_train,]
+#' cv.splsdrcox_model <- cv.splsdrcox(X_train, Y_train, max.ncomp = 2, eta.list = c(0.1),
+#' n_run = 1, k_folds = 2, x.center = TRUE, x.scale = TRUE)
 
 cv.splsdrcox <- function (X, Y,
                          max.ncomp = 8, eta.list = seq(0.1,0.9,0.2),
@@ -1157,7 +1160,8 @@ cv.splsdrcox_class = function(pls_model, ...) {
 ### ###
 
 # NA VALUES AS 0, then NA again
-pls2 <- function(X, Y, n.comp, x.center = TRUE, x.scale = FALSE, y.center = TRUE, y.scale = FALSE, it = 500, tol = 1e-20, tol.W.star = 1e-20, verbose = FALSE){
+pls2 <- function(X, Y, n.comp, x.center = TRUE, x.scale = FALSE, y.center = TRUE, y.scale = FALSE,
+                 it = 500, tol = 1e-20, tol.W.star = 1e-20, verbose = FALSE){
 
   if(n.comp >= nrow(X)) {
     n.comp <- qr(X)$rank-1

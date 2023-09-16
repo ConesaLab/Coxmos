@@ -9,14 +9,25 @@ plot_proportionalHazard.list(lst_models)
 \arguments{
 \item{lst_models}{List of Coxmos models.}
 }
+\value{
+A \code{ggplot2} object per model visualizing the assessment of the proportional hazards assumption
+for the given Coxmos model. The plot displays the Schoenfeld residuals against time for each
+variable or factor level from the model. A line is fitted to these residuals to indicate any trend,
+which can suggest a violation of the proportional hazards assumption.
+}
 \description{
 Run the function "plot_proportionalHazard" for a list of models. More information in
 "?plot_proportionalHazard".
 }
 \examples{
-\dontrun{
+data("X_proteomic")
+data("Y_proteomic")
+X <- X_proteomic[,1:50]
+Y <- Y_proteomic
+splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+splsdrcox.model <- splsdrcox(X, Y, n.comp = 2, eta = 0.5, x.center = TRUE, x.scale = TRUE)
+lst_models = list("sPLSICOX" = splsicox.model, "sPLSDRCOX" = splsdrcox.model)
 plot_proportionalHazard.list(lst_models)
-}
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

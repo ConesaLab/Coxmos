@@ -116,10 +116,11 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' coxSW(X, Y)
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' X <- X_proteomic[,1:10]
+#' Y <- Y_proteomic
 #' coxSW(X, Y, x.center = TRUE, x.scale = TRUE)
-#' }
 
 coxSW <- function(X, Y,
                   max.variables = 20, BACKWARDS = TRUE,

@@ -138,9 +138,14 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' mb.splsdrcox(X, Y)
-#' mb.splsdrcox(X, Y, n.comp = 3, vector = NULL, x.center = TRUE, x.scale = TRUE)
+#' \donttest{
+#' data("X_multiomic")
+#' data("Y_multiomic")
+#' X <- X_multiomic
+#' X$mirna <- X$mirna[,1:50]
+#' X$proteomic <- X$proteomic[,1:50]
+#' Y <- Y_multiomic
+#' mb.splsdrcox(X, Y, n.comp = 2, vector = NULL, x.center = TRUE, x.scale = TRUE)
 #' }
 
 mb.splsdrcox <- function (X, Y,
@@ -561,9 +566,10 @@ mb.splsdrcox <- function (X, Y,
   names(B.hat) <- names(Xh)
 
   #MIX Omics, a la hora de generar los nuevos scores para nuevas X (o las mismas de entrenamiento),
-  #a parte de realizar la multiplicacion X*W.STAR, realiza luego una normalizacion de los scores en base a la norma de la propia X usada,
-  #de esa manera, en el multiblock de SPLS los resultados no coinciden con los de la funcion predict de MIXOMICS. La siguiente linea es
-  #la que se ejecuta una vez realizado el calculo de los nuevos SCORES.
+  #a parte de realizar la multiplicacion X*W.STAR, realiza luego una normalizacion de los scores en
+  #base a la norma de la propia X usada, de esa manera, en el multiblock de SPLS los resultados no
+  #coinciden con los de la funcion predict de MIXOMICS. La siguiente linea es la que se ejecuta una
+  #vez realizado el calculo de los nuevos SCORES.
 
   # head(predplsfit$variates$genes)
   # head(mb.spls$X$genes %*% W.star[[1]][[n.comp]])
@@ -771,11 +777,17 @@ mb.splsdrcox <- function (X, Y,
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' cv.mb.splsdrcox_model <- cv.splsdacox_dynamic(X, Y, max.ncomp = 8, vector = NULL,
-#' x.center = TRUE, x.scale = TRUE)
-#' mb.splsdrcox_model <- mb.splsdrcox(X, Y, n.comp = cv.mb.splsdrcox_model$opt.comp,
-#' vector = cv.mb.splsdrcox_model$opt.nvar, x.center = TRUE, x.scale = TRUE)
+#' \donttest{
+#' data("X_multiomic")
+#' data("Y_multiomic")
+#' set.seed(123)
+#' index_train <- caret::createDataPartition(Y_multiomic$event, p = .5, list = FALSE, times = 1)
+#' X_train <- X_multiomic
+#' X_train$mirna <- X_train$mirna[index_train,1:50]
+#' X_train$proteomic <- X_train$proteomic[index_train,1:50]
+#' Y_train <- Y_multiomic[index_train,]
+#' cv.mb.splsdrcox_model <- cv.mb.splsdrcox(X_train, Y_train, max.ncomp = 2, vector = NULL,
+#' n_run = 1, k_folds = 2, x.center = TRUE, x.scale = TRUE)
 #' }
 
 cv.mb.splsdrcox <- function(X, Y,

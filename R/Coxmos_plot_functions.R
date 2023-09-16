@@ -3,23 +3,29 @@
 #### ### ### #
 
 #' save_ggplot
-#' @description Allows to save ggplot2 objects in .tiff format based on an specific resolution.
+#' @description Allows to save 'ggplot2' objects in .tiff format based on an specific resolution.
 #'
-#' @param plot ggplot2 object
-#' @param folder folder
-#' @param name file name
-#' @param wide 16:9 or 4:3
-#' @param quality one of: "HD", "FHD", "2K", "4K", "8K"
-#' @param dpi dpi
-#' @param custom Custom size. Numeric vector of width and height
+#' @param plot 'ggplot2' object. Object to plot and save.
+#' @param folder Character. Folder path as character type.
+#' @param name Character. File name.
+#' @param wide Logical. If TRUE, widescreen format (16:9) is used, in other case (4:3) format.
+#' @param quality Character. One of: "HD", "FHD", "2K", "4K", "8K"
+#' @param dpi Numeric. Dpi value for the image.
+#' @param custom Numeric vector. Custom size of the image. Numeric vector of width and height.
 #'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
+#'
+#' @return Generate a plot image in the specific folder or working directory.
 #'
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' save_ggplot(plot, folder)
+#' library(ggplot2)
+#' data(iris)
+#' g <- ggplot(iris, aes(Sepal.Width, Sepal.Length, color = Species))
+#' g <- g + geom_point(size = 4)
+#' save_ggplot(g)
 #' }
 
 save_ggplot <- function(plot, folder = NULL, name = "plot", wide = TRUE, quality = "4K", dpi = 80,
@@ -104,15 +110,17 @@ save_ggplot <- function(plot, folder = NULL, name = "plot", wide = TRUE, quality
 }
 
 #' save_ggplot.svg
-#' @description Allows to save ggplot2 objects in .svg format based on an specific resolution.
+#' @description Allows to save 'ggplot2' objects in .svg format based on an specific resolution.
 #'
-#' @param plot ggplot2 object
-#' @param folder folder
-#' @param name file name
-#' @param wide 16:9 or 4:3
-#' @param quality one of: "HD", "FHD", "2K", "4K", "8K"
-#' @param dpi dpi
-#' @param custom Custom size. Numeric vector of width and height
+#' @param plot 'ggplot2' object. Object to plot and save.
+#' @param folder Character. Folder path as character type.
+#' @param name Character. File name.
+#' @param wide Logical. If TRUE, widescreen format (16:9) is used, in other case (4:3) format.
+#' @param quality Character. One of: "HD", "FHD", "2K", "4K", "8K"
+#' @param dpi Numeric. Dpi value for the image.
+#' @param custom Numeric vector. Custom size of the image. Numeric vector of width and height.
+#'
+#' @return Generate as many plot images as list objects in the specific folder or working directory.
 #'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
@@ -120,7 +128,11 @@ save_ggplot <- function(plot, folder = NULL, name = "plot", wide = TRUE, quality
 #'
 #' @examples
 #' \dontrun{
-#' save_ggplot.svg(plot, folder)
+#' library(ggplot2)
+#' data(iris)
+#' g <- ggplot(iris, aes(Sepal.Width, Sepal.Length, color = Species))
+#' g <- g + geom_point(size = 4)
+#' save_ggplot.svg(g)
 #' }
 
 save_ggplot.svg <- function(plot, folder = NULL, name = "plot", wide = TRUE, quality = "4K", dpi = 80,
@@ -205,17 +217,19 @@ save_ggplot.svg <- function(plot, folder = NULL, name = "plot", wide = TRUE, qua
 }
 
 #' save_ggplot_lst
-#' @description Allows to save a list of ggplot2 objects in .tiff format based on an specific resolution.
+#' @description Allows to save a list of 'ggplot2' objects in .tiff format based on an specific resolution.
 #'
-#' @param lst_plots list of ggplot2
-#' @param folder folder
-#' @param prefix prefix for file name
-#' @param suffix sufix for file name
-#' @param wide 16:9 or 4:3
-#' @param quality one of: "HD", "FHD", "2K", "4K", "8K"
-#' @param dpi dpi
-#' @param custom Custom size. Numeric vector of width and height
-#' @param object_name file name
+#' @param lst_plots List of 'ggplot2'.
+#' @param folder Character. Folder path as character type.
+#' @param prefix Character. Prefix for file name.
+#' @param suffix Character. Sufix for file name.
+#' @param wide Logical. If TRUE, widescreen format (16:9) is used, in other case (4:3) format.
+#' @param quality Character. One of: "HD", "FHD", "2K", "4K", "8K"
+#' @param dpi Numeric. Dpi value for the image.
+#' @param custom Numeric vector. Custom size of the image. Numeric vector of width and height.
+#' @param object_name Character. If the file to plot it is inside of a list, name of the object to save.
+#'
+#' @return Generate a plot image in the specific folder or working directory.
 #'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
@@ -223,7 +237,14 @@ save_ggplot.svg <- function(plot, folder = NULL, name = "plot", wide = TRUE, qua
 #'
 #' @examples
 #' \dontrun{
-#' save_ggplot_lst(plot_lst, folder)
+#' library(ggplot2)
+#' data(iris)
+#' g <- ggplot(iris, aes(Sepal.Width, Sepal.Length, color = Species))
+#' g <- g + geom_point(size = 4)
+#' g2 <- ggplot(iris, aes(Petal.Width, Petal.Length, color = Species))
+#' g2 <- g2 + geom_point(size = 4)
+#' lst_plots <- list("Sepal" = g, "Petal" = g2)
+#' save_ggplot_lst(lst_plots)
 #' }
 
 save_ggplot_lst <- function(lst_plots, folder = NULL, prefix = NULL, suffix = NULL, wide = TRUE,
@@ -346,17 +367,19 @@ save_ggplot_lst <- function(lst_plots, folder = NULL, prefix = NULL, suffix = NU
 }
 
 #' save_ggplot_lst.svg
-#' @description Allows to save a list of ggplot2 objects in .svg format based on an specific resolution.
+#' @description Allows to save a list of 'ggplot2' objects in .svg format based on an specific resolution.
 #'
-#' @param lst_plots list of ggplot2
-#' @param folder folder
-#' @param prefix prefix for file name
-#' @param suffix sufix for file name
-#' @param wide 16:9 or 4:3
-#' @param quality one of: "HD", "FHD", "2K", "4K", "8K"
-#' @param dpi dpi
-#' @param custom Custom size. Numeric vector of width and height
-#' @param object_name file name
+#' @param lst_plots List of 'ggplot2'.
+#' @param folder Character. Folder path as character type.
+#' @param prefix Character. Prefix for file name.
+#' @param suffix Character. Sufix for file name.
+#' @param wide Logical. If TRUE, widescreen format (16:9) is used, in other case (4:3) format.
+#' @param quality Character. One of: "HD", "FHD", "2K", "4K", "8K"
+#' @param dpi Numeric. Dpi value for the image.
+#' @param custom Numeric vector. Custom size of the image. Numeric vector of width and height.
+#' @param object_name Character. If the file to plot it is inside of a list, name of the object to save.
+#'
+#' @return Generate as many plot images as list objects in the specific folder or working directory.
 #'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
@@ -364,7 +387,14 @@ save_ggplot_lst <- function(lst_plots, folder = NULL, prefix = NULL, suffix = NU
 #'
 #' @examples
 #' \dontrun{
-#' save_ggplot_lst.svg(plot_lst, folder)
+#' library(ggplot2)
+#' data(iris)
+#' g <- ggplot(iris, aes(Sepal.Width, Sepal.Length, color = Species))
+#' g <- g + geom_point(size = 4)
+#' g2 <- ggplot(iris, aes(Petal.Width, Petal.Length, color = Species))
+#' g2 <- g2 + geom_point(size = 4)
+#' lst_plots <- list("Sepal" = g, "Petal" = g2)
+#' save_ggplot_lst.svg(lst_plots)
 #' }
 
 save_ggplot_lst.svg <- function(lst_plots, folder = NULL, prefix = NULL, suffix = NULL, wide = TRUE,
@@ -506,30 +536,32 @@ save_ggplot_lst.svg <- function(lst_plots, folder = NULL, prefix = NULL, suffix 
 #' individual models and cross-validation models, summing up the computational times in the latter
 #' case to provide an aggregate view.
 #'
-#' The resultant plot is generated using the ggplot2 package, ensuring a high-quality and interpretable
+#' The resultant plot is generated using the 'ggplot2' package, ensuring a high-quality and interpretable
 #' visualization. The Y-axis of the plot represents the computational time, typically in minutes, while
 #' the X-axis enumerates the different models. The function also offers customization options for axis
 #' labels, ensuring that the resultant plot aligns with the user's preferences and the intended audience's
 #' expectations.
 #'
-#' @param lst_models List of Coxmos models. Each HDCox object has the attribute time measured in
+#' @param lst_models List of Coxmos models. Each Coxmos object has the attribute time measured in
 #' minutes (cross-validation models could be also added to this function).
 #' @param x.text Character. X axis title.
 #' @param y.text Character. Y axis title. If y.text = NULL, then y.text = "Time (mins)" (default: NULL).
 #'
-#' @return A ggplot2 bar plot.
+#' @return A 'ggplot2' bar plot object.
 #'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#'   lst_models = list("cox" = cox.model,
-#'   "cv.sPLS-ICOX" = cv.splsicox_model,
-#'   "sPLS-ICOX" = splsicox_model)
-#'   plot_time.list(lst_models, x.text = "Method")
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' X <- X_proteomic[,1:50]
+#' Y <- Y_proteomic
+#' coxSW.model <- coxSW(X, Y, x.center = TRUE, x.scale = TRUE)
+#' coxEN.model <- coxEN(X, Y, x.center = TRUE, x.scale = TRUE)
+#' lst_models = list("coxSW" = coxSW.model, "coxEN" = coxEN.model)
+#' plot_time.list(lst_models, x.text = "Method")
 
 plot_time.list <- function(lst_models, x.text = "Method", y.text = NULL){
 
@@ -652,7 +684,7 @@ plot_time.list <- function(lst_models, x.text = "Method", y.text = NULL){
 #' @description Run the function "plot_evaluation" for a list of results. More information in
 #' "?plot_evaluation".
 #'
-#' @param lst_eval_results List (named) of Coxmos evaluation results.
+#' @param lst_eval_results List (named) of Coxmos evaluation results from `eval_Coxmos_models()`.
 #' @param evaluation Character. Perform the evaluation using the "AUC" or "Brier" metric (default: "AUC").
 #' @param pred.attr Character. Way to evaluate the metric selected. Must be one of the following:
 #' "mean" or "median" (default: "mean").
@@ -672,15 +704,32 @@ plot_time.list <- function(lst_models, x.text = "Method", y.text = NULL){
 #' @param label_x_axis_size Numeric. Text size for x label axis (default: 10).
 #' @param label_y_axis_size Numeric. Text size for y label axis (default: 10).
 #'
+#' @return A list of lst_eval_results length. Each element is a list of three elements.
+#' \code{lst_plots}: A list of two plots. The evaluation over the time, and the extension adding the
+#' mean or median on the right.
+#' \code{lst_plot_comparisons}: A list of comparative boxplots by t.test, anova, wilcoxon, kruscal.
+#' \code{df}: Data.frame of evaluation result.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' #lst_eval_results #list of multiple eval_Coxmos_models()
-#' plot_evaluation.list(lst_eval_results)
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' set.seed(123)
+#' index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+#' X_train <- X_proteomic[index_train,1:50]
+#' Y_train <- Y_proteomic[index_train,]
+#' X_test <- X_proteomic[-index_train,1:50]
+#' Y_test <- Y_proteomic[-index_train,]
+#' coxEN.model <- coxEN(X_train, Y_train, x.center = TRUE, x.scale = TRUE)
+#' eval_results <- list()
+#' eval_results[["cenROC"]] <- eval_Coxmos_models(lst_models = list("coxEN" = coxEN.model),
+#' X_test = X_test, Y_test = Y_test, pred.method = "cenROC")
+#' eval_results[["survivalROC"]] <- eval_Coxmos_models(lst_models = list("coxEN" = coxEN.model),
+#' X_test = X_test, Y_test = Y_test, pred.method = "survivalROC")
+#' plot_eval_results <- plot_evaluation.list(eval_results)
 
 plot_evaluation.list <- function(lst_eval_results, evaluation = "AUC", pred.attr = "mean", y.min = NULL,
                                  type = "both", round_times = FALSE, decimals = 2,
@@ -705,7 +754,7 @@ plot_evaluation.list <- function(lst_eval_results, evaluation = "AUC", pred.attr
 
 #' plot_evaluation
 #' @description Generates a comprehensive evaluation of the performance of a given Coxmos evaluation
-#' object, offering both statistical tests and visual plots for assessment.
+#' object from `eval_Coxmos_models()`, offering both statistical tests and visual plots for assessment.
 #'
 #' @details The `plot_evaluation` function is designed to facilitate a rigorous evaluation of the
 #' performance of models, specifically in the context of survival analysis. This function is tailored
@@ -723,11 +772,12 @@ plot_evaluation.list <- function(lst_eval_results, evaluation = "AUC", pred.attr
 #' test, and Kruskal-Wallis test. These tests provide a quantitative measure of the differences in
 #' performance, aiding in the objective assessment of the models.
 #'
-#' The visual outputs are generated using the ggplot2 package, ensuring high-quality and interpretable
+#' The visual outputs are generated using the 'ggplot2' package, ensuring high-quality and interpretable
 #' plots. The function also offers extensive customization options for the plots, including axis
 #' labels, title, and text sizes, ensuring that the outputs align with the user's preferences and the
 #' intended audience's expectations.
-#' @param eval_results Coxmos evaluation object.
+#'
+#' @param eval_results Coxmos evaluation object from `eval_Coxmos_models()`.
 #' @param evaluation Character. Perform the evaluation using the "AUC" or "Brier" metric (default: "AUC").
 #' @param pred.attr Character. Way to evaluate the metric selected. Must be one of the following:
 #' "mean" or "median" (default: "mean").
@@ -747,15 +797,29 @@ plot_evaluation.list <- function(lst_eval_results, evaluation = "AUC", pred.attr
 #' @param label_x_axis_size Numeric. Text size for x label axis (default: 10).
 #' @param label_y_axis_size Numeric. Text size for y label axis (default: 10).
 #'
+#' @return A list of lst_eval_results length. Each element is a list of three elements.
+#' \code{lst_plots}: A list of two plots. The evaluation over the time, and the extension adding the
+#' mean or median on the right.
+#' \code{lst_plot_comparisons}: A list of comparative boxplots by t.test, anova, wilcoxon, kruscal.
+#' \code{df}: Data.frame of evaluation result.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' eval_results <- eval_Coxmos_models(lst_models, X_test, Y_test, pred.method)
-#' plot_evaluation(eval_results)
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' set.seed(123)
+#' index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+#' X_train <- X_proteomic[index_train,1:50]
+#' Y_train <- Y_proteomic[index_train,]
+#' X_test <- X_proteomic[-index_train,1:50]
+#' Y_test <- Y_proteomic[-index_train,]
+#' coxEN.model <- coxEN(X_train, Y_train, x.center = TRUE, x.scale = TRUE)
+#' eval_results <- eval_Coxmos_models(lst_models = list("coxEN" = coxEN.model), X_test = X_test,
+#' Y_test = Y_test)
+#' plot_eval_results <- plot_evaluation(eval_results)
 
 plot_evaluation <- function(eval_results, evaluation = "AUC", pred.attr = "mean", y.min = NULL,
                             type = "both", round_times = FALSE, decimals = 2,
@@ -883,6 +947,226 @@ plot_evaluation <- function(eval_results, evaluation = "AUC", pred.attr = "mean"
   table$sd <- as.numeric(table$sd)
 
   return(list("lst_plots" = lst_ggp, "lst_plot_comparisons" = lst_plot_comparisons, df = table))
+}
+
+boxplot.performance <- function(df, x.var, y.var, x.fill = NULL, x.alpha = NULL, x.lab = NULL,
+                                y.lab = NULL, fill.lab = NULL, alpha.lab = NULL, title = NULL,
+                                y.limit = NULL, y.limit.exception = NULL, jitter = TRUE,
+                                test = "anova", eval_method = "auto", show.median = TRUE,
+                                round.median = 3, legend_title = "Method", legend_size_text = 12,
+                                x_axis_size_text = 10, y_axis_size_text = 10){
+
+  if(!eval_method %in% c("median", "mean", "auto")){
+    stop("Eval_method must be one of: 'mean' or 'median'.")
+  }
+
+  if(eval_method == "auto"){
+    if(!is.null(test) && test %in% c("t.test", "anova")){
+      eval_method = "mean"
+    }else{
+      eval_method = "median"
+    }
+  }
+
+  df <- df[,unique(c(x.var, y.var, x.fill, x.alpha))]
+  df <- df[!is.na(df[,x.var]),]
+
+  #remove NA before get the comparisons
+  df <- df[!is.na(df[,y.var]),]
+  #drop levels with 0 values
+  df <- droplevels.data.frame(df)
+
+  if(!is.null(x.fill)){
+    df <- df[!is.na(df[,x.fill]),]
+  }
+
+  if(!is.null(x.alpha)){
+    df <- df[!is.na(df[,x.alpha]),]
+  }
+
+  max <- max(df[!is.na(df[,y.var,drop = TRUE]),y.var,drop = TRUE])
+
+  tests <- c("t.test","wilcox.test","anova","kruskal.test")
+  comparisons <-  list()
+  cont = 1
+  if(!is.null(test)){
+    for(i in 1:(length(levels(df[,x.var, drop = TRUE]))-1)){
+      for(j in (i+1):length(levels(df[,x.var, drop = TRUE]))){
+        comparisons[[cont]] <- c(levels(df[,x.var, drop = TRUE])[i], levels(df[,x.var, drop = TRUE])[j])
+        cont = cont + 1
+      }
+    }
+    if(!test %in% tests){
+      stop_quietly(paste0("Variables test must be one of the following: ", paste0(tests, collapse = ", ")))
+    }
+  }
+
+  median.val <- NULL
+  for(m in levels(df[,x.var, drop = TRUE])){
+    sub_value <- df[df[,x.var, drop = TRUE]==m,y.var,drop = TRUE]
+    if(eval_method=="median"){
+      median.val <- c(median.val, median(sub_value, na.rm = TRUE))
+    }else{
+      median.val <- c(median.val, mean(sub_value, na.rm = TRUE))
+    }
+  }
+
+  if(!is.null(median.val)){
+    names(median.val) <- levels(df[,x.var,drop = TRUE])
+    median.val <- round(median.val, round.median)
+
+    if(eval_method=="median"){
+      x_names <- paste0(levels(df[,x.var,drop = TRUE]), "\nMedian: ", median.val)
+    }else{
+      x_names <- paste0(levels(df[,x.var,drop = TRUE]), "\nMean: ", median.val)
+    }
+  }
+
+  if(is.null(x.fill)){
+    ggp <- ggplot2::ggplot(df, aes_string(x = x.var, y = y.var, fill = x.var, alpha = x.alpha)) +
+      geom_boxplot() +
+      xlab(ifelse(is.null(x.lab), x.var, x.lab)) +
+      ylab(ifelse(is.null(y.lab),toupper(y.var),y.lab)) +
+      theme(legend.position = "none") +
+
+      if(requireNamespace("RColorConesa", quietly = TRUE)){
+        ggp <- ggp + RColorConesa::scale_fill_conesa(palette = "complete")
+      }
+
+    if(jitter){
+      ggp <- ggp + geom_jitter(color="black", size=1, alpha=0.25, width = 0.2)
+    }
+
+  }else{
+    ggp <- ggplot2::ggplot(df, aes_string(x = x.var, y = y.var, fill = x.fill, alpha = x.alpha)) +
+      geom_boxplot(position = position_dodge2(preserve = "single")) +
+      xlab(ifelse(is.null(x.lab), x.var, x.lab)) +
+      ylab(ifelse(is.null(y.lab),toupper(y.var),y.lab)) +
+      theme(legend.position = "bottom")
+
+    if(requireNamespace("RColorConesa", quietly = TRUE)){
+      ggp <- ggp + RColorConesa::scale_fill_conesa(palette = "complete")
+    }
+
+    if(jitter){
+      ggp <- ggp + geom_point(position=position_jitterdodge(), color="black", size=1, alpha=0.25)
+    }
+
+  }
+
+  if(!is.null(x.alpha)){
+    dim_alpha <- length(levels(df[,x.alpha,drop = TRUE]))
+
+    if(!dim_alpha==1){
+      s <- 1/dim_alpha
+      alpha_values <- seq(1,0+s,-s)
+
+      ggp <- ggp +
+        scale_alpha_manual(values=alpha_values) +
+        guides(alpha=guide_legend(override.aes=list(fill=grDevices::hcl(c(177,177),74.7,32.5,alpha=alpha_values), colour=NA))) #should be a base R package
+    }
+  }
+
+  if(!is.null(y.limit) & !y.var %in% y.limit.exception){
+    ggp <- ggp + scale_y_continuous(limits = y.limit, n.breaks = 15)
+  }else{
+    ggp <- ggp + scale_y_continuous(n.breaks = 15)
+  }
+
+  if(!is.null(test)){ #with less than
+    ggp <- tryCatch(
+      # Specifying expression
+      expr = {
+        if(test=="anova" | test=="kruskal.test"){
+          ggp <- ggp + ggpubr::stat_compare_means(method = test, label.x.npc = "center", label.y = 1.025*max)
+          ggp
+        }else if(length(unique(unlist(comparisons)))==2){
+          ggp <- ggp + ggpubr::stat_compare_means(method = test, label.x.npc = "center", label.y = 1.025*max)
+          ggp
+        }else{
+          #some input is generated but I do not want it to be printed.
+          output_txt <- capture.output(ggp <- ggp + ggpubr::stat_compare_means(method = test, comparisons = comparisons))
+          ggp
+        }
+      },
+      # Specifying error message
+      error = function(e){
+        ggp
+      },
+      # Specifying warning message
+      warning = function(e){
+        ggp
+      }
+    )
+  }
+
+  if(show.median & !is.null(median.val)){
+    ggp <- ggp + scale_x_discrete(labels = x_names)
+  }
+
+  if(!is.null(fill.lab)){
+    ggp <- ggp + guides(fill=guide_legend(title=fill.lab))
+  }
+
+  if(!is.null(alpha.lab)){
+    ggp <- ggp + guides(alpha=guide_legend(title=alpha.lab))
+  }
+
+  if(!is.null(title)){
+    ggp <- ggp + ggtitle(title)
+  }
+
+  ggp <- ggp + theme(legend.text=element_text(size = legend_size_text), legend.title = element_text(size=legend_size_text, face = "bold"))
+  ggp <- ggp + guides(fill=guide_legend(title=legend_title))
+  ggp <- ggp + theme(axis.text.x = element_text(vjust = 0.5, size = x_axis_size_text))
+  ggp <- ggp + theme(axis.text.y = element_text(vjust = 0.5, hjust=1, size = y_axis_size_text))
+
+  return(ggp)
+}
+
+lineplot.performace <- function(df, x.var = "time", y.var = "AUC", x.color = "method", x.lab = NULL,
+                                y.lab = NULL, y.limit = NULL, point = TRUE, legend_title = "Method",
+                                legend_size_text = 12, x_axis_size_text = 10, y_axis_size_text = 10){
+  MAX_X_ELEMENTS = 20
+
+  if(point){
+    ggp <- ggplot2::ggplot(df, aes_string(x = x.var, y = y.var, color = x.color)) +
+      geom_line(aes_string(group = x.color), size = 1) +
+      geom_point() +
+      xlab(ifelse(is.null(x.lab), x.var, x.lab)) +
+      ylab(ifelse(is.null(y.lab),toupper(y.var),y.lab))
+
+    if(requireNamespace("RColorConesa", quietly = TRUE)){
+      ggp <- ggp + RColorConesa::scale_color_conesa(palette = "complete")
+    }
+
+  }else{
+    ggp <- ggplot2::ggplot(df, aes_string(x = x.var, y = y.var, color = x.color)) +
+      geom_line(aes_string(group = x.color), size = 1) +
+      xlab(ifelse(is.null(x.lab), x.var, x.lab)) +
+      ylab(ifelse(is.null(y.lab),toupper(y.var),y.lab))
+
+    if(requireNamespace("RColorConesa", quietly = TRUE)){
+      ggp <- ggp + RColorConesa::scale_color_conesa(palette = "complete")
+    }
+
+  }
+
+  if(length(df[,x.var]>MAX_X_ELEMENTS)){
+    ggp <- ggp + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = x_axis_size_text))
+  }else{
+    ggp <- ggp + theme(axis.text.x = element_text(vjust = 0.5, size = x_axis_size_text))
+  }
+
+  if(!is.null(y.limit)){
+    ggp <- ggp + ylim(y.limit)
+  }
+
+  ggp <- ggp + theme(legend.text=element_text(size = legend_size_text), legend.title = element_text(size=legend_size_text, face = "bold"))
+  ggp <- ggp + guides(color=guide_legend(title=legend_title))
+  ggp <- ggp + theme(axis.text.y = element_text(vjust = 0.5, hjust=1, size = y_axis_size_text))
+
+  return(ggp)
 }
 
 coxweightplot.fromVector.Coxmos <- function(model, vector, sd.min = NULL, sd.max = NULL, zero.rm = FALSE,
@@ -1538,14 +1822,19 @@ plot_VAR_eval <- function(lst_BV, EVAL_METHOD = "AUC", dot_size = 3){
 #' @param y.text Character. Y axis title (default: "Number of observations").
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #'
+#' @return A list of two elements.
+#' \code{plot}: Barplot.
+#' \code{df}: Data.frame used for the plotting.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' plot_events(Y, categories = c("Censored","Death"))
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' Y_train <- Y_proteomic
+#' plot_events(Y_train, categories = c("Censored","Death"))
 
 plot_events <- function(Y, max.breaks = 20, roundTo = 0.1, categories = c("Censored","Death"),
                         y.text = "Number of observations", verbose = FALSE){
@@ -1662,7 +1951,7 @@ plot_events <- function(Y, max.breaks = 20, roundTo = 0.1, categories = c("Censo
 #' If BREAKTIME = NULL, "n.breaks" is used (default: NULL).
 #' @param x.text Character. Title for X axis.
 #'
-#' @return A ggplot2 two side bar plot. X axis represent the number of samples per each NAMEVAR1
+#' @return A 'ggplot2' two side bar plot. X axis represent the number of samples per each NAMEVAR1
 #' factor levels and Y axis, the X NAMEVAR2 numerical variables categorize in groups of breaks.
 #'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
@@ -1822,14 +2111,21 @@ plot_divergent.biplot <- function(X, Y, NAMEVAR1, NAMEVAR2, BREAKTIME, x.text = 
 #' @param text.size Numeric. Text size (default: 2).
 #' @param overlaps Numeric. Number of overlaps to show when plotting loading names (default: 10).
 #'
+#' @return A list of two elements.
+#' \code{plot}: Score, Loading or Biplot graph in 'ggplot2' format.
+#' \code{outliers}: Data.frame of outliers detected in the plot.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' plot_PLS_Coxmos(model, comp = c(1,2), mode = "scores")
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' X <- X_proteomic[,1:50]
+#' Y <- Y_proteomic
+#' splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+#' plot_PLS_Coxmos(splsicox.model, comp = c(1,2), mode = "scores")
 
 plot_PLS_Coxmos <- function(model, comp = c(1,2), mode = "scores", factor = NULL, legend_title = NULL,
                             top = NULL, only_top = FALSE, radius = NULL, names = TRUE, colorReverse = FALSE,
@@ -2644,14 +2940,24 @@ plot_Coxmos.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", fact
 #'
 #' @param lst_models List of Coxmos models.
 #'
+#' @return A \code{ggplot2} object per model visualizing the assessment of the proportional hazards assumption
+#' for the given Coxmos model. The plot displays the Schoenfeld residuals against time for each
+#' variable or factor level from the model. A line is fitted to these residuals to indicate any trend,
+#' which can suggest a violation of the proportional hazards assumption.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' X <- X_proteomic[,1:50]
+#' Y <- Y_proteomic
+#' splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+#' splsdrcox.model <- splsdrcox(X, Y, n.comp = 2, eta = 0.5, x.center = TRUE, x.scale = TRUE)
+#' lst_models = list("sPLSICOX" = splsicox.model, "sPLSDRCOX" = splsdrcox.model)
 #' plot_proportionalHazard.list(lst_models)
-#' }
 
 plot_proportionalHazard.list <- function(lst_models){
 
@@ -2691,7 +2997,11 @@ plot_proportionalHazard.list <- function(lst_models){
 #' model's assumptions.
 #'
 #' @param model Coxmos model.
-#' @return A ggplot2 plot.
+#'
+#' @return A \code{ggplot2} object visualizing the assessment of the proportional hazards assumption
+#' for the given Coxmos model. The plot displays the Schoenfeld residuals against time for each
+#' variable or factor level from the model. A line is fitted to these residuals to indicate any trend,
+#' which can suggest a violation of the proportional hazards assumption.
 #'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
@@ -2704,9 +3014,12 @@ plot_proportionalHazard.list <- function(lst_models){
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' plot_proportionalHazard(model)
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' X <- X_proteomic[,1:50]
+#' Y <- Y_proteomic
+#' splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+#' plot_proportionalHazard(splsicox.model)
 
 plot_proportionalHazard <- function(model){
 
@@ -2793,14 +3106,22 @@ my_primeFactors <- function(num) {
 #' @param refLabel Character. Label for reference levels of factor variables (default: "reference").
 #' @param noDigits Numeric. Number of digits for estimates and p-values in the plot (default: 2).
 #'
+#' @return A ggplot object per model representing the forest plot. The plot visualizes the hazard ratios and
+#' their confidence intervals for each variable or component from the Coxmos model.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' X <- X_proteomic[,1:50]
+#' Y <- Y_proteomic
+#' splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+#' splsdrcox.model <- splsdrcox(X, Y, n.comp = 2, eta = 0.5, x.center = TRUE, x.scale = TRUE)
+#' lst_models = list("sPLSICOX" = splsicox.model, "sPLSDRCOX" = splsdrcox.model)
 #' plot_forest.list(lst_models)
-#' }
 
 plot_forest.list <- function(lst_models,
                              title = "Hazard Ratio",
@@ -2850,14 +3171,20 @@ plot_forest.list <- function(lst_models,
 #' @param refLabel Character. Label for reference levels of factor variables (default: "reference").
 #' @param noDigits Numeric. Number of digits for estimates and p-values in the plot (default: 2).
 #'
+#' @return A ggplot object representing the forest plot. The plot visualizes the hazard ratios and
+#' their confidence intervals for each variable or component from the Coxmos model.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' plot_forest(model)
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' X <- X_proteomic[,1:50]
+#' Y <- Y_proteomic
+#' splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+#' plot_forest(splsicox.model)
 
 plot_forest <- function(model,
                         title = "Hazard Ratio",
@@ -2899,14 +3226,27 @@ plot_forest <- function(model,
 #' @param type Character. Prediction type: "lp", "risk", "expected" or "survival" (default: "lp").
 #' @param n.breaks Numeric. Number of time-break points to compute (default: 20).
 #'
+#' @return A list containing three elements per each model:
+#' \code{df}: A data.frame with the computed predictions based on the specified type and the
+#' corresponding event status.
+#' \code{plot.density}: A ggplot object representing the density plot of the event distribution,
+#' with separate curves for censored and occurred events.
+#' \code{plot.histogram}: A ggplot object representing the histogram of the event distribution,
+#' with bins stacked by event type.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' X <- X_proteomic[,1:50]
+#' Y <- Y_proteomic
+#' splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+#' splsdrcox.model <- splsdrcox(X, Y, n.comp = 2, eta = 0.5, x.center = TRUE, x.scale = TRUE)
+#' lst_models = list("sPLSICOX" = splsicox.model, "sPLSDRCOX" = splsdrcox.model)
 #' plot_cox.event.list(lst_models)
-#' }
 
 plot_cox.event.list <- function(lst_models, type = "lp", n.breaks = 20){
 
@@ -2943,20 +3283,30 @@ plot_cox.event.list <- function(lst_models, type = "lp", n.breaks = 20){
 #' It's imperative to note that the models should be run with the `returnData = TRUE` option to ensure
 #' the necessary data is available for plotting.
 #'
-#'
 #' @param model Coxmos model.
 #' @param type Character. Prediction type: "lp", "risk", "expected" or "survival" (default: "lp").
 #' @param n.breaks Numeric. If BREAKTIME is NULL, "n.breaks" is the number of time-break points to
 #' compute (default: 20).
+#'
+#' @return A list containing three elements:
+#' \code{df}: A data.frame with the computed predictions based on the specified type and the
+#' corresponding event status.
+#' \code{plot.density}: A ggplot object representing the density plot of the event distribution,
+#' with separate curves for censored and occurred events.
+#' \code{plot.histogram}: A ggplot object representing the histogram of the event distribution,
+#' with bins stacked by event type.
 #'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' plot_cox.event(model)
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' X <- X_proteomic[,1:50]
+#' Y <- Y_proteomic
+#' splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+#' plot_cox.event(splsicox.model)
 
 plot_cox.event <- function(model, type = "lp", n.breaks = 20){
 
@@ -3029,43 +3379,54 @@ prop.between2values <- function(df, min, max){
 # EVENT DISTRIBUTION - PREDICTION #
 #### ### ### ### ### ### ### ### ##
 
-#' patient.eventDensity
+#' plot_observation.eventDensity
 #'
-#' @description Visualizes the event density for a given patient's data using the Coxmos model.
+#' @description Visualizes the event density for a given observation's data using the Coxmos model.
 #'
-#' @details The `plot_patient.eventDensity` function provides a graphical representation of the event
-#' density for a specific patient's data, based on the Coxmos model. The function computes the density
-#' of events and non-events and plots them, highlighting the predicted value for the given patient's
+#' @details The `plot_observation.eventDensity` function provides a graphical representation of the event
+#' density for a specific observation's data, based on the Coxmos model. The function computes the density
+#' of events and non-events and plots them, highlighting the predicted value for the given observation's
 #' data. The density is determined using density estimation, and the predicted value is obtained from
 #' the Coxmos model. The function allows customization of the plot aesthetics, such as point size and
-#' color. The resulting plot provides a visual comparison of the patient's predicted event density
-#' against the overall event density distribution, aiding in the interpretation of the patient's risk
+#' color. The resulting plot provides a visual comparison of the observation's predicted event density
+#' against the overall event density distribution, aiding in the interpretation of the observation's risk
 #' profile.
 #'
-#' @param patient Numeric matrix or data.frame. New explanatory variables (raw data) for one observation.
+#' @param observation Numeric matrix or data.frame. New explanatory variables (raw data) for one observation.
 #' Qualitative variables must be transform into binary variables.
-#' @param time Numeric. Time point where the AUC will be evaluated (default: NULL).
 #' @param model Coxmos model.
+#' @param time Numeric. Time point where the AUC will be evaluated (default: NULL).
 #' @param type Character. Prediction type: "lp", "risk", "expected" or "survival" (default: "lp").
 #' @param size Numeric. Point size (default: 3).
 #' @param color String. R Color.
+#'
+#' @return A ggplot object representing a density of the predicted event values based on the
+#' provided Coxmos model.
 #'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' plot_patient.eventDensity(patient, time = NULL, model)
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' set.seed(123)
+#' index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+#' X_train <- X_proteomic[index_train,1:50]
+#' Y_train <- Y_proteomic[index_train,]
+#' X_test <- X_proteomic[-index_train,1:50]
+#' Y_test <- Y_proteomic[-index_train,]
+#' coxEN.model <- coxEN(X_train, Y_train, x.center = TRUE, x.scale = TRUE)
+#' observation = X_test[1,,drop=FALSE]
+#' plot_observation.eventDensity(observation = observation, model = coxEN.model, time = NULL)
 
-plot_patient.eventDensity <- function(patient, time = NULL, model, type = "lp", size = 3,
+plot_observation.eventDensity <- function(observation, model, time = NULL, type = "lp", size = 3,
                                       color = "red"){
 
   #DFCALLS
   x <- y <- event <- NULL
 
-  pred.value <- cox.prediction(model = model, new_data = patient, time = time, type = type, method = "cox")
+  pred.value <- cox.prediction(model = model, new_data = observation, time = time, type = type, method = "cox")
 
   plot <- plot_cox.event(model, type = type)
   plot <- plot$plot.density
@@ -3100,47 +3461,58 @@ plot_patient.eventDensity <- function(patient, time = NULL, model, type = "lp", 
   return(plot.new)
 }
 
-#' patient.eventHistogram
+#' plot_observation.eventHistogram
 #'
-#' @description Generates a histogram plot for patient event data based on a given Coxmos model. The
+#' @description Generates a histogram plot for observation event data based on a given Coxmos model. The
 #' function visualizes the distribution of predicted values and highlights the prediction for a
-#' specific patient.
+#' specific observation.
 #'
-#' @details The `plot_patient.eventHistogram` function is designed to provide a visual representation
-#' of the distribution of predicted event values based on a Coxmos model. The function takes in patient
+#' @details The `plot_observation.eventHistogram` function is designed to provide a visual representation
+#' of the distribution of predicted event values based on a Coxmos model. The function takes in observation
 #' data, a specified time point, and a Coxmos model to compute the prediction. The resulting histogram
 #' plot displays the distribution of these predictions, with a specific emphasis on the prediction
-#' for the provided patient data. The prediction is represented as a point on the histogram, allowing
-#' for easy comparison between the specific patient's prediction and the overall distribution of
+#' for the provided observation data. The prediction is represented as a point on the histogram, allowing
+#' for easy comparison between the specific observation's prediction and the overall distribution of
 #' predictions. The type of prediction ("lp", "risk", "expected", or "survival") can be specified,
 #' offering flexibility in the kind of insights one wishes to derive from the visualization. The
-#' appearance of the point representing the patient's prediction can be customized using the `size`
+#' appearance of the point representing the observation's prediction can be customized using the `size`
 #' and `color` parameters.
 #'
-#' @param patient Numeric matrix or data.frame. New explanatory variables (raw data) for one
+#' @param observation Numeric matrix or data.frame. New explanatory variables (raw data) for one
 #' observation. Qualitative variables must be transform into binary variables.
-#' @param time Numeric. Time point where the AUC will be evaluated (default: NULL).
 #' @param model Coxmos model.
+#' @param time Numeric. Time point where the AUC will be evaluated (default: NULL).
 #' @param type Character. Prediction type: "lp", "risk", "expected" or "survival" (default: "lp").
 #' @param size Numeric. Point size (default: 3).
 #' @param color String. R Color.
+#'
+#' @return A ggplot object representing a histogram of the predicted event values based on the
+#' provided Coxmos model.
 #'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' plot_patient.eventHistogram(patient, time = NULL, model)
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' set.seed(123)
+#' index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+#' X_train <- X_proteomic[index_train,1:50]
+#' Y_train <- Y_proteomic[index_train,]
+#' X_test <- X_proteomic[-index_train,1:50]
+#' Y_test <- Y_proteomic[-index_train,]
+#' coxEN.model <- coxEN(X_train, Y_train, x.center = TRUE, x.scale = TRUE)
+#' observation = X_test[1,,drop=FALSE]
+#' plot_observation.eventHistogram(observation = observation, model = coxEN.model, time = NULL)
 
-plot_patient.eventHistogram <- function(patient, time = NULL, model, type = "lp", size = 3,
-                                        color = "red"){
+plot_observation.eventHistogram <- function(observation, model, time = NULL, type = "lp", size = 3,
+                                            color = "red"){
 
   #DFCALLS
   x <- y <- NULL
 
-  pred.value <- cox.prediction(model = model, new_data = patient, time = time, type = type, method = "cox")
+  pred.value <- cox.prediction(model = model, new_data = observation, time = time, type = type, method = "cox")
 
   plot <- plot_cox.event(model, type = type)
   plot <- plot$plot.histogram
@@ -3193,14 +3565,25 @@ plot_patient.eventHistogram <- function(patient, time = NULL, model, type = "lp"
 #' @param size_percentage Numeric. Size of percentage text (default: 3).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #'
+#' @return A list containing the following elements per model:
+#' \code{plot}: Depending on the model type, this can either be a single ggplot object visualizing the pseudo-beta coefficients for the original variables in a single block PLS-Cox model, or a list of ggplot objects for each block in a multiblock PLS-Cox model. Each plot provides a comprehensive visualization of the pseudo-beta coefficients, potentially including error bars, significance filtering, and variable contribution percentages.
+#' \code{beta}: A matrix or list of matrices (for multiblock models) containing the computed pseudo-beta coefficients for the original variables. These coefficients represent the influence of each original variable on the survival prediction.
+#' \code{sd.min}: A matrix or list of matrices (for multiblock models) representing the lower bounds of the error bars for the pseudo-beta coefficients.
+#' \code{sd.max}: A matrix or list of matrices (for multiblock models) representing the upper bounds of the error bars for the pseudo-beta coefficients.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' plot_pseudobeta.list(lst_models)
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' X <- X_proteomic[,1:50]
+#' Y <- Y_proteomic
+#' splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+#' splsdrcox.model <- splsdrcox(X, Y, n.comp = 2, eta = 0.5, x.center = TRUE, x.scale = TRUE)
+#' lst_models = list("sPLSICOX" = splsicox.model, "sPLSDRCOX" = splsdrcox.model)
+#' plot_pseudobeta.list(lst_models = lst_models)
 
 plot_pseudobeta.list <- function(lst_models, error.bar = TRUE, onlySig = FALSE, alpha = 0.05, zero.rm = TRUE,
                                  top = NULL, auto.limits = TRUE, show_percentage = TRUE,
@@ -3270,14 +3653,23 @@ plot_pseudobeta.list <- function(lst_models, error.bar = TRUE, onlySig = FALSE, 
 #' @param label_x_axis_size Numeric. Text size for x label axis (default: 10).
 #' @param label_y_axis_size Numeric. Text size for y label axis (default: 10).
 #'
+#' @return A list containing the following elements:
+#' \code{plot}: Depending on the model type, this can either be a single ggplot object visualizing the pseudo-beta coefficients for the original variables in a single block PLS-Cox model, or a list of ggplot objects for each block in a multiblock PLS-Cox model. Each plot provides a comprehensive visualization of the pseudo-beta coefficients, potentially including error bars, significance filtering, and variable contribution percentages.
+#' \code{beta}: A matrix or list of matrices (for multiblock models) containing the computed pseudo-beta coefficients for the original variables. These coefficients represent the influence of each original variable on the survival prediction.
+#' \code{sd.min}: A matrix or list of matrices (for multiblock models) representing the lower bounds of the error bars for the pseudo-beta coefficients.
+#' \code{sd.max}: A matrix or list of matrices (for multiblock models) representing the upper bounds of the error bars for the pseudo-beta coefficients.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' plot_pseudobeta(model)
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' X <- X_proteomic[,1:50]
+#' Y <- Y_proteomic
+#' splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+#' plot_pseudobeta(model = splsicox.model)
 
 plot_pseudobeta <- function(model, error.bar = TRUE, onlySig = FALSE, alpha = 0.05, zero.rm = TRUE, top = NULL,
                             auto.limits = TRUE,
@@ -3463,9 +3855,9 @@ plot_pseudobeta <- function(model, error.bar = TRUE, onlySig = FALSE, alpha = 0.
 # PSEUDOBETA PLOTS - PREDICTION #
 #### ### ### ### ### ### ### ###
 
-#' plot_pseudobeta_newPatient.list
-#' @description Run the function "plot_pseudobeta_newPatient" for a list of models. More information
-#' in "?plot_pseudobeta_newPatient".
+#' plot_pseudobeta_newObservation.list
+#' @description Run the function "plot_pseudobeta_newObservation" for a list of models. More information
+#' in "?plot_pseudobeta_newObservation".
 #'
 #' @param lst_models List of Coxmos models.
 #' @param new_observation Numeric matrix or data.frame. New explanatory variables (raw data) for one
@@ -3481,16 +3873,33 @@ plot_pseudobeta <- function(model, error.bar = TRUE, onlySig = FALSE, alpha = 0.
 #' @param show.betas Logical. Show original betas (default: FALSE).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #'
+#' @return A list of lst_models length with a list of four elements per each model:
+#' \code{plot}: Linear prediction per variable.
+#' \code{lp.var}: Value of each linear prediction per variable.
+#' \code{norm_observation}: Observation normalized using the model information.
+#' \code{observation}: Observation used.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' plot_pseudobeta_newPatient.list(lst_models, new_observation)
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' set.seed(123)
+#' index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+#' X_train <- X_proteomic[index_train,1:50]
+#' Y_train <- Y_proteomic[index_train,]
+#' X_test <- X_proteomic[-index_train,1:50]
+#' Y_test <- Y_proteomic[-index_train,]
+#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, spv_penalty = 0.5, x.center = TRUE,
+#' x.scale = TRUE)
+#' splsdrcox.model <- splsdrcox(X_train, Y_train, n.comp = 2, eta = 0.5, x.center = TRUE,
+#' x.scale = TRUE)
+#' lst_models = list("sPLSICOX" = splsicox.model, "sPLSDRCOX" = splsdrcox.model)
+#' plot_pseudobeta_newObservation.list(lst_models, new_observation = X_test[1,,drop=FALSE])
 
-plot_pseudobeta_newPatient.list <- function(lst_models, new_observation, error.bar = TRUE, onlySig = TRUE,
+plot_pseudobeta_newObservation.list <- function(lst_models, new_observation, error.bar = TRUE, onlySig = TRUE,
                                             alpha = 0.05, zero.rm = TRUE,
                                             top = NULL, auto.limits = TRUE, show.betas = FALSE,
                                             verbose = FALSE){
@@ -3507,7 +3916,7 @@ plot_pseudobeta_newPatient.list <- function(lst_models, new_observation, error.b
     }
   }
 
-  lst_plots <- purrr::map(sub_lst_models, ~plot_pseudobeta_newPatient(model = .,
+  lst_plots <- purrr::map(sub_lst_models, ~plot_pseudobeta_newObservation(model = .,
                                                                       new_observation = new_observation,
                                                                       error.bar = error.bar,
                                                                       onlySig = onlySig, alpha = alpha,
@@ -3518,14 +3927,14 @@ plot_pseudobeta_newPatient.list <- function(lst_models, new_observation, error.b
 
 }
 
-#' plot_pseudobeta.newPatient
+#' plot_pseudobeta.newObservation
 #' @description
 #' Generates a visual representation comparing the pseudobeta values derived from the Coxmos model
 #' with the values of a new observation. This function provides insights into how the new observation
 #' aligns with the established model, offering a graphical comparison of the pseudobeta directions.
 #'
 #' @details
-#' The function `plot_pseudobeta.newPatient` is designed to visually compare the pseudobeta values
+#' The function `plot_pseudobeta.newObservation` is designed to visually compare the pseudobeta values
 #' from the Coxmos model with those of a new observation. The generated plot is based on the ggplot2
 #' framework and offers a comprehensive view of the relationship between the model's pseudobeta values
 #' and the new observation's values.
@@ -3556,16 +3965,30 @@ plot_pseudobeta_newPatient.list <- function(lst_models, new_observation, error.b
 #' @param auto.limits Logical. If "auto.limits" = TRUE, limits are detected automatically (default: TRUE).
 #' @param show.betas Logical. Show original betas (default: FALSE).
 #'
+#' @return A list of four elements:
+#' \code{plot}: Linear prediction per variable.
+#' \code{lp.var}: Value of each linear prediction per variable.
+#' \code{norm_observation}: Observation normalized using the model information.
+#' \code{observation}: Observation used.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' plot_pseudobeta_newPatient(model, new_observation)
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' set.seed(123)
+#' index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+#' X_train <- X_proteomic[index_train,1:50]
+#' Y_train <- Y_proteomic[index_train,]
+#' X_test <- X_proteomic[-index_train,1:50]
+#' Y_test <- Y_proteomic[-index_train,]
+#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, spv_penalty = 0.5, x.center = TRUE,
+#' x.scale = TRUE)
+#' plot_pseudobeta_newObservation(model = splsicox.model, new_observation = X_test[1,,drop=FALSE])
 
-plot_pseudobeta_newPatient <- function(model, new_observation, error.bar = TRUE, onlySig = TRUE,
+plot_pseudobeta_newObservation <- function(model, new_observation, error.bar = TRUE, onlySig = TRUE,
                                        alpha = 0.05, zero.rm = TRUE,
                                        top = NULL, auto.limits = TRUE, show.betas = FALSE){
 
@@ -3576,14 +3999,14 @@ plot_pseudobeta_newPatient <- function(model, new_observation, error.bar = TRUE,
   }
 
   if(attr(model, "model") %in% pkg.env$pls_methods){
-    plot_pseudobeta.newPatient(model = model,
+    plot_pseudobeta.newObservation(model = model,
                                new_observation = new_observation,
                                error.bar = error.bar,
                                onlySig = onlySig, alpha = alpha,
                                zero.rm = zero.rm, top = top,
                                auto.limits = auto.limits, show.betas = show.betas)
   }else if(attr(model, "model") %in% pkg.env$multiblock_methods){
-    plot_MB.pseudobeta.newPatient(model = model,
+    plot_MB.pseudobeta.newObservation(model = model,
                                   new_observation = new_observation,
                                   error.bar = error.bar,
                                   onlySig = onlySig, alpha = alpha,
@@ -3594,7 +4017,7 @@ plot_pseudobeta_newPatient <- function(model, new_observation, error.bar = TRUE,
   }
 }
 
-plot_pseudobeta.newPatient <- function(model, new_observation, error.bar = TRUE, onlySig = TRUE,
+plot_pseudobeta.newObservation <- function(model, new_observation, error.bar = TRUE, onlySig = TRUE,
                                        alpha = 0.05, zero.rm = TRUE,
                                        top = NULL, auto.limits = TRUE, show.betas = FALSE){
 
@@ -3625,7 +4048,6 @@ plot_pseudobeta.newPatient <- function(model, new_observation, error.bar = TRUE,
   }
 
   #norm patient
-  new_observation <- new_observation[,rownames(model$X$W.star),drop = FALSE]
 
   if(!is.null(model$X$x.mean) & !is.null(model$X$x.sd)){
     norm_patient <- scale(new_observation, center = model$X$x.mean, scale = model$X$x.sd)
@@ -3636,6 +4058,9 @@ plot_pseudobeta.newPatient <- function(model, new_observation, error.bar = TRUE,
   }else{
     norm_patient <- new_observation
   }
+
+  #select selected variables
+  new_observation <- new_observation[,rownames(model$X$W.star),drop = FALSE]
 
   #lp.new_observation_manual <- norm_patient[,rownames(coefficients)] %*% coefficients #predict lp
   lp.new_observation_variable <- as.data.frame(norm_patient[,rownames(coefficients)] * coefficients$value) #predict terms
@@ -3779,11 +4204,11 @@ plot_pseudobeta.newPatient <- function(model, new_observation, error.bar = TRUE,
     ggp <- ggpubr::ggarrange(ggp.aux, ggp.aux2, ncol = 2, widths = c(0.5, 0.5), align = "h")
   }
 
-  return(list(plot = ggp, lp.var = lp.new_observation_variable, norm_pat = norm_patient, pat = new_observation))
+  return(list(plot = ggp, lp.var = lp.new_observation_variable, norm_observation = norm_patient, observation = new_observation))
 
 }
 
-plot_MB.pseudobeta.newPatient <- function(model, new_observation, error.bar = TRUE, onlySig = TRUE,
+plot_MB.pseudobeta.newObservation <- function(model, new_observation, error.bar = TRUE, onlySig = TRUE,
                                           alpha = 0.05, zero.rm = TRUE,
                                           top = NULL, auto.limits = TRUE, show.betas = FALSE){
 
@@ -3973,7 +4398,7 @@ plot_MB.pseudobeta.newPatient <- function(model, new_observation, error.bar = TR
 
   }
 
-  return(list(plot = lst_plots, lp.var = lst_lp.var, norm_pat = norm_patient, pat = new_observation))
+  return(list(plot = lst_plots, lp.var = lst_lp.var, norm_observation = norm_patient, observation = new_observation))
 
 }
 
@@ -4004,6 +4429,11 @@ plot_MB.pseudobeta.newPatient <- function(model, new_observation, error.bar = TR
 #' @param title Character. Kaplan-Meier plot title (default: NULL).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #'
+#' @return A list of two elements per each model in the list:
+#' \code{info_logrank_num}: A list of two data.frames with the numerical variables categorize as
+#' qualitative and the cutpoint to divide the data into two groups.
+#' \code{LST_PLOTS}: A list with the Kaplan-Meier Plots.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @references
@@ -4012,9 +4442,20 @@ plot_MB.pseudobeta.newPatient <- function(model, new_observation, error.bar = TR
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' set.seed(123)
+#' index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+#' X_train <- X_proteomic[index_train,1:20]
+#' Y_train <- Y_proteomic[index_train,]
+#' X_test <- X_proteomic[-index_train,1:20]
+#' Y_test <- Y_proteomic[-index_train,]
+#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 1, spv_penalty = 0.5, x.center = TRUE,
+#' x.scale = TRUE)
+#' splsdrcox.model <- splsdrcox(X_train, Y_train, n.comp = 1, eta = 0.5, x.center = TRUE,
+#' x.scale = TRUE)
+#' lst_models = list("sPLSICOX" = splsicox.model, "sPLSDRCOX" = splsdrcox.model)
 #' getAutoKM.list(type = "LP", lst_models)
-#' }
 
 getAutoKM.list <- function(type = "LP", lst_models, comp = 1:2, top = NULL, ori_data = TRUE,
                            BREAKTIME = NULL, n.breaks = 20, only_sig = FALSE, alpha = 0.05, title = NULL,
@@ -4090,6 +4531,11 @@ getAutoKM.list <- function(type = "LP", lst_models, comp = 1:2, top = NULL, ori_
 #' @param title Character. Kaplan-Meier plot title (default: NULL).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #'
+#' @return A list of two elements per each model in the list:
+#' \code{info_logrank_num}: A list of two data.frames with the numerical variables categorize as
+#' qualitative and the cutpoint to divide the data into two groups.
+#' \code{LST_PLOTS}: A list with the Kaplan-Meier Plots.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @references
@@ -4098,9 +4544,17 @@ getAutoKM.list <- function(type = "LP", lst_models, comp = 1:2, top = NULL, ori_
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' getAutoKM(type = "LP", model)
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' set.seed(123)
+#' index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+#' X_train <- X_proteomic[index_train,1:50]
+#' Y_train <- Y_proteomic[index_train,]
+#' X_test <- X_proteomic[-index_train,1:50]
+#' Y_test <- Y_proteomic[-index_train,]
+#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, spv_penalty = 0.5, x.center = TRUE,
+#' x.scale = TRUE)
+#' getAutoKM(type = "LP", model = splsicox.model)
 
 getAutoKM <- function(type = "LP", model, comp = 1:2, top = 10, ori_data = TRUE, BREAKTIME = NULL,
                       n.breaks = 20, only_sig = FALSE, alpha = 0.05, title = NULL, verbose = FALSE){
@@ -5241,6 +5695,11 @@ plot_survivalplot.qual <- function(data, sdata, cn_variables, name_data = NULL, 
 #'
 #' @param lst_results List of lists. Result of getAutoKM.list() function.
 #'
+#' @return A list where each element corresponds to the result of the
+#' \code{getCutoffAutoKM} function applied to each model in the input list. The structure and
+#' content of each element will be consistent with the output of the
+#' \code{getCutoffAutoKM} function.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @references
@@ -5249,9 +5708,21 @@ plot_survivalplot.qual <- function(data, sdata, cn_variables, name_data = NULL, 
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' set.seed(123)
+#' index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+#' X_train <- X_proteomic[index_train,1:50]
+#' Y_train <- Y_proteomic[index_train,]
+#' X_test <- X_proteomic[-index_train,1:50]
+#' Y_test <- Y_proteomic[-index_train,]
+#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, spv_penalty = 0.5, x.center = TRUE,
+#' x.scale = TRUE)
+#' splsdrcox.model <- splsdrcox(X_train, Y_train, n.comp = 2, eta = 0.5, x.center = TRUE,
+#' x.scale = TRUE)
+#' lst_models = list("sPLSICOX" = splsicox.model, "sPLSDRCOX" = splsdrcox.model)
+#' lst_results = getAutoKM.list(type = "LP", lst_models)
 #' getCutoffAutoKM.list(lst_results)
-#' }
 
 getCutoffAutoKM.list <- function(lst_results){
 
@@ -5259,12 +5730,15 @@ getCutoffAutoKM.list <- function(lst_results){
   lst_models <- checkModelNames(lst_models)
 
   LST_RES <- purrr::map(lst_results, ~getCutoffAutoKM(.))
+  return(LST_RES)
 }
 
 #' getCutoffAutoKM
 #' @description Gets the cutoff value from the results of getAutoKM() functions.
 #'
 #' @param result List. Result of getAutoKM() function.
+#'
+#' @return A named numeric vector where each element represents the cutoff value.
 #'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
@@ -5274,9 +5748,18 @@ getCutoffAutoKM.list <- function(lst_results){
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' getCutoffAutoKM(result)
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' set.seed(123)
+#' index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+#' X_train <- X_proteomic[index_train,1:50]
+#' Y_train <- Y_proteomic[index_train,]
+#' X_test <- X_proteomic[-index_train,1:50]
+#' Y_test <- Y_proteomic[-index_train,]
+#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, spv_penalty = 0.5, x.center = TRUE,
+#' x.scale = TRUE)
+#' KMresult = getAutoKM(type = "LP", model = splsicox.model)
+#' getCutoffAutoKM(result = KMresult)
 
 getCutoffAutoKM <- function(result){
 
@@ -5332,6 +5815,11 @@ getCutoffAutoKM <- function(result){
 #' @param title Character. Kaplan-Meier plot title (default: NULL).
 #' @param verbose Logical. If verbose = TRUE, extra messages could be displayed (default: FALSE).
 #'
+#' @return A list where each element corresponds to a Kaplan-Meier plot generated for each model in
+#' the input list. Each plot visualizes the survival probabilities based on the specified cutoff
+#' values for the respective model. The list's names correspond to the names of the models provided
+#' in the input list.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @references
@@ -5340,10 +5828,22 @@ getCutoffAutoKM <- function(result){
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' lst_cutoff <- getCutoffAutoKM.list(LST_KM_RES_LP)
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' set.seed(123)
+#' index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+#' X_train <- X_proteomic[index_train,1:20]
+#' Y_train <- Y_proteomic[index_train,]
+#' X_test <- X_proteomic[-index_train,1:20]
+#' Y_test <- Y_proteomic[-index_train,]
+#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 1, spv_penalty = 0.5, x.center = TRUE,
+#' x.scale = TRUE)
+#' splsdrcox.model <- splsdrcox(X_train, Y_train, n.comp = 1, eta = 0.5, x.center = TRUE,
+#' x.scale = TRUE)
+#' lst_models = list("sPLSICOX" = splsicox.model, "sPLSDRCOX" = splsdrcox.model)
+#' lst_results = getAutoKM.list(type = "LP", lst_models)
+#' lst_cutoff <- getCutoffAutoKM.list(lst_results)
 #' getTestKM.list(lst_models, X_test, Y_test, lst_cutoff)
-#' }
 
 getTestKM.list <- function(lst_models, X_test, Y_test, lst_cutoff, type = "LP", ori_data = TRUE,
                            BREAKTIME = NULL, n.breaks = 20, title = NULL, verbose = FALSE){
@@ -5437,6 +5937,14 @@ getTestKM.list <- function(lst_models, X_test, Y_test, lst_cutoff, type = "LP", 
 #' compute (default: 20).
 #' @param title Character. Kaplan-Meier plot title (default: NULL).
 #'
+#' @return Depending on the specified \code{type} parameter, the function returns:
+#' \itemize{
+#'   \item \code{LP}: A ggplot object visualizing the Kaplan-Meier survival curve based on the linear predictor, segmented by the specified cutoff.
+#'   \item \code{COMP}: A list of ggplot objects, where each plot represents the Kaplan-Meier survival curve for a specific PLS component in the model, segmented by the respective cutoffs.
+#'   \item \code{VAR}: A list of ggplot objects, where each plot visualizes the Kaplan-Meier survival curve for a specific variable in the test dataset, segmented by the respective cutoffs.
+#' }
+#' Each plot provides a visual representation of the survival probabilities over time, allowing for a comprehensive evaluation of the test dataset's survival characteristics in the context of the original model.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @references
@@ -5445,10 +5953,19 @@ getTestKM.list <- function(lst_models, X_test, Y_test, lst_cutoff, type = "LP", 
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' cutoff <- getCutoffAutoKM(KM_RES_LP)
-#' getTestKM(model, X_test, Y_test, cutoff)
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' set.seed(123)
+#' index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+#' X_train <- X_proteomic[index_train,1:50]
+#' Y_train <- Y_proteomic[index_train,]
+#' X_test <- X_proteomic[-index_train,1:50]
+#' Y_test <- Y_proteomic[-index_train,]
+#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, spv_penalty = 0.5, x.center = TRUE,
+#' x.scale = TRUE)
+#' KMresult = getAutoKM(type = "LP", model = splsicox.model)
+#' cutoff <- getCutoffAutoKM(result = KMresult)
+#' getTestKM(splsicox.model, X_test, Y_test, cutoff)
 
 getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = TRUE, BREAKTIME = NULL,
                       n.breaks = 20, title = NULL){
@@ -5659,14 +6176,32 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = TRU
 #' @param auto.limits Logical. If "auto.limits" = TRUE, limits are detected automatically (default: TRUE).
 #' @param top Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: NULL).
 #'
+#' @return A list of ggplot objects for each model in the \code{lst_models}. Each plot visualizes
+#' the linear predictor values for multiple patients based on the specified Coxmos model. The plots
+#' can optionally display error bars, consider only significant components, and can be limited to a
+#' specified number of top variables. The visualization aids in understanding the influence of
+#' explanatory variables on the survival prediction for each patient in the context of the provided
+#' models.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' plot_LP.multiplePatients.list(lst_models, new_data)
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' set.seed(123)
+#' index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+#' X_train <- X_proteomic[index_train,1:50]
+#' Y_train <- Y_proteomic[index_train,]
+#' X_test <- X_proteomic[-index_train,1:50]
+#' Y_test <- Y_proteomic[-index_train,]
+#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, spv_penalty = 0.5, x.center = TRUE,
+#' x.scale = TRUE)
+#' splsdrcox.model <- splsdrcox(X_train, Y_train, n.comp = 2, eta = 0.5, x.center = TRUE,
+#' x.scale = TRUE)
+#' lst_models = list("sPLSICOX" = splsicox.model, "sPLSDRCOX" = splsdrcox.model)
+#' plot_LP.multiplePatients.list(lst_models = lst_models, X_test[1:5,])
 
 plot_LP.multiplePatients.list <- function(lst_models, new_data, error.bar = FALSE, onlySig = TRUE,
                                           alpha = 0.05, zero.rm = TRUE,
@@ -5708,14 +6243,25 @@ plot_LP.multiplePatients.list <- function(lst_models, new_data, error.bar = FALS
 #' @param auto.limits Logical. If "auto.limits" = TRUE, limits are detected automatically (default: TRUE).
 #' @param top Numeric. Show "top" first variables. If top = NULL, all variables are shown (default: NULL).
 #'
+#' @return A ggplot object visualizing the linear predictors for multiple patients based on the
+#' provided Coxmos model.
+#'
 #' @author Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' plot_LP.multiplePatients(model, new_data)
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' set.seed(123)
+#' index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+#' X_train <- X_proteomic[index_train,1:50]
+#' Y_train <- Y_proteomic[index_train,]
+#' X_test <- X_proteomic[-index_train,1:50]
+#' Y_test <- Y_proteomic[-index_train,]
+#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, spv_penalty = 0.5, x.center = TRUE,
+#' x.scale = TRUE)
+#' plot_LP.multiplePatients(model = splsicox.model, X_test[1:5,])
 
 plot_LP.multiplePatients <- function(model, new_data, error.bar = FALSE, onlySig = TRUE, alpha = 0.05,
                                      zero.rm = TRUE,

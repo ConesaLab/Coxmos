@@ -154,10 +154,13 @@ variables exceeds the number of observations, and there's a need to identify the
 features for predicting survival outcomes.
 }
 \examples{
-\dontrun{
-sb.splsdrcox(X, Y)
-sb.splsdrcox(X, Y, n.comp = 3, eta = 0.5, x.center = TRUE, x.scale = TRUE)
-}
+data("X_multiomic")
+data("Y_multiomic")
+X <- X_multiomic
+X$mirna <- X$mirna[,1:50]
+X$proteomic <- X$proteomic[,1:50]
+Y <- Y_multiomic
+sb.splsdrcox(X, Y, n.comp = 2, eta = 0.5, x.center = TRUE, x.scale = TRUE)
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

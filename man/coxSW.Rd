@@ -202,10 +202,11 @@ into binary format before analysis. The outcome or response variable should comp
 "time" representing the survival time and "event" indicating the occurrence of the event of interest.
 }
 \examples{
-\dontrun{
-coxSW(X, Y)
+data("X_proteomic")
+data("Y_proteomic")
+X <- X_proteomic[,1:10]
+Y <- Y_proteomic
 coxSW(X, Y, x.center = TRUE, x.scale = TRUE)
-}
 \dontrun{
 coxSW(X, Y)
 coxSW(X, Y, x.center = TRUE, x.scale = TRUE)

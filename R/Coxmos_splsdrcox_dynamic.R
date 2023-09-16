@@ -156,10 +156,11 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' splsdrcox_dynamic(X, Y)
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' X <- X_proteomic[,1:50]
+#' Y <- Y_proteomic
 #' splsdrcox_dynamic(X, Y, n.comp = 3, vector = NULL, x.center = TRUE, x.scale = TRUE)
-#' }
 
 splsdrcox_dynamic <- function (X, Y,
                                n.comp = 4, vector = NULL,
@@ -709,12 +710,14 @@ splsdrcox_dynamic <- function (X, Y,
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' cv.splsdrcox_dynamic_model <- cv.splsdrcox_dynamic(X, Y, max.ncomp = 8, vector = NULL,
-#' x.center = TRUE, x.scale = TRUE)
-#' splsdrcox_model <- splsdrcox(X, Y, n.comp = cv.splsdrcox_dynamic_model$opt.comp,
-#' vector = cv.splsdrcox_dynamic_model$opt.nvar, x.center = TRUE, x.scale = TRUE)
-#' }
+#' data("X_proteomic")
+#' data("Y_proteomic")
+#' set.seed(123)
+#' index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+#' X_train <- X_proteomic[index_train,1:20]
+#' Y_train <- Y_proteomic[index_train,]
+#' cv.splsdrcox_dynamic_model <- cv.splsdrcox_dynamic(X_train, Y_train, max.ncomp = 1, vector = NULL,
+#' n_run = 1, k_folds = 2, x.center = TRUE, x.scale = TRUE)
 
 cv.splsdrcox_dynamic <- function (X, Y,
                                   max.ncomp = 8, vector = NULL,

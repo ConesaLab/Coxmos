@@ -56,6 +56,13 @@ for each variable to the full model (default: TRUE).}
 
 \item{label_y_axis_size}{Numeric. Text size for y label axis (default: 10).}
 }
+\value{
+A list containing the following elements:
+\code{plot}: Depending on the model type, this can either be a single ggplot object visualizing the pseudo-beta coefficients for the original variables in a single block PLS-Cox model, or a list of ggplot objects for each block in a multiblock PLS-Cox model. Each plot provides a comprehensive visualization of the pseudo-beta coefficients, potentially including error bars, significance filtering, and variable contribution percentages.
+\code{beta}: A matrix or list of matrices (for multiblock models) containing the computed pseudo-beta coefficients for the original variables. These coefficients represent the influence of each original variable on the survival prediction.
+\code{sd.min}: A matrix or list of matrices (for multiblock models) representing the lower bounds of the error bars for the pseudo-beta coefficients.
+\code{sd.max}: A matrix or list of matrices (for multiblock models) representing the upper bounds of the error bars for the pseudo-beta coefficients.
+}
 \description{
 This function decomposes a PLS-Cox model, translating it into a pseudo-beta
 interpretation with respect to the original variables. The decomposition is based on the
@@ -82,9 +89,12 @@ multiblock models, the function returns a list of plots, one for each block, whe
 block models, a single plot is returned.
 }
 \examples{
-\dontrun{
-plot_pseudobeta(model)
-}
+data("X_proteomic")
+data("Y_proteomic")
+X <- X_proteomic[,1:50]
+Y <- Y_proteomic
+splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+plot_pseudobeta(model = splsicox.model)
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

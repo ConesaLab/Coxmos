@@ -196,10 +196,14 @@ model, performance metrics at various granularities (fold, run, component), and 
 cross-validated models.
 }
 \examples{
-\dontrun{
-cv.coxEN_model <- cv.coxEN(X, Y, EN.alpha.list = c(0.1,0.5,0.1), x.center = TRUE, x.scale = TRUE)
-coxEN_model <- coxEN(X, Y, EN.alpha = cv.coxEN_model$opt.EN.alpha, x.center = TRUE, x.scale = TRUE)
-}
+data("X_proteomic")
+data("Y_proteomic")
+set.seed(123)
+index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
+X_train <- X_proteomic[index_train,1:50]
+Y_train <- Y_proteomic[index_train,]
+cv.coxEN_model <- cv.coxEN(X_train, Y_train, EN.alpha.list = c(0.1,0.5),
+x.center = TRUE, x.scale = TRUE)
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
