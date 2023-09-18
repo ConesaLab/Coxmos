@@ -3909,7 +3909,7 @@ getSubModel.mb <- function(model, comp, remove_non_significant){
 
 # lst_X_train now are train indexes
 # lst_Y_train now are train indexes - same input
-get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
+get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
                                 X_train, Y_train,
                                 lst_X_train, lst_Y_train, vector = NULL,
                                 max.ncomp, eta.list = NULL, EN.alpha.list = NULL, max.variables = 50,
@@ -4134,38 +4134,42 @@ get_HDCOX_models2.0 <- function(method = "sPLS-ICOX",
       return(NULL)
     }
 
+    ######
     ## We need to fill models from 1:max.ncomp (it uses max.ncomp to fill the others, if it is NULL, method fail!!!)
-    pb_text <- "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated remaining time: :eta]"
-    pb <- progress::progress_bar$new(format = pb_text,
-                                     total = (max.ncomp-1) * n_run * k_folds,
-                                     complete = "=",   # Caracteres de las iteraciones finalizadas
-                                     incomplete = "-", # Caracteres de las iteraciones no finalizadas
-                                     current = ">",    # Caracter actual
-                                     clear = FALSE,    # Si TRUE, borra la barra cuando termine
-                                     width = 100)      # Ancho de la barra de progreso
+    ######
+    if(max.ncomp>1){
+      pb_text <- "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated remaining time: :eta]"
+      pb <- progress::progress_bar$new(format = pb_text,
+                                       total = (max.ncomp-1) * n_run * k_folds,
+                                       complete = "=",   # Caracteres de las iteraciones finalizadas
+                                       incomplete = "-", # Caracteres de las iteraciones no finalizadas
+                                       current = ">",    # Caracter actual
+                                       clear = FALSE,    # Si TRUE, borra la barra cuando termine
+                                       width = 100)      # Ancho de la barra de progreso
 
-    message(paste0("Creating sub-models for ", method, "..."))
-    pb$tick(0)
+      message(paste0("Creating sub-models for ", method, "..."))
+      pb$tick(0)
 
-    for(comp in 1:(max.ncomp-1)){
-      run_model_lst <- list()
-      for(r in 1:n_run){
-        fold_model_lst <- list()
-        for(f in 1:k_folds){
-          if(method %in% c(pkg.env$sb.splsicox, pkg.env$isb.splsicox, pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
-            fold_model <- getSubModel.mb(model = comp_model_lst[[max.ncomp]][[r]][[f]], comp = comp, remove_non_significant = remove_non_significant)
-          }else{
-            fold_model <- getSubModel(model = comp_model_lst[[max.ncomp]][[r]][[f]], comp = comp, remove_non_significant = remove_non_significant)
+      for(comp in 1:(max.ncomp-1)){
+        run_model_lst <- list()
+        for(r in 1:n_run){
+          fold_model_lst <- list()
+          for(f in 1:k_folds){
+            if(method %in% c(pkg.env$sb.splsicox, pkg.env$isb.splsicox, pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
+              fold_model <- getSubModel.mb(model = comp_model_lst[[max.ncomp]][[r]][[f]], comp = comp, remove_non_significant = remove_non_significant)
+            }else{
+              fold_model <- getSubModel(model = comp_model_lst[[max.ncomp]][[r]][[f]], comp = comp, remove_non_significant = remove_non_significant)
+            }
+            fold_model_lst[[f]] <- fold_model
+            pb$tick()
           }
-          fold_model_lst[[f]] <- fold_model
-          pb$tick()
-        }
-        names(fold_model_lst) <- paste0("fold_",1:k_folds)
-        run_model_lst[[r]] <- fold_model_lst
+          names(fold_model_lst) <- paste0("fold_",1:k_folds)
+          run_model_lst[[r]] <- fold_model_lst
 
+        }
+        names(run_model_lst) <- paste0("run_",1:n_run)
+        comp_model_lst[[comp]] <- run_model_lst
       }
-      names(run_model_lst) <- paste0("run_",1:n_run)
-      comp_model_lst[[comp]] <- run_model_lst
     }
 
     #### ### ### ### ### ### #

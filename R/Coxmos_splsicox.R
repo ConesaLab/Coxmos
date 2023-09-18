@@ -925,7 +925,7 @@ cv.splsicox <- function (X, Y,
   total_models <- 1 * k_folds * n_run * length(spv_penalty.list) #with greatest component we have all of them
   t1 <- Sys.time()
   #we use spv_penalty.list as penalty parameter (sPLS-DRCOX and sPLS-ICOX)
-  lst_model <- get_HDCOX_models2.0(method = pkg.env$splsicox,
+  lst_model <- get_Coxmos_models2.0(method = pkg.env$splsicox,
                                    X_train = X, Y_train = Y,
                                    lst_X_train = lst_train_indexes, lst_Y_train = lst_train_indexes,
                                    max.ncomp = max.ncomp, eta.list = spv_penalty.list, EN.alpha.list = NULL, max.variables = NULL, vector = NULL,

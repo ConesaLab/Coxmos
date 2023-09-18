@@ -64,7 +64,7 @@
 #' @param alpha Numeric. Numerical values are regarded as significant if they fall below the
 #' threshold (default: 0.05).
 #' @param EVAL_METHOD Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best
-#' number of variables. In other case, c-index metrix will be used (default: "AUC").
+#' number of variables. In other case, c-index metric will be used (default: "AUC").
 #' @param pred.method Character. AUC evaluation algorithm method for evaluate the model performance.
 #' Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C",
 #' "smoothROCtime_I" (default: "cenROC").
@@ -516,7 +516,7 @@ splsdacox_dynamic <- function (X, Y,
 #' 'MIN_COMP_TO_CHECK' models and the minimum 'MIN_AUC' value is reached, the evaluation stops
 #' (default: 0.01).
 #' @param EVAL_METHOD Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best
-#' number of variables. In other case, c-index metrix will be used (default: "AUC").
+#' number of variables. In other case, c-index metric will be used (default: "AUC").
 #' @param pred.method Character. AUC evaluation algorithm method for evaluate the model performance.
 #' Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C",
 #' "smoothROCtime_I" (default: "cenROC").
@@ -728,7 +728,7 @@ cv.splsdacox_dynamic <- function(X, Y,
 
   total_models <- 1 * k_folds * n_run
 
-  comp_model_lst <- get_HDCOX_models2.0(method = pkg.env$splsdacox_dynamic,
+  comp_model_lst <- get_Coxmos_models2.0(method = pkg.env$splsdacox_dynamic,
                                         X_train = X, Y_train = Y,
                                         lst_X_train = lst_train_indexes, lst_Y_train = lst_train_indexes,
                                         max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL, max.variables = NULL, vector = vector,

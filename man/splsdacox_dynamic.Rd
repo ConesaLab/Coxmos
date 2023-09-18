@@ -79,7 +79,7 @@ forward selection (default: FALSE).}
 threshold (default: 0.05).}
 
 \item{EVAL_METHOD}{Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best
-number of variables. In other case, c-index metrix will be used (default: "AUC").}
+number of variables. In other case, c-index metric will be used (default: "AUC").}
 
 \item{pred.method}{Character. AUC evaluation algorithm method for evaluate the model performance.
 Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "smoothROCtime_C",
@@ -191,7 +191,7 @@ variables based on a specified alpha threshold.
 \examples{
 data("X_proteomic")
 data("Y_proteomic")
-X <- X_proteomic[,1:50]
+X <- X_proteomic[,1:20]
 Y <- Y_proteomic
 splsdacox_dynamic(X, Y, n.comp = 2, vector = NULL, x.center = TRUE, x.scale = TRUE)
 }

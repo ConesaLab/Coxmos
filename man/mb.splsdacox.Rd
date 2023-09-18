@@ -40,8 +40,9 @@ observations.}
 
 \item{n.comp}{Numeric. Number of latent components to compute for the (s)PLS model (default: 10).}
 
-\item{vector}{Numeric vector. Used for computing best number of variables. As many values as
-components have to be provided. If vector = NULL, an automatic detection is perform (default: NULL).}
+\item{vector}{Numeric vector or list. Used for computing best number of variables. As many values as
+components have to be provided. If vector = NULL, an automatic detection is perform (default: NULL). If
+vector is a list, must be named as the names of X param followed by the number of variables to select.}
 
 \item{MIN_NVAR}{Numeric. Minimum range size for computing cut points to select the best number of
 variables to use (default: 10).}
@@ -54,7 +55,7 @@ If only two cut points are selected, minimum and maximum size are used. For MB a
 as n.cut_points^n.blocks models will be computed as minimum (default: 5).}
 
 \item{EVAL_METHOD}{Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best
-number of variables. In other case, c-index metrix will be used (default: "AUC").}
+number of variables. In other case, c-index metric will be used (default: "AUC").}
 
 \item{x.center}{Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).}
 

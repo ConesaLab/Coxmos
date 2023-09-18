@@ -105,7 +105,7 @@ continue evaluating higher values in the multiple tested parameters. If it is no
 (default: 0.01).}
 
 \item{EVAL_METHOD}{Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best
-number of variables. In other case, c-index metrix will be used (default: "AUC").}
+number of variables. In other case, c-index metric will be used (default: "AUC").}
 
 \item{w_AIC}{Numeric. Weight for AIC evaluator. All weights must sum 1 (default: 0).}
 

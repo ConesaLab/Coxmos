@@ -731,7 +731,7 @@ cv.coxEN <- function(X, Y,
   # TRAIN MODELS #
   #### ### ### ###
   total_models <- k_folds * n_run * length(EN.alpha.list)
-  comp_model_lst <- get_HDCOX_models2.0(method = pkg.env$coxEN,
+  comp_model_lst <- get_Coxmos_models2.0(method = pkg.env$coxEN,
                                         X_train = X, Y_train = Y,
                                         lst_X_train = lst_train_indexes, lst_Y_train = lst_train_indexes,
                                         max.ncomp = NULL, eta.list = NULL, EN.alpha.list = EN.alpha.list, max.variables = max.variables, vector = NULL,

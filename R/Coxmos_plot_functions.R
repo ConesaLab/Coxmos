@@ -2059,7 +2059,7 @@ plot_divergent.biplot <- function(X, Y, NAMEVAR1, NAMEVAR2, BREAKTIME, x.text = 
 }
 
 #### ### ### ### ### ### ###
-# PLS PLOTS - HDCOX MODELS #
+# PLS PLOTS - Coxmos MODELS #
 #### ### ### ### ### ### ###
 
 #' plot_PLS_Coxmos
@@ -6160,13 +6160,13 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = TRU
 # PREDICTION - MULTIPLE PATIENTS #
 #### ### ### ### ### ### ### ### #
 
-#' plot_LP.multiplePatients.list
+#' plot_LP.multipleObservations.list
 #'
-#' @description Run the function "plot_LP.multiplePatients" for a list of models. More information
-#' in "?plot_LP.multiplePatients".
+#' @description Run the function "plot_LP.multipleObservations" for a list of models. More information
+#' in "?plot_LP.multipleObservations".
 #'
 #' @param lst_models List of Coxmos models.
-#' @param new_data Numeric matrix or data.frame. New explanatory variables (raw data). Qualitative
+#' @param new_observations Numeric matrix or data.frame. New explanatory variables (raw data). Qualitative
 #' variables must be transform into binary variables.
 #' @param error.bar Logical. Show error bar (default: FALSE).
 #' @param onlySig Logical. Compute plot using only significant components (default: TRUE).
@@ -6201,28 +6201,29 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = TRU
 #' splsdrcox.model <- splsdrcox(X_train, Y_train, n.comp = 2, eta = 0.5, x.center = TRUE,
 #' x.scale = TRUE)
 #' lst_models = list("sPLSICOX" = splsicox.model, "sPLSDRCOX" = splsdrcox.model)
-#' plot_LP.multiplePatients.list(lst_models = lst_models, X_test[1:5,])
+#' plot_LP.multipleObservations.list(lst_models = lst_models, X_test[1:5,])
 
-plot_LP.multiplePatients.list <- function(lst_models, new_data, error.bar = FALSE, onlySig = TRUE,
+plot_LP.multipleObservations.list <- function(lst_models, new_observations, error.bar = FALSE, onlySig = TRUE,
                                           alpha = 0.05, zero.rm = TRUE,
                                           auto.limits = TRUE, top = NULL){
 
   #check names in lst_models
   lst_models <- checkModelNames(lst_models)
 
-  lst_plots <- purrr::map(lst_models, ~plot_LP.multiplePatients(model = ., new_data = new_data, error.bar = error.bar, onlySig = onlySig,
-                                                                alpha = alpha, zero.rm = zero.rm,
-                                                                auto.limits = auto.limits, top = top))
+  lst_plots <- purrr::map(lst_models, ~plot_LP.multipleObservations(model = ., new_observations = new_observations,
+                                                                    error.bar = error.bar, onlySig = onlySig,
+                                                                    alpha = alpha, zero.rm = zero.rm,
+                                                                    auto.limits = auto.limits, top = top))
 
   return(lst_plots)
 }
 
-#' plot_LP.multiplePatients
+#' plot_LP.multipleObservations
 #'
 #' @description Visualizes the linear predictors for multiple patients based on a given Coxmos model.
 #'
 #' @details
-#' The function `plot_LP.multiplePatients` is designed to visualize the linear predictors for multiple
+#' The function `plot_LP.multipleObservations` is designed to visualize the linear predictors for multiple
 #' patients based on the provided Coxmos model. The function takes into account various parameters to
 #' customize the visualization, such as the significance level, error bars, and the number of top
 #' variables to display.
@@ -6233,7 +6234,7 @@ plot_LP.multiplePatients.list <- function(lst_models, new_data, error.bar = FALS
 #' produce the desired plots.
 #'
 #' @param model Coxmos model.
-#' @param new_data Numeric matrix or data.frame. New explanatory variables (raw data). Qualitative
+#' @param new_observations Numeric matrix or data.frame. New explanatory variables (raw data). Qualitative
 #' variables must be transform into binary variables.
 #' @param error.bar Logical. Show error bar (default: FALSE).
 #' @param onlySig Logical. Compute plot using only significant components (default: TRUE).
@@ -6261,9 +6262,9 @@ plot_LP.multiplePatients.list <- function(lst_models, new_data, error.bar = FALS
 #' Y_test <- Y_proteomic[-index_train,]
 #' splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, spv_penalty = 0.5, x.center = TRUE,
 #' x.scale = TRUE)
-#' plot_LP.multiplePatients(model = splsicox.model, X_test[1:5,])
+#' plot_LP.multipleObservations(model = splsicox.model, new_observations = X_test[1:5,])
 
-plot_LP.multiplePatients <- function(model, new_data, error.bar = FALSE, onlySig = TRUE, alpha = 0.05,
+plot_LP.multipleObservations <- function(model, new_observations, error.bar = FALSE, onlySig = TRUE, alpha = 0.05,
                                      zero.rm = TRUE,
                                      auto.limits = TRUE, top = NULL){
 
@@ -6275,21 +6276,21 @@ plot_LP.multiplePatients <- function(model, new_data, error.bar = FALSE, onlySig
 
   if(attr(model, "model") %in% pkg.env$pls_methods){
     plot_cox.comparePatients(model = model,
-                             new_data = new_data,
+                             new_data = new_observations,
                              error.bar = error.bar,
                              onlySig = onlySig, alpha = alpha,
                              zero.rm = zero.rm, top = top,
                              auto.limits = auto.limits)
   }else if(attr(model, "model") %in% pkg.env$multiblock_methods){
     plot_MB.cox.comparePatients(model = model,
-                                new_data = new_data,
+                                new_data = new_observations,
                                 error.bar = error.bar,
                                 onlySig = onlySig, alpha = alpha,
                                 zero.rm = zero.rm, top = top,
                                 auto.limits = auto.limits)
   }else{ #classical methods
     plot_classicalcox.comparePatients(model = model,
-                                      new_data = new_data,
+                                      new_data = new_observations,
                                       error.bar = error.bar,
                                       onlySig = onlySig, alpha = alpha,
                                       zero.rm = zero.rm, top = top,

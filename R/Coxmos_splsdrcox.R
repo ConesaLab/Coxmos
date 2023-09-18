@@ -878,7 +878,7 @@ cv.splsdrcox <- function (X, Y,
   #total_models <- 1 * k_folds * n_run * length(eta.list)
   total_models <- max.ncomp * k_folds * n_run * length(eta.list)
 
-  lst_model <- get_HDCOX_models2.0(method = pkg.env$splsdrcox,
+  lst_model <- get_Coxmos_models2.0(method = pkg.env$splsdrcox,
                                    X_train = X, Y_train = Y,
                                    lst_X_train = lst_train_indexes, lst_Y_train = lst_train_indexes,
                                    max.ncomp = max.ncomp, eta.list = eta.list, EN.alpha.list = NULL, max.variables = NULL, vector = NULL,

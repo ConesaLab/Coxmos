@@ -57,7 +57,8 @@ event observations.}
 (default: 8).}
 
 \item{vector}{Numeric vector. Used for computing best number of variables. As many values as
-components have to be provided. If vector = NULL, an automatic detection is perform (default: NULL).}
+components have to be provided. If vector = NULL, an automatic detection is perform (default: NULL). If
+vector is a list, must be named as the names of X param followed by the number of variables to select.}
 
 \item{MIN_NVAR}{Numeric. Minimum range size for computing cut points to select the best number of
 variables to use (default: 10).}
@@ -69,7 +70,7 @@ variables to use (default: 1000).}
 If only two cut points are selected, minimum and maximum size are used (default: 5).}
 
 \item{EVAL_METHOD}{Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best
-number of variables. In other case, c-index metrix will be used (default: "AUC").}
+number of variables. In other case, c-index metric will be used (default: "AUC").}
 
 \item{n_run}{Numeric. Number of runs for cross validation (default: 3).}
 

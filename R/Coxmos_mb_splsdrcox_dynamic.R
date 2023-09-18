@@ -30,7 +30,8 @@
 #' event observations.
 #' @param n.comp Numeric. Number of latent components to compute for the (s)PLS model (default: 10).
 #' @param vector Numeric vector. Used for computing best number of variables. As many values as
-#' components have to be provided. If vector = NULL, an automatic detection is perform (default: NULL).
+#' components have to be provided. If vector = NULL, an automatic detection is perform (default: NULL). If
+#' vector is a list, must be named as the names of X param followed by the number of variables to select.
 #' @param MIN_NVAR Numeric. Minimum range size for computing cut points to select the best number of
 #' variables to use (default: 10).
 #' @param MAX_NVAR Numeric. Maximum range size for computing cut points to select the best number of
@@ -39,7 +40,7 @@
 #' If only two cut points are selected, minimum and maximum size are used. For MB approaches as many
 #' as n.cut_points^n.blocks models will be computed as minimum (default: 5).
 #' @param EVAL_METHOD Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best
-#' number of variables. In other case, c-index metrix will be used (default: "AUC").
+#' number of variables. In other case, c-index metric will be used (default: "AUC").
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
 #' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance
@@ -675,7 +676,8 @@ mb.splsdrcox <- function (X, Y,
 #' @param max.ncomp Numeric. Maximum number of PLS components to compute for the cross validation
 #' (default: 8).
 #' @param vector Numeric vector. Used for computing best number of variables. As many values as
-#' components have to be provided. If vector = NULL, an automatic detection is perform (default: NULL).
+#' components have to be provided. If vector = NULL, an automatic detection is perform (default: NULL). If
+#' vector is a list, must be named as the names of X param followed by the number of variables to select.
 #' @param MIN_NVAR Numeric. Minimum range size for computing cut points to select the best number of
 #' variables to use (default: 10).
 #' @param MAX_NVAR Numeric. Maximum range size for computing cut points to select the best number of
@@ -684,7 +686,7 @@ mb.splsdrcox <- function (X, Y,
 #' If only two cut points are selected, minimum and maximum size are used. For MB approaches as many
 #' as n.cut_points^n.blocks models will be computed as minimum (default: 5).
 #' @param EVAL_METHOD Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best
-#' number of variables. In other case, c-index metrix will be used (default: "AUC").
+#' number of variables. In other case, c-index metric will be used (default: "AUC").
 #' @param n_run Numeric. Number of runs for cross validation (default: 3).
 #' @param k_folds Numeric. Number of folds for cross validation (default: 10).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
@@ -919,7 +921,7 @@ cv.mb.splsdrcox <- function(X, Y,
   #### ### ### ###
   total_models <- 1 * k_folds * n_run
 
-  comp_model_lst <- get_HDCOX_models2.0(method = pkg.env$mb.splsdrcox,
+  comp_model_lst <- get_Coxmos_models2.0(method = pkg.env$mb.splsdrcox,
                                         X_train = X, Y_train = Y,
                                         lst_X_train = lst_train_indexes, lst_Y_train = lst_train_indexes,
                                         max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL, max.variables = NULL, vector = vector,
@@ -934,7 +936,7 @@ cv.mb.splsdrcox <- function(X, Y,
                                         returnData = returnData, total_models = total_models,
                                         PARALLEL = PARALLEL, verbose = verbose)
 
-  # already check in HDCOX_models
+  # already check in Coxmos_models
   # if(all(is.na(unlist(lst_model)))){
   #   message(paste0("Best model could NOT be obtained. All models computed present problems. Try to remove variance at fold level. If problem persists, try to delete manually some problematic variables."))
   #

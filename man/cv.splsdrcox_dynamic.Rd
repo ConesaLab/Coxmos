@@ -104,7 +104,7 @@ continue evaluating higher values in the multiple tested parameters. If it is no
 'MIN_COMP_TO_CHECK' models and the minimum 'MIN_AUC' value is reached, the evaluation stops (default: 0.01).}
 
 \item{EVAL_METHOD}{Character. If EVAL_METHOD = "AUC", AUC metric will be use to compute the best
-number of variables. In other case, c-index metrix will be used (default: "AUC").}
+number of variables. In other case, c-index metric will be used (default: "AUC").}
 
 \item{w_AIC}{Numeric. Weight for AIC evaluator. All weights must sum 1 (default: 0).}
 
@@ -220,9 +220,9 @@ data("X_proteomic")
 data("Y_proteomic")
 set.seed(123)
 index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
-X_train <- X_proteomic[index_train,1:50]
+X_train <- X_proteomic[index_train,1:20]
 Y_train <- Y_proteomic[index_train,]
-cv.splsdrcox_dynamic_model <- cv.splsdrcox_dynamic(X_train, Y_train, max.ncomp = 2, vector = NULL,
+cv.splsdrcox_dynamic_model <- cv.splsdrcox_dynamic(X_train, Y_train, max.ncomp = 1, vector = NULL,
 n_run = 1, k_folds = 2, x.center = TRUE, x.scale = TRUE)
 }
 \author{

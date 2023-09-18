@@ -58,7 +58,7 @@ The **Coxmos** R package includes the following basic analysis blocks:
 
 3. **Interpreting Results**: After selecting the best model or models, the user can interpret the results. The package includes several functions for understanding the impact of the original variables on survival prediction, even when working with (s)PLS methods.
 
-4. **Predicting New Patients**: Finally, if a new dataset of patients is available, the user can use the model to make predictions for the new patients and compare the variables against the model coefficients to estimate the patients' risk of an event.
+4. **Predicting New Observations**: Finally, if a new dataset of patients is available, the user can use the model to make predictions for the new patients and compare the variables against the model coefficients to estimate the patients' risk of an event.
 
 # Installation
 
@@ -84,15 +84,8 @@ so they will already be installed in your system.
 To generate better plots, we make use of the `RColorConesa` R package, but it is an optional R package.
 
 ```{r, eval=FALSE}
-# install.packages("devtools")
-devtools::install_github("ConesaLab/RColorConesa")
-```
-
-After the installation you can load and set the *theme* of your R session as follows:
-
-```{r}
+# install.packages("RColorConesa")
 library(RColorConesa)
-#theme_set(theme_colorConesa()) #under development
 ```
 
 # Input data
@@ -231,7 +224,7 @@ During the cross validation, we will iterate over the different alpha values bet
 
 NOTE: When a penalty value of 0 is selected, full ridge penalty is used. In this case, any EPV or max.variables restriction is used and all variables could be selected. For high dimensional data sets, values between (0, 1] are recommended.
 
-```{r, warning=F}
+```{r, warning=F, eval=FALSE}
 # run cv.coxEN
 cv.coxen_res <- cv.coxEN(X = X_train, Y = Y_train,
                          EN.alpha.list = c(0.1, 0.5, 0.9),
@@ -257,8 +250,8 @@ The cross validation will be omitted for time consumption, but one the best mode
 
 ```{r, warning=F}
 coxen_model <- coxEN(X = X_train, Y = Y_train, 
-                     EN.alpha = cv.coxen_res$opt.EN.alpha,
-                     max.variables = cv.coxen_res$opt.nvar,
+                     EN.alpha = 0.5, #cv.coxen_res$opt.EN.alpha,
+                     max.variables = 8, #cv.coxen_res$opt.nvar,
                      x.center = T, x.scale = F,
                      remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL, 
                      remove_non_significant = F, alpha = 0.05, 
@@ -273,8 +266,8 @@ After obtaining the model, if we print it we could see the cox model with all th
 
 ```{r, warning=F}
 coxen_model <- coxEN(X = X_train, Y = Y_train, 
-                     EN.alpha = 0.9, #cv.coxen_res$opt.EN.alpha
-                     max.variables = 22, #cv.coxen_res$opt.nvar
+                     EN.alpha = 0.5, #cv.coxen_res$opt.EN.alpha
+                     max.variables = 8, #cv.coxen_res$opt.nvar
                      x.center = T, x.scale = F,
                      remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL, 
                      remove_non_significant = T, alpha = 0.05, 
@@ -285,17 +278,17 @@ coxen_model <- coxEN(X = X_train, Y = Y_train,
 coxen_model
 ```
 
-After this change, a total of 6 variables have been selected. And a total of 3 have been removed due to non-significant. To check which variables have been removed, we can check if by the value "removed_variables_cox".
+After this change, a total of 8 variables have been selected. And a total of 5 have been removed due to non-significant. To check which variables have been removed, we can check if by the value "nsv" (no-significant variables).
 
 ```{r}
-coxen_model$removed_variables_cox
+coxen_model$nsv
 ```
 
 ## sPLS-ICOX
 
 In the same way, we will also perform a cross validation for the PLS-based models, starting with the PLS-ICOX methodology. In this case, the internal construction of the weights of the PLS model for the calculation of the components of the X matrix is based on univariate cox models. After this, we are able to reduce the dimensionality of our data set to ultimately launch a cox model with the latent variables or principal components of the PLS model.
 
-```{r, warning=F}
+```{r, warning=F, eval=FALSE}
 # run cv.plsicox
 cv.splsicox_res <- cv.splsicox(X = X_train, Y = Y_train,
                                max.ncomp = 2, spv_penalty.list = c(0.5, 0.9),
@@ -311,13 +304,13 @@ cv.splsicox_res <- cv.splsicox(X = X_train, Y = Y_train,
                                PARALLEL = F, verbose = F, seed = 123)
 ```
 
-```{r}
+```{r, eval=FALSE}
 cv.splsicox_res #1.13min.
 ```
 
 If you want to see the evolution of your metric, you can access to the plots inside the cross validation object.
 
-```{r, fig.small=T, warning=F}
+```{r, fig.small=T, warning=F, eval=FALSE}
 # plot cv.plsicox
 cv.splsicox_res$plot_AUC
 ```
@@ -326,15 +319,13 @@ We will generate a PLS-ICOX model with optimal number of principal components an
 
 ```{r}
 splsicox_model <- splsicox(X = X_train, Y = Y_train, 
-                           n.comp = cv.splsicox_res$opt.comp, 
-                           spv_penalty = cv.splsicox_res$opt.spv_penalty,
+                           n.comp = 1, #cv.splsicox_res$opt.comp, 
+                           spv_penalty = 0.9, #cv.splsicox_res$opt.spv_penalty,
                            x.center = T, x.scale = F,
                            remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
                            remove_non_significant = T,
                            MIN_EPV = 5, returnData = T, verbose = F)
-```
 
-```{r}
 splsicox_model
 ```
 
@@ -342,7 +333,7 @@ splsicox_model
 
 Next, we will perform a cross validation for the sPLS-DRCOX methodology. In this case, an sPLS model is run using the deviance residuals of a null Cox model as the Y matrix. The penalties for variable selection follow the strategy used in the R package "plsRcox" from which the idea for the methodology was derived.
 
-```{r, warning==FALSE}
+```{r, warning==FALSE, eval=FALSE}
 # run cv.splsdrcox
 cv.splsdrcox_res <- cv.splsdrcox(X = X_train, Y = Y_train,
                                  max.ncomp = 2, eta.list = c(0.5, 0.9),
@@ -357,11 +348,11 @@ cv.splsdrcox_res <- cv.splsdrcox(X = X_train, Y = Y_train,
                                  PARALLEL = F, verbose = F, seed = 123)
 ```
 
-```{r}
+```{r, eval=FALSE}
 cv.splsdrcox_res #0.17min
 ```
 
-```{r, fig.small=T, warning=F}
+```{r, fig.small=T, warning=F, eval=FALSE}
 # plot cv.plsicox
 cv.splsdrcox_res$plot_AUC
 ```
@@ -370,15 +361,13 @@ Based on the results obtained through cross validation, we will create a PLS-DRC
 
 ```{r}
 splsdrcox_model <- splsdrcox(X = X_train, Y = Y_train, 
-                             n.comp = cv.splsdrcox_res$opt.comp, 
-                             eta = cv.splsdrcox_res$opt.eta,
+                             n.comp = 2, #cv.splsdrcox_res$opt.comp, 
+                             eta = 0.5, #cv.splsdrcox_res$opt.eta,
                              x.center = T, x.scale = F,
                              remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
                              remove_non_significant = T,
                              MIN_EPV = 5, returnData = T, verbose = F)
-```
 
-```{r}
 splsdrcox_model
 ```
 
@@ -388,7 +377,7 @@ For sPLS-DRCOX methodology we implemented another kind of penalty based on an he
 
 With this method, the user can specify the minimum and maximum number of variables and the number of cutpoints (how many number of variables to test between the minimum and the maximum number of variables) to be tested. After the first iteration, the algorithm will select the optimal number of variables and will further investigate better results between the existing cut points and the optimal value selected.
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, eval=FALSE}
 # run cv.splsdrcox
 cv.splsdrcox_dynamic_res <- cv.splsdrcox_dynamic(X = X_train, Y = Y_train,
                                                  max.ncomp = 2, vector = NULL,
@@ -407,7 +396,7 @@ cv.splsdrcox_dynamic_res <- cv.splsdrcox_dynamic(X = X_train, Y = Y_train,
                                                  PARALLEL = F, verbose = F, seed = 123)
 ```
 
-```{r}
+```{r, eval=FALSE}
 cv.splsdrcox_dynamic_res #0.7mins
 ```
 
@@ -416,8 +405,8 @@ After the cross validation, the user can select the exact number of components a
 
 ```{r}
 splsdrcox_dynamic_model <- splsdrcox_dynamic(X = X_train, Y = Y_train, 
-                                             n.comp = cv.splsdrcox_dynamic_res$opt.comp,
-                                             vector = cv.splsdrcox_dynamic_res$opt.nvar,
+                                             n.comp = 2, #cv.splsdrcox_dynamic_res$opt.comp,
+                                             vector = 369, #cv.splsdrcox_dynamic_res$opt.nvar,
                                              x.center = T, x.scale = F,
                                              remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
                                              MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 5,
@@ -433,7 +422,7 @@ splsdrcox_dynamic_model
 
 Finally, we will launch a COX-based sPLS-DA model. This algorithm is the simplest of all and with the least statistical development, but depending on the data set it can provide better results than the previous methods. In this case, we launch an sPLS-DA on the classification of patients according to whether they have suffered or not the study event without taking into account the time until the event. Then, we launch a Cox model using the latent variables of the model and using the entire Y matrix with its times and events/censored.
 
-```{r, warning=FALSE}
+```{r, warning=FALSE, eval=FALSE}
 # run cv.splsdrcox
 cv.splsdacox_dynamic_res <- cv.splsdacox_dynamic(X = X_train, Y = Y_train, 
                                                  max.ncomp = 2, vector = NULL,
@@ -452,7 +441,7 @@ cv.splsdacox_dynamic_res <- cv.splsdacox_dynamic(X = X_train, Y = Y_train,
                                                  PARALLEL = F, verbose = F, seed = 123)
 ```
 
-```{r, eval=FALSE}
+```{r, eval=FALSE, eval=FALSE}
 cv.splsdacox_dynamic_res #0.7min
 ```
 
@@ -460,8 +449,8 @@ Once the best model is obtained through cross validation, it must be calculated 
 
 ```{r}
 splsdacox_dynamic_model <- splsdacox_dynamic(X = X_train, Y = Y_train, 
-                                             n.comp = cv.splsdacox_dynamic_res$opt.comp, 
-                                             vector = cv.splsdacox_dynamic_res$opt.nvar,
+                                             n.comp = 2, #cv.splsdacox_dynamic_res$opt.comp, 
+                                             vector = 330, #cv.splsdacox_dynamic_res$opt.nvar,
                                              x.center = T, x.scale = F,
                                              remove_near_zero_variance = T, remove_zero_variance = F, toKeep.zv = NULL,
                                              MIN_NVAR = 10, MAX_NVAR = 1000, n.cut_points = 5,
@@ -501,14 +490,13 @@ eval_results <- eval_Coxmos_models(lst_models = lst_models,
 In case you prefer to test multiple AUC evaluators, a list of them could be proportionate by using the library "purrr".
 
 ```{r, eval=FALSE}
-lst_evaluators <- c(cenROC = "cenROC",
-                    risksetROC = "risksetROC")
+lst_evaluators <- c(cenROC = "cenROC", risksetROC = "risksetROC")
 
 eval_results <- purrr::map(lst_evaluators, ~eval_Coxmos_models(lst_models = lst_models,
                                                               X_test = X_test, Y_test = Y_test,
                                                               pred.method = .,
                                                               pred.attr = "mean",
-                                                              times = seq(1,4,0.5), 
+                                                              times = NULL, 
                                                               max_time_points = 15,
                                                               PARALLEL = F))
 ```
@@ -516,7 +504,7 @@ eval_results <- purrr::map(lst_evaluators, ~eval_Coxmos_models(lst_models = lst_
 We can print the results obtained in the console where we can see, for each of the selected methods, the training time and the time it took to be evaluated, as well as their AIC, C-Index and AUC metrics and at which time points it was evaluated.
 
 ```{r}
-eval_results
+eval_results$cenROC
 ```
 
 ## Plot comparison
@@ -524,8 +512,8 @@ eval_results
 However, we can also obtain graphical results where we can compare each method over time, as well as their average scores using the function "plot_evaluation" or "plot_evaluation.list" if multiple evaluators have been tested. The user could choose to plot the AUC for time prediction points or Brier Score. In case of use Brier Score, instead of uses the Integrative Brier Score for the boxplots, the mean or median is used (plot_evaluation parameter).
 
 ```{r, warning=F}
-lst_eval_results <- plot_evaluation(eval_results, evaluation = "AUC", pred.attr = "mean")
-lst_eval_results_BRIER <- plot_evaluation(eval_results, evaluation = "Brier", pred.attr = "mean")
+lst_eval_results <- plot_evaluation(eval_results$cenROC, evaluation = "AUC", pred.attr = "mean")
+lst_eval_results_BRIER <- plot_evaluation(eval_results$cenROC, evaluation = "Brier", pred.attr = "mean")
 ```
 
 After performing the cross-validation, we obtain a list in R that contains two new lists. The first of these refers to the evaluation over time for each of the methods used, as well as a variant where the average value of each of them is shown. On the other hand, we can compare the mean results of each method using: T-test, Wilcoxon-test, anova or Kruskal-Wallis.
@@ -543,15 +531,15 @@ lst_eval_results$lst_plot_comparisons$anova
 Another possible comparison is related to the computation times for cross-validation, model creation, and evaluation. In this case, cross-validations and methods are loaded.
 
 ```{r}
-lst_models_time <- list(cv.coxen_res,
+lst_models_time <- list(#cv.coxen_res,
                         coxen_model,
-                        cv.splsicox_res,
+                        #cv.splsicox_res,
                         splsicox_model,
-                        cv.splsdrcox_res,
+                        #cv.splsdrcox_res,
                         splsdrcox_model,
-                        cv.splsdrcox_dynamic_res,
+                        #cv.splsdrcox_dynamic_res,
                         splsdrcox_dynamic_model,
-                        cv.splsdacox_dynamic_res,
+                        #cv.splsdacox_dynamic_res,
                         splsdacox_dynamic_model, 
                         eval_results)
 ```
@@ -573,11 +561,13 @@ Following the cross validation, we have selected the sPLS-DACOX methodology as t
 A forest plot can be obtained as the first graph using the survminer R package. However, the function has been restructured to allow for simultaneous launch of an Coxmos class model or a list of Coxmos models using the `plot_forest()` or `plot_forest.list()` function.
 
 ```{r}
-lst_forest_plot <- plot_forest.list(lst_models)
+#lst_forest_plot <- plot_forest.list(lst_models)
+lst_forest_plot <- plot_forest(lst_models$`sPLS-DRCOX`)
 ```
 
 ```{r, fig.small=T, warning=F}
-lst_forest_plot$`sPLS-DRCOX`
+#lst_forest_plot$`sPLS-DRCOX`
+lst_forest_plot
 ```
 
 ## PH Assumption
@@ -589,13 +579,15 @@ In a Cox proportional hazards model, the proportional hazards assumption states 
 In this way, to visualize and check if the assumption is violated, the function `plot_proportionalHazard.list()` or `plot_proportionalHazard()` can be called, depending on whether a list of models or a specific model is to be evaluated.
 
 ```{r}
-lst_ph_ggplot <- plot_proportionalHazard.list(lst_models)
+#lst_ph_ggplot <- plot_proportionalHazard.list(lst_models)
+lst_ph_ggplot <- plot_proportionalHazard(lst_models$`sPLS-DRCOX`)
 ```
 
 Variables or components with a significant P-Value indicate that the assumption is being violated.
 
 ```{r, fig.small=T, warning=F}
-lst_ph_ggplot$`sPLS-DRCOX`
+#lst_ph_ggplot$`sPLS-DRCOX`
+lst_ph_ggplot
 ```
 
 ## Density plots
@@ -617,12 +609,16 @@ The R package "coxph" allows for several types of predictions to be made on a Co
 According to the predicted value, we can classify the observations along their possible values and see their distribution for each of the different models.
 
 ```{r}
-density.plots.lp <- plot_cox.event.list(lst_models, type = "lp")
+#density.plots.lp <- plot_cox.event.list(lst_models, type = "lp")
+density.plots.lp <- plot_cox.event(lst_models$`sPLS-DRCOX`, type = "lp")
 ```
 
 ```{r, fig.small=T, warning=F}
-density.plots.lp$`sPLS-DRCOX`$plot.density
-density.plots.lp$`sPLS-DRCOX`$plot.histogram
+# density.plots.lp$`sPLS-DRCOX`$plot.density
+# density.plots.lp$`sPLS-DRCOX`$plot.histogram
+
+density.plots.lp$plot.density
+density.plots.lp$plot.histogram
 ```
 
 ## Studying PLS model
@@ -674,11 +670,11 @@ The % of AUC explanation per component could be calculated for TRAIN or TEST dat
 
 ```{r, warning=F}
 variable_auc_results <- eval_Coxmos_model_per_variable(model = lst_models$`sPLS-DRCOX`, 
-                                                      X_test = lst_models$`sPLS-DRCOX`$X_input, 
-                                                      Y_test = lst_models$`sPLS-DRCOX`$Y_input,
-                                                      pred.method = "cenROC", pred.attr = "mean",
-                                                      times = NULL, max_time_points = 15,
-                                                      PARALLEL = FALSE)
+                                                       X_test = lst_models$`sPLS-DRCOX`$X_input, 
+                                                       Y_test = lst_models$`sPLS-DRCOX`$Y_input,
+                                                       pred.method = "cenROC", pred.attr = "mean",
+                                                       times = NULL, max_time_points = 15,
+                                                       PARALLEL = FALSE)
 
 variable_auc_plot_train <- plot_evaluation(variable_auc_results, evaluation = "AUC")
 ```
@@ -694,10 +690,15 @@ The plot shows the AUC for the full model (called LP), and then, the AUC per eac
 In order to improve the interpretability of a PLS model, a subset of the most influential variables can be selected. In this example, the top 20 variables are chosen. Additionally, non-significant PLS components are excluded by setting the "onlySig" parameter to "TRUE".
 
 ```{r}
-ggp.simulated_beta <- plot_pseudobeta.list(lst_models = lst_models, 
-                                           error.bar = T, onlySig = T, alpha = 0.05, 
-                                           zero.rm = T, auto.limits = T, top = 20,
-                                           show_percentage = T, size_percentage = 2, verbose = F)
+# ggp.simulated_beta <- plot_pseudobeta.list(lst_models = lst_models, 
+#                                            error.bar = T, onlySig = T, alpha = 0.05, 
+#                                            zero.rm = T, auto.limits = T, top = 20,
+#                                            show_percentage = T, size_percentage = 2, verbose = F)
+
+ggp.simulated_beta <- plot_pseudobeta(model = lst_models$`sPLS-DRCOX`, 
+                                      error.bar = T, onlySig = T, alpha = 0.05, 
+                                      zero.rm = T, auto.limits = T, top = 20,
+                                      show_percentage = T, size_percentage = 2)
 ```
 
 The sPLS-ICOX model was computed using a total of 5 components. Although these components were classified as dangerous for the observations (based on coefficients greater than one), certain variables within the components may still have a protective effect, depending on their individual weights.
@@ -705,7 +706,8 @@ The sPLS-ICOX model was computed using a total of 5 components. Although these c
 The following plot illustrates the pseudo-beta coefficient for the original variables in the sPSL-DRCOX-Dynamic model. As only the top 20 variables are shown, the plot represents only 25.07% of the total linear predictor total value. To view the complete model, all variables would need to be included in the plot by assigning the value NULL to the "top" parameter.
 
 ```{r, fig.small=T, warning=F}
-ggp.simulated_beta$`sPLS-DRCOX`$plot
+#ggp.simulated_beta$`sPLS-DRCOX`$plot
+ggp.simulated_beta$plot
 ```
 
 ## Kaplan-Meier
@@ -717,19 +719,28 @@ For a more intuitive understanding of the model, the user can also employ the `g
 To run the full Kaplan-Meier model, the "type" parameter must be set to "LP" (linear predictors). This means that the linear predictor value for each patient will be used to divide the groups (in this case, the score value multiplied by the Cox coefficient). The `surv_cutpoint()` function from the R package "survminer" is used to determine the optimal cut-point. Other parameters are not used in this specific method.
 
 ```{r}
-LST_KM_RES_LP <- getAutoKM.list(type = "LP",
-                                lst_models = lst_models,
-                                comp = 1:10,
-                                top = 10,
-                                ori_data = T,
-                                BREAKTIME = NULL,
-                                only_sig = T, alpha = 0.05)
+# LST_KM_RES_LP <- getAutoKM.list(type = "LP",
+#                                 lst_models = lst_models,
+#                                 comp = 1:10,
+#                                 top = 10,
+#                                 ori_data = T,
+#                                 BREAKTIME = NULL,
+#                                 only_sig = T, alpha = 0.05)
+
+LST_KM_RES_LP <- getAutoKM(type = "LP",
+                           model = lst_models$`sPLS-DRCOX`,
+                           comp = 1:10,
+                           top = 10,
+                           ori_data = T,
+                           BREAKTIME = NULL,
+                           only_sig = T, alpha = 0.05)
 ```
 
 As a result, the Kaplan-Meier curve could be plotted.  
 
 ```{r, fig.small=T, warning=F}
-LST_KM_RES_LP$`sPLS-DRCOX`$LST_PLOTS$LP
+#LST_KM_RES_LP$`sPLS-DRCOX`$LST_PLOTS$LP
+LST_KM_RES_LP$LST_PLOTS$LP
 ```
 
 After generating a Kaplan-Meier curve for the model, the cutoff value, which is used to divide the observations into two groups, can be used to evaluate how the test data is classified. The vector of cutoffs for multiple models, when `getAutoKM.list()` is applied, can be retrieved by using the function `getCutoffAutoKM.list()` and passing the output of `getAutoKM.list()` as a parameter.
@@ -739,17 +750,24 @@ Once the vector is obtained, the function `getTestKM.list()` or `getTestKM()` ca
 A log-rank test will be displayed to determine if the chosen cutoff is an effective way to split the data into groups with higher and lower risk.
 
 ```{r}
-lst_cutoff <- getCutoffAutoKM.list(LST_KM_RES_LP)
+# lst_cutoff <- getCutoffAutoKM.list(LST_KM_RES_LP)
+# LST_KM_TEST_LP <- getTestKM.list(lst_models = lst_models, 
+#                                  X_test = X_test, Y_test = Y_test, 
+#                                  type = "LP",
+#                                  BREAKTIME = NULL, n.breaks = 20,
+#                                  lst_cutoff = lst_cutoff)
 
-LST_KM_TEST_LP <- getTestKM.list(lst_models = lst_models, 
-                                 X_test = X_test, Y_test = Y_test, 
-                                 type = "LP",
-                                 BREAKTIME = NULL, n.breaks = 20,
-                                 lst_cutoff = lst_cutoff)
+lst_cutoff <- getCutoffAutoKM(LST_KM_RES_LP)
+LST_KM_TEST_LP <- getTestKM(model = lst_models$`sPLS-DRCOX`, 
+                            X_test = X_test, Y_test = Y_test, 
+                            type = "LP",
+                            BREAKTIME = NULL, n.breaks = 20,
+                            cutoff = lst_cutoff)
 ```
 
 ```{r, fig.small=T, warning=F}
-LST_KM_TEST_LP$`sPLS-DRCOX`
+#LST_KM_TEST_LP$`sPLS-DRCOX`
+LST_KM_TEST_LP
 ```
 
 ### Components
@@ -757,35 +775,56 @@ LST_KM_TEST_LP$`sPLS-DRCOX`
 To generate a Kaplan-Meier curve for a specific component, the "type" parameter must be set to "COMP" (component). This means that the linear predictor is computed using only one component at a time to split the groups. In this case, the "comp" parameter can be used to specify which component should be computed (if multiple components, each one will be computed separately).
 
 ```{r}
-LST_KM_RES_COMP <- getAutoKM.list(type = "COMP",
-                                  lst_models = lst_models,
-                                  comp = 1:10,
-                                  top = 10,
-                                  ori_data = T,
-                                  BREAKTIME = NULL,
-                                  n.breaks = 20,
-                                  only_sig = T, alpha = 0.05)
+# LST_KM_RES_COMP <- getAutoKM.list(type = "COMP",
+#                                   lst_models = lst_models,
+#                                   comp = 1:10,
+#                                   top = 10,
+#                                   ori_data = T,
+#                                   BREAKTIME = NULL,
+#                                   n.breaks = 20,
+#                                   only_sig = T, alpha = 0.05)
+
+LST_KM_RES_COMP <- getAutoKM(type = "COMP",
+                             model = lst_models$`sPLS-DRCOX`,
+                             comp = 1:10,
+                             top = 10,
+                             ori_data = T,
+                             BREAKTIME = NULL,
+                             n.breaks = 20,
+                             only_sig = T, alpha = 0.05)
 ```
 
 ```{r, fig.small=T, warning=F}
-LST_KM_RES_COMP$`sPLS-DRCOX`$LST_PLOTS$comp_1
-LST_KM_RES_COMP$`sPLS-DRCOX`$LST_PLOTS$comp_2
+# LST_KM_RES_COMP$`sPLS-DRCOX`$LST_PLOTS$comp_1
+# LST_KM_RES_COMP$`sPLS-DRCOX`$LST_PLOTS$comp_2
+
+LST_KM_RES_COMP$LST_PLOTS$comp_1
+LST_KM_RES_COMP$LST_PLOTS$comp_2
 ```
 
 ```{r}
-lst_cutoff <- getCutoffAutoKM.list(LST_KM_RES_COMP)
+# lst_cutoff <- getCutoffAutoKM.list(LST_KM_RES_COMP)
+# LST_KM_TEST_COMP <- getTestKM.list(lst_models = lst_models, 
+#                                    X_test = X_test, Y_test = Y_test, 
+#                                    type = "COMP",
+#                                    BREAKTIME = NULL, n.breaks = 20,
+#                                    lst_cutoff = lst_cutoff)
 
-LST_KM_TEST_COMP <- getTestKM.list(lst_models = lst_models, 
-                                   X_test = X_test, Y_test = Y_test, 
-                                   type = "COMP",
-                                   BREAKTIME = NULL, n.breaks = 20,
-                                   lst_cutoff = lst_cutoff)
+lst_cutoff <- getCutoffAutoKM(LST_KM_RES_COMP)
+LST_KM_TEST_COMP <- getTestKM(model = lst_models$`sPLS-DRCOX`, 
+                              X_test = X_test, Y_test = Y_test, 
+                              type = "COMP",
+                              BREAKTIME = NULL, n.breaks = 20,
+                              cutoff = lst_cutoff)
 ```
 
 ```{r, fig.small=T, warning=F}
 # all patients could be categorize into the same group
-LST_KM_TEST_COMP$`sPLS-DRCOX`$comp_1
-LST_KM_TEST_COMP$`sPLS-DRCOX`$comp_2
+# LST_KM_TEST_COMP$`sPLS-DRCOX`$comp_1
+# LST_KM_TEST_COMP$`sPLS-DRCOX`$comp_2
+
+LST_KM_TEST_COMP$comp_1
+LST_KM_TEST_COMP$comp_2
 ```
 
 ### Original variables
@@ -795,33 +834,53 @@ To generate a Kaplan-Meier curve for original variables, the "type" parameter mu
 Additionally, the "top" parameter can be used to plot a specific number of variables, sorted by P-Value (Log-Rank test). The best cutpoint is determined by the "surv_cutpoint" function. Both qualitative and quantitative variables are supported.
 
 ```{r}
-LST_KM_RES_VAR <- getAutoKM.list(type = "VAR",
-                                 lst_models = lst_models,
-                                 comp = 1:10, #select how many components you want to compute for the pseudo beta
-                                 top = 10,
-                                 ori_data = T, #original data selected
-                                 BREAKTIME = NULL,
-                                 only_sig = T, alpha = 0.05)
+# LST_KM_RES_VAR <- getAutoKM.list(type = "VAR",
+#                                  lst_models = lst_models,
+#                                  comp = 1:10, #select how many components you want to compute for the pseudo beta
+#                                  top = 10,
+#                                  ori_data = T, #original data selected
+#                                  BREAKTIME = NULL,
+#                                  only_sig = T, alpha = 0.05)
+
+LST_KM_RES_VAR <- getAutoKM(type = "VAR",
+                            model = lst_models$`sPLS-DRCOX`,
+                            comp = 1:10, #select how many components you want to compute for the pseudo beta
+                            top = 10,
+                            ori_data = T, #original data selected
+                            BREAKTIME = NULL,
+                            only_sig = T, alpha = 0.05)
 ```
 
 ```{r, fig.small=T, warning=F}
-LST_KM_RES_VAR$`sPLS-DRCOX`$LST_PLOTS$`840`
-LST_KM_RES_VAR$`sPLS-DRCOX`$LST_PLOTS$`3897`
+# LST_KM_RES_VAR$`sPLS-DRCOX`$LST_PLOTS$`840`
+# LST_KM_RES_VAR$`sPLS-DRCOX`$LST_PLOTS$`3897`
+
+LST_KM_RES_VAR$LST_PLOTS$`840`
+LST_KM_RES_VAR$LST_PLOTS$`3897`
 ```
 
 ```{r}
-lst_cutoff <- getCutoffAutoKM.list(LST_KM_RES_VAR)
+# lst_cutoff <- getCutoffAutoKM.list(LST_KM_RES_VAR)
+# LST_KM_TEST_VAR <- getTestKM.list(lst_models = lst_models, 
+#                                   X_test = X_test, Y_test = Y_test, 
+#                                   type = "VAR", ori_data = T,
+#                                   BREAKTIME = NULL, n.breaks = 20,
+#                                   lst_cutoff = lst_cutoff)
 
-LST_KM_TEST_VAR <- getTestKM.list(lst_models = lst_models, 
-                                  X_test = X_test, Y_test = Y_test, 
-                                  type = "VAR", ori_data = T,
-                                  BREAKTIME = NULL, n.breaks = 20,
-                                  lst_cutoff = lst_cutoff)
+lst_cutoff <- getCutoffAutoKM(LST_KM_RES_VAR)
+LST_KM_TEST_VAR <- getTestKM(model = lst_models$`sPLS-DRCOX`, 
+                             X_test = X_test, Y_test = Y_test, 
+                             type = "VAR", ori_data = T,
+                             BREAKTIME = NULL, n.breaks = 20,
+                             cutoff = lst_cutoff)
 ```
 
 ```{r, fig.small=T, warning=F}
-LST_KM_TEST_VAR$`sPLS-DRCOX`$`840`
-LST_KM_TEST_VAR$`sPLS-DRCOX`$`3897`
+# LST_KM_TEST_VAR$`sPLS-DRCOX`$`840`
+# LST_KM_TEST_VAR$`sPLS-DRCOX`$`3897`
+
+LST_KM_TEST_VAR$`840`
+LST_KM_TEST_VAR$`3897`
 ```
 
 # New patients
@@ -840,24 +899,26 @@ As shown, this is a censored patient who has the last observation at time 254.
 knitr::kable(Y_test[rownames(new_pat),])
 ```
 
-The function `plot_pseudobeta_newPatient.list()` or `plot_pseudobeta_newPatient()` allows the user to compare the characteristics of a new patient with the pseudo-beta values obtained from a specific model. The goal is to understand in a general way which variables are associated with an increased risk of an event or a decreased risk, in comparison to the variables predicted by the model.
+The function `plot_pseudobeta_newObservation.list()` or `plot_pseudobeta_newObservation()` allows the user to compare the characteristics of a new patient with the pseudo-beta values obtained from a specific model. The goal is to understand in a general way which variables are associated with an increased risk of an event or a decreased risk, in comparison to the variables predicted by the model.
 
 ```{r, warning=F}
-ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient.list(lst_models = lst_models, 
-                                                             new_observation = new_pat,
-                                                             error.bar = T, onlySig = T, alpha = 0.05,
-                                                             zero.rm = T, auto.limits = T, show.betas = T, top = 20)
+# ggp.simulated_beta_newObs <- plot_pseudobeta_newObservation.list(lst_models = lst_models, 
+#                                                              new_observation = new_pat,
+#                                                              error.bar = T, onlySig = T, alpha = 0.05,
+#                                                              zero.rm = T, auto.limits = T, show.betas = T, top = 20)
 
-# ggp.simulated_beta_newPat <- plot_pseudobeta_newPatient(model = lst_models$`sPLS-DRCOX`,
-#                                                         new_observation = new_pat,
-#                                                         error.bar = T, onlySig = T, alpha = 0.05,
-#                                                         zero.rm = T, auto.limits = T, show.betas = T, top = 20)
+ggp.simulated_beta_newObs <- plot_pseudobeta_newObservation(model = lst_models$`sPLS-DRCOX`,
+                                                        new_observation = new_pat,
+                                                        error.bar = T, onlySig = T, alpha = 0.05,
+                                                        zero.rm = T, auto.limits = T, show.betas = T, top = 20)
 ```
 
 On the left, a linear predictor value is shown for the observation and each variable. On the right, the pseudo-beta coefficients for the model's original variables are illustrated. This allows the user to compare the direction of the linear predictors per variable. A change in direction means that the variable's value is below the mean for hazard variables or above the mean for protective ones. Having an opposite direction for hazard variables and maintaining the direction for protective variables makes the observation safer over time.
 
 ```{r, fig.small=T, warning=F}
-ggp.simulated_beta_newPat$`sPLS-DRCOX`$plot
+#ggp.simulated_beta_newObs$`sPLS-DRCOX`$plot
+
+ggp.simulated_beta_newObs$plot
 ```
 
 ## Add patient to density plot
@@ -865,7 +926,7 @@ ggp.simulated_beta_newPat$`sPLS-DRCOX`$plot
 Additionally, the new observation can be added to the density and histogram plots that the model has computed. While this function can be useful in visualizing the results, it is important to note that no definitive conclusions can be drawn from these types of plots alone. They serve as an additional means of viewing the predictive values for the new patient ("lp", "risk", "expected", "terms", "survival") in relation to the training dataset and its histogram or density plot, along with the events or censored patients.
 
 ```{r}
-pat_density <- plot_observation.eventDensity(patient = new_pat,
+pat_density <- plot_observation.eventDensity(observation = new_pat,
                                              model = lst_models$`sPLS-DRCOX`,
                                              time = NULL, 
                                              type = "lp")
@@ -876,7 +937,7 @@ pat_density
 ```
 
 ```{r}
-pat_histogram <- plot_observation.eventHistogram(patient = new_pat, 
+pat_histogram <- plot_observation.eventHistogram(observation = new_pat, 
                                                  model = lst_models$`sPLS-DRCOX`, 
                                                  time = NULL, 
                                                  type = "lp")
@@ -896,15 +957,22 @@ As an idea, this function could also be used to study the same patient in differ
 knitr::kable(Y_test[1:5,])
 ```
 
-To generate the figure, the function `plot_LP.multiplePatients.list()` or `plot_LP.multiplePatients()` can be used.
+To generate the figure, the function `plot_LP.multipleObservations.list()` or `plot_LP.multipleObservations()` can be used.
 
 ```{r, warning=F}
-lst_cox.comparison <- plot_LP.multiplePatients.list(lst_models = lst_models,
-                                                    new_data = X_test[1:5,],
-                                                    error.bar = T, zero.rm = T, onlySig = T, 
-                                                    alpha = 0.05, top = 10)
+# lst_cox.comparison <- plot_LP.multipleObservations.list(lst_models = lst_models,
+#                                                     new_observations = X_test[1:5,],
+#                                                     error.bar = T, zero.rm = T, onlySig = T, 
+#                                                     alpha = 0.05, top = 10)
+
+lst_cox.comparison <- plot_LP.multipleObservations(model = lst_models$`sPLS-DRCOX`,
+                                                   new_observations = X_test[1:5,],
+                                                   error.bar = T, zero.rm = T, onlySig = T, 
+                                                   alpha = 0.05, top = 10)
 ```
 
 ```{r, fig.small=T, warning=F}
-lst_cox.comparison$`sPLS-DRCOX`$plot
+# lst_cox.comparison$`sPLS-DRCOX`$plot
+
+lst_cox.comparison$plot
 ```

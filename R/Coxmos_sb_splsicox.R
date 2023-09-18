@@ -602,7 +602,7 @@ cv.sb.splsicox <- function(X, Y,
   #total_models <- 1 * k_folds * n_run
   total_models <- max.ncomp * k_folds * n_run * length(spv_penalty.list)
 
-  lst_model <- get_HDCOX_models2.0(method = pkg.env$sb.splsicox,
+  lst_model <- get_Coxmos_models2.0(method = pkg.env$sb.splsicox,
                                    X_train = X, Y_train = Y,
                                    lst_X_train = lst_train_indexes, lst_Y_train = lst_train_indexes,
                                    max.ncomp = max.ncomp, eta.list = spv_penalty.list, EN.alpha.list = NULL, max.variables = NULL, vector = NULL,
@@ -617,7 +617,7 @@ cv.sb.splsicox <- function(X, Y,
                                    returnData = returnData, total_models = total_models,
                                    PARALLEL = PARALLEL, verbose = verbose)
 
-  # already check in HDCOX_models
+  # already check in Coxmos_models
   # if(all(is.na(unlist(comp_model_lst)))){
   #   message(paste0("Best model could NOT be obtained. All models computed present problems. Try to remove variance at fold level. If problem persists, try to delete manually some problematic variables."))
   #
