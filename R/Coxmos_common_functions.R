@@ -4466,44 +4466,46 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
     }
 
     ## We need to fill models from 1:max.ncomp (it uses max.ncomp to fill the others, if it is NULL, method fail!!!)
-    pb_text <- "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated remaining time: :eta]"
-    pb <- progress::progress_bar$new(format = pb_text,
-                                     total = (max.ncomp-1) * length(eta.list) * n_run * k_folds,
-                                     complete = "=",   # Caracteres de las iteraciones finalizadas
-                                     incomplete = "-", # Caracteres de las iteraciones no finalizadas
-                                     current = ">",    # Caracter actual
-                                     clear = FALSE,    # Si TRUE, borra la barra cuando termine
-                                     width = 100)      # Ancho de la barra de progreso
+    if(max.ncomp>1){
+      pb_text <- "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated remaining time: :eta]"
+      pb <- progress::progress_bar$new(format = pb_text,
+                                       total = (max.ncomp-1) * length(eta.list) * n_run * k_folds,
+                                       complete = "=",   # Caracteres de las iteraciones finalizadas
+                                       incomplete = "-", # Caracteres de las iteraciones no finalizadas
+                                       current = ">",    # Caracter actual
+                                       clear = FALSE,    # Si TRUE, borra la barra cuando termine
+                                       width = 100)      # Ancho de la barra de progreso
 
-    message(paste0("Creating sub-models for ", method, "..."))
-    pb$tick(0)
+      message(paste0("Creating sub-models for ", method, "..."))
+      pb$tick(0)
 
-    ## We need to fill models from 1:max.ncomp (it uses max.ncomp to fill the others, if it is NULL, method fail!!!)
-    for(comp in 1:(max(1,max.ncomp-1))){
-      eta_model_lst <- list()
-      for(e in 1:length(eta.list)){
-        run_model_lst <- list()
-        for(r in 1:n_run){
-          fold_model_lst <- list()
-          for(f in 1:k_folds){
-            if(method %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox, pkg.env$isb.splsicox, pkg.env$isb.splsdrcox)){
-              fold_model <- getSubModel.mb(model = comp_model_lst[[max.ncomp]][[e]][[r]][[f]], comp = comp, remove_non_significant = remove_non_significant)
-            }else{
-              fold_model <- getSubModel(model = comp_model_lst[[max.ncomp]][[e]][[r]][[f]], comp = comp, remove_non_significant = remove_non_significant)
+      ## We need to fill models from 1:max.ncomp (it uses max.ncomp to fill the others, if it is NULL, method fail!!!)
+      for(comp in 1:(max(1,max.ncomp-1))){
+        eta_model_lst <- list()
+        for(e in 1:length(eta.list)){
+          run_model_lst <- list()
+          for(r in 1:n_run){
+            fold_model_lst <- list()
+            for(f in 1:k_folds){
+              if(method %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox, pkg.env$isb.splsicox, pkg.env$isb.splsdrcox)){
+                fold_model <- getSubModel.mb(model = comp_model_lst[[max.ncomp]][[e]][[r]][[f]], comp = comp, remove_non_significant = remove_non_significant)
+              }else{
+                fold_model <- getSubModel(model = comp_model_lst[[max.ncomp]][[e]][[r]][[f]], comp = comp, remove_non_significant = remove_non_significant)
+              }
+              fold_model_lst[[f]] <- fold_model
+              pb$tick
             }
-            fold_model_lst[[f]] <- fold_model
-            pb$tick
+            names(fold_model_lst) <- paste0("fold_", 1:k_folds)
+            run_model_lst[[r]] <- fold_model_lst
           }
-          names(fold_model_lst) <- paste0("fold_", 1:k_folds)
-          run_model_lst[[r]] <- fold_model_lst
+          names(run_model_lst) <- paste0("run_", 1:n_run)
+          eta_model_lst[[e]] <- run_model_lst
         }
-        names(run_model_lst) <- paste0("run_", 1:n_run)
-        eta_model_lst[[e]] <- run_model_lst
+        if(method %in% c(pkg.env$splsicox, pkg.env$sb.splsicox, pkg.env$isb.splsicox, pkg.env$splsdrcox, pkg.env$sb.splsdrcox, pkg.env$isb.splsdrcox)){
+          names(eta_model_lst) <- paste0("eta_", eta.list) #eta at this moment
+        }
+        comp_model_lst[[comp]] <- eta_model_lst
       }
-      if(method %in% c(pkg.env$splsicox, pkg.env$sb.splsicox, pkg.env$isb.splsicox, pkg.env$splsdrcox, pkg.env$sb.splsdrcox, pkg.env$isb.splsdrcox)){
-        names(eta_model_lst) <- paste0("eta_", eta.list) #eta at this moment
-      }
-      comp_model_lst[[comp]] <- eta_model_lst
     }
 
     #### ### ### ### ### ### #
