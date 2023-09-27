@@ -760,6 +760,7 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
       list_KeepX_aux[[paste0(iter_name, collapse = "_")]] <- keepX_aux
     }
 
+    #### ###
     ## remove any keepX_aux that has been already tested (when at least 2 omics with more than 2 vectors)
     if(cont==1){
       if(any(names(list_KeepX_aux) %in% rownames(df_cox_value))){
@@ -767,8 +768,8 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
         list_KeepX_aux <- list_KeepX_aux[-index_tested]
       }
     }else{
-      if(names(list_KeepX_aux) %in% rownames(aux_df)){
-        index_tested <- which(names(list_KeepX_aux) %in% rownames(aux_df))
+      if(names(list_KeepX_aux) %in% rownames(df_cox_value_aux)){
+        index_tested <- which(names(list_KeepX_aux) %in% rownames(df_cox_value_aux))
         list_KeepX_aux <- list_KeepX_aux[-index_tested]
       }
     }
