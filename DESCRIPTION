@@ -16,6 +16,9 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 biocViews:
+Depends: 
+    R (>= 4.1.0),
+    mixOmics (>= 6.18.1)
 Imports:
     caret,
     cowplot,
@@ -46,9 +49,6 @@ Suggests:
     knitr, 
     RColorConesa,
     rmarkdown
-Depends: 
-    R (>= 4.1.0),
-    mixOmics (>= 6.18.1)
 RdMacros:
     Rdpack
 LazyData: true

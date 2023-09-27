@@ -665,7 +665,7 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
   best_keepX <- keepX
 
   if(verbose){
-    message(paste0("First selection: \n"), paste0(paste0("Block ", names(best_keepX), ": ", unlist(purrr::map(best_keepX, ~unique(.)))), "\n"), "Pred. Value: ", round(best_c_index, 4), "\n")
+    message(paste0("First selection: \n"), paste0(paste0("Block ", names(best_keepX), ": ", unlist(purrr::map(best_keepX, ~unique(.)))), "\n"), "Pred. Value (", EVAL_METHOD ,"): ", round(best_c_index, 4), "\n")
   }
 
   ori_vector <- vector
@@ -707,10 +707,19 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
       new_vector[[b]] <- unique(c(new_vector[[b]], aux, value))
     }
 
-    for(b in names(best_keepX)){
-      #first value already tested if multiple
-      if(length(new_vector[[b]])>1){
-        new_vector[[b]] <- new_vector[[b]][-1]
+    # If two blocks and the first with only one value:
+    # We do not need to test the second block with the same value: clinic = 9, miRNA = 124, 105, 142 :: because 9,124 was tested
+    # however, if multiple blocks, clinic = 9, miRNA = 124, 105, 142, protein = 124, 105, 142 :: we want to test 124 miRNA with 105 proteomic
+    # so, we should keep it. Summary, if all block length 1 minus one, delete, in other case, keep. Or just do not test with the same values
+    # that have been already tested
+
+    lst_length <- unlist(lapply(new_vector, length))
+    if(sum(lst_length==1)==1){ #if just one block with multiples values
+      for(b in names(best_keepX)){
+        #first value already tested if multiple
+        if(length(new_vector[[b]])>1){
+          new_vector[[b]] <- new_vector[[b]][-1]
+        }
       }
     }
 
@@ -749,6 +758,19 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
       }
 
       list_KeepX_aux[[paste0(iter_name, collapse = "_")]] <- keepX_aux
+    }
+
+    ## remove any keepX_aux that has been already tested (when at least 2 omics with more than 2 vectors)
+    if(cont==1){
+      if(any(names(list_KeepX_aux) %in% rownames(df_cox_value))){
+        index_tested <- which(names(list_KeepX_aux) %in% rownames(df_cox_value))
+        list_KeepX_aux <- list_KeepX_aux[-index_tested]
+      }
+    }else{
+      if(names(list_KeepX_aux) %in% rownames(aux_df)){
+        index_tested <- which(names(list_KeepX_aux) %in% rownames(aux_df))
+        list_KeepX_aux <- list_KeepX_aux[-index_tested]
+      }
     }
 
     ## Compute next c_index
@@ -803,13 +825,13 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
     if(best_c_index >= best_c_index_aux | best_c_index_aux-best_c_index <= MIN_AUC_INCREASE){
       FLAG = FALSE
       if(verbose){
-        message(paste0("End: \n"), paste0(paste0("Block ", names(best_keepX), ": ", unlist(purrr::map(best_keepX, ~unique(.)))), "\n"), paste0("Pred. Value: ", round(best_c_index, 4), "\n"))
+        message(paste0("End: \n"), paste0(paste0("Block ", names(best_keepX), ": ", unlist(purrr::map(best_keepX, ~unique(.)))), "\n"), paste0("Pred. Value (", EVAL_METHOD ,"): ", round(best_c_index, 4), "\n"))
       }
     }else{
       best_c_index <- best_c_index_aux
       best_keepX <- list_KeepX_aux[[index]]
       if(verbose){
-        message(paste0("New Vector: \n"), paste0(paste0("Block ", names(best_keepX), ": ", unlist(purrr::map(best_keepX, ~unique(.)))), "\n"), paste0("Pred. Value: ", round(best_c_index_aux, 4), "n"))
+        message(paste0("New Vector: \n"), paste0(paste0("Block ", names(best_keepX), ": ", unlist(purrr::map(best_keepX, ~unique(.)))), "\n"), paste0("Pred. Value (", EVAL_METHOD ,"): ", round(best_c_index_aux, 4), "n"))
       }
     }
   }

@@ -893,19 +893,19 @@ cv.mb.splsdacox <- function(X, Y,
   #total_models <- max.ncomp * k_folds * n_run
 
   comp_model_lst <- get_Coxmos_models2.0(method = pkg.env$mb.splsdacox,
-                                        X_train = X, Y_train = Y,
-                                        lst_X_train = lst_train_indexes, lst_Y_train = lst_train_indexes,
-                                        max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL, max.variables = NULL, vector = vector,
-                                        n_run = n_run, k_folds = k_folds,
-                                        MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, MIN_AUC_INCREASE = MIN_AUC_INCREASE, EVAL_METHOD = EVAL_METHOD,
-                                        n.cut_points = n.cut_points,
-                                        x.center = x.center, x.scale = x.scale,
-                                        y.center = y.center, y.scale = y.scale,
-                                        remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = FALSE, toKeep.zv = NULL,
-                                        alpha = alpha, MIN_EPV = MIN_EPV,
-                                        remove_non_significant = remove_non_significant, tol = tol, max.iter = max.iter,
-                                        returnData = returnData, total_models = total_models,
-                                        PARALLEL = PARALLEL, verbose = verbose)
+                                         X_train = X, Y_train = Y,
+                                         lst_X_train = lst_train_indexes, lst_Y_train = lst_train_indexes,
+                                         max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL, max.variables = NULL, vector = vector,
+                                         n_run = n_run, k_folds = k_folds,
+                                         MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, MIN_AUC_INCREASE = MIN_AUC_INCREASE, EVAL_METHOD = EVAL_METHOD,
+                                         n.cut_points = n.cut_points,
+                                         x.center = x.center, x.scale = x.scale,
+                                         y.center = y.center, y.scale = y.scale,
+                                         remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = FALSE, toKeep.zv = NULL,
+                                         alpha = alpha, MIN_EPV = MIN_EPV,
+                                         remove_non_significant = remove_non_significant, tol = tol, max.iter = max.iter,
+                                         returnData = returnData, total_models = total_models,
+                                         PARALLEL = PARALLEL, verbose = verbose)
 
   # already check in Coxmos_models
   # if(all(is.na(unlist(lst_model)))){

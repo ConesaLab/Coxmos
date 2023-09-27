@@ -8,6 +8,7 @@
 #' @import glmnet
 #' @importFrom MASS ginv
 #' @import progress
+#' @importFrom mixOmics spls plsda block.spls block.splsda tune.spls
 #' @import purrr
 #' @importFrom Rdpack reprompt
 #' @importFrom scattermore geom_scattermore
@@ -18,7 +19,6 @@
 #' @import svglite
 #' @importFrom tidyr pivot_longer starts_with
 #' @import utils
-#' @importFrom mixOmics spls plsda block.spls block.splsda tune.spls
 
 #@importFrom survAUC predErr
 #suggest #grDevices
@@ -3910,20 +3910,20 @@ getSubModel.mb <- function(model, comp, remove_non_significant){
 # lst_X_train now are train indexes
 # lst_Y_train now are train indexes - same input
 get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
-                                X_train, Y_train,
-                                lst_X_train, lst_Y_train, vector = NULL,
-                                max.ncomp, eta.list = NULL, EN.alpha.list = NULL, max.variables = 50,
-                                n_run, k_folds,
-                                MIN_NVAR = 10, MAX_NVAR = 10000, MIN_AUC_INCREASE = 0.01,
-                                n.cut_points = 5, EVAL_METHOD = "AUC",
-                                x.center, x.scale,
-                                y.center, y.scale,
-                                remove_near_zero_variance = FALSE, remove_zero_variance = FALSE,
-                                toKeep.zv = NULL,
-                                remove_non_significant = FALSE,
-                                alpha = 0.05, max.iter = 500, returnData = FALSE,
-                                total_models, MIN_EPV = 0, tol = 1e-10, PARALLEL = FALSE,
-                                verbose = FALSE){
+                                 X_train, Y_train,
+                                 lst_X_train, lst_Y_train, vector = NULL,
+                                 max.ncomp, eta.list = NULL, EN.alpha.list = NULL, max.variables = 50,
+                                 n_run, k_folds,
+                                 MIN_NVAR = 10, MAX_NVAR = 10000, MIN_AUC_INCREASE = 0.01,
+                                 n.cut_points = 5, EVAL_METHOD = "AUC",
+                                 x.center, x.scale,
+                                 y.center, y.scale,
+                                 remove_near_zero_variance = FALSE, remove_zero_variance = FALSE,
+                                 toKeep.zv = NULL,
+                                 remove_non_significant = FALSE,
+                                 alpha = 0.05, max.iter = 500, returnData = FALSE,
+                                 total_models, MIN_EPV = 0, tol = 1e-10, PARALLEL = FALSE,
+                                 verbose = FALSE){
 
   comp_model_lst <- list()
   fold_list <- list()
@@ -3983,9 +3983,8 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
 
     names(lst_inputs) <- lst_names
 
-    ## Sometimes, when you compute the model with the higher number of dimensions it fail and should be working with one lesser component,
-    ## when you compute the model by iterations it is easy to do, but know the model itself has to compute its better number of components
-    ## if using one fail (use one lesser) !!!! HAVE TO BE IMPLEMENTED !!!!
+    ## Sometimes, when you compute the model with the higher number of dimensions it fail and should be run with k-1 components.
+    ## when you compute the model by iterations it is easy to do, but not in purrr functions.
 
     if(PARALLEL){
       n_cores <- max(future::availableCores() - 1, 1)
@@ -4098,6 +4097,18 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
                                                                remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
                                                                remove_non_significant = remove_non_significant, alpha = alpha, max.iter = max.iter,
                                                                MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose))
+
+        # mb.splsdacox(X = lapply(X_train, function(x, ind){x[ind,]}, ind = lst_X_train[[1]][[1]]),
+        #              Y = data.matrix(Y_train[lst_Y_train[[1]][[1]],]),
+        #              n.comp = 3, vector = vector,
+        #              MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, MIN_AUC_INCREASE = MIN_AUC_INCREASE,
+        #              x.center = x.center, x.scale = x.scale,
+        #              #y.center = y.center, y.scale = y.scale,
+        #              remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
+        #              remove_non_significant = remove_non_significant, alpha = alpha, max.iter = max.iter,
+        #              MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose)
+
+
       }
 
     }
@@ -5420,7 +5431,7 @@ getBestVector <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN
 
     new_vector <- new_vector[!new_vector %in% names(p_val)[!is.na(p_val)]]
 
-    # all the combinations have been alredy tested
+    # all the combinations have been already tested
     # break the while loop
     if(length(new_vector)==0){
       if(verbose){
