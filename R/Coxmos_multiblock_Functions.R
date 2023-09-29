@@ -728,6 +728,11 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
       break
     }
 
+    ## sort new_vector
+    for(b in names(new_vector)){
+      new_vector[[b]] <- new_vector[[b]][order(new_vector[[b]])]
+    }
+
     if(verbose){
       message(paste0("Testing: \n"), paste0("Block ", names(best_keepX), ": ", new_vector, "\n"))
     }
@@ -739,9 +744,6 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
     names(aux_vector) <- names(new_vector)
     aux_vector <- purrr::map(names(new_vector), ~aux_vector[[.]][order(aux_vector[[.]])])
     names(aux_vector) <- names(new_vector)
-
-    p_val <- c(p_val, rep(NA, prod(unlist(purrr::map(new_vector, length))))) #longitud es el el numero nuevo de posibles combinaciones posibles
-    names(p_val)[is.na(p_val)] <- apply(all_comb, 1, function(x){paste0(unlist(x), collapse = "_")})
 
     ### OTHER KEEP_VECTOR
     list_KeepX_aux <- list()
@@ -768,7 +770,7 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
         list_KeepX_aux <- list_KeepX_aux[-index_tested]
       }
     }else{
-      if(names(list_KeepX_aux) %in% rownames(df_cox_value_aux)){
+      if(any(names(list_KeepX_aux) %in% rownames(df_cox_value_aux))){
         index_tested <- which(names(list_KeepX_aux) %in% rownames(df_cox_value_aux))
         list_KeepX_aux <- list_KeepX_aux[-index_tested]
       }
@@ -817,13 +819,20 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
     }
     rownames(df_cox_value_aux) <- names(list_KeepX_aux)
 
+
+    # MOVER DESPUES DE ALL_COMB para poder eleiminar aquella repetida
+    # we must not add the name if already exists in the list
+    p_val <- c(p_val, rep(NA, length(list_KeepX_aux))) #longitud es el el numero nuevo de posibles combinaciones posibles
+    names(p_val)[is.na(p_val)] <- names(list_KeepX_aux)
+
+
     #index <- which.max(rowSums(df_cox_value_aux)) #MAX VAR_MEDIA
     #index <- which.max(df_cox_value_aux[,"Y"]) #MAX Y?
     index <- which.max(df_cox_value_aux) #MAX CONCORDANCE
     best_c_index_aux <- df_cox_value_aux[index]
     p_val[rownames(df_cox_value_aux)] <- df_cox_value_aux
 
-    if(best_c_index >= best_c_index_aux | best_c_index_aux-best_c_index <= MIN_AUC_INCREASE){
+    if(best_c_index >= best_c_index_aux || abs(best_c_index_aux-best_c_index) <= MIN_AUC_INCREASE){
       FLAG = FALSE
       if(verbose){
         message(paste0("End: \n"), paste0(paste0("Block ", names(best_keepX), ": ", unlist(purrr::map(best_keepX, ~unique(.)))), "\n"), paste0("Pred. Value (", EVAL_METHOD ,"): ", round(best_c_index, 4), "\n"))
@@ -832,7 +841,7 @@ getBestVectorMB <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, M
       best_c_index <- best_c_index_aux
       best_keepX <- list_KeepX_aux[[index]]
       if(verbose){
-        message(paste0("New Vector: \n"), paste0(paste0("Block ", names(best_keepX), ": ", unlist(purrr::map(best_keepX, ~unique(.)))), "\n"), paste0("Pred. Value (", EVAL_METHOD ,"): ", round(best_c_index_aux, 4), "n"))
+        message(paste0("New Vector found: \n"), paste0(paste0("Block ", names(best_keepX), ": ", unlist(purrr::map(best_keepX, ~unique(.)))), "\n"), paste0("Pred. Value (", EVAL_METHOD ,"): ", round(best_c_index_aux, 4), "\n"))
       }
     }
   }

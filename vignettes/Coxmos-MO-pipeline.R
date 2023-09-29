@@ -578,12 +578,12 @@ knitr::kable(Y_test[rownames(sub_X_test$proteomic),])
 
 ## -----------------------------------------------------------------------------
 # lst_cox.comparison <- plot_LP.multipleObservations.list(lst_models = lst_models,
-#                                                     new_data = sub_X_test,
+#                                                     new_observations = sub_X_test,
 #                                                     error.bar = T, zero.rm = T, onlySig = T,
 #                                                     alpha = 0.05, top = 5)
 
 lst_cox.comparison <- plot_LP.multipleObservations(model = lst_models$`SB.sPLS-DRCOX`,
-                                                   new_data = sub_X_test,
+                                                   new_observations = sub_X_test,
                                                    error.bar = T, zero.rm = T, onlySig = T,
                                                    alpha = 0.05, top = 5)
 

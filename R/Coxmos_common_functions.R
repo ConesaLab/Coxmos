@@ -23,6 +23,7 @@
 #@importFrom survAUC predErr
 #suggest #grDevices
 #suggest #splines
+#mixomics (>= 6.18.1)
 
 pkg.env <- new.env(parent = emptyenv())
 assign(x = 'model_class', value = "Coxmos", pkg.env)
@@ -4098,7 +4099,7 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
                                                                remove_non_significant = remove_non_significant, alpha = alpha, max.iter = max.iter,
                                                                MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose))
 
-        # mb.splsdacox(X = lapply(X_train, function(x, ind){x[ind,]}, ind = lst_X_train[[1]][[1]]),
+        # aaa <- mb.splsdacox(X = lapply(X_train, function(x, ind){x[ind,]}, ind = lst_X_train[[1]][[1]]),
         #              Y = data.matrix(Y_train[lst_Y_train[[1]][[1]],]),
         #              n.comp = 3, vector = vector,
         #              MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, MIN_AUC_INCREASE = MIN_AUC_INCREASE,
@@ -5441,6 +5442,9 @@ getBestVector <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN
       }
     }
 
+    ## sort new_vector
+    new_vector <- new_vector[order(new_vector)]
+
     if(verbose){
       message(paste0("Testing: \n"), paste0("Value ", names(best_keepX), ": ", new_vector, "\n"))
     }
@@ -5512,7 +5516,7 @@ getBestVector <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN
 
     p_val[rownames(df_cox_value_aux)] <- df_cox_value_aux
 
-    if(best_c_index >= best_c_index_aux | best_c_index_aux-best_c_index <= MIN_AUC_INCREASE){
+    if(best_c_index >= best_c_index_aux || abs(best_c_index_aux-best_c_index) <= MIN_AUC_INCREASE){
       FLAG = FALSE
       if(verbose){
         message(paste0("End: \n"), paste0(paste0("Value ", names(best_keepX), ": ", unlist(purrr::map(best_keepX, ~unique(.)))), "\n"), paste0("Pred. Value: ", round(best_c_index, 4), "\n"))
@@ -5521,7 +5525,7 @@ getBestVector <- function(Xh, DR_coxph = NULL, Yh, n.comp, max.iter, vector, MIN
       best_c_index <- best_c_index_aux
       best_keepX <- vector_aux[[index]]
       if(verbose){
-        message(paste0("New Vector: \n"), paste0(paste0("Value ", names(best_keepX), ": ", unlist(purrr::map(best_keepX, ~unique(.)))), "\n"), paste0("Pred. Value: ", round(best_c_index_aux, 4), "n"))
+        message(paste0("New Vector found: \n"), paste0(paste0("Value ", names(best_keepX), ": ", unlist(purrr::map(best_keepX, ~unique(.)))), "\n"), paste0("Pred. Value: ", round(best_c_index_aux, 4), "n"))
       }
     }
   }

@@ -583,12 +583,12 @@ knitr::kable(Y_test[1:5,])
 
 ## ---- warning=F---------------------------------------------------------------
 # lst_cox.comparison <- plot_LP.multipleObservations.list(lst_models = lst_models,
-#                                                     new_data = X_test[1:5,],
+#                                                     new_observations = X_test[1:5,],
 #                                                     error.bar = T, zero.rm = T, onlySig = T, 
 #                                                     alpha = 0.05, top = 10)
 
 lst_cox.comparison <- plot_LP.multipleObservations(model = lst_models$`sPLS-DRCOX`,
-                                                   new_data = X_test[1:5,],
+                                                   new_observations = X_test[1:5,],
                                                    error.bar = T, zero.rm = T, onlySig = T, 
                                                    alpha = 0.05, top = 10)
 

@@ -18,7 +18,6 @@ RoxygenNote: 7.2.3
 biocViews:
 Depends: 
     R (>= 4.1.0),
-    mixOmics (>= 6.18.1)
 Imports:
     caret,
     cowplot,
@@ -29,6 +28,7 @@ Imports:
     ggpubr,
     glmnet,
     MASS,
+    mixOmics,
     progress,
     purrr,
     Rdpack,
