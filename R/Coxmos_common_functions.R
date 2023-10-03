@@ -1164,8 +1164,8 @@ getCOMPLETE_LP <- function(comp_index, eta_index = NULL, run, fold, X_test, Y_te
 
   #classical/sPLS
   if(!isa(X_test, "list")){
-    X_test <- X_test[lst_X_test[[run]][[fold]],]
-    Y_test <- Y_test[lst_Y_test[[run]][[fold]],]
+    X_test <- X_test[lst_X_test[[run]][[fold]],,drop=F]
+    Y_test <- Y_test[lst_Y_test[[run]][[fold]],,drop=F]
   }else{
     # SB/MO
     X_test <- lapply(X_test, function(x, ind){x[ind,]}, ind = lst_X_test[[run]][[fold]])
@@ -1206,8 +1206,8 @@ getCOMPLETE_BRIER <- function(comp_index, eta_index = NULL, run, fold, X_test, Y
 
   #classical/sPLS
   if(!isa(X_test, "list")){
-    X_test <- X_test[lst_X_test[[run]][[fold]],]
-    Y_test <- Y_test[lst_Y_test[[run]][[fold]],]
+    X_test <- X_test[lst_X_test[[run]][[fold]],,drop=F]
+    Y_test <- Y_test[lst_Y_test[[run]][[fold]],,drop=F]
   }else{
   # SB/MO
     X_test <- lapply(X_test, function(x, ind){x[ind,]}, ind = lst_X_test[[run]][[fold]])
@@ -2852,7 +2852,7 @@ get_COX_evaluation_BRIER <- function(comp_model_lst,
 
           #classical/sPLS
           if(!isa(X_test, "list")){
-            newdata <- X_test[lst_X_test[[r]][[f]],]
+            newdata <- X_test[lst_X_test[[r]][[f]],,drop=F]
           }else{
             # SB/MO
             newdata <- lapply(X_test, function(x, ind){x[ind,]}, ind = lst_X_test[[r]][[f]])
@@ -2866,7 +2866,7 @@ get_COX_evaluation_BRIER <- function(comp_model_lst,
 
         # in some cases, one patient could be a test and not to be in any train
         # probably a problem of caret or bc the division in folds
-        # vignette data adn coxEN
+        # vignette data and coxEN
 
         inters <- intersect(unique(names(lst_train_LP)), unique(names(lst_test_LP)))
         lst_train_LP <- lst_train_LP[names(lst_train_LP) %in% inters]

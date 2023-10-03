@@ -193,9 +193,16 @@ splitData_Iterations_Folds_indexes <- function(Y, n_run, k_folds, seed = 123){
   lst_obs_index_test <- list()
 
   for(i in 1:n_run){
-    testIndex <- caret::createFolds(y = Y[,"event"],
-                                    k = k_folds,
-                                    list = TRUE)
+
+    if(length(unique(Y[,"event"]))==1){
+      testIndex <- caret::createFolds(y = 1:length(Y[,"event"]),
+                                      k = k_folds,
+                                      list = TRUE)
+    }else{
+      testIndex <- caret::createFolds(y = Y[,"event"],
+                                      k = k_folds,
+                                      list = TRUE)
+    }
 
     lst_obs_index_test[[i]] <- testIndex
     aux <- 1:nrow(Y)
