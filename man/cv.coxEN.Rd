@@ -17,6 +17,7 @@ cv.coxEN(
   remove_zero_variance = TRUE,
   toKeep.zv = NULL,
   remove_variance_at_fold_level = FALSE,
+  remove_non_significant_models = FALSE,
   remove_non_significant = FALSE,
   alpha = 0.05,
   w_AIC = 0,
@@ -73,6 +74,10 @@ filtering (default: NULL).}
 
 \item{remove_variance_at_fold_level}{Logical. If remove_variance_at_fold_level = TRUE, (near) zero
 variance will be removed at fold level (default: FALSE).}
+
+\item{remove_non_significant_models}{Logical. If remove_non_significant_models = TRUE,
+non-significant models are removed before computing the evaluation. A non-significant model is a
+model with at least one component/variable with a P-Value higher than the alpha cutoff.}
 
 \item{remove_non_significant}{Logical. If remove_non_significant = TRUE, non-significant
 variables/components in final cox model will be removed until all variables are significant by

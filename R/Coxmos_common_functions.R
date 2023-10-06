@@ -3922,7 +3922,9 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
                                  remove_near_zero_variance = FALSE, remove_zero_variance = FALSE,
                                  toKeep.zv = NULL,
                                  remove_non_significant = FALSE,
-                                 alpha = 0.05, max.iter = 500, returnData = FALSE,
+                                 alpha = 0.05,
+                                 max.iter = 200, times = NULL, pred.method = "cenROC", max_time_points = 15,
+                                 returnData = FALSE,
                                  total_models, MIN_EPV = 0, tol = 1e-10, PARALLEL = FALSE,
                                  verbose = FALSE){
 
@@ -4008,6 +4010,7 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
                                                                            MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
                                                                            MIN_AUC_INCREASE = MIN_AUC_INCREASE,
                                                                            EVAL_METHOD = EVAL_METHOD, alpha = alpha,
+                                                                           max.iter = max.iter, times = times, pred.method = pred.method, max_time_points = max_time_points,
                                                                            MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose), .options = furrr_options(seed = TRUE))
 
       }else if(method==pkg.env$splsdrcox_dynamic){
@@ -4022,6 +4025,7 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
                                                                            MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
                                                                            MIN_AUC_INCREASE = MIN_AUC_INCREASE,
                                                                            EVAL_METHOD = EVAL_METHOD, alpha = alpha,
+                                                                           max.iter = max.iter, times = times, pred.method = pred.method, max_time_points = max_time_points,
                                                                            MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose), .options = furrr_options(seed = TRUE))
 
       }else if(method==pkg.env$mb.splsdacox){
@@ -4032,7 +4036,8 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
                                                                       x.center = x.center, x.scale = x.scale,
                                                                       #y.center = y.center, y.scale = y.scale,
                                                                       remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
-                                                                      remove_non_significant = remove_non_significant,  alpha = alpha, max.iter = max.iter,
+                                                                      remove_non_significant = remove_non_significant,  alpha = alpha,
+                                                                      max.iter = max.iter, times = times, pred.method = pred.method, max_time_points = max_time_points,
                                                                       MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose), .options = furrr_options(seed = TRUE))
 
       }else if(method==pkg.env$mb.splsdrcox){
@@ -4044,6 +4049,7 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
                                                                       #y.center = y.center, y.scale = y.scale,
                                                                       remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
                                                                       remove_non_significant = remove_non_significant, alpha = alpha,
+                                                                      max.iter = max.iter, times = times, pred.method = pred.method, max_time_points = max_time_points,
                                                                       MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose), .options = furrr_options(seed = TRUE))
       }
       future::plan("sequential")
@@ -4062,6 +4068,7 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
                                                                     MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
                                                                     MIN_AUC_INCREASE = MIN_AUC_INCREASE,
                                                                     EVAL_METHOD = EVAL_METHOD, alpha = alpha,
+                                                                    max.iter = max.iter, times = times, pred.method = pred.method, max_time_points = max_time_points,
                                                                     returnData = returnData, verbose = verbose))
 
       }else if(method==pkg.env$splsdrcox_dynamic){
@@ -4076,6 +4083,7 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
                                                                     MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, n.cut_points = n.cut_points,
                                                                     MIN_AUC_INCREASE = MIN_AUC_INCREASE,
                                                                     EVAL_METHOD = EVAL_METHOD, alpha = alpha,
+                                                                    max.iter = max.iter, times = times, pred.method = pred.method, max_time_points = max_time_points,
                                                                     MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose))
 
       }else if(method==pkg.env$mb.splsdrcox){
@@ -4087,6 +4095,7 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
                                                                #y.center = y.center, y.scale = y.scale,
                                                                remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
                                                                remove_non_significant = remove_non_significant, alpha = alpha,
+                                                               max.iter = max.iter, times = times, pred.method = pred.method, max_time_points = max_time_points,
                                                                MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose))
       }else if(method==pkg.env$mb.splsdacox){
         lst_all_models <- purrr::map(lst_inputs, ~mb.splsdacox(X = lapply(X_train, function(x, ind){x[ind,]}, ind = lst_X_train[[.$run]][[.$fold]]),
@@ -4096,7 +4105,8 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
                                                                x.center = x.center, x.scale = x.scale,
                                                                #y.center = y.center, y.scale = y.scale,
                                                                remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
-                                                               remove_non_significant = remove_non_significant, alpha = alpha, max.iter = max.iter,
+                                                               remove_non_significant = remove_non_significant, alpha = alpha,
+                                                               max.iter = max.iter, times = times, pred.method = pred.method, max_time_points = max_time_points,
                                                                MIN_EPV = MIN_EPV, returnData = returnData, verbose = verbose))
 
         # aaa <- mb.splsdacox(X = lapply(X_train, function(x, ind){x[ind,]}, ind = lst_X_train[[1]][[1]]),
@@ -5597,7 +5607,7 @@ getCIndex_AUC_CoxModel_spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keepX, sca
 }
 
 getCIndex_AUC_CoxModel_splsda <- function(Xh, Yh, n.comp, keepX, scale = FALSE, near.zero.var = FALSE,
-                                          EVAL_EVALUATOR = "cenROC", max.iter = 100, verbose = FALSE,
+                                          EVAL_EVALUATOR = "cenROC", max.iter = 200, verbose = FALSE,
                                           times = NULL, max_time_points = 15){
 
   FLAG_ERROR = FALSE

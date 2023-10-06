@@ -232,8 +232,8 @@ coxEN <- function(X, Y,
   #                    alpha = EN.alpha, dfmax = max.variables,
   #                    standardize = FALSE, nlambda=200)
 
-  #I cannot add the limit for maximum number of variables bc it fails
-  #pmax = max.variables
+  # I cannot add the limit for maximum number of variables bc it fails
+  # pmax = max.variables
 
   EN_cox <- tryCatch(
     # Specifying expression
@@ -523,6 +523,9 @@ coxEN <- function(X, Y,
 #' filtering (default: NULL).
 #' @param remove_variance_at_fold_level Logical. If remove_variance_at_fold_level = TRUE, (near) zero
 #' variance will be removed at fold level (default: FALSE).
+#' @param remove_non_significant_models Logical. If remove_non_significant_models = TRUE,
+#' non-significant models are removed before computing the evaluation. A non-significant model is a
+#' model with at least one component/variable with a P-Value higher than the alpha cutoff.
 #' @param remove_non_significant Logical. If remove_non_significant = TRUE, non-significant
 #' variables/components in final cox model will be removed until all variables are significant by
 #' forward selection (default: FALSE).
@@ -613,7 +616,7 @@ cv.coxEN <- function(X, Y,
                      x.center = TRUE, x.scale = FALSE,
                      remove_near_zero_variance = TRUE, remove_zero_variance = TRUE, toKeep.zv = NULL,
                      remove_variance_at_fold_level = FALSE,
-                     remove_non_significant = FALSE, alpha = 0.05,
+                     remove_non_significant_models = FALSE, remove_non_significant = FALSE, alpha = 0.05,
                      w_AIC = 0, w_c.index = 0, w_AUC = 1, w_BRIER = 0, times = NULL,
                      max_time_points = 15,
                      MIN_AUC_INCREASE = 0.01, MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
@@ -646,6 +649,7 @@ cv.coxEN <- function(X, Y,
                          #"y.center" = y.center, "y.scale" = y.scale,
                       "remove_near_zero_variance" = remove_near_zero_variance, "remove_zero_variance" = remove_zero_variance,
                       "remove_variance_at_fold_level" = remove_variance_at_fold_level,
+                      "remove_non_significant_models" = remove_non_significant_models,
                       "remove_non_significant" = remove_non_significant,
                       "return_models" = return_models,"returnData" = returnData, "verbose" = verbose, "PARALLEL" = PARALLEL)
   check_class(logical_params, class = "logical")
@@ -772,7 +776,7 @@ cv.coxEN <- function(X, Y,
   #### ### ### ### ### ### #
   df_results_evals <- get_COX_evaluation_AIC_CINDEX(comp_model_lst = comp_model_lst, alpha = alpha,
                                                     max.ncomp = EN.alpha.list, eta.list = NULL, n_run = n_run, k_folds = k_folds,
-                                                    total_models = total_models, remove_non_significant_models = FALSE, verbose = verbose) #deletion at variable level for EN
+                                                    total_models = total_models, remove_non_significant_models = remove_non_significant_models, verbose = verbose) #deletion at variable level for EN
 
   if(all(is.null(df_results_evals))){
     message(paste0("Best model could NOT be obtained. All models computed present problems."))

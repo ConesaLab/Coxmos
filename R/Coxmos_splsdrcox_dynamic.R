@@ -668,6 +668,7 @@ splsdrcox_dynamic <- function (X, Y,
 #' If fast_mode = FALSE, for each run, all linear predictors are computed for test observations. Once
 #' all have their linear predictors, the evaluation is perform across all the observations together
 #' (default: FALSE).
+#' @param max.iter Numeric. Maximum number of iterations for PLS convergence (default: 200).
 #' @param MIN_EPV Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final
 #' cox model. Used to restrict the number of variables/components can be computed in final cox models.
 #' If the minimum is not meet, the model cannot be computed (default: 5).
@@ -734,6 +735,7 @@ cv.splsdrcox_dynamic <- function (X, Y,
                                   max_time_points = 15,
                                   MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                                   pred.attr = "mean", pred.method = "cenROC", fast_mode = FALSE,
+                                  max.iter = 200,
                                   MIN_EPV = 5, return_models = FALSE, returnData = FALSE,
                                   PARALLEL = FALSE, verbose = FALSE, seed = 123){
   # tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
@@ -865,7 +867,8 @@ cv.splsdrcox_dynamic <- function (X, Y,
                                          y.center = y.center, y.scale = y.scale,
                                          remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = FALSE, toKeep.zv = NULL,
                                          alpha = alpha, MIN_EPV = MIN_EPV,
-                                         remove_non_significant = remove_non_significant, tol = tol, max.iter = NULL,
+                                         remove_non_significant = remove_non_significant, tol = tol,
+                                         max.iter = max.iter, times = times, pred.method = pred.method, max_time_points = max_time_points,
                                          returnData = returnData, total_models = total_models,
                                          PARALLEL = PARALLEL, verbose = verbose)
 

@@ -609,7 +609,7 @@ cv.splsdacox_dynamic <- function(X, Y,
                         max_time_points = 15,
                         MIN_AUC = 0.8, MIN_COMP_TO_CHECK = 3,
                         pred.attr = "mean", pred.method = "cenROC", fast_mode = FALSE,
-                        max.iter = 500,
+                        max.iter = 200,
                         MIN_EPV = 5, return_models = FALSE, returnData = FALSE,
                         PARALLEL = FALSE, verbose = FALSE, seed = 123){
   # tol Numeric. Tolerance for solving: solve(t(P) %*% W) (default: 1e-15).
@@ -739,7 +739,8 @@ cv.splsdacox_dynamic <- function(X, Y,
                                         y.center = y.center, y.scale = y.scale,
                                         remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = FALSE, toKeep.zv = NULL,
                                         alpha = alpha, MIN_EPV = MIN_EPV,
-                                        remove_non_significant = remove_non_significant, tol = tol, max.iter = max.iter,
+                                        remove_non_significant = remove_non_significant, tol = tol,
+                                        max.iter = max.iter, times = times, pred.method = pred.method, max_time_points = max_time_points,
                                         returnData = returnData, total_models = total_models,
                                         PARALLEL = PARALLEL, verbose = verbose)
 

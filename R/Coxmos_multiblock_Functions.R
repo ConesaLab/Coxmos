@@ -444,7 +444,7 @@ Xh_XXNA <- function(Xh, XXNA, value = 0){
 
 getCIndex_AUC_CoxModel_block.spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keepX, scale = FALSE,
                                               near.zero.var = FALSE, EVAL_EVALUATOR = "cenROC",
-                                              max.iter = 100, verbose = FALSE, times = NULL,
+                                              max.iter = 200, verbose = FALSE, times = NULL,
                                               max_time_points = 15){
   model <- mixOmics::block.spls(X = Xh, Y = DR_coxph_ori, ncomp = n.comp, keepX = keepX, scale = scale, near.zero.var = near.zero.var, max.iter = max.iter)
   tt_mbsplsDR = model$variates[names(Xh)]
@@ -493,7 +493,7 @@ getCIndex_AUC_CoxModel_block.spls <- function(Xh, DR_coxph_ori, Yh, n.comp, keep
 
 getCIndex_AUC_CoxModel_block.splsda <- function(Xh, Yh, n.comp, keepX, scale = FALSE,
                                                 near.zero.var = FALSE,
-                                                EVAL_EVALUATOR = "cenROC", max.iter = 100,
+                                                EVAL_EVALUATOR = "cenROC", max.iter = 200,
                                                 verbose = verbose, times = NULL,
                                                 max_time_points = 15){
   model <- mixOmics::block.splsda(X = Xh, Y = Yh[,"event"], ncomp = n.comp, keepX = keepX, scale = scale, near.zero.var = near.zero.var, max.iter = max.iter)

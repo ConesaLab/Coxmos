@@ -903,7 +903,8 @@ cv.mb.splsdacox <- function(X, Y,
                                          y.center = y.center, y.scale = y.scale,
                                          remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = FALSE, toKeep.zv = NULL,
                                          alpha = alpha, MIN_EPV = MIN_EPV,
-                                         remove_non_significant = remove_non_significant, tol = tol, max.iter = max.iter,
+                                         remove_non_significant = remove_non_significant, tol = tol,
+                                         max.iter = max.iter, times = times, pred.method = pred.method, max_time_points = max_time_points,
                                          returnData = returnData, total_models = total_models,
                                          PARALLEL = PARALLEL, verbose = verbose)
 

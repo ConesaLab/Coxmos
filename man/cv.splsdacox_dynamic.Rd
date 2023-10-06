@@ -36,7 +36,7 @@ cv.splsdacox_dynamic(
   pred.attr = "mean",
   pred.method = "cenROC",
   fast_mode = FALSE,
-  max.iter = 500,
+  max.iter = 200,
   MIN_EPV = 5,
   return_models = FALSE,
   returnData = FALSE,

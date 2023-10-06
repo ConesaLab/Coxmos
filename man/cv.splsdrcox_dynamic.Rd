@@ -36,6 +36,7 @@ cv.splsdrcox_dynamic(
   pred.attr = "mean",
   pred.method = "cenROC",
   fast_mode = FALSE,
+  max.iter = 200,
   MIN_EPV = 5,
   return_models = FALSE,
   returnData = FALSE,
@@ -139,6 +140,8 @@ Must be one of the following: "risksetROC", "survivalROC", "cenROC", "nsROC", "s
 If fast_mode = FALSE, for each run, all linear predictors are computed for test observations. Once
 all have their linear predictors, the evaluation is perform across all the observations together
 (default: FALSE).}
+
+\item{max.iter}{Numeric. Maximum number of iterations for PLS convergence (default: 200).}
 
 \item{MIN_EPV}{Numeric. Minimum number of Events Per Variable (EPV) you want reach for the final
 cox model. Used to restrict the number of variables/components can be computed in final cox models.

@@ -38,7 +38,7 @@
 #' "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and event
 #' observations.
 #' @param n.comp Numeric. Number of latent components to compute for the (s)PLS model (default: 10).
-#' @param eta Numeric (0-1). Penalty for sPLS. If eta = 0 no penalty is applied and 1 maximum penalty
+#' @param eta Numeric. Penalty for sPLS-DRCOX. If eta = 0 no penalty is applied and 1 maximum penalty
 #' (no variables are selected). Equal or greater than 1 cannot be selected (default: 0.5).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
