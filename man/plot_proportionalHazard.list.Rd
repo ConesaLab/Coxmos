@@ -24,8 +24,8 @@ data("X_proteomic")
 data("Y_proteomic")
 X <- X_proteomic[,1:50]
 Y <- Y_proteomic
-splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
-splsdrcox.model <- splsdrcox(X, Y, n.comp = 2, eta = 0.5, x.center = TRUE, x.scale = TRUE)
+splsicox.model <- splsicox(X, Y, n.comp = 2, penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+splsdrcox.model <- splsdrcox(X, Y, n.comp = 2, penalty = 0.5, x.center = TRUE, x.scale = TRUE)
 lst_models = list("sPLSICOX" = splsicox.model, "sPLSDRCOX" = splsdrcox.model)
 plot_proportionalHazard.list(lst_models)
 }

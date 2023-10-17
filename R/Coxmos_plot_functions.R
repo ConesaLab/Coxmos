@@ -2124,7 +2124,7 @@ plot_divergent.biplot <- function(X, Y, NAMEVAR1, NAMEVAR2, BREAKTIME, x.text = 
 #' data("Y_proteomic")
 #' X <- X_proteomic[,1:50]
 #' Y <- Y_proteomic
-#' splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+#' splsicox.model <- splsicox(X, Y, n.comp = 2, penalty = 0.5, x.center = TRUE, x.scale = TRUE)
 #' plot_PLS_Coxmos(splsicox.model, comp = c(1,2), mode = "scores")
 
 plot_PLS_Coxmos <- function(model, comp = c(1,2), mode = "scores", factor = NULL, legend_title = NULL,
@@ -2954,8 +2954,8 @@ plot_Coxmos.MB.PLS.model <- function(model, comp = c(1,2), mode = "scores", fact
 #' data("Y_proteomic")
 #' X <- X_proteomic[,1:50]
 #' Y <- Y_proteomic
-#' splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
-#' splsdrcox.model <- splsdrcox(X, Y, n.comp = 2, eta = 0.5, x.center = TRUE, x.scale = TRUE)
+#' splsicox.model <- splsicox(X, Y, n.comp = 2, penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+#' splsdrcox.model <- splsdrcox(X, Y, n.comp = 2, penalty = 0.5, x.center = TRUE, x.scale = TRUE)
 #' lst_models = list("sPLSICOX" = splsicox.model, "sPLSDRCOX" = splsdrcox.model)
 #' plot_proportionalHazard.list(lst_models)
 
@@ -3018,7 +3018,7 @@ plot_proportionalHazard.list <- function(lst_models){
 #' data("Y_proteomic")
 #' X <- X_proteomic[,1:50]
 #' Y <- Y_proteomic
-#' splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+#' splsicox.model <- splsicox(X, Y, n.comp = 2, penalty = 0.5, x.center = TRUE, x.scale = TRUE)
 #' plot_proportionalHazard(splsicox.model)
 
 plot_proportionalHazard <- function(model){
@@ -3118,8 +3118,8 @@ my_primeFactors <- function(num) {
 #' data("Y_proteomic")
 #' X <- X_proteomic[,1:50]
 #' Y <- Y_proteomic
-#' splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
-#' splsdrcox.model <- splsdrcox(X, Y, n.comp = 2, eta = 0.5, x.center = TRUE, x.scale = TRUE)
+#' splsicox.model <- splsicox(X, Y, n.comp = 2, penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+#' splsdrcox.model <- splsdrcox(X, Y, n.comp = 2, penalty = 0.5, x.center = TRUE, x.scale = TRUE)
 #' lst_models = list("sPLSICOX" = splsicox.model, "sPLSDRCOX" = splsdrcox.model)
 #' plot_forest.list(lst_models)
 
@@ -3183,7 +3183,7 @@ plot_forest.list <- function(lst_models,
 #' data("Y_proteomic")
 #' X <- X_proteomic[,1:50]
 #' Y <- Y_proteomic
-#' splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+#' splsicox.model <- splsicox(X, Y, n.comp = 2, penalty = 0.5, x.center = TRUE, x.scale = TRUE)
 #' plot_forest(splsicox.model)
 
 plot_forest <- function(model,
@@ -3243,8 +3243,8 @@ plot_forest <- function(model,
 #' data("Y_proteomic")
 #' X <- X_proteomic[,1:50]
 #' Y <- Y_proteomic
-#' splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
-#' splsdrcox.model <- splsdrcox(X, Y, n.comp = 2, eta = 0.5, x.center = TRUE, x.scale = TRUE)
+#' splsicox.model <- splsicox(X, Y, n.comp = 2, penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+#' splsdrcox.model <- splsdrcox(X, Y, n.comp = 2, penalty = 0.5, x.center = TRUE, x.scale = TRUE)
 #' lst_models = list("sPLSICOX" = splsicox.model, "sPLSDRCOX" = splsdrcox.model)
 #' plot_cox.event.list(lst_models)
 
@@ -3305,7 +3305,7 @@ plot_cox.event.list <- function(lst_models, type = "lp", n.breaks = 20){
 #' data("Y_proteomic")
 #' X <- X_proteomic[,1:50]
 #' Y <- Y_proteomic
-#' splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+#' splsicox.model <- splsicox(X, Y, n.comp = 2, penalty = 0.5, x.center = TRUE, x.scale = TRUE)
 #' plot_cox.event(splsicox.model)
 
 plot_cox.event <- function(model, type = "lp", n.breaks = 20){
@@ -3580,8 +3580,8 @@ plot_observation.eventHistogram <- function(observation, model, time = NULL, typ
 #' data("Y_proteomic")
 #' X <- X_proteomic[,1:50]
 #' Y <- Y_proteomic
-#' splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
-#' splsdrcox.model <- splsdrcox(X, Y, n.comp = 2, eta = 0.5, x.center = TRUE, x.scale = TRUE)
+#' splsicox.model <- splsicox(X, Y, n.comp = 2, penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+#' splsdrcox.model <- splsdrcox(X, Y, n.comp = 2, penalty = 0.5, x.center = TRUE, x.scale = TRUE)
 #' lst_models = list("sPLSICOX" = splsicox.model, "sPLSDRCOX" = splsdrcox.model)
 #' plot_pseudobeta.list(lst_models = lst_models)
 
@@ -3668,7 +3668,7 @@ plot_pseudobeta.list <- function(lst_models, error.bar = TRUE, onlySig = FALSE, 
 #' data("Y_proteomic")
 #' X <- X_proteomic[,1:50]
 #' Y <- Y_proteomic
-#' splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+#' splsicox.model <- splsicox(X, Y, n.comp = 2, penalty = 0.5, x.center = TRUE, x.scale = TRUE)
 #' plot_pseudobeta(model = splsicox.model)
 
 plot_pseudobeta <- function(model, error.bar = TRUE, onlySig = FALSE, alpha = 0.05, zero.rm = TRUE, top = NULL,
@@ -3892,9 +3892,9 @@ plot_pseudobeta <- function(model, error.bar = TRUE, onlySig = FALSE, alpha = 0.
 #' Y_train <- Y_proteomic[index_train,]
 #' X_test <- X_proteomic[-index_train,1:50]
 #' Y_test <- Y_proteomic[-index_train,]
-#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, spv_penalty = 0.5, x.center = TRUE,
+#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, penalty = 0.5, x.center = TRUE,
 #' x.scale = TRUE)
-#' splsdrcox.model <- splsdrcox(X_train, Y_train, n.comp = 2, eta = 0.5, x.center = TRUE,
+#' splsdrcox.model <- splsdrcox(X_train, Y_train, n.comp = 2, penalty = 0.5, x.center = TRUE,
 #' x.scale = TRUE)
 #' lst_models = list("sPLSICOX" = splsicox.model, "sPLSDRCOX" = splsdrcox.model)
 #' plot_pseudobeta_newObservation.list(lst_models, new_observation = X_test[1,,drop=FALSE])
@@ -3984,7 +3984,7 @@ plot_pseudobeta_newObservation.list <- function(lst_models, new_observation, err
 #' Y_train <- Y_proteomic[index_train,]
 #' X_test <- X_proteomic[-index_train,1:50]
 #' Y_test <- Y_proteomic[-index_train,]
-#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, spv_penalty = 0.5, x.center = TRUE,
+#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, penalty = 0.5, x.center = TRUE,
 #' x.scale = TRUE)
 #' plot_pseudobeta_newObservation(model = splsicox.model, new_observation = X_test[1,,drop=FALSE])
 
@@ -4450,9 +4450,9 @@ plot_MB.pseudobeta.newObservation <- function(model, new_observation, error.bar 
 #' Y_train <- Y_proteomic[index_train,]
 #' X_test <- X_proteomic[-index_train,1:20]
 #' Y_test <- Y_proteomic[-index_train,]
-#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 1, spv_penalty = 0.5, x.center = TRUE,
+#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 1, penalty = 0.5, x.center = TRUE,
 #' x.scale = TRUE)
-#' splsdrcox.model <- splsdrcox(X_train, Y_train, n.comp = 1, eta = 0.5, x.center = TRUE,
+#' splsdrcox.model <- splsdrcox(X_train, Y_train, n.comp = 1, penalty = 0.5, x.center = TRUE,
 #' x.scale = TRUE)
 #' lst_models = list("sPLSICOX" = splsicox.model, "sPLSDRCOX" = splsdrcox.model)
 #' getAutoKM.list(type = "LP", lst_models)
@@ -4552,7 +4552,7 @@ getAutoKM.list <- function(type = "LP", lst_models, comp = 1:2, top = NULL, ori_
 #' Y_train <- Y_proteomic[index_train,]
 #' X_test <- X_proteomic[-index_train,1:50]
 #' Y_test <- Y_proteomic[-index_train,]
-#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, spv_penalty = 0.5, x.center = TRUE,
+#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, penalty = 0.5, x.center = TRUE,
 #' x.scale = TRUE)
 #' getAutoKM(type = "LP", model = splsicox.model)
 
@@ -5716,9 +5716,9 @@ plot_survivalplot.qual <- function(data, sdata, cn_variables, name_data = NULL, 
 #' Y_train <- Y_proteomic[index_train,]
 #' X_test <- X_proteomic[-index_train,1:50]
 #' Y_test <- Y_proteomic[-index_train,]
-#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, spv_penalty = 0.5, x.center = TRUE,
+#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, penalty = 0.5, x.center = TRUE,
 #' x.scale = TRUE)
-#' splsdrcox.model <- splsdrcox(X_train, Y_train, n.comp = 2, eta = 0.5, x.center = TRUE,
+#' splsdrcox.model <- splsdrcox(X_train, Y_train, n.comp = 2, penalty = 0.5, x.center = TRUE,
 #' x.scale = TRUE)
 #' lst_models = list("sPLSICOX" = splsicox.model, "sPLSDRCOX" = splsdrcox.model)
 #' lst_results = getAutoKM.list(type = "LP", lst_models)
@@ -5756,7 +5756,7 @@ getCutoffAutoKM.list <- function(lst_results){
 #' Y_train <- Y_proteomic[index_train,]
 #' X_test <- X_proteomic[-index_train,1:50]
 #' Y_test <- Y_proteomic[-index_train,]
-#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, spv_penalty = 0.5, x.center = TRUE,
+#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, penalty = 0.5, x.center = TRUE,
 #' x.scale = TRUE)
 #' KMresult = getAutoKM(type = "LP", model = splsicox.model)
 #' getCutoffAutoKM(result = KMresult)
@@ -5836,9 +5836,9 @@ getCutoffAutoKM <- function(result){
 #' Y_train <- Y_proteomic[index_train,]
 #' X_test <- X_proteomic[-index_train,1:20]
 #' Y_test <- Y_proteomic[-index_train,]
-#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 1, spv_penalty = 0.5, x.center = TRUE,
+#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 1, penalty = 0.5, x.center = TRUE,
 #' x.scale = TRUE)
-#' splsdrcox.model <- splsdrcox(X_train, Y_train, n.comp = 1, eta = 0.5, x.center = TRUE,
+#' splsdrcox.model <- splsdrcox(X_train, Y_train, n.comp = 1, penalty = 0.5, x.center = TRUE,
 #' x.scale = TRUE)
 #' lst_models = list("sPLSICOX" = splsicox.model, "sPLSDRCOX" = splsdrcox.model)
 #' lst_results = getAutoKM.list(type = "LP", lst_models)
@@ -5961,7 +5961,7 @@ getTestKM.list <- function(lst_models, X_test, Y_test, lst_cutoff, type = "LP", 
 #' Y_train <- Y_proteomic[index_train,]
 #' X_test <- X_proteomic[-index_train,1:50]
 #' Y_test <- Y_proteomic[-index_train,]
-#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, spv_penalty = 0.5, x.center = TRUE,
+#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, penalty = 0.5, x.center = TRUE,
 #' x.scale = TRUE)
 #' KMresult = getAutoKM(type = "LP", model = splsicox.model)
 #' cutoff <- getCutoffAutoKM(result = KMresult)
@@ -6196,9 +6196,9 @@ getTestKM <- function(model, X_test, Y_test, cutoff, type = "LP", ori_data = TRU
 #' Y_train <- Y_proteomic[index_train,]
 #' X_test <- X_proteomic[-index_train,1:50]
 #' Y_test <- Y_proteomic[-index_train,]
-#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, spv_penalty = 0.5, x.center = TRUE,
+#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, penalty = 0.5, x.center = TRUE,
 #' x.scale = TRUE)
-#' splsdrcox.model <- splsdrcox(X_train, Y_train, n.comp = 2, eta = 0.5, x.center = TRUE,
+#' splsdrcox.model <- splsdrcox(X_train, Y_train, n.comp = 2, penalty = 0.5, x.center = TRUE,
 #' x.scale = TRUE)
 #' lst_models = list("sPLSICOX" = splsicox.model, "sPLSDRCOX" = splsdrcox.model)
 #' plot_LP.multipleObservations.list(lst_models = lst_models, X_test[1:5,])
@@ -6260,7 +6260,7 @@ plot_LP.multipleObservations.list <- function(lst_models, new_observations, erro
 #' Y_train <- Y_proteomic[index_train,]
 #' X_test <- X_proteomic[-index_train,1:50]
 #' Y_test <- Y_proteomic[-index_train,]
-#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, spv_penalty = 0.5, x.center = TRUE,
+#' splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, penalty = 0.5, x.center = TRUE,
 #' x.scale = TRUE)
 #' plot_LP.multipleObservations(model = splsicox.model, new_observations = X_test[1:5,])
 

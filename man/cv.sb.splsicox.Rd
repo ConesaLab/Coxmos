@@ -8,7 +8,7 @@ cv.sb.splsicox(
   X,
   Y,
   max.ncomp = 8,
-  spv_penalty.list = seq(0.1, 0.9, 0.2),
+  penalty.list = seq(0.1, 0.9, 0.2),
   n_run = 3,
   k_folds = 10,
   x.center = TRUE,
@@ -51,8 +51,8 @@ event observations.}
 \item{max.ncomp}{Numeric. Maximum number of PLS components to compute for the cross validation
 (default: 8).}
 
-\item{spv_penalty.list}{Numeric vector. Penalty for variable selection for the individual cox
-models. Variables with a lower P-Value than 1 - "spv_penalty" in the individual cox analysis will
+\item{penalty.list}{Numeric vector. Penalty for variable selection for the individual cox
+models. Variables with a lower P-Value than 1 - "penalty" in the individual cox analysis will
 be keep for the sPLS-ICOX approach (default: seq(0.1,0.9,0.2)).}
 
 \item{n_run}{Numeric. Number of runs for cross validation (default: 3).}
@@ -151,7 +151,7 @@ information).
 \code{pred.method}: AUC evaluation algorithm method for evaluate the model performance.
 
 \code{opt.comp}: Optimal component selected by the best_model.
-\code{opt.spv_penalty}: Optimal penalty value selected by the best_model.
+\code{opt.penalty}: Optimal penalty value selected by the best_model.
 
 \code{plot_AIC}: AIC plot by each hyper-parameter.
 \code{plot_c_index}: C-Index plot by each hyper-parameter.
@@ -211,7 +211,7 @@ X_train <- X_multiomic
 X_train$mirna <- X_train$mirna[index_train,1:50]
 X_train$proteomic <- X_train$proteomic[index_train,1:50]
 Y_train <- Y_multiomic[index_train,]
-cv.sb.splsicox_model <- cv.sb.splsicox(X_train, Y_train, max.ncomp = 2, spv_penalty.list = c(0.5),
+cv.sb.splsicox_model <- cv.sb.splsicox(X_train, Y_train, max.ncomp = 2, penalty.list = c(0.5),
 n_run = 1, k_folds = 2, x.center = TRUE, x.scale = TRUE)
 }
 \author{

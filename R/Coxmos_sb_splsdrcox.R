@@ -20,7 +20,7 @@
 #' survival outcome.
 #'
 #' The function offers flexibility in specifying various hyperparameters, such as the number of latent
-#' components (`n.comp`) and the penalty for variable selection (`eta`). The penalty parameter, `eta`,
+#' components (`n.comp`) and the penalty for variable selection (`penalty`). The penalty parameter, `penalty`,
 #' controls the sparsity of the model, with higher values leading to more variables being excluded from
 #' the model. This allows for a balance between model complexity and interpretability.
 #'
@@ -46,8 +46,9 @@
 #' "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and
 #' event observations.
 #' @param n.comp Numeric. Number of latent components to compute for the (s)PLS model (default: 10).
-#' @param eta Numeric (0-1). Penalty for sPLS. If eta = 0 no penalty is applied and 1 maximum penalty
-#' (no variables are selected). Equal or greater than 1 cannot be selected (default: 0.5).
+#' @param penalty Numeric. Penalty for sPLS-DRCOX. If penalty = 0 no penalty is applied, when
+#' penalty = 1 maximum penalty (no variables are selected) based on 'plsRcox' penalty. Equal or greater
+#' than 1 cannot be selected (default: 0.5).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
 #' @param remove_near_zero_variance Logical. If remove_near_zero_variance = TRUE, near zero variance
@@ -103,7 +104,7 @@
 #'
 #' \code{n.comp}: Number of components selected.
 #'
-#' \code{eta} Penalty applied.
+#' \code{penalty} Penalty applied.
 #'
 #' \code{call}: call function
 #'
@@ -130,10 +131,10 @@
 #' X$mirna <- X$mirna[,1:50]
 #' X$proteomic <- X$proteomic[,1:50]
 #' Y <- Y_multiomic
-#' sb.splsdrcox(X, Y, n.comp = 2, eta = 0.5, x.center = TRUE, x.scale = TRUE)
+#' sb.splsdrcox(X, Y, n.comp = 2, penalty = 0.5, x.center = TRUE, x.scale = TRUE)
 
 sb.splsdrcox <- function (X, Y,
-                         n.comp = 4, eta = 0.5,
+                         n.comp = 4, penalty = 0.5,
                          x.center = TRUE, x.scale = FALSE,
                          remove_near_zero_variance = TRUE, remove_zero_variance = TRUE, toKeep.zv = NULL,
                          remove_non_significant = FALSE, alpha = 0.05,
@@ -146,7 +147,7 @@ sb.splsdrcox <- function (X, Y,
   FREQ_CUT <- 95/5
 
   #### Check values classes and ranges
-  params_with_limits <- list("eta" = eta)
+  params_with_limits <- list("penalty" = penalty)
   check_min0_less1_variables(params_with_limits)
 
   params_with_limits <- list("alpha" = alpha)
@@ -211,7 +212,7 @@ sb.splsdrcox <- function (X, Y,
   # CREATE INDIVIDUAL MODELS
   lst_sb.spls <- list()
   for(b in names(Xh)){
-    lst_sb.spls[[b]] <- splsdrcox(X = Xh[[b]], Y = Yh, n.comp = n.comp, eta = eta,
+    lst_sb.spls[[b]] <- splsdrcox(X = Xh[[b]], Y = Yh, n.comp = n.comp, penalty = penalty,
                                  x.scale = FALSE, x.center = FALSE,
                                  #y.scale = FALSE, y.center = FALSE,
                                  remove_near_zero_variance = FALSE, remove_zero_variance = FALSE, toKeep.zv = NULL, #zero_var already checked
@@ -290,7 +291,7 @@ sb.splsdrcox <- function (X, Y,
                                 survival_model = survival_model,
                                 list_spls_models = lst_sb.spls,
                                 n.comp = n.comp, #number of components used, but could be lesser than expected because not computed models
-                                eta = eta,
+                                penalty = penalty,
                                 call = if(returnData) func_call else NA,
                                 X_input = if(returnData) X_original else NA,
                                 Y_input = if(returnData) Y_original else NA,
@@ -319,7 +320,7 @@ sb.splsdrcox <- function (X, Y,
 #' performance of a statistical model by partitioning the original sample into a training set to train
 #' the model, and a test set to evaluate it. This helps in selecting the optimal hyperparameters for
 #' the model, such as the number of latent components (`max.ncomp`) and the penalty for variable
-#' selection (`eta.list`).
+#' selection (`penalty.list`).
 #'
 #' The function systematically evaluates different combinations of hyperparameters by performing
 #' multiple runs and folds. For each combination, the dataset is divided into training and test sets
@@ -354,7 +355,9 @@ sb.splsdrcox <- function (X, Y,
 #' event observations.
 #' @param max.ncomp Numeric. Maximum number of PLS components to compute for the cross validation
 #' (default: 8).
-#' @param eta.list Numeric vector. Vector of penalty values (default: seq(0.1,0.9,0.2)).
+#' @param penalty.list Numeric vector. Vector of penalty values. Penalty for sPLS-DRCOX. If
+#' penalty = 0 no penalty is applied, when penalty = 1 maximum penalty (no variables are selected)
+#' based on 'plsRcox' penalty. Equal or greater than 1 cannot be selected (default: seq(0.1,0.9,0.2)).
 #' @param n_run Numeric. Number of runs for cross validation (default: 3).
 #' @param k_folds Numeric. Number of folds for cross validation (default: 10).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
@@ -425,7 +428,7 @@ sb.splsdrcox <- function (X, Y,
 #' \code{pred.method}: AUC evaluation algorithm method for evaluate the model performance.
 #'
 #' \code{opt.comp}: Optimal component selected by the best_model.
-#' \code{opt.eta}: Optimal eta/penalty selected by the best_model.
+#' \code{opt.penalty}: Optimal penalty/penalty selected by the best_model.
 #' \code{opt.nvar}: Optimal number of variables selected by the best_model.
 #'
 #' \code{plot_AIC}: AIC plot by each hyper-parameter.
@@ -455,11 +458,11 @@ sb.splsdrcox <- function (X, Y,
 #' X_train$mirna <- X_train$mirna[index_train,1:50]
 #' X_train$proteomic <- X_train$proteomic[index_train,1:50]
 #' Y_train <- Y_multiomic[index_train,]
-#' cv.sb.splsdrcox_model <- cv.sb.splsdrcox(X_train, Y_train, max.ncomp = 2, eta.list = c(0.5),
+#' cv.sb.splsdrcox_model <- cv.sb.splsdrcox(X_train, Y_train, max.ncomp = 2, penalty.list = c(0.5),
 #' n_run = 1, k_folds = 2, x.center = TRUE, x.scale = TRUE)
 
 cv.sb.splsdrcox <- function(X, Y,
-                           max.ncomp = 8, eta.list = seq(0.1,0.9,0.2),
+                           max.ncomp = 8, penalty.list = seq(0.1,0.9,0.2),
                            n_run = 3, k_folds = 10,
                            x.center = TRUE, x.scale = FALSE,
                            remove_near_zero_variance = TRUE, remove_zero_variance = TRUE, toKeep.zv = NULL,
@@ -486,7 +489,7 @@ cv.sb.splsdrcox <- function(X, Y,
   checkLibraryEvaluator(pred.method)
 
   #### Check values classes and ranges
-  params_with_limits <- list("eta.list" = eta.list)
+  params_with_limits <- list("penalty.list" = penalty.list)
   check_min0_less1_variables(params_with_limits)
 
   params_with_limits <- list("MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
@@ -511,8 +514,8 @@ cv.sb.splsdrcox <- function(X, Y,
   check_class(character_params, class = "character")
 
   #### FIX possible SEQ() problems
-  eta.list <- as.character(eta.list)
-  eta.list <- as.numeric(eta.list)
+  penalty.list <- as.character(penalty.list)
+  penalty.list <- as.numeric(penalty.list)
 
   #### Check cv-folds
   lst_checkFR <- checkFoldRuns(Y, n_run, k_folds, fast_mode)
@@ -591,13 +594,13 @@ cv.sb.splsdrcox <- function(X, Y,
   #### ### ### ###
   # TRAIN MODELS #
   #### ### ### ###
-  #total_models <- 1 * k_folds * n_run * length(eta.list)
-  total_models <- max.ncomp * k_folds * n_run * length(eta.list)
+  #total_models <- 1 * k_folds * n_run * length(penalty.list)
+  total_models <- max.ncomp * k_folds * n_run * length(penalty.list)
 
   lst_model <- get_Coxmos_models2.0(method = pkg.env$sb.splsdrcox,
                                    X_train = X, Y_train = Y,
                                    lst_X_train = lst_train_indexes, lst_Y_train = lst_train_indexes,
-                                   max.ncomp = max.ncomp, eta.list = eta.list, EN.alpha.list = NULL, max.variables = NULL, vector = NULL,
+                                   max.ncomp = max.ncomp, penalty.list = penalty.list, EN.alpha.list = NULL, max.variables = NULL, vector = NULL,
                                    n_run = n_run, k_folds = k_folds,
                                    MIN_NVAR = NULL, MAX_NVAR = NULL, MIN_AUC_INCREASE = NULL, EVAL_METHOD = NULL,
                                    n.cut_points = NULL,
@@ -616,18 +619,18 @@ cv.sb.splsdrcox <- function(X, Y,
   #   t2 <- Sys.time()
   #   time <- difftime(t2,t1,units = "mins")
   #   if(return_models){
-  #     return(cv.sb.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = lst_model, pred.method = pred.method, opt.comp = NULL, opt.eta = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.sb.splsdrcox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+  #     return(cv.sb.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = lst_model, pred.method = pred.method, opt.comp = NULL, opt.penalty = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.sb.splsdrcox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
   #   }else{
-  #     return(cv.sb.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.eta = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.sb.splsdrcox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+  #     return(cv.sb.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.penalty = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.sb.splsdrcox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
   #   }
   # }
 
   #### ### ### ### ### ### #
   # BEST MODEL FOR CV DATA #
   #### ### ### ### ### ### #
-  total_models <- max.ncomp * k_folds * n_run * length(eta.list)
+  total_models <- max.ncomp * k_folds * n_run * length(penalty.list)
   df_results_evals <- get_COX_evaluation_AIC_CINDEX(comp_model_lst = lst_model$comp_model_lst, alpha = alpha,
-                                                    max.ncomp = max.ncomp, eta.list = eta.list, n_run = n_run, k_folds = k_folds,
+                                                    max.ncomp = max.ncomp, penalty.list = penalty.list, n_run = n_run, k_folds = k_folds,
                                                     total_models = total_models, remove_non_significant_models = remove_non_significant_models, verbose = verbose)
 
   if(all(is.null(df_results_evals))){
@@ -636,9 +639,9 @@ cv.sb.splsdrcox <- function(X, Y,
     t2 <- Sys.time()
     time <- difftime(t2,t1,units = "mins")
     if(return_models){
-      return(cv.sb.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = lst_model, pred.method = pred.method, opt.comp = NULL, opt.eta = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.sb.splsdrcox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+      return(cv.sb.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = lst_model, pred.method = pred.method, opt.comp = NULL, opt.penalty = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.sb.splsdrcox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
     }else{
-      return(cv.sb.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.eta = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.sb.splsdrcox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+      return(cv.sb.splsdrcox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.penalty = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.sb.splsdrcox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
     }
   }
 
@@ -666,7 +669,7 @@ cv.sb.splsdrcox <- function(X, Y,
                                             lst_X_test = lst_test_indexes, lst_Y_test = lst_test_indexes,
                                             df_results_evals = df_results_evals, times = times,
                                             pred.method = pred.method, pred.attr = pred.attr,
-                                            max.ncomp = max.ncomp, eta.list = eta.list, n_run = n_run, k_folds = k_folds,
+                                            max.ncomp = max.ncomp, penalty.list = penalty.list, n_run = n_run, k_folds = k_folds,
                                             MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
                                             w_BRIER = w_BRIER, method.train = pkg.env$sb.splsdrcox, PARALLEL = FALSE, verbose = verbose)
 
@@ -680,7 +683,7 @@ cv.sb.splsdrcox <- function(X, Y,
   #### ### ### ### #
 
   if(w_AUC!=0){
-    total_models <- ifelse(!fast_mode, n_run * max.ncomp * length(eta.list), k_folds * n_run * max.ncomp * length(eta.list))
+    total_models <- ifelse(!fast_mode, n_run * max.ncomp * length(penalty.list), k_folds * n_run * max.ncomp * length(penalty.list))
 
     #times should be the same for all folds
     #calculate time vector if still NULL
@@ -693,7 +696,7 @@ cv.sb.splsdrcox <- function(X, Y,
                                           lst_X_test = lst_test_indexes, lst_Y_test = lst_test_indexes,
                                           df_results_evals = df_results_evals, times = times,
                                           fast_mode = fast_mode, pred.method = pred.method, pred.attr = pred.attr,
-                                          max.ncomp = max.ncomp, eta.list = eta.list, n_run = n_run, k_folds = k_folds,
+                                          max.ncomp = max.ncomp, penalty.list = penalty.list, n_run = n_run, k_folds = k_folds,
                                           MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
                                           w_AUC = w_AUC, method.train = pkg.env$sb.splsdrcox, PARALLEL = FALSE, verbose = verbose)
 
@@ -729,7 +732,7 @@ cv.sb.splsdrcox <- function(X, Y,
                                                  colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC", colname_BRIER = "BRIER")
 
   if(optimal_comp_flag){
-    best_model_info <- df_results_evals_comp[df_results_evals_comp[,"n.comps"]==optimal_comp_index & df_results_evals_comp[,"eta"]==optimal_eta,, drop = FALSE][1,]
+    best_model_info <- df_results_evals_comp[df_results_evals_comp[,"n.comps"]==optimal_comp_index & df_results_evals_comp[,"penalty"]==optimal_eta,, drop = FALSE][1,]
     best_model_info <- as.data.frame(best_model_info)
   }else{
     best_model_info <- df_results_evals_comp[which(df_results_evals_comp[,"score"] == max(df_results_evals_comp[,"score"], na.rm = TRUE)),, drop = FALSE][1,]
@@ -739,7 +742,7 @@ cv.sb.splsdrcox <- function(X, Y,
   #### ###
   # PLOT #
   #### ###
-  lst_EVAL_PLOTS <- get_EVAL_PLOTS(fast_mode = fast_mode, best_model_info = best_model_info, w_AUC = w_AUC, w_BRIER = w_BRIER, max.ncomp = max.ncomp, eta.list = eta.list,
+  lst_EVAL_PLOTS <- get_EVAL_PLOTS(fast_mode = fast_mode, best_model_info = best_model_info, w_AUC = w_AUC, w_BRIER = w_BRIER, max.ncomp = max.ncomp, penalty.list = penalty.list,
                                    df_results_evals_fold = df_results_evals_fold, df_results_evals_run = df_results_evals_run, df_results_evals_comp = df_results_evals_comp,
                                    colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC", colname_BRIER = "BRIER", x.text = "Component")
 
@@ -754,9 +757,9 @@ cv.sb.splsdrcox <- function(X, Y,
   # RETURN #
   #### ### #
 
-  df_results_evals$eta <- as.numeric(as.character(df_results_evals$eta))
-  df_results_evals_run$eta <- as.numeric(as.character(df_results_evals_run$eta))
-  df_results_evals_comp$eta <- as.numeric(as.character(df_results_evals_comp$eta))
+  df_results_evals$penalty <- as.numeric(as.character(df_results_evals$penalty))
+  df_results_evals_run$penalty <- as.numeric(as.character(df_results_evals_run$penalty))
+  df_results_evals_comp$penalty <- as.numeric(as.character(df_results_evals_comp$penalty))
 
   message(paste0("Best model obtained.\n"))
 
@@ -765,9 +768,9 @@ cv.sb.splsdrcox <- function(X, Y,
 
   # invisible(gc())
   if(return_models){
-    return(cv.sb.splsdrcox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = lst_model, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.eta = best_model_info$eta, plot_AIC = ggp_AIC, plot_c_index = ggp_c_index, plot_BRIER = ggp_BRIER, plot_AUC = ggp_AUC, class = pkg.env$cv.sb.splsdrcox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+    return(cv.sb.splsdrcox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = lst_model, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.penalty = best_model_info$penalty, plot_AIC = ggp_AIC, plot_c_index = ggp_c_index, plot_BRIER = ggp_BRIER, plot_AUC = ggp_AUC, class = pkg.env$cv.sb.splsdrcox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
   }else{
-    return(cv.sb.splsdrcox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = NULL, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.eta = best_model_info$eta, plot_AIC = ggp_AIC, plot_c_index = ggp_c_index, plot_BRIER = ggp_BRIER, plot_AUC = ggp_AUC, class = pkg.env$cv.sb.splsdrcox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+    return(cv.sb.splsdrcox_class(list(best_model_info = best_model_info, df_results_folds = df_results_evals_fold, df_results_runs = df_results_evals_run, df_results_comps = df_results_evals_comp, lst_models = NULL, pred.method = pred.method, opt.comp = best_model_info$n.comps, opt.penalty = best_model_info$penalty, plot_AIC = ggp_AIC, plot_c_index = ggp_c_index, plot_BRIER = ggp_BRIER, plot_AUC = ggp_AUC, class = pkg.env$cv.sb.splsdrcox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
   }
 }
 
@@ -795,7 +798,7 @@ cv.sb.splsdrcox <- function(X, Y,
 #' partition of the data.
 #'
 #' The function evaluates a range of hyperparameters, including the number of latent components
-#' (`max.ncomp`) and the penalty for variable selection (`eta.list`). For each combination of
+#' (`max.ncomp`) and the penalty for variable selection (`penalty.list`). For each combination of
 #' hyperparameters, the dataset is divided into training and test sets based on the specified number
 #' of folds (`k_folds`). The model is then trained on the training set and its performance is assessed
 #' on the test set. This process is repeated for the specified number of runs (`n_run`), providing a
@@ -819,7 +822,9 @@ cv.sb.splsdrcox <- function(X, Y,
 #' event observations.
 #' @param max.ncomp Numeric. Maximum number of PLS components to compute for the cross validation
 #' (default: 8).
-#' @param eta.list Numeric vector. Vector of penalty values (default: seq(0.1,0.9,0.2)).
+#' @param penalty.list Numeric vector. Vector of penalty values. Penalty for sPLS-DRCOX. If
+#' penalty = 0 no penalty is applied, when penalty = 1 maximum penalty (no variables are selected)
+#' based on 'plsRcox' penalty. Equal or greater than 1 cannot be selected (default: seq(0.1,0.9,0.2)).
 #' @param n_run Numeric. Number of runs for cross validation (default: 3).
 #' @param k_folds Numeric. Number of folds for cross validation (default: 10).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
@@ -915,7 +920,7 @@ cv.sb.splsdrcox <- function(X, Y,
 #'
 #' \code{n.comp}: Number of components selected.
 #'
-#' \code{eta} Penalty applied.
+#' \code{penalty} Penalty applied.
 #'
 #' \code{call}: call function
 #'
@@ -944,11 +949,11 @@ cv.sb.splsdrcox <- function(X, Y,
 #' X_train$mirna <- X_train$mirna[index_train,1:50]
 #' X_train$proteomic <- X_train$proteomic[index_train,1:50]
 #' Y_train <- Y_multiomic[index_train,]
-#' isb.splsdrcox_model <- cv.isb.splsdrcox(X_train, Y_train, max.ncomp = 2, eta.list = c(0.5),
+#' isb.splsdrcox_model <- cv.isb.splsdrcox(X_train, Y_train, max.ncomp = 2, penalty.list = c(0.5),
 #' n_run = 1, k_folds = 2, x.center = TRUE, x.scale = TRUE)
 
 cv.isb.splsdrcox <- function(X, Y,
-                             max.ncomp = 8, eta.list = seq(0.1,0.9,0.2),
+                             max.ncomp = 8, penalty.list = seq(0.1,0.9,0.2),
                              n_run = 3, k_folds = 10,
                              x.center = TRUE, x.scale = FALSE,
                              remove_near_zero_variance = TRUE, remove_zero_variance = TRUE,
@@ -972,7 +977,7 @@ cv.isb.splsdrcox <- function(X, Y,
   checkLibraryEvaluator(pred.method)
 
   #### Check values classes and ranges
-  params_with_limits <- list("eta.list" = eta.list)
+  params_with_limits <- list("penalty.list" = penalty.list)
   check_min0_less1_variables(params_with_limits)
 
   params_with_limits <- list("MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
@@ -997,8 +1002,8 @@ cv.isb.splsdrcox <- function(X, Y,
   check_class(character_params, class = "character")
 
   #### FIX possible SEQ() problems
-  eta.list <- as.character(eta.list)
-  eta.list <- as.numeric(eta.list)
+  penalty.list <- as.character(penalty.list)
+  penalty.list <- as.numeric(penalty.list)
 
   #### Check cv-folds
   lst_checkFR <- checkFoldRuns(Y, n_run, k_folds, fast_mode)
@@ -1092,7 +1097,7 @@ cv.isb.splsdrcox <- function(X, Y,
     t1 <- Sys.time()
 
     cv.splsdrcox_res <- cv.splsdrcox(X = Xh[[b]], Y = Yh,
-                                     max.ncomp = max.ncomp, eta.list = eta.list,
+                                     max.ncomp = max.ncomp, penalty.list = penalty.list,
                                      n_run = n_run, k_folds = k_folds, alpha = alpha, remove_non_significant_models = remove_non_significant_models,
                                      remove_non_significant = remove_non_significant,
                                      w_AIC = w_AIC, w_c.index = w_c.index, w_BRIER = w_BRIER, w_AUC = w_AUC, times = times, max_time_points = max_time_points,
@@ -1108,7 +1113,7 @@ cv.isb.splsdrcox <- function(X, Y,
     lst_sb.spls[[b]] <- splsdrcox(X = Xh[[b]],
                                   Y = Yh,
                                   n.comp = cv.splsdrcox_res$opt.comp,
-                                  eta = cv.splsdrcox_res$opt.eta,
+                                  penalty = cv.splsdrcox_res$opt.penalty,
                                   remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = FALSE, toKeep.zv = NULL,
                                   remove_non_significant = remove_non_significant, alpha = alpha,
                                   returnData = FALSE,
@@ -1125,7 +1130,7 @@ cv.isb.splsdrcox <- function(X, Y,
 
   # CHECK ALL MODELS SAME COMPONENTS
   aux_ncomp <- purrr::map(lst_sb.spls, ~.$n.comp)
-  aux_eta <- purrr::map(lst_sb.spls, ~.$eta)
+  aux_eta <- purrr::map(lst_sb.spls, ~.$penalty)
 
   # CREATE COMBINE MODEL
   data <- NULL
@@ -1174,7 +1179,7 @@ cv.isb.splsdrcox <- function(X, Y,
                                 survival_model = survival_model,
                                 list_spls_models = lst_sb.spls,
                                 n.comp = aux_ncomp, #number of components used, but could be lesser than expected because not computed models
-                                eta = aux_eta,
+                                penalty = aux_eta,
                                 call = func_call,
                                 X_input = if(returnData) X_original else NA,
                                 Y_input = if(returnData) Y_original else NA,

@@ -731,7 +731,7 @@ cv.splsdacox_dynamic <- function(X, Y,
   comp_model_lst <- get_Coxmos_models2.0(method = pkg.env$splsdacox_dynamic,
                                         X_train = X, Y_train = Y,
                                         lst_X_train = lst_train_indexes, lst_Y_train = lst_train_indexes,
-                                        max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL, max.variables = NULL, vector = vector,
+                                        max.ncomp = max.ncomp, penalty.list = NULL, EN.alpha.list = NULL, max.variables = NULL, vector = vector,
                                         n_run = n_run, k_folds = k_folds,
                                         MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, MIN_AUC_INCREASE = MIN_AUC_INCREASE, EVAL_METHOD = EVAL_METHOD,
                                         n.cut_points = n.cut_points,
@@ -761,7 +761,7 @@ cv.splsdacox_dynamic <- function(X, Y,
   #### ### ### ### ### ### #
   total_models <- max.ncomp * k_folds * n_run
   df_results_evals <- get_COX_evaluation_AIC_CINDEX(comp_model_lst = comp_model_lst, alpha = alpha,
-                                                    max.ncomp = max.ncomp, eta.list = NULL, n_run = n_run, k_folds = k_folds,
+                                                    max.ncomp = max.ncomp, penalty.list = NULL, n_run = n_run, k_folds = k_folds,
                                                     total_models = total_models, remove_non_significant_models = remove_non_significant_models, verbose = verbose)
 
   if(all(is.null(df_results_evals))){

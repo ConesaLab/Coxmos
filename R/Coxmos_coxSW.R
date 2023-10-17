@@ -363,6 +363,7 @@ stepwise.coxph <- function(Time = NULL, Status = NULL, variable.list,
       in.variable <- colnames(data)[!colnames(data) %in% c("time", "event", "status")]
     }
 
+    # If X matrix has more variables than EPV and BACKWARDS...
     if(!is.null(max.variables) & length(in.variable) > max.variables){
 
       icox <- getIndividualCox(data = data[,colnames(data) %in% c(in.variable, "time", "event", "status")], time_var = "time", event_var = "event")
@@ -392,7 +393,7 @@ stepwise.coxph <- function(Time = NULL, Status = NULL, variable.list,
       initial.model <- lst_model$model
 
     }else{
-      # we CAN compute a standard cox bc te data has lesser variables than observations
+      # we CAN compute a standard cox because the data has less variables than observations
       aux_data <- as.data.frame(data[,colnames(data) %in% c(in.variable, "time", "event", "status"),drop = FALSE])
       #initial.model <- survival::coxph(as.formula(paste("Surv(", Time, ", ", Status, ") ~ .")), data = aux_data,
       #                                 method = "efron", model = TRUE, singular.ok = TRUE, x = TRUE)
@@ -405,7 +406,10 @@ stepwise.coxph <- function(Time = NULL, Status = NULL, variable.list,
     }
 
   }else{
-    #forward selection - one variable
+
+    # forward selection - one variable
+    # we also need to compute individual cox for the first selection
+
     if(!all(in.variable == "NULL")){
       in.variable <- colnames(data)[colnames(data) %in% in.variable]
       if(length(in.variable)==0){

@@ -44,8 +44,8 @@
 #' "time" and "event". For event column, accepted values are: 0/1 or FALSE/TRUE for censored and
 #' event observations.
 #' @param n.comp Numeric. Number of latent components to compute for the (s)PLS model (default: 10).
-#' @param spv_penalty Numeric. Penalty for variable selection for the individual cox models. Variables
-#' with a lower P-Value than 1 - "spv_penalty" in the individual cox analysis will be keep for the
+#' @param penalty Numeric. Penalty for variable selection for the individual cox models. Variables
+#' with a lower P-Value than 1 - "penalty" in the individual cox analysis will be keep for the
 #' sPLS-ICOX approach (default: 1).
 #' @param x.center Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).
 #' @param x.scale Logical. If x.scale = TRUE, X matrix is scaled to unit variances (default: FALSE).
@@ -102,7 +102,7 @@
 #'
 #' \code{n.comp}: Number of components selected.
 #'
-#' \code{spv_penalty} Penalty applied.
+#' \code{penalty} Penalty applied.
 #'
 #' \code{call}: call function
 #'
@@ -129,10 +129,10 @@
 #' X$mirna <- X$mirna[,1:50]
 #' X$proteomic <- X$proteomic[,1:50]
 #' Y <- Y_multiomic
-#' sb.splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+#' sb.splsicox(X, Y, n.comp = 2, penalty = 0.5, x.center = TRUE, x.scale = TRUE)
 
 sb.splsicox <- function(X, Y,
-                        n.comp = 4, spv_penalty = 1,
+                        n.comp = 4, penalty = 1,
                         x.center = TRUE, x.scale = FALSE,
                         remove_near_zero_variance = TRUE, remove_zero_variance = TRUE, toKeep.zv = NULL,
                         remove_non_significant = FALSE, alpha = 0.05,
@@ -145,7 +145,7 @@ sb.splsicox <- function(X, Y,
   FREQ_CUT <- 95/5
 
   #### Check values classes and ranges
-  params_with_limits <- list("eta" = spv_penalty)
+  params_with_limits <- list("penalty" = penalty)
   check_min0_less1_variables(params_with_limits)
 
   params_with_limits <- list("alpha" = alpha)
@@ -208,7 +208,7 @@ sb.splsicox <- function(X, Y,
   n.comp <- check.mb.maxPredictors(X, Y, MIN_EPV, n.comp, verbose = verbose)
 
   # CREATE INDIVIDUAL MODELS
-  lst_sb.pls <- purrr::map(names(Xh), ~splsicox(X = Xh[[.]], Y = Yh, n.comp = n.comp, spv_penalty = spv_penalty,
+  lst_sb.pls <- purrr::map(names(Xh), ~splsicox(X = Xh[[.]], Y = Yh, n.comp = n.comp, penalty = penalty,
                                                 x.scale = FALSE, x.center = FALSE,
                                                 #y.scale = FALSE, y.center = FALSE,
                                                 remove_near_zero_variance = FALSE, remove_zero_variance = FALSE,
@@ -217,7 +217,7 @@ sb.splsicox <- function(X, Y,
                                                 returnData = FALSE, verbose = verbose))
 
   ## TEST ##
-  # aux <- splsicox(X = Xh$clinical, Y = Yh, n.comp = n.comp, spv_penalty = spv_penalty,
+  # aux <- splsicox(X = Xh$clinical, Y = Yh, n.comp = n.comp, penalty = penalty,
   #          x.scale = FALSE, x.center = FALSE,
   #          #y.scale = FALSE, y.center = FALSE,
   #          remove_near_zero_variance = FALSE, remove_zero_variance = FALSE,
@@ -306,7 +306,7 @@ sb.splsicox <- function(X, Y,
                                 survival_model = survival_model,
                                 list_spls_models = lst_sb.pls,
                                 n.comp = aux_ncomp, #number of components used, but could be lesser than expected because not computed models
-                                spv_penalty = spv_penalty,
+                                penalty = penalty,
                                 call = if(returnData) func_call else NA,
                                 X_input = if(returnData) X_original else NA,
                                 Y_input = if(returnData) Y_original else NA,
@@ -364,8 +364,8 @@ sb.splsicox <- function(X, Y,
 #' event observations.
 #' @param max.ncomp Numeric. Maximum number of PLS components to compute for the cross validation
 #' (default: 8).
-#' @param spv_penalty.list Numeric vector. Penalty for variable selection for the individual cox
-#' models. Variables with a lower P-Value than 1 - "spv_penalty" in the individual cox analysis will
+#' @param penalty.list Numeric vector. Penalty for variable selection for the individual cox
+#' models. Variables with a lower P-Value than 1 - "penalty" in the individual cox analysis will
 #' be keep for the sPLS-ICOX approach (default: seq(0.1,0.9,0.2)).
 #' @param n_run Numeric. Number of runs for cross validation (default: 3).
 #' @param k_folds Numeric. Number of folds for cross validation (default: 10).
@@ -434,7 +434,7 @@ sb.splsicox <- function(X, Y,
 #' \code{pred.method}: AUC evaluation algorithm method for evaluate the model performance.
 #'
 #' \code{opt.comp}: Optimal component selected by the best_model.
-#' \code{opt.spv_penalty}: Optimal penalty value selected by the best_model.
+#' \code{opt.penalty}: Optimal penalty value selected by the best_model.
 #'
 #' \code{plot_AIC}: AIC plot by each hyper-parameter.
 #' \code{plot_c_index}: C-Index plot by each hyper-parameter.
@@ -463,11 +463,11 @@ sb.splsicox <- function(X, Y,
 #' X_train$mirna <- X_train$mirna[index_train,1:50]
 #' X_train$proteomic <- X_train$proteomic[index_train,1:50]
 #' Y_train <- Y_multiomic[index_train,]
-#' cv.sb.splsicox_model <- cv.sb.splsicox(X_train, Y_train, max.ncomp = 2, spv_penalty.list = c(0.5),
+#' cv.sb.splsicox_model <- cv.sb.splsicox(X_train, Y_train, max.ncomp = 2, penalty.list = c(0.5),
 #' n_run = 1, k_folds = 2, x.center = TRUE, x.scale = TRUE)
 
 cv.sb.splsicox <- function(X, Y,
-                           max.ncomp = 8, spv_penalty.list = seq(0.1,0.9,0.2),
+                           max.ncomp = 8, penalty.list = seq(0.1,0.9,0.2),
                            n_run = 3, k_folds = 10,
                            x.center = TRUE, x.scale = FALSE,
                            remove_near_zero_variance = TRUE, remove_zero_variance = TRUE, toKeep.zv = NULL,
@@ -494,7 +494,7 @@ cv.sb.splsicox <- function(X, Y,
   checkLibraryEvaluator(pred.method)
 
   #### Check values classes and ranges
-  params_with_limits <- list("spv_penalty.list" = spv_penalty.list)
+  params_with_limits <- list("penalty.list" = penalty.list)
   check_min0_less1_variables(params_with_limits)
 
   params_with_limits <- list("MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
@@ -519,8 +519,8 @@ cv.sb.splsicox <- function(X, Y,
   check_class(character_params, class = "character")
 
   #### FIX possible SEQ() problems
-  spv_penalty.list <- as.character(spv_penalty.list)
-  spv_penalty.list <- as.numeric(spv_penalty.list)
+  penalty.list <- as.character(penalty.list)
+  penalty.list <- as.numeric(penalty.list)
 
   #### Check cv-folds
   lst_checkFR <- checkFoldRuns(Y, n_run, k_folds, fast_mode)
@@ -600,12 +600,12 @@ cv.sb.splsicox <- function(X, Y,
   # TRAIN MODELS #
   #### ### ### ###
   #total_models <- 1 * k_folds * n_run
-  total_models <- max.ncomp * k_folds * n_run * length(spv_penalty.list)
+  total_models <- max.ncomp * k_folds * n_run * length(penalty.list)
 
   lst_model <- get_Coxmos_models2.0(method = pkg.env$sb.splsicox,
                                    X_train = X, Y_train = Y,
                                    lst_X_train = lst_train_indexes, lst_Y_train = lst_train_indexes,
-                                   max.ncomp = max.ncomp, eta.list = spv_penalty.list, EN.alpha.list = NULL, max.variables = NULL, vector = NULL,
+                                   max.ncomp = max.ncomp, penalty.list = penalty.list, EN.alpha.list = NULL, max.variables = NULL, vector = NULL,
                                    n_run = n_run, k_folds = k_folds,
                                    MIN_NVAR = NULL, MAX_NVAR = NULL, MIN_AUC_INCREASE = NULL, EVAL_METHOD = NULL,
                                    n.cut_points = NULL,
@@ -624,18 +624,18 @@ cv.sb.splsicox <- function(X, Y,
   #   t2 <- Sys.time()
   #   time <- difftime(t2,t1,units = "mins")
   #   if(return_models){
-  #     return(cv.sb.splsicox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = lst_model, pred.method = pred.method, opt.comp = NULL, opt.spv_penalty = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.sb.splsicox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+  #     return(cv.sb.splsicox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = lst_model, pred.method = pred.method, opt.comp = NULL, opt.penalty = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.sb.splsicox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
   #   }else{
-  #     return(cv.sb.splsicox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.spv_penalty = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class= pkg.env$cv.sb.splsicox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+  #     return(cv.sb.splsicox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.penalty = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class= pkg.env$cv.sb.splsicox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
   #   }
   # }
 
   #### ### ### ### ### ### #
   # BEST MODEL FOR CV DATA #
   #### ### ### ### ### ### #
-  total_models <- max.ncomp * k_folds * n_run * length(spv_penalty.list)
+  total_models <- max.ncomp * k_folds * n_run * length(penalty.list)
   df_results_evals <- get_COX_evaluation_AIC_CINDEX(comp_model_lst = lst_model$comp_model_lst, alpha = alpha,
-                                                    max.ncomp = max.ncomp, eta.list = spv_penalty.list, n_run = n_run, k_folds = k_folds,
+                                                    max.ncomp = max.ncomp, penalty.list = penalty.list, n_run = n_run, k_folds = k_folds,
                                                     total_models = total_models, remove_non_significant_models = remove_non_significant_models, verbose = verbose)
 
   if(all(is.null(df_results_evals))){
@@ -644,9 +644,9 @@ cv.sb.splsicox <- function(X, Y,
     t2 <- Sys.time()
     time <- difftime(t2,t1,units = "mins")
     if(return_models){
-      return(cv.sb.splsicox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = lst_model, pred.method = pred.method, opt.comp = NULL, opt.spv_penalty = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.sb.splsicox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+      return(cv.sb.splsicox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = lst_model, pred.method = pred.method, opt.comp = NULL, opt.penalty = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class = pkg.env$cv.sb.splsicox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
     }else{
-      return(cv.sb.splsicox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.spv_penalty = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class= pkg.env$cv.sb.splsicox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
+      return(cv.sb.splsicox_class(list(best_model_info = NULL, df_results_folds = NULL, df_results_runs = NULL, df_results_comps = NULL, lst_models = NULL, pred.method = pred.method, opt.comp = NULL, opt.penalty = NULL, plot_AIC = NULL, plot_c_index = NULL, plot_BRIER = NULL, plot_AUC = NULL, class= pkg.env$cv.sb.splsicox, lst_train_indexes = lst_train_indexes, lst_test_indexes = lst_test_indexes, time = time)))
     }
   }
 
@@ -674,7 +674,7 @@ cv.sb.splsicox <- function(X, Y,
                                             lst_X_test = lst_test_indexes, lst_Y_test = lst_test_indexes,
                                             df_results_evals = df_results_evals, times = times,
                                             pred.method = pred.method, pred.attr = pred.attr,
-                                            max.ncomp = max.ncomp, eta.list = spv_penalty.list, n_run = n_run, k_folds = k_folds,
+                                            max.ncomp = max.ncomp, penalty.list = penalty.list, n_run = n_run, k_folds = k_folds,
                                             MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
                                             w_BRIER = w_BRIER, method.train = pkg.env$sb.splsicox, PARALLEL = FALSE, verbose = verbose)
 
@@ -701,7 +701,7 @@ cv.sb.splsicox <- function(X, Y,
                                           lst_X_test = lst_test_indexes, lst_Y_test = lst_test_indexes,
                                           df_results_evals = df_results_evals, times = times,
                                           fast_mode = fast_mode, pred.method = pred.method, pred.attr = pred.attr,
-                                          max.ncomp = max.ncomp, eta.list = spv_penalty.list, n_run = n_run, k_folds = k_folds,
+                                          max.ncomp = max.ncomp, penalty.list = penalty.list, n_run = n_run, k_folds = k_folds,
                                           MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
                                           w_AUC = w_AUC, method.train = pkg.env$sb.splsicox, PARALLEL = FALSE, verbose = verbose)
 
@@ -747,7 +747,7 @@ cv.sb.splsicox <- function(X, Y,
   #### ###
   # PLOT #
   #### ###
-  lst_EVAL_PLOTS <- get_EVAL_PLOTS(fast_mode = fast_mode, best_model_info = best_model_info, w_AUC = w_AUC, w_BRIER = w_BRIER, max.ncomp = max.ncomp, eta.list = spv_penalty.list,
+  lst_EVAL_PLOTS <- get_EVAL_PLOTS(fast_mode = fast_mode, best_model_info = best_model_info, w_AUC = w_AUC, w_BRIER = w_BRIER, max.ncomp = max.ncomp, penalty.list = penalty.list,
                                    df_results_evals_fold = df_results_evals_fold, df_results_evals_run = df_results_evals_run, df_results_evals_comp = df_results_evals_comp,
                                    colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC", colname_BRIER = "BRIER", x.text = "Component")
 
@@ -775,7 +775,7 @@ cv.sb.splsicox <- function(X, Y,
                                      lst_models = lst_model,
                                      pred.method = pred.method,
                                      opt.comp = best_model_info$n.comps,
-                                     opt.spv_penalty = best_model_info$eta,
+                                     opt.penalty = best_model_info$penalty,
                                      plot_AIC = ggp_AIC,
                                      plot_c_index = ggp_c_index,
                                      plot_BRIER = ggp_BRIER,
@@ -791,7 +791,7 @@ cv.sb.splsicox <- function(X, Y,
                                      df_results_comps = df_results_evals_comp,
                                      lst_models = NULL, pred.method = pred.method,
                                      opt.comp = best_model_info$n.comps,
-                                     opt.spv_penalty = best_model_info$eta,
+                                     opt.penalty = best_model_info$penalty,
                                      plot_AIC = ggp_AIC,
                                      plot_c_index = ggp_c_index,
                                      plot_BRIER = ggp_BRIER,
@@ -851,8 +851,8 @@ cv.sb.splsicox <- function(X, Y,
 #' event observations.
 #' @param max.ncomp Numeric. Maximum number of PLS components to compute for the cross validation
 #' (default: 8).
-#' @param spv_penalty.list Numeric vector. Penalty for variable selection for the individual cox models.
-#' Variables with a lower P-Value than 1- "spv_penalty" in the individual cox analysis will be keep
+#' @param penalty.list Numeric vector. Penalty for variable selection for the individual cox models.
+#' Variables with a lower P-Value than 1- "penalty" in the individual cox analysis will be keep
 #' for the sPLS-ICOX approach (default: seq(0.1,0.9,0.2)).
 #' @param n_run Numeric. Number of runs for cross validation (default: 3).
 #' @param k_folds Numeric. Number of folds for cross validation (default: 10).
@@ -946,7 +946,7 @@ cv.sb.splsicox <- function(X, Y,
 #'
 #' \code{n.comp}: Number of components selected.
 #'
-#' \code{spv_penalty} Penalty applied.
+#' \code{penalty} Penalty applied.
 #'
 #' \code{call}: call function
 #'
@@ -975,11 +975,11 @@ cv.sb.splsicox <- function(X, Y,
 #' X_train$mirna <- X_train$mirna[index_train,1:20]
 #' X_train$proteomic <- X_train$proteomic[index_train,1:20]
 #' Y_train <- Y_multiomic[index_train,]
-#' isb.splsicox_model <- cv.isb.splsicox(X_train, Y_train, max.ncomp = 1, spv_penalty.list = c(0.5),
+#' isb.splsicox_model <- cv.isb.splsicox(X_train, Y_train, max.ncomp = 1, penalty.list = c(0.5),
 #' n_run = 1, k_folds = 2, x.center = TRUE, x.scale = TRUE)
 
 cv.isb.splsicox <- function(X, Y,
-                           max.ncomp = 8, spv_penalty.list = seq(0.1,0.9,0.2),
+                           max.ncomp = 8, penalty.list = seq(0.1,0.9,0.2),
                            n_run = 3, k_folds = 10,
                            x.center = TRUE, x.scale = FALSE,
                            remove_near_zero_variance = TRUE, remove_zero_variance = TRUE, toKeep.zv = NULL,
@@ -1002,7 +1002,7 @@ cv.isb.splsicox <- function(X, Y,
   checkLibraryEvaluator(pred.method)
 
   #### Check values classes and ranges
-  params_with_limits <- list("spv_penalty.list" = spv_penalty.list)
+  params_with_limits <- list("penalty.list" = penalty.list)
   check_min0_less1_variables(params_with_limits)
 
   params_with_limits <- list("MIN_AUC_INCREASE" = MIN_AUC_INCREASE, "MIN_AUC" = MIN_AUC, "alpha" = alpha,
@@ -1027,8 +1027,8 @@ cv.isb.splsicox <- function(X, Y,
   check_class(character_params, class = "character")
 
   #### FIX possible SEQ() problems
-  spv_penalty.list <- as.character(spv_penalty.list)
-  spv_penalty.list <- as.numeric(spv_penalty.list)
+  penalty.list <- as.character(penalty.list)
+  penalty.list <- as.numeric(penalty.list)
 
   #### Check cv-folds
   lst_checkFR <- checkFoldRuns(Y, n_run, k_folds, fast_mode)
@@ -1120,7 +1120,7 @@ cv.isb.splsicox <- function(X, Y,
     t1 <- Sys.time()
 
     cv.splsdrcox_res <- cv.splsicox(X = Xh[[b]], Y = Yh,
-                                    max.ncomp = max.ncomp, spv_penalty.list = spv_penalty.list,
+                                    max.ncomp = max.ncomp, penalty.list = penalty.list,
                                     n_run = n_run, k_folds = k_folds, alpha = alpha, remove_non_significant_models = remove_non_significant_models,
                                     w_AIC = w_AIC, w_c.index = w_c.index, w_BRIER = w_BRIER, w_AUC = w_AUC, times = times, max_time_points = max_time_points,
                                     MIN_AUC_INCREASE = MIN_AUC_INCREASE, MIN_AUC = MIN_AUC, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
@@ -1136,7 +1136,7 @@ cv.isb.splsicox <- function(X, Y,
     lst_sb.pls[[b]] <- splsicox(X = Xh[[b]],
                                 Y = Yh,
                                 n.comp = cv.splsdrcox_res$opt.comp,
-                                spv_penalty = cv.splsdrcox_res$opt.spv_penalty,
+                                penalty = cv.splsdrcox_res$opt.penalty,
                                 remove_near_zero_variance = remove_variance_at_fold_level, remove_zero_variance = FALSE, toKeep.zv = NULL,
                                 remove_non_significant = remove_non_significant, alpha = alpha,
                                 returnData = FALSE,
@@ -1153,7 +1153,7 @@ cv.isb.splsicox <- function(X, Y,
 
   # CHECK ALL MODELS SAME COMPONENTS
   aux_ncomp <- purrr::map(lst_sb.pls, ~ifelse("n.comp" %in% names(.),.$n.comp, NA))
-  aux_spv_penalty <- purrr::map(lst_sb.pls, ~.$spv_penalty)
+  aux_spv_penalty <- purrr::map(lst_sb.pls, ~.$penalty)
 
   # CREATE COMBINE MODEL
   data <- NULL
@@ -1210,7 +1210,7 @@ cv.isb.splsicox <- function(X, Y,
                                  survival_model = survival_model,
                                  list_spls_models = lst_sb.pls,
                                  n.comp = aux_ncomp, #number of components used, but could be lesser than expected because not computed models
-                                 spv_penalty = aux_spv_penalty,
+                                 penalty = aux_spv_penalty,
                                  call = if(returnData) func_call else NA,
                                  X_input = if(returnData) X_original else NA,
                                  Y_input = if(returnData) Y_original else NA,

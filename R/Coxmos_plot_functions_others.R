@@ -35,7 +35,7 @@
 #' data("Y_proteomic")
 #' X <- X_proteomic[,1:50]
 #' Y <- Y_proteomic
-#' splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+#' splsicox.model <- splsicox(X, Y, n.comp = 2, penalty = 0.5, x.center = TRUE, x.scale = TRUE)
 #' loadingplot.Coxmos(model = splsicox.model)
 
 loadingplot.Coxmos <- function(model, zero.rm = TRUE, top = NULL, auto.limits = TRUE){
@@ -280,7 +280,7 @@ loadingplot.fromVector.Coxmos <- function(model, vector, zero.rm = FALSE, top = 
 #' data("Y_proteomic")
 #' X <- X_proteomic[,1:50]
 #' Y <- Y_proteomic
-#' splsicox.model <- splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+#' splsicox.model <- splsicox(X, Y, n.comp = 2, penalty = 0.5, x.center = TRUE, x.scale = TRUE)
 #' w.starplot.Coxmos(model = splsicox.model)
 
 w.starplot.Coxmos <- function(model, zero.rm = FALSE, top = NULL, auto.limits = TRUE){

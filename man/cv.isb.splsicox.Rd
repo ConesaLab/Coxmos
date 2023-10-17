@@ -8,7 +8,7 @@ cv.isb.splsicox(
   X,
   Y,
   max.ncomp = 8,
-  spv_penalty.list = seq(0.1, 0.9, 0.2),
+  penalty.list = seq(0.1, 0.9, 0.2),
   n_run = 3,
   k_folds = 10,
   x.center = TRUE,
@@ -51,8 +51,8 @@ event observations.}
 \item{max.ncomp}{Numeric. Maximum number of PLS components to compute for the cross validation
 (default: 8).}
 
-\item{spv_penalty.list}{Numeric vector. Penalty for variable selection for the individual cox models.
-Variables with a lower P-Value than 1- "spv_penalty" in the individual cox analysis will be keep
+\item{penalty.list}{Numeric vector. Penalty for variable selection for the individual cox models.
+Variables with a lower P-Value than 1- "penalty" in the individual cox analysis will be keep
 for the sPLS-ICOX approach (default: seq(0.1,0.9,0.2)).}
 
 \item{n_run}{Numeric. Number of runs for cross validation (default: 3).}
@@ -176,7 +176,7 @@ elements:
 
 \code{n.comp}: Number of components selected.
 
-\code{spv_penalty} Penalty applied.
+\code{penalty} Penalty applied.
 
 \code{call}: call function
 
@@ -242,7 +242,7 @@ X_train <- X_multiomic
 X_train$mirna <- X_train$mirna[index_train,1:20]
 X_train$proteomic <- X_train$proteomic[index_train,1:20]
 Y_train <- Y_multiomic[index_train,]
-isb.splsicox_model <- cv.isb.splsicox(X_train, Y_train, max.ncomp = 1, spv_penalty.list = c(0.5),
+isb.splsicox_model <- cv.isb.splsicox(X_train, Y_train, max.ncomp = 1, penalty.list = c(0.5),
 n_run = 1, k_folds = 2, x.center = TRUE, x.scale = TRUE)
 }
 \author{

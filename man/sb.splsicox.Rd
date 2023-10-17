@@ -8,7 +8,7 @@ sb.splsicox(
   X,
   Y,
   n.comp = 4,
-  spv_penalty = 1,
+  penalty = 1,
   x.center = TRUE,
   x.scale = FALSE,
   remove_near_zero_variance = TRUE,
@@ -31,8 +31,8 @@ event observations.}
 
 \item{n.comp}{Numeric. Number of latent components to compute for the (s)PLS model (default: 10).}
 
-\item{spv_penalty}{Numeric. Penalty for variable selection for the individual cox models. Variables
-with a lower P-Value than 1 - "spv_penalty" in the individual cox analysis will be keep for the
+\item{penalty}{Numeric. Penalty for variable selection for the individual cox models. Variables
+with a lower P-Value than 1 - "penalty" in the individual cox analysis will be keep for the
 sPLS-ICOX approach (default: 1).}
 
 \item{x.center}{Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).}
@@ -100,7 +100,7 @@ elements:
 
 \code{n.comp}: Number of components selected.
 
-\code{spv_penalty} Penalty applied.
+\code{penalty} Penalty applied.
 
 \code{call}: call function
 
@@ -159,7 +159,7 @@ X <- X_multiomic
 X$mirna <- X$mirna[,1:50]
 X$proteomic <- X$proteomic[,1:50]
 Y <- Y_multiomic
-sb.splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+sb.splsicox(X, Y, n.comp = 2, penalty = 0.5, x.center = TRUE, x.scale = TRUE)
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es

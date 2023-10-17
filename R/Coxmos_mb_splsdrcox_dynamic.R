@@ -566,11 +566,11 @@ mb.splsdrcox <- function (X, Y,
   names(W.star) <- names(Xh)
   names(B.hat) <- names(Xh)
 
-  #MIX Omics, a la hora de generar los nuevos scores para nuevas X (o las mismas de entrenamiento),
-  #a parte de realizar la multiplicacion X*W.STAR, realiza luego una normalizacion de los scores en
-  #base a la norma de la propia X usada, de esa manera, en el multiblock de SPLS los resultados no
-  #coinciden con los de la funcion predict de MIXOMICS. La siguiente linea es la que se ejecuta una
-  #vez realizado el calculo de los nuevos SCORES.
+  # MixOmics, a la hora de generar los nuevos scores para nuevas X (o las mismas de entrenamiento),
+  # a parte de realizar la multiplicacion X*W.STAR, realiza luego una normalizacion de los scores en
+  # base a la norma de la propia X usada, de esa manera, en el multiblock de SPLS los resultados no
+  # coinciden con los de la funcion predict de mixOmics. La siguiente linea es la que se ejecuta una
+  # vez realizado el calculo de los nuevos SCORES.
 
   # head(predplsfit$variates$genes)
   # head(mb.spls$X$genes %*% W.star[[1]][[n.comp]])
@@ -596,7 +596,7 @@ mb.splsdrcox <- function (X, Y,
   W <- Wmat
   P <- Pmat
   W.star <- W.star
-  B.hat <- B.hat #no se si ocurre lo mismo con B!!!
+  B.hat <- B.hat # REVISAR SI LA W* es correcta así como B.hat!!! Porque actualmente realizo los cálculos a mano en base al código de mixomics
   Ts <- Tmat
 
   func_call <- match.call()
@@ -924,7 +924,7 @@ cv.mb.splsdrcox <- function(X, Y,
   comp_model_lst <- get_Coxmos_models2.0(method = pkg.env$mb.splsdrcox,
                                         X_train = X, Y_train = Y,
                                         lst_X_train = lst_train_indexes, lst_Y_train = lst_train_indexes,
-                                        max.ncomp = max.ncomp, eta.list = NULL, EN.alpha.list = NULL, max.variables = NULL, vector = vector,
+                                        max.ncomp = max.ncomp, penalty.list = NULL, EN.alpha.list = NULL, max.variables = NULL, vector = vector,
                                         n_run = n_run, k_folds = k_folds,
                                         MIN_NVAR = MIN_NVAR, MAX_NVAR = MAX_NVAR, MIN_AUC_INCREASE = MIN_AUC_INCREASE, EVAL_METHOD = EVAL_METHOD,
                                         n.cut_points = n.cut_points,
@@ -955,7 +955,7 @@ cv.mb.splsdrcox <- function(X, Y,
   #### ### ### ### ### ### #
   total_models <- max.ncomp * k_folds * n_run
   df_results_evals <- get_COX_evaluation_AIC_CINDEX(comp_model_lst = comp_model_lst, alpha = alpha,
-                                                    max.ncomp = max.ncomp, eta.list = NULL, n_run = n_run, k_folds = k_folds,
+                                                    max.ncomp = max.ncomp, penalty.list = NULL, n_run = n_run, k_folds = k_folds,
                                                     total_models = total_models, remove_non_significant_models = remove_non_significant_models, verbose = verbose)
 
   if(all(is.null(df_results_evals))){
@@ -1074,7 +1074,7 @@ cv.mb.splsdrcox <- function(X, Y,
   #### ###
   # PLOT #
   #### ###
-  lst_EVAL_PLOTS <- get_EVAL_PLOTS(fast_mode = fast_mode, best_model_info = best_model_info, w_AUC = w_AUC, w_BRIER = w_BRIER, max.ncomp = max.ncomp, eta.list = NULL,
+  lst_EVAL_PLOTS <- get_EVAL_PLOTS(fast_mode = fast_mode, best_model_info = best_model_info, w_AUC = w_AUC, w_BRIER = w_BRIER, max.ncomp = max.ncomp, penalty.list = NULL,
                                    df_results_evals_fold = df_results_evals_fold, df_results_evals_run = df_results_evals_run, df_results_evals_comp = df_results_evals_comp,
                                    colname_AIC = "AIC", colname_c_index = "c_index", colname_AUC = "AUC", colname_BRIER = "BRIER", x.text = "Component")
 

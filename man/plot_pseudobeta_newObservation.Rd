@@ -78,7 +78,7 @@ X_train <- X_proteomic[index_train,1:50]
 Y_train <- Y_proteomic[index_train,]
 X_test <- X_proteomic[-index_train,1:50]
 Y_test <- Y_proteomic[-index_train,]
-splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, spv_penalty = 0.5, x.center = TRUE,
+splsicox.model <- splsicox(X_train, Y_train, n.comp = 2, penalty = 0.5, x.center = TRUE,
 x.scale = TRUE)
 plot_pseudobeta_newObservation(model = splsicox.model, new_observation = X_test[1,,drop=FALSE])
 }

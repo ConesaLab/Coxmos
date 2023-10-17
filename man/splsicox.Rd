@@ -8,7 +8,7 @@ splsicox(
   X,
   Y,
   n.comp = 4,
-  spv_penalty = 0,
+  penalty = 0,
   x.center = TRUE,
   x.scale = FALSE,
   remove_near_zero_variance = TRUE,
@@ -31,8 +31,8 @@ event observations.}
 
 \item{n.comp}{Numeric. Number of latent components to compute for the (s)PLS model (default: 10).}
 
-\item{spv_penalty}{Numeric. Penalty for variable selection for the individual cox models. Variables
-with a lower P-Value than 1 - "spv_penalty" in the individual cox analysis will be keep for the
+\item{penalty}{Numeric. Penalty for variable selection for the individual cox models. Variables
+with a lower P-Value than 1 - "penalty" in the individual cox analysis will be keep for the
 sPLS-ICOX approach (default: 0).}
 
 \item{x.center}{Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).}
@@ -127,9 +127,9 @@ high-dimensional survival data. It amalgamates the principles of sparse partial 
 (sPLS) regression with individual Cox regression, thereby offering a robust mechanism for both
 dimension reduction and variable selection in the context of survival analysis.
 Rooted in the methodologies of the \code{plsRcox} R package, this function operationalizes the
-sPLS-ICOX model by leveraging the inherent sparsity introduced via the \code{spv_penalty} parameter.
+sPLS-ICOX model by leveraging the inherent sparsity introduced via the \code{penalty} parameter.
 This parameter delineates a stringent criterion for variable retention, wherein only those
-variables that manifest a P-Value inferior to the threshold defined by \code{1 - spv_penalty} in the
+variables that manifest a P-Value inferior to the threshold defined by \code{1 - penalty} in the
 individual Cox analysis are assimilated into the sPLS-ICOX model framework.
 The parameter \code{n.comp} demarcates the number of latent components to be computed for the sPLS
 model. These latent components, which encapsulate salient patterns within the data, subsequently
@@ -151,7 +151,7 @@ data("X_proteomic")
 data("Y_proteomic")
 X <- X_proteomic[,1:50]
 Y <- Y_proteomic
-splsicox(X, Y, n.comp = 2, spv_penalty = 0.5, x.center = TRUE, x.scale = TRUE)
+splsicox(X, Y, n.comp = 2, penalty = 0.5, x.center = TRUE, x.scale = TRUE)
 }
 \references{
 \insertRef{Bastien_2005}{Coxmos}

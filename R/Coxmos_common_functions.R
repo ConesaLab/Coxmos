@@ -1539,7 +1539,7 @@ predict.Coxmos <- function(object, ..., newdata = NULL){
     predicted_scores <- NULL
     cn.merge = NULL
     for(b in names(model$list_spls_models)){
-      #some times b could not exist because for that eta, any variable was selected
+      #some times b could not exist because for that penalty, any variable was selected
       if(all(is.na(model$list_spls_models[[b]])) || is.null(model$list_spls_models[[b]]$survival_model)){
         next
       }else{
@@ -1734,33 +1734,33 @@ predict.Coxmos <- function(object, ..., newdata = NULL){
 }
 
 check_AUC_improvement_spls1 <- function(fast_mode, pred.attr, df_results_evals_AUC, comp_index,
-                                        eta_index, eta.list, n_run, k_folds, lst_comp_AUC,
+                                        eta_index, penalty.list, n_run, k_folds, lst_comp_AUC,
                                         MIN_COMP_TO_CHECK, MIN_AUC, max.ncomp){
   #CHECK AUC EVOLUTION PER COMPONENT
   comp_AUC <- NULL
 
   if(fast_mode){
-    ini <- ((eta_index-1)*n_run*k_folds+1)+((comp_index-1)*length(eta.list)*n_run*k_folds)
-    end <- ((eta_index)*n_run*k_folds)+((comp_index-1)*length(eta.list)*n_run*k_folds)
+    ini <- ((eta_index-1)*n_run*k_folds+1)+((comp_index-1)*length(penalty.list)*n_run*k_folds)
+    end <- ((eta_index)*n_run*k_folds)+((comp_index-1)*length(penalty.list)*n_run*k_folds)
     comp_AUC <- ifelse(pred.attr=="mean",
                        mean(df_results_evals_AUC[ini:end], na.rm = TRUE),
                        median(df_results_evals_AUC[ini:end], na.rm = TRUE))
   }else{
-    ini <- ((eta_index-1)*n_run+1)+((comp_index-1)*length(eta.list)*n_run)
-    end <- ((eta_index)*n_run)+((comp_index-1)*length(eta.list)*n_run)
+    ini <- ((eta_index-1)*n_run+1)+((comp_index-1)*length(penalty.list)*n_run)
+    end <- ((eta_index)*n_run)+((comp_index-1)*length(penalty.list)*n_run)
     comp_AUC <- ifelse(pred.attr=="mean",
                        mean(df_results_evals_AUC[ini:end], na.rm = TRUE),
                        median(df_results_evals_AUC[ini:end], na.rm = TRUE))
   }
 
-  ind <- as.character(eta.list[eta_index])
+  ind <- as.character(penalty.list[eta_index])
   lst_comp_AUC[[ind]] <- c(lst_comp_AUC[[ind]], comp_AUC)
 
   return(lst_comp_AUC)
 }
 
 check_AUC_improvement_spls2 <- function(fast_mode, pred.attr, df_results_evals_AUC, comp_index,
-                                        eta_index, eta.list, n_run, k_folds, lst_comp_AUC,
+                                        eta_index, penalty.list, n_run, k_folds, lst_comp_AUC,
                                         MIN_COMP_TO_CHECK, MIN_AUC, MIN_AUC_INCREASE, max.ncomp){
   optimal_comp_index <- NULL
   optimal_eta_index <- NULL
@@ -1773,8 +1773,8 @@ check_AUC_improvement_spls2 <- function(fast_mode, pred.attr, df_results_evals_A
     #If first comp_index is greater than the minimum AUC
     if(any(unlist(purrr::map(lst_comp_AUC, comp_index-MIN_COMP_TO_CHECK))>MIN_AUC)){
       diff_vector <- NULL
-      for(e in 1:length(eta.list)){
-        ind <- as.character(eta.list[e])
+      for(e in 1:length(penalty.list)){
+        ind <- as.character(penalty.list[e])
         #Check if the difference between newest components is lesser than the AUC
         for(c in min(comp_index, (comp_index-MIN_COMP_TO_CHECK+1)):comp_index){
           diff_vector[[ind]] <- c(diff_vector[[ind]], abs(lst_comp_AUC[[ind]][[c]] - lst_comp_AUC[[ind]][[comp_index-MIN_COMP_TO_CHECK]]))
@@ -1787,7 +1787,7 @@ check_AUC_improvement_spls2 <- function(fast_mode, pred.attr, df_results_evals_A
         #if any, is the maximum value we can obtain?
         optimal_comp_index <- comp_index-MIN_COMP_TO_CHECK
         optimal_eta_index <- which.max(unlist(purrr::map(lst_comp_AUC, comp_index-MIN_COMP_TO_CHECK)))
-        optimal_eta <- eta.list[which.max(unlist(purrr::map(lst_comp_AUC, comp_index-MIN_COMP_TO_CHECK)))]
+        optimal_eta <- penalty.list[which.max(unlist(purrr::map(lst_comp_AUC, comp_index-MIN_COMP_TO_CHECK)))]
         optimal_auc <- lst_comp_AUC[[optimal_eta_index]][optimal_comp_index]
 
         #if real maximum stop
@@ -1941,28 +1941,17 @@ getAUC_RUN_AND_COMP <- function(mode = "AUC", fast_mode, max.ncomp, n_run,
         }else{
 
           # message("\n\n")
-          # message(mode) # !!!! mode printed!!!
+          # message(mode)
 
           if(mode=="BRIER"){
-            # message("entrando a BRIER") ## !!!!
             eval_aux.r[[mode]] <- lst_AUC_component[[l.index]][[r]]
           }else if(mode == "AUC"){
-            # message("entrando a AUC") ## !!!!
-            # message(l.index)
-            # message(r)
-            # message(mode)
-            # message(names(lst_AUC_component[[l.index]]))
-            # message(class(lst_AUC_component[[l.index]][[r]]))
             if(mode %in% names(lst_AUC_component[[l.index]][[r]])){
-              # message(paste0(names(lst_AUC_component[[l.index]][[r]]), collapse = " "))
-              # message(paste0(names(lst_AUC_component[[l.index]][[r]]$lp.used$fit), collapse = " "))
-              # message(lst_AUC_component[[l.index]][[r]][[mode]])
               eval_aux.r[[mode]] <- lst_AUC_component[[l.index]][[r]][[mode]]
             }else{
               eval_aux.r[[mode]] <- NA
             }
           }
-          # message("SALIMOS!")
         }
         eval_aux.run <- rbind(eval_aux.run, eval_aux.r)
       }
@@ -2200,7 +2189,7 @@ getAUC_RUN_AND_COMP <- function(mode = "AUC", fast_mode, max.ncomp, n_run,
   return(list(df_results_evals_comp = df_results_evals_comp, df_results_evals_run = df_results_evals_run))
 }
 
-getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.list, n_run,
+getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, penalty.list, n_run,
                                      df_results_evals, optimal_comp_flag, optimal_comp_index,
                                      MIN_COMP_TO_CHECK, lst_AUC_component, df_results_evals_run,
                                      df_results_evals_comp, method.train){
@@ -2226,15 +2215,15 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
   if(!fast_mode){ #AUC
     for(l in unique(df_results_evals$n.comps)){
       l.index <- which(l == unique(df_results_evals$n.comps))
-      for(e in unique(df_results_evals[df_results_evals$n.comps==l,]$eta)){
+      for(e in unique(df_results_evals[df_results_evals$n.comps==l,]$penalty)){
         # EVAL PER RUN
 
-        e.index <- which(sapply(unique(eta.list), function(x){all.equal(x,e)}) == "TRUE")
+        e.index <- which(sapply(unique(penalty.list), function(x){all.equal(x,e)}) == "TRUE")
 
         eval_aux.run <- NULL
-        for(r in unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$eta==e,]$runs)){
-          aux.run <- df_results_evals[which(df_results_evals$n.comps==l & df_results_evals$eta==e & df_results_evals$runs==r),!colnames(df_results_evals) %in% c("fold")]
-          #aux.run <- df_results_evals[which(df_results_evals$n.comps==max.ncomp[[l]] & df_results_evals$eta==eta.list[[e]] & df_results_evals$runs==r),!colnames(df_results_evals) %in% c("fold")]
+        for(r in unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$penalty==e,]$runs)){
+          aux.run <- df_results_evals[which(df_results_evals$n.comps==l & df_results_evals$penalty==e & df_results_evals$runs==r),!colnames(df_results_evals) %in% c("fold")]
+          #aux.run <- df_results_evals[which(df_results_evals$n.comps==max.ncomp[[l]] & df_results_evals$penalty==penalty.list[[e]] & df_results_evals$runs==r),!colnames(df_results_evals) %in% c("fold")]
 
           #could happen cause some times the models compute lesser number of components
           if(nrow(aux.run)==0){
@@ -2305,7 +2294,7 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
         df_results_evals_run <- rbind(df_results_evals_run, eval_aux.run)
 
         # EVAL PER COMPONENT
-        aux.run <- df_results_evals[which(df_results_evals$n.comps==l & df_results_evals$eta==e),!colnames(df_results_evals) %in% c("fold", "runs")]
+        aux.run <- df_results_evals[which(df_results_evals$n.comps==l & df_results_evals$penalty==e),!colnames(df_results_evals) %in% c("fold", "runs")]
 
         if(method.train %in% c(pkg.env$sb.splsicox, pkg.env$sb.splsdrcox, pkg.env$isb.splsicox, pkg.env$isb.splsdrcox)){
           eval_aux.r <- apply(aux.run[,!colnames(aux.run) %in% c("n.var")], 2, function(x){mean(x, na.rm = TRUE)})
@@ -2372,25 +2361,25 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
     }
   }else{ #AUC / BRIER
     for(l in unique(df_results_evals$n.comps)){
-      for(e in unique(df_results_evals[df_results_evals$n.comps==l,]$eta)){
+      for(e in unique(df_results_evals[df_results_evals$n.comps==l,]$penalty)){
 
-        e.index <- which(sapply(unique(eta.list), function(x){all.equal(x,e)}) == "TRUE")
-        # e.index <- which(e == unique(eta.list))
+        e.index <- which(sapply(unique(penalty.list), function(x){all.equal(x,e)}) == "TRUE")
+        # e.index <- which(e == unique(penalty.list))
         # # R has problems with seq, and sometimes need to compare chars instead of integers
         # if(length(e.index)==0){
-        #   e.index <- which(as.character(e) == unique(eta.list))
+        #   e.index <- which(as.character(e) == unique(penalty.list))
         # }
 
         if(method.train %in% c(pkg.env$splsicox, pkg.env$splsdrcox)){
           # EVAL PER COMPONENT
-          aux <- df_results_evals[which(df_results_evals$n.comps==max.ncomp[[l]] & df_results_evals$eta==e),!colnames(df_results_evals) %in% c("fold", "runs")]
+          aux <- df_results_evals[which(df_results_evals$n.comps==max.ncomp[[l]] & df_results_evals$penalty==e),!colnames(df_results_evals) %in% c("fold", "runs")]
           eval_aux <- apply(aux, 2, function(x){mean(x, na.rm = TRUE)})
           df_results_evals_comp <- rbind(df_results_evals_comp, eval_aux)
 
           # EVAL PER RUN
           eval_aux.r <- NULL
-          for(r in unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$eta==e,]$runs)){
-            aux.run <- df_results_evals[which(df_results_evals$n.comps==max.ncomp[[l]] & df_results_evals$eta==e & df_results_evals$runs==r),!colnames(df_results_evals) %in% c("fold")]
+          for(r in unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$penalty==e,]$runs)){
+            aux.run <- df_results_evals[which(df_results_evals$n.comps==max.ncomp[[l]] & df_results_evals$penalty==e & df_results_evals$runs==r),!colnames(df_results_evals) %in% c("fold")]
             eval_aux.r <- apply(aux.run, 2, function(x){mean(x, na.rm = TRUE)})
             df_results_evals_run <- rbind(df_results_evals_run, eval_aux.r)
           }
@@ -2404,11 +2393,11 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
   }
 
   rownames(df_results_evals_run) <- NULL
-  colnames(df_results_evals_run) <- c("n.comps", "eta", "runs", "n.var", "AIC", "c_index", mode)
+  colnames(df_results_evals_run) <- c("n.comps", "penalty", "runs", "n.var", "AIC", "c_index", mode)
   df_results_evals_run <- as.data.frame(df_results_evals_run)
 
   rownames(df_results_evals_comp) <- NULL
-  colnames(df_results_evals_comp) <- c("n.comps", "eta", "n.var", "AIC", "c_index", mode)
+  colnames(df_results_evals_comp) <- c("n.comps", "penalty", "n.var", "AIC", "c_index", mode)
   df_results_evals_comp <- as.data.frame(df_results_evals_comp)
 
   if(method.train %in% c(pkg.env$sb.splsdrcox, pkg.env$isb.splsdrcox)){ ## maybe add splsicox too? !!!
@@ -2419,7 +2408,7 @@ getAUC_RUN_AND_COMP_sPLS <- function(mode = "AUC", fast_mode, max.ncomp, eta.lis
   return(list(df_results_evals_comp = df_results_evals_comp, df_results_evals_run = df_results_evals_run))
 }
 
-get_EVAL_PLOTS <- function(fast_mode, best_model_info, w_AUC, w_BRIER, max.ncomp, eta.list = NULL,
+get_EVAL_PLOTS <- function(fast_mode, best_model_info, w_AUC, w_BRIER, max.ncomp, penalty.list = NULL,
                            df_results_evals_fold, df_results_evals_run, df_results_evals_comp,
                            x.text = "Component", colname_AIC = "AIC", colname_c_index = "c_index",
                            colname_AUC = "AUC", colname_BRIER = "BRIER"){
@@ -2433,12 +2422,12 @@ get_EVAL_PLOTS <- function(fast_mode, best_model_info, w_AUC, w_BRIER, max.ncomp
   sd_vector <- NULL
 
   #First AIC - C_INDEX at FOLD LEVEL ALWAYS
-  if(!is.null(eta.list)){
+  if(!is.null(penalty.list)){
     for(l in 1:length(max.ncomp)){
-      for(e in 1:length(eta.list)){
-        if(max.ncomp[[l]] %in% df_results_evals_fold$n.comps & eta.list[[e]] %in% df_results_evals_fold$eta){
-          vector <- c("AIC.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]] & df_results_evals_fold$eta==eta.list[[e]],colname_AIC]),
-                      "c_index.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]] & df_results_evals_fold$eta==eta.list[[e]],colname_c_index]))
+      for(e in 1:length(penalty.list)){
+        if(max.ncomp[[l]] %in% df_results_evals_fold$n.comps & penalty.list[[e]] %in% df_results_evals_fold$penalty){
+          vector <- c("AIC.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]] & df_results_evals_fold$penalty==penalty.list[[e]],colname_AIC]),
+                      "c_index.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]] & df_results_evals_fold$penalty==penalty.list[[e]],colname_c_index]))
 
           sd_vector <- rbind(sd_vector, vector)
         }
@@ -2460,22 +2449,22 @@ get_EVAL_PLOTS <- function(fast_mode, best_model_info, w_AUC, w_BRIER, max.ncomp
   # AUC - fast_mode
   # BRIER - fast_mode
   if(w_AUC!=0){
-    if(!is.null(eta.list)){
+    if(!is.null(penalty.list)){
       if(fast_mode){
         for(l in 1:length(max.ncomp)){
-          for(e in 1:length(eta.list)){
-            if(max.ncomp[[l]] %in% df_results_evals_fold$n.comps & eta.list[[e]] %in% df_results_evals_fold$eta){
-              sd_vector_AUC <- rbind(sd_vector_AUC, "AUC.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]] & df_results_evals_fold$eta==eta.list[[e]],colname_AUC]))
-              sd_vector_BRIER <- rbind(sd_vector_BRIER, "BRIER.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]] & df_results_evals_fold$eta==eta.list[[e]],colname_BRIER]))
+          for(e in 1:length(penalty.list)){
+            if(max.ncomp[[l]] %in% df_results_evals_fold$n.comps & penalty.list[[e]] %in% df_results_evals_fold$penalty){
+              sd_vector_AUC <- rbind(sd_vector_AUC, "AUC.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]] & df_results_evals_fold$penalty==penalty.list[[e]],colname_AUC]))
+              sd_vector_BRIER <- rbind(sd_vector_BRIER, "BRIER.sd" = sd(df_results_evals_fold[df_results_evals_fold$n.comps==max.ncomp[[l]] & df_results_evals_fold$penalty==penalty.list[[e]],colname_BRIER]))
             }
           }
         }
       }else{
         for(l in 1:length(max.ncomp)){
-          for(e in 1:length(eta.list)){
-            if(max.ncomp[[l]] %in% df_results_evals_run$n.comps & eta.list[[e]] %in% df_results_evals_run$eta){
-              sd_vector_AUC <- rbind(sd_vector_AUC, "AUC.sd" = sd(df_results_evals_run[df_results_evals_run$n.comps==max.ncomp[[l]] & df_results_evals_run$eta==eta.list[[e]],colname_AUC]))
-              sd_vector_BRIER <- rbind(sd_vector_BRIER, "BRIER.sd" = sd(df_results_evals_run[df_results_evals_run$n.comps==max.ncomp[[l]] & df_results_evals_run$eta==eta.list[[e]],colname_BRIER]))
+          for(e in 1:length(penalty.list)){
+            if(max.ncomp[[l]] %in% df_results_evals_run$n.comps & penalty.list[[e]] %in% df_results_evals_run$penalty){
+              sd_vector_AUC <- rbind(sd_vector_AUC, "AUC.sd" = sd(df_results_evals_run[df_results_evals_run$n.comps==max.ncomp[[l]] & df_results_evals_run$penalty==penalty.list[[e]],colname_AUC]))
+              sd_vector_BRIER <- rbind(sd_vector_BRIER, "BRIER.sd" = sd(df_results_evals_run[df_results_evals_run$n.comps==max.ncomp[[l]] & df_results_evals_run$penalty==penalty.list[[e]],colname_BRIER]))
             }
           }
         }
@@ -2518,9 +2507,9 @@ get_EVAL_PLOTS <- function(fast_mode, best_model_info, w_AUC, w_BRIER, max.ncomp
   ggp_BRIER <- NULL
   ggp_c_index <- NULL
   ggp_AIC <- NULL
-  if(!is.null(eta.list)){
+  if(!is.null(penalty.list)){
 
-    penalty_index <- which(colnames(df_results_evals_comp_aux) %in% c("eta", "spv_penalty"))
+    penalty_index <- which(colnames(df_results_evals_comp_aux) %in% c("penalty", "penalty"))
     penalty_name <- colnames(df_results_evals_comp_aux)[[penalty_index]]
 
     df_results_evals_comp_aux[[penalty_index]] <- factor(df_results_evals_comp_aux[[penalty_index]], levels = unique(df_results_evals_comp_aux[[penalty_index]]))
@@ -2548,7 +2537,7 @@ get_EVAL_PLOTS <- function(fast_mode, best_model_info, w_AUC, w_BRIER, max.ncomp
 #### ### ### ### ### ##
 # AUC Other functions #
 #### ### ### ### ### ##
-get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = NULL,
+get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, penalty.list = NULL,
                                           n_run, k_folds, total_models,
                                           remove_non_significant_models, alpha = 0.05,
                                           verbose = FALSE){
@@ -2558,7 +2547,7 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
   }
 
   df_results_evals <- NULL
-  pb_text <- "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated remaining time: :eta]"
+  pb_text <- "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated remaining time: :penalty]"
   pb <- progress::progress_bar$new(format = pb_text,
                                    total = total_models,
                                    complete = "=",   # Caracteres de las iteraciones finalizadas
@@ -2572,7 +2561,7 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
 
   aux_model = NULL #to check which method we applied
 
-  if(is.null(eta.list)){
+  if(is.null(penalty.list)){
     for(comp in 1:length(max.ncomp)){
       for(r in 1:n_run){
         for(f in 1:k_folds){
@@ -2649,7 +2638,7 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
   }else{
 
     for(comp in 1:length(max.ncomp)){
-      for(e in 1:length(eta.list)){
+      for(e in 1:length(penalty.list)){
         for(r in 1:n_run){
           for(f in 1:k_folds){
 
@@ -2676,7 +2665,7 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
 
             aux_model = model #to store a model with values
 
-            eta <- model$eta
+            penalty <- model$penalty
             if(attr(model, "model") %in% c(pkg.env$sb.splsdrcox, pkg.env$isb.splsdrcox)){
               n_var <- purrr::map(model$list_spls_models, ~ifelse("var_by_component" %in% names(.),length(unique(unlist(.$var_by_component))), NA))
               n_var <- paste0(n_var, collapse = "_") #VAR FOR SB.spls IS THE MAX NUMBER OF VARIABLES (PER BLOCK)
@@ -2700,16 +2689,16 @@ get_COX_evaluation_AIC_CINDEX <- function(comp_model_lst, max.ncomp, eta.list = 
             aic <- stats::extractAIC(cox, k=2)[2] #k=2 <- AIC, [2] AIC Value
             c_index <- survival::concordance(cox)$concordance
 
-            df_results_evals <- rbind(df_results_evals, cbind(max.ncomp[[comp]], eta.list[[e]], r, f, n_var, aic, c_index))
+            df_results_evals <- rbind(df_results_evals, cbind(max.ncomp[[comp]], penalty.list[[e]], r, f, n_var, aic, c_index))
             pb$tick()
 
           }#fold
         }#run
-      }#eta
+      }#penalty
     }#component
 
     if(!all(is.null(df_results_evals))){
-      colnames(df_results_evals) <- c("n.comps", "eta","runs", "fold", "n.var", "AIC", "c_index")
+      colnames(df_results_evals) <- c("n.comps", "penalty","runs", "fold", "n.var", "AIC", "c_index")
       df_results_evals <- as.data.frame(df_results_evals)
     }
   }
@@ -2760,7 +2749,7 @@ get_COX_evaluation_BRIER <- function(comp_model_lst,
 
   total_models <- ifelse(fast_mode,nrow(df_results_evals),length(max.ncomp)*n_run)
 
-  pb_text <- "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated remaining time: :eta]"
+  pb_text <- "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated remaining time: :penalty]"
   pb <- progress::progress_bar$new(format = pb_text,
                                    total = total_models,
                                    complete = "=",   # Caracteres de las iteraciones finalizadas
@@ -2956,7 +2945,7 @@ get_COX_evaluation_BRIER_sPLS <- function(comp_model_lst,
                                           lst_X_test, lst_Y_test,
                                           df_results_evals, times = NULL,
                                           pred.method, pred.attr,
-                                          max.ncomp, eta.list, n_run, k_folds,
+                                          max.ncomp, penalty.list, n_run, k_folds,
                                           w_BRIER,
                                           MIN_AUC_INCREASE, MIN_AUC, MIN_COMP_TO_CHECK, method.train,
                                           PARALLEL = FALSE, verbose = FALSE){
@@ -2977,9 +2966,9 @@ get_COX_evaluation_BRIER_sPLS <- function(comp_model_lst,
   optimal_eta_index <- NULL
   optimal_comp_flag <- FALSE
 
-  total_models <- ifelse(fast_mode,nrow(df_results_evals),length(max.ncomp)*length(eta.list)*n_run)
+  total_models <- ifelse(fast_mode,nrow(df_results_evals),length(max.ncomp)*length(penalty.list)*n_run)
 
-  pb_text <- "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated remaining time: :eta]"
+  pb_text <- "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated remaining time: :penalty]"
   pb <- progress::progress_bar$new(format = pb_text,
                                    total = total_models,
                                    complete = "=",   # Caracteres de las iteraciones finalizadas
@@ -2998,18 +2987,18 @@ get_COX_evaluation_BRIER_sPLS <- function(comp_model_lst,
       l.index <- which(l == unique(df_results_evals$n.comps))
       lst_BRIER_component_eta <- NULL
 
-      for(e in 1:length(eta.list)){
+      for(e in 1:length(penalty.list)){
 
         lst_BRIER_component_run <- NULL
 
-        for(r in unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$eta==eta.list[[e]],]$runs)){
+        for(r in unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$penalty==penalty.list[[e]],]$runs)){
 
           lst_BRIER_component_folds <- NULL
 
-          for(f in unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$eta==eta.list[[e]] & df_results_evals$runs==r,]$fold)){
+          for(f in unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$penalty==penalty.list[[e]] & df_results_evals$runs==r,]$fold)){
 
             # non-significant models could be filtered, check if the model exist in df_results_evals
-            if(nrow(df_results_evals[df_results_evals$n.comps==l & df_results_evals$eta==eta.list[[e]] & df_results_evals$runs==r & df_results_evals$fold==f,])==0){
+            if(nrow(df_results_evals[df_results_evals$n.comps==l & df_results_evals$penalty==penalty.list[[e]] & df_results_evals$runs==r & df_results_evals$fold==f,])==0){
               pb$tick()
               next
             }
@@ -3028,13 +3017,13 @@ get_COX_evaluation_BRIER_sPLS <- function(comp_model_lst,
 
           } #fold
           if(!is.null(lst_BRIER_component_folds)){
-            names(lst_BRIER_component_folds) <- paste0("fold_",unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$eta==eta.list[[e]] & df_results_evals$runs==r,]$fold))
+            names(lst_BRIER_component_folds) <- paste0("fold_",unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$penalty==penalty.list[[e]] & df_results_evals$runs==r,]$fold))
           }
           lst_BRIER_component_run[[r]] <- lst_BRIER_component_folds
         } #run
 
         if(!is.null(lst_BRIER_component_run)){
-          names(lst_BRIER_component_run) <- paste0("run_",unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$eta==eta.list[[e]],]$runs))
+          names(lst_BRIER_component_run) <- paste0("run_",unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$penalty==penalty.list[[e]],]$runs))
         }
 
         lst_BRIER_component_eta[[e]] <- lst_BRIER_component_run
@@ -3051,10 +3040,10 @@ get_COX_evaluation_BRIER_sPLS <- function(comp_model_lst,
         #   break
         # }
 
-      } #eta
+      } #penalty
 
       if(!is.null(lst_BRIER_component_eta)){
-        names(lst_BRIER_component_eta) <- paste0("eta_",unique(df_results_evals[df_results_evals$n.comps==l,]$eta))
+        names(lst_BRIER_component_eta) <- paste0("eta_",unique(df_results_evals[df_results_evals$n.comps==l,]$penalty))
       }
 
       lst_BRIER_component[[l.index]] <- lst_BRIER_component_eta
@@ -3069,7 +3058,7 @@ get_COX_evaluation_BRIER_sPLS <- function(comp_model_lst,
       l.index <- which(l == unique(df_results_evals$n.comps))
       lst_BRIER_component_eta <- NULL
 
-      for(e in 1:length(eta.list)){
+      for(e in 1:length(penalty.list)){
 
         lst_BRIER_component_run <- NULL
 
@@ -3084,7 +3073,7 @@ get_COX_evaluation_BRIER_sPLS <- function(comp_model_lst,
           for(f in unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$runs==r,]$fold)){
 
             # non-significant models could be filtered, check if the model exist in df_results_evals
-            if(nrow(df_results_evals[df_results_evals$n.comps==l & df_results_evals$eta==eta.list[[e]] & df_results_evals$runs==r & df_results_evals$fold==f,])==0){
+            if(nrow(df_results_evals[df_results_evals$n.comps==l & df_results_evals$penalty==penalty.list[[e]] & df_results_evals$runs==r & df_results_evals$fold==f,])==0){
               next
             #model is not compute bc any variable was selected
             }else if(is.null(comp_model_lst[[l.index]][[e]][[r]][[f]]$survival_model)){
@@ -3158,7 +3147,7 @@ get_COX_evaluation_BRIER_sPLS <- function(comp_model_lst,
       }
 
       if(!is.null(lst_BRIER_component_eta)){
-        names(lst_BRIER_component_eta) <- paste0("eta_",unique(df_results_evals[df_results_evals$n.comps==l,]$eta))
+        names(lst_BRIER_component_eta) <- paste0("eta_",unique(df_results_evals[df_results_evals$n.comps==l,]$penalty))
       }
 
       lst_BRIER_component[[l.index]] <- lst_BRIER_component_eta
@@ -3200,7 +3189,7 @@ get_COX_evaluation_BRIER_sPLS <- function(comp_model_lst,
   #AUC per RUN AND COMP
   optimal_comp_index <- NULL
   lst_AUC_RUN_COMP <- getAUC_RUN_AND_COMP_sPLS(mode = "BRIER", fast_mode = fast_mode,
-                                               max.ncomp = max.ncomp, eta.list = eta.list,
+                                               max.ncomp = max.ncomp, penalty.list = penalty.list,
                                                n_run = n_run, df_results_evals = df_results_evals,
                                                optimal_comp_flag = optimal_comp_flag,
                                                optimal_comp_index = optimal_comp_index, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
@@ -3244,7 +3233,7 @@ get_COX_evaluation_AUC <- function(comp_model_lst,
 
   total_models <- ifelse(!fast_mode, nrow(unique(df_results_evals[,c("n.comps", "runs")])), nrow(df_results_evals))
 
-  pb_text <- "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated remaining time: :eta]"
+  pb_text <- "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated remaining time: :penalty]"
   pb <- progress::progress_bar$new(format = pb_text,
                                    total = total_models,
                                    complete = "=",   # Caracteres de las iteraciones finalizadas
@@ -3431,7 +3420,7 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
                                         lst_X_test, lst_Y_test,
                                         df_results_evals, times = NULL,
                                         fast_mode, pred.method, pred.attr,
-                                        max.ncomp, eta.list, n_run, k_folds,
+                                        max.ncomp, penalty.list, n_run, k_folds,
                                         w_AUC,
                                         MIN_AUC_INCREASE, MIN_AUC, MIN_COMP_TO_CHECK, method.train,
                                         PARALLEL = FALSE, verbose = FALSE){
@@ -3461,9 +3450,9 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
   optimal_eta_index <- NULL
   optimal_comp_flag <- FALSE
 
-  total_models <- ifelse(!fast_mode, nrow(unique(df_results_evals[,c("n.comps", "runs", "eta")])), nrow(df_results_evals))
+  total_models <- ifelse(!fast_mode, nrow(unique(df_results_evals[,c("n.comps", "runs", "penalty")])), nrow(df_results_evals))
 
-  pb_text <- "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated remaining time: :eta]"
+  pb_text <- "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated remaining time: :penalty]"
   pb <- progress::progress_bar$new(format = pb_text,
                                    total = total_models,
                                    complete = "=",   # Caracteres de las iteraciones finalizadas
@@ -3480,14 +3469,14 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
     for(l in 1:length(max.ncomp)){
 
       if(!l %in% unique(df_results_evals$n.comps)){
-        df_results_evals_AUC <- c(df_results_evals_AUC, rep(NA, length(eta.list)*n_run*k_folds))
+        df_results_evals_AUC <- c(df_results_evals_AUC, rep(NA, length(penalty.list)*n_run*k_folds))
         next
       }
       lst_AUC_eta_results <- NULL
 
-      for(e in 1:length(eta.list)){
+      for(e in 1:length(penalty.list)){
 
-        if(!eta.list[[e]] %in% unique(df_results_evals[df_results_evals$n.comps==l,]$eta)){
+        if(!penalty.list[[e]] %in% unique(df_results_evals[df_results_evals$n.comps==l,]$penalty)){
           df_results_evals_AUC <- c(df_results_evals_AUC, rep(NA, n_run*k_folds))
           next
         }
@@ -3496,7 +3485,7 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
 
         for(r in 1:n_run){
 
-          if(!r %in% unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$eta==eta.list[[e]],]$runs)){
+          if(!r %in% unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$penalty==penalty.list[[e]],]$runs)){
             df_results_evals_AUC <- c(df_results_evals_AUC, rep(NA, k_folds))
             next
           }
@@ -3504,7 +3493,7 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
 
           for(f in 1:k_folds){
 
-            if(!f %in% unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$eta==eta.list[[e]] & df_results_evals$runs==r,]$fold)){
+            if(!f %in% unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$penalty==penalty.list[[e]] & df_results_evals$runs==r,]$fold)){
               df_results_evals_AUC <- c(df_results_evals_AUC, NA)
               next
             }
@@ -3530,16 +3519,16 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
 
         #CHECK AUC EVOLUTION PER COMPONENT
         lst_comp_AUC <- check_AUC_improvement_spls1(fast_mode = fast_mode, pred.attr = pred.attr, df_results_evals_AUC = df_results_evals_AUC,
-                                                            comp_index = l, eta_index = e, eta.list = eta.list, n_run = n_run, k_folds = k_folds, lst_comp_AUC = lst_comp_AUC,
+                                                            comp_index = l, eta_index = e, penalty.list = penalty.list, n_run = n_run, k_folds = k_folds, lst_comp_AUC = lst_comp_AUC,
                                                             MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK, MIN_AUC = MIN_AUC, max.ncomp = max.ncomp)
 
-      } #eta
-      names(lst_AUC_eta_results) <- paste0("eta_", unique(df_results_evals$eta))
+      } #penalty
+      names(lst_AUC_eta_results) <- paste0("eta_", unique(df_results_evals$penalty))
       lst_AUC_component[[l]] <- lst_AUC_eta_results
 
       #CHECK AUC EVOLUTION PER COMPONENT
       lst_checkImprovement <- check_AUC_improvement_spls2(fast_mode = fast_mode, pred.attr = pred.attr, df_results_evals_AUC = df_results_evals_AUC,
-                                                          comp_index = l, eta_index = e, eta.list = unique(df_results_evals$eta), n_run = unique(df_results_evals$runs), k_folds = unique(df_results_evals$fold), lst_comp_AUC = lst_comp_AUC,
+                                                          comp_index = l, eta_index = e, penalty.list = unique(df_results_evals$penalty), n_run = unique(df_results_evals$runs), k_folds = unique(df_results_evals$fold), lst_comp_AUC = lst_comp_AUC,
                                                           MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK, MIN_AUC = MIN_AUC, MIN_AUC_INCREASE = MIN_AUC_INCREASE, max.ncomp = max.ncomp)
       optimal_comp_index <- lst_checkImprovement$optimal_comp_index
       optimal_eta_index <- lst_checkImprovement$optimal_eta_index
@@ -3561,14 +3550,14 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
     for(l in 1:length(max.ncomp)){
 
       if(!l %in% unique(df_results_evals$n.comps)){
-        df_results_evals_AUC <- c(df_results_evals_AUC, rep(NA, length(eta.list)*n_run))
+        df_results_evals_AUC <- c(df_results_evals_AUC, rep(NA, length(penalty.list)*n_run))
         next
       }
       lst_AUC_eta_results <- NULL
 
-      for(e in 1:length(eta.list)){
+      for(e in 1:length(penalty.list)){
 
-        if(!eta.list[[e]] %in% unique(df_results_evals[df_results_evals$n.comps==l,]$eta)){
+        if(!penalty.list[[e]] %in% unique(df_results_evals[df_results_evals$n.comps==l,]$penalty)){
           df_results_evals_AUC <- c(df_results_evals_AUC, rep(NA, n_run))
           next
         }
@@ -3577,7 +3566,7 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
 
         for(r in 1:n_run){
 
-          if(!r %in% unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$eta==eta.list[[e]],]$runs)){
+          if(!r %in% unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$penalty==penalty.list[[e]],]$runs)){
             df_results_evals_AUC <- c(df_results_evals_AUC, NA)
             next
           }
@@ -3586,7 +3575,7 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
 
           for(f in 1:k_folds){
 
-            if(!f %in% unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$eta==eta.list[[e]] & df_results_evals$runs==r,]$fold)){
+            if(!f %in% unique(df_results_evals[df_results_evals$n.comps==l & df_results_evals$penalty==penalty.list[[e]] & df_results_evals$runs==r,]$fold)){
               next
             }
             lst_COMPLETE_LP <- getCOMPLETE_LP(comp_index = l, eta_index = e, run = r, fold = f,
@@ -3621,17 +3610,17 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
 
         #CHECK AUC EVOLUTION PER COMPONENT
         lst_comp_AUC <- check_AUC_improvement_spls1(fast_mode = fast_mode, pred.attr = pred.attr, df_results_evals_AUC = df_results_evals_AUC,
-                                                    comp_index = l, eta_index = e, eta.list = eta.list, n_run = n_run, k_folds = k_folds, lst_comp_AUC = lst_comp_AUC,
+                                                    comp_index = l, eta_index = e, penalty.list = penalty.list, n_run = n_run, k_folds = k_folds, lst_comp_AUC = lst_comp_AUC,
                                                     MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK, MIN_AUC = MIN_AUC, max.ncomp = max.ncomp)
 
-      } #eta
+      } #penalty
 
-      names(lst_AUC_eta_results) <- paste0("eta_", unique(df_results_evals$eta))
+      names(lst_AUC_eta_results) <- paste0("eta_", unique(df_results_evals$penalty))
       lst_AUC_component[[l]] <- lst_AUC_eta_results
 
       #CHECK AUC EVOLUTION PER COMPONENT
       lst_checkImprovement <- check_AUC_improvement_spls2(fast_mode = fast_mode, pred.attr = pred.attr, df_results_evals_AUC = df_results_evals_AUC,
-                                                          comp_index = l, eta_index = e, eta.list = eta.list, n_run = n_run, k_folds = k_folds, lst_comp_AUC = lst_comp_AUC,
+                                                          comp_index = l, eta_index = e, penalty.list = penalty.list, n_run = n_run, k_folds = k_folds, lst_comp_AUC = lst_comp_AUC,
                                                           MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK, MIN_AUC = MIN_AUC, MIN_AUC_INCREASE = MIN_AUC_INCREASE, max.ncomp = max.ncomp)
       optimal_comp_index <- lst_checkImprovement$optimal_comp_index
       optimal_eta_index <- lst_checkImprovement$optimal_eta_index
@@ -3678,7 +3667,7 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
   #### ### ### ### ### ### ### ###
 
   #AUC per RUN AND COMP
-  st_AUC_RUN_COMP <- getAUC_RUN_AND_COMP_sPLS(mode = "AUC", fast_mode = fast_mode, max.ncomp = max.ncomp, n_run = n_run, eta.list = eta.list, df_results_evals = df_results_evals,
+  st_AUC_RUN_COMP <- getAUC_RUN_AND_COMP_sPLS(mode = "AUC", fast_mode = fast_mode, max.ncomp = max.ncomp, n_run = n_run, penalty.list = penalty.list, df_results_evals = df_results_evals,
                                               optimal_comp_flag = optimal_comp_flag, optimal_comp_index = optimal_comp_index, MIN_COMP_TO_CHECK = MIN_COMP_TO_CHECK,
                                               lst_AUC_component = lst_AUC_component, df_results_evals_run = df_results_evals_run, df_results_evals_comp = df_results_evals_comp,
                                               method.train = method.train)
@@ -3687,9 +3676,9 @@ get_COX_evaluation_AUC_sPLS <- function(comp_model_lst,
   df_results_evals_comp <- st_AUC_RUN_COMP$df_results_evals_comp
 
   if(method.train==pkg.env$splsicox){
-    colnames(df_results_evals)[which(colnames(df_results_evals)=="eta")] <- "spv_penalty"
-    colnames(df_results_evals_run)[which(colnames(df_results_evals_run)=="eta")] <- "spv_penalty"
-    colnames(df_results_evals_comp)[which(colnames(df_results_evals_comp)=="eta")] <- "spv_penalty"
+    colnames(df_results_evals)[which(colnames(df_results_evals)=="penalty")] <- "penalty"
+    colnames(df_results_evals_run)[which(colnames(df_results_evals_run)=="penalty")] <- "penalty"
+    colnames(df_results_evals_comp)[which(colnames(df_results_evals_comp)=="penalty")] <- "penalty"
   }
 
   return(list(df_results_evals_comp = df_results_evals_comp, df_results_evals_run = df_results_evals_run, df_results_evals_fold = df_results_evals,
@@ -3900,7 +3889,7 @@ getSubModel.mb <- function(model, comp, remove_non_significant){
     survival_model <- cox_model$survival_model
 
     res$survival_model <- survival_model
-    res$n.comp <- comp #revisar!!!
+    res$n.comp <- comp # creating this comp model
     t2 <- Sys.time()
     res$time <- difftime(t2,t1,units = "mins")
   }
@@ -3913,7 +3902,7 @@ getSubModel.mb <- function(model, comp, remove_non_significant){
 get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
                                  X_train, Y_train,
                                  lst_X_train, lst_Y_train, vector = NULL,
-                                 max.ncomp, eta.list = NULL, EN.alpha.list = NULL, max.variables = 50,
+                                 max.ncomp, penalty.list = NULL, EN.alpha.list = NULL, max.variables = 50,
                                  n_run, k_folds,
                                  MIN_NVAR = 10, MAX_NVAR = 10000, MIN_AUC_INCREASE = 0.01,
                                  n.cut_points = 5, EVAL_METHOD = "AUC",
@@ -3935,15 +3924,15 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
   info <- NULL # for sPLS
 
   ## CHECK METHOD
-  if(is.null(eta.list) & is.null(EN.alpha.list) & !method %in% c(pkg.env$splsdacox_dynamic, pkg.env$splsdrcox_dynamic, pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
-    stop_quietly("Method must be one of 'sPLS-DACOX-Dynamic', 'MB.sPLS-DACOX' or 'sPLS-DRCOX-Dynamic' if 'eta.list' and 'EN.alpha.list' is NULL.")
-  }else if(!is.null(eta.list) & is.null(EN.alpha.list)  & !method %in% c(pkg.env$splsicox, pkg.env$sb.splsicox, pkg.env$splsdrcox, pkg.env$sb.splsdrcox, pkg.env$isb.splsicox, pkg.env$isb.splsdrcox)){
-    stop_quietly("Method must be 'sPLS-ICOX', 'SB.sPLS-ICOX', 'iSB.sPLS-ICOX', 'sPLS-DRCOX', 'SB.sPLS-DRCOX' or 'iSB.sPLS-DRCOX' or if 'eta.list' is not NULL.")
+  if(is.null(penalty.list) & is.null(EN.alpha.list) & !method %in% c(pkg.env$splsdacox_dynamic, pkg.env$splsdrcox_dynamic, pkg.env$mb.splsdrcox, pkg.env$mb.splsdacox)){
+    stop_quietly("Method must be one of 'sPLS-DACOX-Dynamic', 'MB.sPLS-DACOX' or 'sPLS-DRCOX-Dynamic' if 'penalty.list' and 'EN.alpha.list' is NULL.")
+  }else if(!is.null(penalty.list) & is.null(EN.alpha.list)  & !method %in% c(pkg.env$splsicox, pkg.env$sb.splsicox, pkg.env$splsdrcox, pkg.env$sb.splsdrcox, pkg.env$isb.splsicox, pkg.env$isb.splsdrcox)){
+    stop_quietly("Method must be 'sPLS-ICOX', 'SB.sPLS-ICOX', 'iSB.sPLS-ICOX', 'sPLS-DRCOX', 'SB.sPLS-DRCOX' or 'iSB.sPLS-DRCOX' or if 'penalty.list' is not NULL.")
   }else if(!is.null(EN.alpha.list) & !method %in% c(pkg.env$coxEN)){
     stop_quietly("Method must be 'coxEN' if 'EN.alpha.list' is not NULL.")
   }
 
-  pb_text <- "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated remaining time: :eta]"
+  pb_text <- "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated remaining time: :penalty]"
   pb <- progress::progress_bar$new(format = pb_text,
                                    total = total_models,
                                    complete = "=",   # Caracteres de las iteraciones finalizadas
@@ -4160,7 +4149,7 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
     ## We need to fill models from 1:max.ncomp (it uses max.ncomp to fill the others, if it is NULL, method fail!!!)
     ######
     if(max.ncomp>1){
-      pb_text <- "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated remaining time: :eta]"
+      pb_text <- "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated remaining time: :penalty]"
       pb <- progress::progress_bar$new(format = pb_text,
                                        total = (max.ncomp-1) * n_run * k_folds,
                                        complete = "=",   # Caracteres de las iteraciones finalizadas
@@ -4321,7 +4310,7 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
     cont = 1
     lst_names = NULL
     for(c in max.ncomp){ #computing all components it is the same as computing by iterations
-      for(e in 1:length(eta.list)){
+      for(e in 1:length(penalty.list)){
         for(r in 1:n_run){
           for(f in 1:k_folds){
             lst_inputs[[cont]] = list()
@@ -4360,7 +4349,7 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
       if(method==pkg.env$splsicox){
         lst_all_models <- furrr::future_map(lst_inputs, ~splsicox(X = data.matrix(X_train[lst_X_train[[.$run]][[.$fold]],]),
                                                                   Y = data.matrix(Y_train[lst_Y_train[[.$run]][[.$fold]],]),
-                                                                  n.comp = .$comp, spv_penalty = eta.list[[.$eta_index]],
+                                                                  n.comp = .$comp, penalty = penalty.list[[.$eta_index]],
                                                                   x.center = x.center, x.scale = x.scale,
                                                                   #y.center = y.center, y.scale = y.scale,
                                                                   remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
@@ -4369,7 +4358,7 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
       }else if(method==pkg.env$sb.splsicox){
         lst_all_models <- furrr::future_map(lst_inputs, ~sb.splsicox(X = lapply(X_train, function(x, ind){x[ind,]}, ind = lst_X_train[[.$run]][[.$fold]]),
                                                                      Y = data.matrix(Y_train[lst_Y_train[[.$run]][[.$fold]],]),
-                                                                     n.comp = .$comp, spv_penalty = eta.list[[.$eta_index]],
+                                                                     n.comp = .$comp, penalty = penalty.list[[.$eta_index]],
                                                                      x.center = x.center, x.scale = x.scale,
                                                                      #y.center = y.center, y.scale = y.scale,
                                                                      remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
@@ -4378,7 +4367,7 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
       }else if(method==pkg.env$splsdrcox){
         lst_all_models <- furrr::future_map(lst_inputs, ~splsdrcox(X = data.matrix(X_train[lst_X_train[[.$run]][[.$fold]],]),
                                                                    Y = data.matrix(Y_train[lst_Y_train[[.$run]][[.$fold]],]),
-                                                                   n.comp = .$comp, eta = eta.list[[.$eta_index]],
+                                                                   n.comp = .$comp, penalty = penalty.list[[.$eta_index]],
                                                                    x.center = x.center, x.scale = x.scale,
                                                                    #y.center = y.center, y.scale = y.scale,
                                                                    remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
@@ -4388,7 +4377,7 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
       }else if(method==pkg.env$sb.splsdrcox){
         lst_all_models <- furrr::future_map(lst_inputs, ~sb.splsdrcox(X = lapply(X_train, function(x, ind){x[ind,]}, ind = lst_X_train[[.$run]][[.$fold]]),
                                                                       Y = data.matrix(Y_train[lst_Y_train[[.$run]][[.$fold]],]),
-                                                                      n.comp = .$comp, eta = eta.list[[.$eta_index]],
+                                                                      n.comp = .$comp, penalty = penalty.list[[.$eta_index]],
                                                                       x.center = x.center, x.scale = x.scale,
                                                                       #y.center = y.center, y.scale = y.scale,
                                                                       remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
@@ -4403,7 +4392,7 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
       if(method==pkg.env$splsicox){
         lst_all_models <- purrr::map(lst_inputs, ~splsicox(X = data.matrix(X_train[lst_X_train[[.$run]][[.$fold]],]),
                                                            Y = data.matrix(Y_train[lst_Y_train[[.$run]][[.$fold]],]),
-                                                           n.comp = .$comp, spv_penalty = eta.list[[.$eta_index]],
+                                                           n.comp = .$comp, penalty = penalty.list[[.$eta_index]],
                                                            x.center = x.center, x.scale = x.scale,
                                                            #y.center = y.center, y.scale = y.scale,
                                                            MIN_EPV = MIN_EPV, remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
@@ -4413,7 +4402,7 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
         #lst_all_models <- purrr::map(cli::cli_progress_along(lst_inputs), ~sb.splsicox(X = lst_X_train[[lst_inputs[[.x]]$run]][[lst_inputs[[.x]]$fold]],
         lst_all_models <- purrr::map(lst_inputs, ~sb.splsicox(X = lapply(X_train, function(x, ind){x[ind,]}, ind = lst_X_train[[.$run]][[.$fold]]),
                                                               Y = data.matrix(Y_train[lst_Y_train[[.$run]][[.$fold]],]),
-                                                              n.comp = .$comp, spv_penalty = eta.list[[.$eta_index]],
+                                                              n.comp = .$comp, penalty = penalty.list[[.$eta_index]],
                                                               x.center = x.center, x.scale = x.scale,
                                                               #y.center = y.center, y.scale = y.scale,
                                                               remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
@@ -4422,7 +4411,7 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
       }else if(method==pkg.env$splsdrcox){
         lst_all_models <- purrr::map(lst_inputs, ~splsdrcox(X = data.matrix(X_train[lst_X_train[[.$run]][[.$fold]],]),
                                                             Y = data.matrix(Y_train[lst_Y_train[[.$run]][[.$fold]],]),
-                                                            n.comp = .$comp, eta = eta.list[[.$eta_index]],
+                                                            n.comp = .$comp, penalty = penalty.list[[.$eta_index]],
                                                             x.center = x.center, x.scale = x.scale,
                                                             #y.center = y.center, y.scale = y.scale,
                                                             remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
@@ -4432,7 +4421,7 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
       }else if(method==pkg.env$sb.splsdrcox){
         lst_all_models <- purrr::map(lst_inputs, ~sb.splsdrcox(X = lapply(X_train, function(x, ind){x[ind,]}, ind = lst_X_train[[.$run]][[.$fold]]),
                                                                Y = data.matrix(Y_train[lst_Y_train[[.$run]][[.$fold]],]),
-                                                               n.comp = .$comp, eta = eta.list[[.$eta_index]],
+                                                               n.comp = .$comp, penalty = penalty.list[[.$eta_index]],
                                                                x.center = x.center, x.scale = x.scale,
                                                                #y.center = y.center, y.scale = y.scale,
                                                                remove_near_zero_variance = remove_near_zero_variance, remove_zero_variance = remove_zero_variance, toKeep.zv = toKeep.zv,
@@ -4447,12 +4436,12 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
 
     rm(lst_inputs)
 
-    ## We need to return a list of lists: COMP->ETA->REP->FOLDS
+    ## We need to return a list of lists: COMP->penalty->REP->FOLDS
     comp_model_lst <- list()
     cont_problems = 0
     for(c in max.ncomp){
       eta_model_lst <- list()
-      for(e in 1:length(eta.list)){
+      for(e in 1:length(penalty.list)){
         run_model_lst <- list()
         for(r in 1:n_run){
           fold_model_lst <- list()
@@ -4470,7 +4459,7 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
         eta_model_lst[[e]] <- run_model_lst
       }
       if(method %in% c(pkg.env$splsicox, pkg.env$sb.splsicox, pkg.env$isb.splsicox, pkg.env$splsdrcox, pkg.env$sb.splsdrcox, pkg.env$isb.splsdrcox)){
-        names(eta_model_lst) <- paste0("eta_", eta.list) #eta at this moment
+        names(eta_model_lst) <- paste0("eta_", penalty.list) #penalty at this moment
       }
 
       comp_model_lst[[c]] <- eta_model_lst
@@ -4480,7 +4469,7 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
     info <- "No info"
 
     ## Before compute all intermediate models, check if all problems
-    if(cont_problems == n_run * k_folds * length(eta.list)){
+    if(cont_problems == n_run * k_folds * length(penalty.list)){
       if(verbose){
         message(paste0("Best model could NOT be obtained. All models computed present problems. Try to remove variance at fold level. If problem persists, try to delete manually some problematic variables."))
       }
@@ -4489,9 +4478,9 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
 
     ## We need to fill models from 1:max.ncomp (it uses max.ncomp to fill the others, if it is NULL, method fail!!!)
     if(max.ncomp>1){
-      pb_text <- "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated remaining time: :eta]"
+      pb_text <- "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated remaining time: :penalty]"
       pb <- progress::progress_bar$new(format = pb_text,
-                                       total = (max.ncomp-1) * length(eta.list) * n_run * k_folds,
+                                       total = (max.ncomp-1) * length(penalty.list) * n_run * k_folds,
                                        complete = "=",   # Caracteres de las iteraciones finalizadas
                                        incomplete = "-", # Caracteres de las iteraciones no finalizadas
                                        current = ">",    # Caracter actual
@@ -4504,7 +4493,7 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
       ## We need to fill models from 1:max.ncomp (it uses max.ncomp to fill the others, if it is NULL, method fail!!!)
       for(comp in 1:(max(1,max.ncomp-1))){
         eta_model_lst <- list()
-        for(e in 1:length(eta.list)){
+        for(e in 1:length(penalty.list)){
           run_model_lst <- list()
           for(r in 1:n_run){
             fold_model_lst <- list()
@@ -4524,7 +4513,7 @@ get_Coxmos_models2.0 <- function(method = "sPLS-ICOX",
           eta_model_lst[[e]] <- run_model_lst
         }
         if(method %in% c(pkg.env$splsicox, pkg.env$sb.splsicox, pkg.env$isb.splsicox, pkg.env$splsdrcox, pkg.env$sb.splsdrcox, pkg.env$isb.splsdrcox)){
-          names(eta_model_lst) <- paste0("eta_", eta.list) #eta at this moment
+          names(eta_model_lst) <- paste0("eta_", penalty.list) #penalty at this moment
         }
         comp_model_lst[[comp]] <- eta_model_lst
       }
@@ -4934,7 +4923,7 @@ eval_Coxmos_models <- function(lst_models, X_test, Y_test, pred.method = "cenROC
 
   if(progress_bar){
     total_models <- length(lst_models)
-    pb_text <- "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated remaining time: :eta]"
+    pb_text <- "(:spin) [:bar] :percent [Elapsed time: :elapsedfull || Estimated remaining time: :penalty]"
     pb <- progress::progress_bar$new(format = pb_text,
                                      total = total_models,
                                      complete = "=",   # Caracteres de las iteraciones finalizadas

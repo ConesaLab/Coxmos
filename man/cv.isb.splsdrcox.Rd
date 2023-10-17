@@ -8,7 +8,7 @@ cv.isb.splsdrcox(
   X,
   Y,
   max.ncomp = 8,
-  eta.list = seq(0.1, 0.9, 0.2),
+  penalty.list = seq(0.1, 0.9, 0.2),
   n_run = 3,
   k_folds = 10,
   x.center = TRUE,
@@ -51,7 +51,9 @@ event observations.}
 \item{max.ncomp}{Numeric. Maximum number of PLS components to compute for the cross validation
 (default: 8).}
 
-\item{eta.list}{Numeric vector. Vector of penalty values (default: seq(0.1,0.9,0.2)).}
+\item{penalty.list}{Numeric vector. Vector of penalty values. Penalty for sPLS-DRCOX. If
+penalty = 0 no penalty is applied, when penalty = 1 maximum penalty (no variables are selected)
+based on 'plsRcox' penalty. Equal or greater than 1 cannot be selected (default: seq(0.1,0.9,0.2)).}
 
 \item{n_run}{Numeric. Number of runs for cross validation (default: 3).}
 
@@ -175,7 +177,7 @@ elements:
 
 \code{n.comp}: Number of components selected.
 
-\code{eta} Penalty applied.
+\code{penalty} Penalty applied.
 
 \code{call}: call function
 
@@ -215,7 +217,7 @@ process ensures that the model's performance is robust and not overly reliant on
 partition of the data.
 
 The function evaluates a range of hyperparameters, including the number of latent components
-(\code{max.ncomp}) and the penalty for variable selection (\code{eta.list}). For each combination of
+(\code{max.ncomp}) and the penalty for variable selection (\code{penalty.list}). For each combination of
 hyperparameters, the dataset is divided into training and test sets based on the specified number
 of folds (\code{k_folds}). The model is then trained on the training set and its performance is assessed
 on the test set. This process is repeated for the specified number of runs (\code{n_run}), providing a
@@ -241,7 +243,7 @@ X_train <- X_multiomic
 X_train$mirna <- X_train$mirna[index_train,1:50]
 X_train$proteomic <- X_train$proteomic[index_train,1:50]
 Y_train <- Y_multiomic[index_train,]
-isb.splsdrcox_model <- cv.isb.splsdrcox(X_train, Y_train, max.ncomp = 2, eta.list = c(0.5),
+isb.splsdrcox_model <- cv.isb.splsdrcox(X_train, Y_train, max.ncomp = 2, penalty.list = c(0.5),
 n_run = 1, k_folds = 2, x.center = TRUE, x.scale = TRUE)
 }
 \author{

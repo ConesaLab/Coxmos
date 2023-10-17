@@ -8,7 +8,7 @@ splsdrcox(
   X,
   Y,
   n.comp = 4,
-  eta = 0.5,
+  penalty = 0.5,
   x.center = TRUE,
   x.scale = FALSE,
   remove_near_zero_variance = TRUE,
@@ -31,8 +31,9 @@ observations.}
 
 \item{n.comp}{Numeric. Number of latent components to compute for the (s)PLS model (default: 10).}
 
-\item{eta}{Numeric. Penalty for sPLS-DRCOX. If eta = 0 no penalty is applied and 1 maximum penalty
-(no variables are selected). Equal or greater than 1 cannot be selected (default: 0.5).}
+\item{penalty}{Numeric. Penalty for sPLS-DRCOX. If penalty = 0 no penalty is applied, when
+penalty = 1 maximum penalty (no variables are selected) based on 'plsRcox' penalty. Equal or greater
+than 1 cannot be selected (default: 0.5).}
 
 \item{x.center}{Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).}
 
@@ -102,7 +103,7 @@ elements:
 \item \code{Yresidus}: Y residuals.
 }
 
-\code{eta}: Penalty value selected.
+\code{penalty}: Penalty value selected.
 
 \code{n.comp}: Number of components selected.
 
@@ -146,7 +147,7 @@ the strengths of the sparse partial least squares (sPLS) technique with the Cox 
 model, leveraging deviance residuals as a bridge.
 
 The function's core lies in its ability to handle high-dimensional data, often encountered in
-genomics or other omics studies. By incorporating the \code{eta} parameter, which governs the sparsity
+genomics or other omics studies. By incorporating the \code{penalty} parameter, which governs the sparsity
 level, the function offers a fine-grained control over variable selection. This ensures that only
 the most informative predictors contribute to the model, enhancing interpretability and reducing
 overfitting.
@@ -169,7 +170,7 @@ data("X_proteomic")
 data("Y_proteomic")
 X <- X_proteomic[,1:50]
 Y <- Y_proteomic
-splsdrcox(X, Y, n.comp = 3, eta = 0.25, x.center = TRUE, x.scale = TRUE)
+splsdrcox(X, Y, n.comp = 3, penalty = 0.25, x.center = TRUE, x.scale = TRUE)
 }
 \references{
 \insertRef{Bastien_2008}{Coxmos}

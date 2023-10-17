@@ -8,7 +8,7 @@ cv.splsdrcox(
   X,
   Y,
   max.ncomp = 8,
-  eta.list = seq(0.1, 0.9, 0.2),
+  penalty.list = seq(0.1, 0.9, 0.2),
   n_run = 3,
   k_folds = 10,
   x.center = TRUE,
@@ -51,9 +51,9 @@ event observations.}
 \item{max.ncomp}{Numeric. Maximum number of PLS components to compute for the cross validation
 (default: 8).}
 
-\item{eta.list}{Numeric vector. Vector of penalty values. Penalty for sPLS. If eta = 0 no penalty
-is applied and 1 maximum penalty (no variables are selected). Equal or greater than 1 cannot be
-selected (default: seq(0.1,0.9,0.2)).}
+\item{penalty.list}{Numeric vector. Vector of penalty values. Penalty for sPLS-DRCOX. If
+penalty = 0 no penalty is applied, when penalty = 1 maximum penalty (no variables are selected)
+based on 'plsRcox' penalty. Equal or greater than 1 cannot be selected (default: seq(0.1,0.9,0.2)).}
 
 \item{n_run}{Numeric. Number of runs for cross validation (default: 3).}
 
@@ -152,7 +152,7 @@ information).
 \code{pred.method}: AUC evaluation algorithm method for evaluate the model performance.
 
 \code{opt.comp}: Optimal component selected by the best_model.
-\code{opt.eta}: Optimal eta/penalty selected by the best_model.
+\code{opt.penalty}: Optimal penalty/penalty selected by the best_model.
 \code{opt.nvar}: Optimal number of variables selected by the best_model.
 
 \code{plot_AIC}: AIC plot by each hyper-parameter.
@@ -189,7 +189,7 @@ strategy, partitioning the data into multiple subsets (folds) and iteratively us
 a test set while the remaining folds serve as training data.
 
 One of the primary strengths of this function is its flexibility. Users can specify a range of
-values for the number of PLS components and the penalty parameter \code{eta}. The function then
+values for the number of PLS components and the penalty parameter \code{penalty}. The function then
 evaluates all possible combinations, returning the optimal configuration that yields the best
 predictive performance.
 
@@ -208,7 +208,7 @@ set.seed(123)
 index_train <- caret::createDataPartition(Y_proteomic$event, p = .5, list = FALSE, times = 1)
 X_train <- X_proteomic[index_train,1:50]
 Y_train <- Y_proteomic[index_train,]
-cv.splsdrcox_model <- cv.splsdrcox(X_train, Y_train, max.ncomp = 2, eta.list = c(0.1),
+cv.splsdrcox_model <- cv.splsdrcox(X_train, Y_train, max.ncomp = 2, penalty.list = c(0.1),
 n_run = 1, k_folds = 2, x.center = TRUE, x.scale = TRUE)
 }
 \author{

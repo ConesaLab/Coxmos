@@ -8,7 +8,7 @@ sb.splsdrcox(
   X,
   Y,
   n.comp = 4,
-  eta = 0.5,
+  penalty = 0.5,
   x.center = TRUE,
   x.scale = FALSE,
   remove_near_zero_variance = TRUE,
@@ -31,8 +31,9 @@ event observations.}
 
 \item{n.comp}{Numeric. Number of latent components to compute for the (s)PLS model (default: 10).}
 
-\item{eta}{Numeric (0-1). Penalty for sPLS. If eta = 0 no penalty is applied and 1 maximum penalty
-(no variables are selected). Equal or greater than 1 cannot be selected (default: 0.5).}
+\item{penalty}{Numeric. Penalty for sPLS-DRCOX. If penalty = 0 no penalty is applied, when
+penalty = 1 maximum penalty (no variables are selected) based on 'plsRcox' penalty. Equal or greater
+than 1 cannot be selected (default: 0.5).}
 
 \item{x.center}{Logical. If x.center = TRUE, X matrix is centered to zero means (default: TRUE).}
 
@@ -99,7 +100,7 @@ elements:
 
 \code{n.comp}: Number of components selected.
 
-\code{eta} Penalty applied.
+\code{penalty} Penalty applied.
 
 \code{call}: call function
 
@@ -133,7 +134,7 @@ can focus on identifying the explanatory variables that have the most significan
 survival outcome.
 
 The function offers flexibility in specifying various hyperparameters, such as the number of latent
-components (\code{n.comp}) and the penalty for variable selection (\code{eta}). The penalty parameter, \code{eta},
+components (\code{n.comp}) and the penalty for variable selection (\code{penalty}). The penalty parameter, \code{penalty},
 controls the sparsity of the model, with higher values leading to more variables being excluded from
 the model. This allows for a balance between model complexity and interpretability.
 
@@ -160,7 +161,7 @@ X <- X_multiomic
 X$mirna <- X$mirna[,1:50]
 X$proteomic <- X$proteomic[,1:50]
 Y <- Y_multiomic
-sb.splsdrcox(X, Y, n.comp = 2, eta = 0.5, x.center = TRUE, x.scale = TRUE)
+sb.splsdrcox(X, Y, n.comp = 2, penalty = 0.5, x.center = TRUE, x.scale = TRUE)
 }
 \author{
 Pedro Salguero Garcia. Maintainer: pedsalga@upv.edu.es
