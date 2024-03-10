@@ -1,3 +1,5 @@
+**This repository has been migrated to [BiostatOmics](https://github.com/BiostatOmics/Coxmos/). Please redirect to the new repository for the latest updates and contributions.**
+
 # Coxmos: Cox MultiBlock Survival Analysis for high dimensional and multiomic data
 
 **Coxmos** is still a beta-version. Work in progress. We strongly recommend to not use it yet.
